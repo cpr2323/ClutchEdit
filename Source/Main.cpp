@@ -15,6 +15,11 @@ struct Key
     juce::String defaultValue;
 };
 
+
+constexpr auto kKeyColumn { 0 };
+constexpr auto kValueColumn { 34 };
+constexpr auto kCommentColumn { 53 };
+constexpr auto kDefaultValueColumn { 111 };
 class ClutchEditApplication  : public juce::JUCEApplication
 {
 public:
@@ -23,6 +28,20 @@ public:
     const juce::String getApplicationName() override       { return ProjectInfo::projectName; }
     const juce::String getApplicationVersion() override    { return ProjectInfo::versionString; }
     bool moreThanOneInstanceAllowed() override             { return true; }
+
+    // layout of HIHAT.INI file
+    // 
+    //     |-section-
+    //     |[HIHAT]
+    //     |-comment-
+    //     |; Pitch control multiplier (both Surface A and Surface B)
+    //     |-key-                               -value-          -comment-                                                 -default-
+    //     |0         0         0         0         0         0         0         0         0         0         1         1         1
+    //     |0         1         2         3         4         5         6         7         8         9         0         1         2
+    //     |0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+    //     |PITCH_LOW                         = 0.125            ; Min pitch 0.001 to 0.5                                  d: 0.125
+    //
+    // Goal is to write the data back out with the same spacing
 
     class ClutchData
     {
@@ -50,6 +69,7 @@ public:
                     else if (trimmedLine.startsWithChar (';'))
                     {
                         iniLine.lineType = LineType::comment;
+                        iniLine.comment = trimmedLine.substring (1);
                     }
                     else if (trimmedLine.startsWithChar ('['))
                     {
@@ -59,7 +79,6 @@ public:
                     }
                     else
                     {
-                        // PITCH_LOW                         = 0.125            ; Min pitch 0.001 to 0.5                                  d: 0.125
                         auto key { trimmedLine.upToFirstOccurrenceOf (" ", false, false).trim () };
                         if (! key.isEmpty())
                         {
@@ -72,12 +91,13 @@ public:
                                     iniLine.lineType = LineType::keyValuePair;
                                     iniLine.key = key;
                                     iniLine.value = valuePart.upToFirstOccurrenceOf (" ;", false, false).trim ();
-                                    auto afterValue = valuePart.fromFirstOccurrenceOf (" ;", false, false).trim ();
-                                    if (! afterValue.isEmpty())
+                                    auto comment = valuePart.fromFirstOccurrenceOf (" ;", true, false).trim ();
+                                    if (! comment.isEmpty())
                                     {
-                                        auto defaultValueIndex = afterValue.lastIndexOf ("d:");
+                                        iniLine.comment = comment;
+                                        auto defaultValueIndex = comment.lastIndexOf ("d:");
                                         if (defaultValueIndex != -1)
-                                            iniLine.defaultValue = afterValue.substring (defaultValueIndex + 2).trim();
+                                            iniLine.defaultValue = comment.substring (defaultValueIndex + 2).trim();
                                     }
                                 }
                             }
@@ -88,6 +108,42 @@ public:
                         }
                     }
                     iniLines.push_back (iniLine);
+                }
+            }
+        }
+        void writeToFile (juce::File outputFile)
+        {
+            juce::FileOutputStream outputStream (outputFile);
+            if (outputStream.openedOk())
+            {
+                for (const auto& iniLine : iniLines)
+                {
+                    switch (iniLine.lineType)
+                    {
+                        case LineType::section:
+                            outputStream << "[" << iniLine.section << "]\n";
+                            break;
+
+                        case LineType::unknown:
+                            outputStream << iniLine.rawLine << "\n";
+                        break;
+                        case LineType::comment:
+                            outputStream << iniLine.rawLine << "\n";
+                            break;
+
+                        case LineType::keyValuePair:
+                            outputStream << iniLine.key.paddedRight(' ', kValueColumn) << "= " << iniLine.value.paddedRight(' ', kCommentColumn - kValueColumn - 2);
+                            if (! iniLine.comment.isEmpty ())
+                            {
+                                outputStream << iniLine.comment.paddedRight (' ', kDefaultValueColumn - kCommentColumn);
+
+                            }
+                            outputStream << "\n";
+                            break;
+
+                        default:
+                            break;
+                    }
                 }
             }
         }
@@ -105,6 +161,7 @@ public:
             juce::String section;
             juce::String key;
             juce::String value;
+            juce::String comment;
             juce::String defaultValue;
             juce::String rawLine;
         };
@@ -115,6 +172,7 @@ public:
     {
         ClutchData clutchData;
         clutchData.readFromFile (juce::File::getCurrentWorkingDirectory ().getChildFile("HIHAT.INI"));
+        clutchData.writeToFile (juce::File::getCurrentWorkingDirectory ().getChildFile ("HIHAT_test.INI"));
         mainWindow.reset (new MainWindow (getApplicationName()));
     }
 
