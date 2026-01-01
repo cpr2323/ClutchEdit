@@ -1,6 +1,7 @@
 #include <JuceHeader.h>
 #include "AppProperties.h"
 #include "SystemServices.h"
+#include "Clutch/ClutchProperties.h"
 #include "Clutch/HiHatIniData.h"
 #include "Clutch/HiHatProperties.h"
 #include "GUI/GuiControlProperties.h"
@@ -108,39 +109,39 @@ void FillInVtFromData (juce::ValueTree& vt, const HiHatData& data)
     hiHatProperties.setFxReverbLpf (getIntValue ("HIHAT", "FX_REVERB_LPF", 9000), false);
     hiHatProperties.setFxReverbHpf (getIntValue ("HIHAT", "FX_REVERB_HPF", 700), false);
 
-    // Glitch – probability
+    // Glitch â€“ probability
     hiHatProperties.setFxGlitchProbabilityMin (getFloatValue ("HIHAT", "FX_GLITCH_PROBABILITY_MIN", 0.00005f), false);
     hiHatProperties.setFxGlitchProbabilityMax (getFloatValue ("HIHAT", "FX_GLITCH_PROBABILITY_MAX", 0.003f), false);
 
-    // Glitch – weights (low)
+    // Glitch â€“ weights (low)
     hiHatProperties.setFxGlitchWeightHoldLow (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_HOLD_LOW", 0.15f), false);
     hiHatProperties.setFxGlitchWeightStutterLow (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_STUTTER_LOW", 0.05f), false);
     hiHatProperties.setFxGlitchWeightCrushLow (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_CRUSH_LOW", 0.30f), false);
     hiHatProperties.setFxGlitchWeightDropLow (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_DROP_LOW", 0.02f), false);
 
-    // Glitch – weights (high)
+    // Glitch â€“ weights (high)
     hiHatProperties.setFxGlitchWeightHoldHigh (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_HOLD_HIGH", 0.30f), false);
     hiHatProperties.setFxGlitchWeightStutterHigh (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_STUTTER_HIGH", 0.20f), false);
     hiHatProperties.setFxGlitchWeightCrushHigh (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_CRUSH_HIGH", 0.20f), false);
     hiHatProperties.setFxGlitchWeightDropHigh (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_DROP_HIGH", 0.07f), false);
 
-    // Glitch – drop
+    // Glitch â€“ drop
     hiHatProperties.setFxGlitchDropKeepLevelMin (getFloatValue ("HIHAT", "FX_GLITCH_DROP_KEEP_LEVEL_MIN", 0.0f), false);
     hiHatProperties.setFxGlitchDropKeepLevelMax (getFloatValue ("HIHAT", "FX_GLITCH_DROP_KEEP_LEVEL_MAX", 0.75f), false);
     hiHatProperties.setFxGlitchDropKeepTimeMin (getFloatValue ("HIHAT", "FX_GLITCH_DROP_KEEP_TIME_MIN", 4.0f), false);
     hiHatProperties.setFxGlitchDropKeepTimeMax (getFloatValue ("HIHAT", "FX_GLITCH_DROP_KEEP_TIME_MAX", 40.0f), false);
 
-    // Glitch – crush
+    // Glitch â€“ crush
     hiHatProperties.setFxGlitchCrushTimeMin (getFloatValue ("HIHAT", "FX_GLITCH_CRUSH_TIME_MIN", 10.0f), false);
     hiHatProperties.setFxGlitchCrushTimeMax (getFloatValue ("HIHAT", "FX_GLITCH_CRUSH_TIME_MAX", 50.0f), false);
 
-    // Glitch – microloop
+    // Glitch â€“ microloop
     hiHatProperties.setFxGlitchMicroloopSmplTMin (getFloatValue ("HIHAT", "FX_GLITCH_MICROLOOP_SMPL_T_MIN", 0.2f), false);
     hiHatProperties.setFxGlitchMicroloopSmplTMax (getFloatValue ("HIHAT", "FX_GLITCH_MICROLOOP_SMPL_T_MAX", 3.0f), false);
     hiHatProperties.setFxGlitchMicroloopPlayTMin (getFloatValue ("HIHAT", "FX_GLITCH_MICROLOOP_PLAY_T_MIN", 5.0f), false);
     hiHatProperties.setFxGlitchMicroloopPlayTMax (getFloatValue ("HIHAT", "FX_GLITCH_MICROLOOP_PLAY_T_MAX", 15.0f), false);
 
-    // Glitch – stutter
+    // Glitch â€“ stutter
     hiHatProperties.setFxGlitchStutterSmplTMin (getFloatValue ("HIHAT", "FX_GLITCH_STUTTER_SMPL_T_MIN", 3.0f), false);
     hiHatProperties.setFxGlitchStutterSmplTMax (getFloatValue ("HIHAT", "FX_GLITCH_STUTTER_SMPL_T_MAX", 10.0f), false);
     hiHatProperties.setFxGlitchStutterNumMin (getIntValue ("HIHAT", "FX_GLITCH_STUTTER_NUM_MIN", 2), false);
@@ -158,17 +159,10 @@ public:
 
     void initialise ([[maybe_unused]] const juce::String& commandLine) override
     {
-        HiHatData hiHatData;
-        hiHatData.readFromFile (juce::File::getCurrentWorkingDirectory ().getChildFile ("HIHAT.INI"));
-        hiHatData.writeToFile (juce::File::getCurrentWorkingDirectory ().getChildFile ("HIHAT_test.INI"));
-        HiHatProperties hihatProperties {};
-        FillInVtFromData (hihatProperties.getValueTree (), hiHatData);
-
         initAppDirectory ();
         initLogger ();
         initCrashHandler ();
         initPropertyRoots ();
-        //initPresetManager ();
         initSystemServices ();
         initClutch();
         //initAudio ();
@@ -223,6 +217,15 @@ public:
 
 void initClutch ()
 {
+        HiHatData hiHatData;
+        hiHatData.readFromFile (juce::File::getCurrentWorkingDirectory ().getChildFile ("HIHAT.INI"));
+        hiHatData.writeToFile (juce::File::getCurrentWorkingDirectory ().getChildFile ("HIHAT_test.INI"));
+        HiHatProperties hihatProperties {};
+        FillInVtFromData (hihatProperties.getValueTree (), hiHatData);
+        ClutchProperties clutchProperties;
+        clutchProperties.wrap (runtimeRootProperties.getValueTree (), ClutchProperties::WrapperType::owner, ClutchProperties::EnableCallbacks::no);
+        clutchProperties.getValueTree().addChild(hihatProperties.getValueTree(), -1, nullptr);
+
 //         // debug tool for watching changes on the Preset Value Tree
 //         //presetPropertiesMonitor.assign (presetProperties.getValueTreeRef ());
 // 

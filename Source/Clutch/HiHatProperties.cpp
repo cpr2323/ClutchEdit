@@ -62,39 +62,39 @@ void HiHatProperties::initValueTree ()
     setFxReverbLpf (9000, false);
     setFxReverbHpf (700, false);
 
-    // Glitch – probability
+    // Glitch â€“ probability
     setFxGlitchProbabilityMin (0.00005f, false);
     setFxGlitchProbabilityMax (0.003f, false);
 
-    // Glitch – weights (low)
+    // Glitch â€“ weights (low)
     setFxGlitchWeightHoldLow (0.15f, false);
     setFxGlitchWeightStutterLow (0.05f, false);
     setFxGlitchWeightCrushLow (0.30f, false);
     setFxGlitchWeightDropLow (0.02f, false);
 
-    // Glitch – weights (high)
+    // Glitch â€“ weights (high)
     setFxGlitchWeightHoldHigh (0.30f, false);
     setFxGlitchWeightStutterHigh (0.20f, false);
     setFxGlitchWeightCrushHigh (0.20f, false);
     setFxGlitchWeightDropHigh (0.07f, false);
 
-    // Glitch – drop
+    // Glitch â€“ drop
     setFxGlitchDropKeepLevelMin (0.0f, false);
     setFxGlitchDropKeepLevelMax (0.75f, false);
     setFxGlitchDropKeepTimeMin (4.0f, false);
     setFxGlitchDropKeepTimeMax (40.0f, false);
 
-    // Glitch – crush
+    // Glitch â€“ crush
     setFxGlitchCrushTimeMin (10.0f, false);
     setFxGlitchCrushTimeMax (50.0f, false);
 
-    // Glitch – microloop
+    // Glitch â€“ microloop
     setFxGlitchMicroloopSmplTMin (0.2f, false);
     setFxGlitchMicroloopSmplTMax (3.0f, false);
     setFxGlitchMicroloopPlayTMin (5.0f, false);
     setFxGlitchMicroloopPlayTMax (15.0f, false);
 
-    // Glitch – stutter
+    // Glitch â€“ stutter
     setFxGlitchStutterSmplTMin (3.0f, false);
     setFxGlitchStutterSmplTMax (10.0f, false);
     setFxGlitchStutterNumMin (2, false);

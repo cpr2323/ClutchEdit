@@ -5,6 +5,10 @@
   <MAINGROUP id="yofyvK" name="ClutchEdit">
     <GROUP id="{B4985F1C-C0B3-14FE-5BF5-BC3E89B7C97C}" name="Source">
       <GROUP id="{C33C0C59-ECFE-D357-BCF4-535A71D77EC9}" name="Clutch">
+        <FILE id="U6khlc" name="ClutchProperties.cpp" compile="1" resource="0"
+              file="Source/Clutch/ClutchProperties.cpp"/>
+        <FILE id="gzLMf2" name="ClutchProperties.h" compile="0" resource="0"
+              file="Source/Clutch/ClutchProperties.h"/>
         <FILE id="wBr4cC" name="EffectsProperties.cpp" compile="1" resource="0"
               file="Source/Clutch/EffectsProperties.cpp"/>
         <FILE id="zty9gZ" name="EffectsProperties.h" compile="0" resource="0"
