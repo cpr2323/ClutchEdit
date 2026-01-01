@@ -26,10 +26,16 @@
         <FILE id="KOf0aI" name="HiHatIniData.h" compile="0" resource="0" file="Source/Clutch/HiHatIniData.h"/>
       </GROUP>
       <GROUP id="{F84B9547-B9C5-0346-2143-1B0A6AFB5014}" name="GUI">
-        <FILE id="ZH3HGA" name="ClutchEditorComponent.cpp" compile="1" resource="0"
-              file="Source/GUI/ClutchEditorComponent.cpp"/>
-        <FILE id="Pi8CVR" name="ClutchEditorComponent.h" compile="0" resource="0"
-              file="Source/GUI/ClutchEditorComponent.h"/>
+        <GROUP id="{6E3055B2-5C28-C545-AD81-3DAC2EA28786}" name="Clutch">
+          <FILE id="VPt0Kr" name="ClutchEditorComponent.cpp" compile="1" resource="0"
+                file="Source/GUI/Clutch/ClutchEditorComponent.cpp"/>
+          <FILE id="EOQC3B" name="ClutchEditorComponent.h" compile="0" resource="0"
+                file="Source/GUI/Clutch/ClutchEditorComponent.h"/>
+          <FILE id="e37rZ2" name="HiHatEditorComponent.cpp" compile="1" resource="0"
+                file="Source/GUI/Clutch/HiHatEditorComponent.cpp"/>
+          <FILE id="rMMGJW" name="HiHatEditorComponent.h" compile="0" resource="0"
+                file="Source/GUI/Clutch/HiHatEditorComponent.h"/>
+        </GROUP>
         <FILE id="QRarSY" name="GuiControlProperties.cpp" compile="1" resource="0"
               file="Source/GUI/GuiControlProperties.cpp"/>
         <FILE id="RhfkU2" name="GuiControlProperties.h" compile="0" resource="0"

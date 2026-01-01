@@ -4,7 +4,7 @@
 //#include "CurrentFolderComponent.h"
 #include "GuiProperties.h"
 //#include "BottomStatusWindow.h"
-#include "ClutchEditorComponent.h"
+#include "Clutch/ClutchEditorComponent.h"
 //#include "../Utility/SplitWindowComponent.h"
 
 class MainComponent : public juce::Component
@@ -30,8 +30,8 @@ private:
     void restoreLayout ();
     void saveLayoutChanges ();
 
+//    void paint (juce::Graphics& g) override;
     void resized () override;
-    void paint (juce::Graphics& g) override;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

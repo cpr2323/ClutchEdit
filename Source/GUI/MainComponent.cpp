@@ -33,6 +33,7 @@ MainComponent::MainComponent (juce::ValueTree rootPropertiesVT)
     guiProperties.wrap (persistentRootProperties.getValueTree (), GuiProperties::WrapperType::client, GuiProperties::EnableCallbacks::no);
 
     clutchEditorComponent.init (rootPropertiesVT);
+    addAndMakeVisible (clutchEditorComponent);
 //     fileViewComponent.overwritePresetOrCancel = [this] (std::function<void ()> overwriteFunction, std::function<void ()> cancelFunction)
 //     {
 //         assimil8orEditorComponent.overwritePresetOrCancel (overwriteFunction, cancelFunction);
@@ -89,17 +90,18 @@ void MainComponent::saveLayoutChanges ()
 //     guiProperties.setPaneSizes (splitter1Size, splitter2Size, splitter3Size, false);
 }
 
-void MainComponent::paint ([[maybe_unused]] juce::Graphics& g)
-{
-    g.setColour (juce::Colours::red);
-}
+// void MainComponent::paint ([[maybe_unused]] juce::Graphics& g)
+// {
+//     g.setColour (juce::Colours::red);
+// }
 
 void MainComponent::resized ()
 {
     auto localBounds { getLocalBounds () };
 //     currentFolderComponent.setBounds (localBounds.removeFromTop (30));
 //     bottomStatusWindow.setBounds (localBounds.removeFromBottom (toolWindowHeight));
-    localBounds.reduce (3, 3);
+    clutchEditorComponent.setBounds (localBounds);
+//     localBounds.reduce (3, 3);
 //     topAndBottomSplitter.setBounds (localBounds);
 //     midiConfigComponent.setBounds (localBounds);
 }

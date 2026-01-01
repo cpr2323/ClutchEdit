@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Clutch/HiHatProperties.h"
+#include "HiHatEditorComponent.h"
 
 class ClutchEditorComponent : public juce::Component
 {
@@ -11,5 +11,8 @@ public:
     void init (juce::ValueTree rootPropertiesVT);
 
 private:
-    HiHatProperties hiHatProperties;
+    HiHatEditorComponent hiHatEditorComponent;
+
+    //void paint (juce::Graphics& g) override;
+    void resized () override;
 };

@@ -221,7 +221,7 @@ void initClutch ()
         hiHatData.readFromFile (juce::File::getCurrentWorkingDirectory ().getChildFile ("HIHAT.INI"));
         hiHatData.writeToFile (juce::File::getCurrentWorkingDirectory ().getChildFile ("HIHAT_test.INI"));
         HiHatProperties hihatProperties;
-        FillInVtFromData (hihatProperties.getValueTree (), hiHatData);
+        FillInVtFromData (hihatProperties.getValueTreeRef (), hiHatData);
         ClutchProperties clutchProperties;
         clutchProperties.wrap (runtimeRootProperties.getValueTree (), ClutchProperties::WrapperType::owner, ClutchProperties::EnableCallbacks::no);
         clutchProperties.getValueTree().addChild (hihatProperties.getValueTree(), -1, nullptr);
