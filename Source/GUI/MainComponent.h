@@ -4,11 +4,7 @@
 //#include "CurrentFolderComponent.h"
 #include "GuiProperties.h"
 //#include "BottomStatusWindow.h"
-//#include "Assimil8or/Editor/Assimil8orEditorComponent.h"
-//#include "Assimil8or/FileView/FileViewComponent.h"
-//#include "Assimil8or/MidiConfig/MidiConfigComponent.h"
-//#include "Assimil8or/PresetList/PresetListComponent.h"
-//#include "Assimil8or/Validator/Assimil8orValidatorComponent.h"
+#include "ClutchEditorComponent.h"
 //#include "../Utility/SplitWindowComponent.h"
 
 class MainComponent : public juce::Component
@@ -18,8 +14,7 @@ public:
     ~MainComponent () = default;
 
 private:
-    //Assimil8orEditorComponent assimil8orEditorComponent;
-    //Assimil8orValidatorComponent assimil8orValidatorComponent;
+    ClutchEditorComponent clutchEditorComponent;
     GuiProperties guiProperties;
     //CurrentFolderComponent currentFolderComponent;
     //MidiConfigComponent midiConfigComponent;

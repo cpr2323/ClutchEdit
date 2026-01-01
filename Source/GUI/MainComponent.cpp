@@ -32,6 +32,7 @@ MainComponent::MainComponent (juce::ValueTree rootPropertiesVT)
     PersistentRootProperties persistentRootProperties (rootPropertiesVT, PersistentRootProperties::WrapperType::client, PersistentRootProperties::EnableCallbacks::no);
     guiProperties.wrap (persistentRootProperties.getValueTree (), GuiProperties::WrapperType::client, GuiProperties::EnableCallbacks::no);
 
+    clutchEditorComponent.init (rootPropertiesVT);
 //     fileViewComponent.overwritePresetOrCancel = [this] (std::function<void ()> overwriteFunction, std::function<void ()> cancelFunction)
 //     {
 //         assimil8orEditorComponent.overwritePresetOrCancel (overwriteFunction, cancelFunction);

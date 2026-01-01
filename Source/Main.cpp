@@ -220,11 +220,11 @@ void initClutch ()
         HiHatData hiHatData;
         hiHatData.readFromFile (juce::File::getCurrentWorkingDirectory ().getChildFile ("HIHAT.INI"));
         hiHatData.writeToFile (juce::File::getCurrentWorkingDirectory ().getChildFile ("HIHAT_test.INI"));
-        HiHatProperties hihatProperties {};
+        HiHatProperties hihatProperties;
         FillInVtFromData (hihatProperties.getValueTree (), hiHatData);
         ClutchProperties clutchProperties;
         clutchProperties.wrap (runtimeRootProperties.getValueTree (), ClutchProperties::WrapperType::owner, ClutchProperties::EnableCallbacks::no);
-        clutchProperties.getValueTree().addChild(hihatProperties.getValueTree(), -1, nullptr);
+        clutchProperties.getValueTree().addChild (hihatProperties.getValueTree(), -1, nullptr);
 
 //         // debug tool for watching changes on the Preset Value Tree
 //         //presetPropertiesMonitor.assign (presetProperties.getValueTreeRef ());
