@@ -4,10 +4,78 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="yofyvK" name="ClutchEdit">
     <GROUP id="{B4985F1C-C0B3-14FE-5BF5-BC3E89B7C97C}" name="Source">
+      <GROUP id="{C33C0C59-ECFE-D357-BCF4-535A71D77EC9}" name="Clutch">
+        <FILE id="wBr4cC" name="EffectsProperties.cpp" compile="1" resource="0"
+              file="Source/Clutch/EffectsProperties.cpp"/>
+        <FILE id="zty9gZ" name="EffectsProperties.h" compile="0" resource="0"
+              file="Source/Clutch/EffectsProperties.h"/>
+        <FILE id="kDflIv" name="PatternsProperties.cpp" compile="1" resource="0"
+              file="Source/Clutch/PatternsProperties.cpp"/>
+        <FILE id="almlvE" name="PatternsProperties.h" compile="0" resource="0"
+              file="Source/Clutch/PatternsProperties.h"/>
+        <FILE id="sdbqsq" name="HiHatProperties.cpp" compile="1" resource="0"
+              file="Source/Clutch/HiHatProperties.cpp"/>
+        <FILE id="UMo0Ba" name="HiHatProperties.h" compile="0" resource="0"
+              file="Source/Clutch/HiHatProperties.h"/>
+        <FILE id="hSYzQn" name="HiHatIniData.cpp" compile="1" resource="0"
+              file="Source/Clutch/HiHatIniData.cpp"/>
+        <FILE id="KOf0aI" name="HiHatIniData.h" compile="0" resource="0" file="Source/Clutch/HiHatIniData.h"/>
+      </GROUP>
+      <GROUP id="{F84B9547-B9C5-0346-2143-1B0A6AFB5014}" name="GUI">
+        <FILE id="QRarSY" name="GuiControlProperties.cpp" compile="1" resource="0"
+              file="Source/GUI/GuiControlProperties.cpp"/>
+        <FILE id="RhfkU2" name="GuiControlProperties.h" compile="0" resource="0"
+              file="Source/GUI/GuiControlProperties.h"/>
+        <FILE id="fugHZe" name="GuiProperties.cpp" compile="1" resource="0"
+              file="Source/GUI/GuiProperties.cpp"/>
+        <FILE id="GsGL40" name="GuiProperties.h" compile="0" resource="0" file="Source/GUI/GuiProperties.h"/>
+        <FILE id="Egyuae" name="MainComponent.cpp" compile="1" resource="0"
+              file="Source/GUI/MainComponent.cpp"/>
+        <FILE id="kn1He1" name="MainComponent.h" compile="0" resource="0" file="Source/GUI/MainComponent.h"/>
+      </GROUP>
+      <GROUP id="{905758B9-9B90-95E4-AC1D-89D683BE7B76}" name="Utility">
+        <FILE id="vqmumH" name="DebugLog.cpp" compile="1" resource="0" file="Source/Utility/DebugLog.cpp"/>
+        <FILE id="d0pXFL" name="DebugLog.h" compile="0" resource="0" file="Source/Utility/DebugLog.h"/>
+        <FILE id="MhOeui" name="DebugLogImplementation.h" compile="0" resource="0"
+              file="Source/Utility/DebugLogImplementation.h"/>
+        <FILE id="nZIOcV" name="DumpStack.cpp" compile="1" resource="0" file="Source/Utility/DumpStack.cpp"/>
+        <FILE id="fN1cWq" name="DumpStack.h" compile="0" resource="0" file="Source/Utility/DumpStack.h"/>
+        <FILE id="vlbRjE" name="PersistentRootProperties.cpp" compile="1" resource="0"
+              file="Source/Utility/PersistentRootProperties.cpp"/>
+        <FILE id="v98kmc" name="PersistentRootProperties.h" compile="0" resource="0"
+              file="Source/Utility/PersistentRootProperties.h"/>
+        <FILE id="Qty5fE" name="RootProperties.cpp" compile="1" resource="0"
+              file="Source/Utility/RootProperties.cpp"/>
+        <FILE id="my0ICz" name="RootProperties.h" compile="0" resource="0"
+              file="Source/Utility/RootProperties.h"/>
+        <FILE id="YIuDqY" name="RuntimeRootProperties.cpp" compile="1" resource="0"
+              file="Source/Utility/RuntimeRootProperties.cpp"/>
+        <FILE id="kDzQ6T" name="RuntimeRootProperties.h" compile="0" resource="0"
+              file="Source/Utility/RuntimeRootProperties.h"/>
+        <FILE id="KNlPhu" name="ValueTreeFile.cpp" compile="1" resource="0"
+              file="Source/Utility/ValueTreeFile.cpp"/>
+        <FILE id="zrWVrp" name="ValueTreeFile.h" compile="0" resource="0" file="Source/Utility/ValueTreeFile.h"/>
+        <FILE id="Wd43IV" name="ValueTreeHelpers.cpp" compile="1" resource="0"
+              file="Source/Utility/ValueTreeHelpers.cpp"/>
+        <FILE id="KGTNuC" name="ValueTreeHelpers.h" compile="0" resource="0"
+              file="Source/Utility/ValueTreeHelpers.h"/>
+        <FILE id="wdOMn4" name="ValueTreeMonitor.cpp" compile="1" resource="0"
+              file="Source/Utility/ValueTreeMonitor.cpp"/>
+        <FILE id="poRgXC" name="ValueTreeMonitor.h" compile="0" resource="0"
+              file="Source/Utility/ValueTreeMonitor.h"/>
+        <FILE id="nIlolJ" name="ValueTreeWrapper.cpp" compile="1" resource="0"
+              file="Source/Utility/ValueTreeWrapper.cpp"/>
+        <FILE id="z9puKR" name="ValueTreeWrapper.h" compile="0" resource="0"
+              file="Source/Utility/ValueTreeWrapper.h"/>
+      </GROUP>
+      <FILE id="NYVmqO" name="AppProperties.cpp" compile="1" resource="0"
+            file="Source/AppProperties.cpp"/>
+      <FILE id="qC9iXo" name="AppProperties.h" compile="0" resource="0" file="Source/AppProperties.h"/>
       <FILE id="Xj8a6L" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
-      <FILE id="Dsl6qE" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
-      <FILE id="sxk277" name="MainComponent.cpp" compile="1" resource="0"
-            file="Source/MainComponent.cpp"/>
+      <FILE id="iHwAgO" name="SystemServices.cpp" compile="1" resource="0"
+            file="Source/SystemServices.cpp"/>
+      <FILE id="fjzRYG" name="SystemServices.h" compile="0" resource="0"
+            file="Source/SystemServices.h"/>
     </GROUP>
   </MAINGROUP>
   <MODULES>

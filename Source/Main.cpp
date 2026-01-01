@@ -1,202 +1,353 @@
-
 #include <JuceHeader.h>
-#include "MainComponent.h"
+#include "AppProperties.h"
+#include "SystemServices.h"
+#include "Clutch/HiHatIniData.h"
+#include "Clutch/HiHatProperties.h"
+#include "GUI/GuiControlProperties.h"
+#include "GUI/GuiProperties.h"
+#include "GUI/MainComponent.h"
+#include "Utility/DebugLog.h"
+#include "Utility/PersistentRootProperties.h"
+#include "Utility/RootProperties.h"
+#include "Utility/RuntimeRootProperties.h"
+#include "Utility/ValueTreeFile.h"
+#include "Utility/ValueTreeMonitor.h"
 
-enum class KeyType
+// used to add things like TEST, or ALPHA, or BETA, etc to the version number when displayed
+constexpr char* kVersionDecorator { "" };
+
+// this requires the third party Melatonin Inspector be installed and added to the project
+// https://github.com/sudara/melatonin_inspector
+#define ENABLE_MELATONIN_INSPECTOR 0
+
+const juce::String PropertiesFileExtension { ".properties" };
+
+void crashHandler (void* /*data*/)
 {
-    intType,
-    floatType,
-    stringType
-};
-struct Key
+    FlushDebugLog ();
+    juce::Logger::writeToLog (juce::SystemStats::getStackBacktrace ());
+    FlushDebugLog ();
+}
+
+void FillInVtFromData (juce::ValueTree& vt, const HiHatData& data)
 {
-    juce::String keyName;
-    KeyType keyType;
-    juce::String defaultValue;
-};
+    HiHatProperties hiHatProperties;
+    hiHatProperties.wrap (vt, ValueTreeWrapper<HiHatProperties>::WrapperType::client, ValueTreeWrapper<HiHatProperties>::EnableCallbacks::no);
 
+    const auto getFloatValue = [&data](const juce::String& section, const juce::String& key, float defaultValue) -> float
+    {
+        const auto valueString = data.getValue (section, key);
+        if (valueString.isNotEmpty ())
+            return valueString.getFloatValue ();
+        return defaultValue;
+    };
+    const auto getIntValue = [&data] (const juce::String& section, const juce::String& key, int defaultValue) -> int
+    {
+        const auto valueString = data.getValue (section, key);
+        if (valueString.isNotEmpty ())
+            return valueString.getIntValue ();
+        return defaultValue;
+    };
+    // Core
+    hiHatProperties.setPitchLow (getFloatValue ("HIHAT", "PITCH_LOW", 0.125f), false);
+    hiHatProperties.setPitchHigh (getFloatValue ("HIHAT", "PITCH_HIGH", 2.5f), false);
+    hiHatProperties.setEnvelopeMaxRelease (getFloatValue ("HIHAT", "ENVELOPE_MAX_RELEASE", 4.0f), false);
+    hiHatProperties.setChokeRelease (getFloatValue ("HIHAT", "CHOKE_RELEASE", 0.08f), false);
+    hiHatProperties.setClsdReleaseMode (getIntValue ("HIHAT", "CLSD_RELEASE_MODE", 1), false);
+    hiHatProperties.setClsdRelOfstScale (getFloatValue ("HIHAT", "CLSD_REL_OFST_SCALE", 0.5f), false);
+    hiHatProperties.setClsdMaxRelease (getFloatValue ("HIHAT", "CLSD_MAX_RELEASE", 0.8f), false);
+    hiHatProperties.setAccClRelMod (getFloatValue ("HIHAT", "ACC_CL_REL_MOD", 1.18f), false);
+    hiHatProperties.setAccOpRelMod (getFloatValue ("HIHAT", "ACC_OP_REL_MOD", 1.25f), false);
+    hiHatProperties.setAccClAmpMod (getFloatValue ("HIHAT", "ACC_CL_AMP_MOD", 1.3f), false);
+    hiHatProperties.setAccOpAmpMod (getFloatValue ("HIHAT", "ACC_OP_AMP_MOD", 1.25f), false);
 
-constexpr auto kKeyColumn { 0 };
-constexpr auto kValueColumn { 34 };
-constexpr auto kCommentColumn { 53 };
-constexpr auto kDefaultValueColumn { 111 };
-class ClutchEditApplication  : public juce::JUCEApplication
+    // CV / control
+    hiHatProperties.setFxCvUnipolar (getIntValue ("HIHAT", "FX_CV_UNIPOLAR", 1), false);
+    hiHatProperties.setVelocityUnipolar (getIntValue ("HIHAT", "VELOCITY_UNIPOLAR", 0), false);
+    hiHatProperties.setCvDisableVelocity (getIntValue ("HIHAT", "CV_DISABLE_VELOCITY", 0), false);
+    hiHatProperties.setCvDisableFx (getIntValue ("HIHAT", "CV_DISABLE_FX", 0), false);
+    hiHatProperties.setGateMode (getIntValue ("HIHAT", "GATE_MODE", 0), false);
+    hiHatProperties.setFeelAttackMod (getFloatValue ("HIHAT", "FEEL_ATTACK_MOD", 1.0f), false);
+    hiHatProperties.setFeelReleaseMod (getFloatValue ("HIHAT", "FEEL_RELEASE_MOD", 1.0f), false);
+    hiHatProperties.setFeelAmpMod (getFloatValue ("HIHAT", "FEEL_AMP_MOD", 1.0f), false);
+    hiHatProperties.setKnobPosTakeup (getIntValue ("HIHAT", "KNOB_POS_TAKEUP", 1), false);
+
+    // Filters
+    hiHatProperties.setFltrHpfMinFreq (getIntValue ("HIHAT", "FLTR_HPF_MIN_FREQ", 100), false);
+    hiHatProperties.setFltrHpfMaxFreq (getIntValue ("HIHAT", "FLTR_HPF_MAX_FREQ", 14000), false);
+    hiHatProperties.setFltrLpfMinFreq (getIntValue ("HIHAT", "FLTR_LPF_MIN_FREQ", 200), false);
+    hiHatProperties.setFltrLpfMaxFreq (getIntValue ("HIHAT", "FLTR_LPF_MAX_FREQ", 20000), false);
+    hiHatProperties.setFltrHpfQ (getFloatValue ("HIHAT", "FLTR_HPF_Q", 1.0f), false);
+    hiHatProperties.setFltrLpfQ (getFloatValue ("HIHAT", "FLTR_LPF_Q", 0.707f), false);
+
+    // DJ Filter
+    hiHatProperties.setFxDjfilterHpfMin (getIntValue ("HIHAT", "FX_DJFILTER_HPF_MIN", 100), false);
+    hiHatProperties.setFxDjfilterHpfMax (getIntValue ("HIHAT", "FX_DJFILTER_HPF_MAX", 14000), false);
+    hiHatProperties.setFxDjfilterLpfMin (getIntValue ("HIHAT", "FX_DJFILTER_LPF_MIN", 200), false);
+    hiHatProperties.setFxDjfilterLpfMax (getIntValue ("HIHAT", "FX_DJFILTER_LPF_MAX", 20000), false);
+    hiHatProperties.setFxDjfilterQMin (getFloatValue ("HIHAT", "FX_DJFILTER_Q_MIN", 0.5f), false);
+    hiHatProperties.setFxDjfilterQMax (getFloatValue ("HIHAT", "FX_DJFILTER_Q_MAX", 4.0f), false);
+    hiHatProperties.setFxDjfilterQGainReduction (getFloatValue ("HIHAT", "FX_DJFILTER_Q_GAIN_REDUCTION", 0.12f), false);
+
+    // Dub Echo
+    hiHatProperties.setFxDubEchoTmin (getIntValue ("HIHAT", "FX_DUB_ECHO_TMIN", 30), false);
+    hiHatProperties.setFxDubEchoHpf (getIntValue ("HIHAT", "FX_DUB_ECHO_HPF", 400), false);
+    hiHatProperties.setFxDubEchoLpf (getIntValue ("HIHAT", "FX_DUB_ECHO_LPF", 8400), false);
+    hiHatProperties.setFxDubEchoMix (getFloatValue ("HIHAT", "FX_DUB_ECHO_MIX", 0.38f), false);
+
+    // Chorus
+    hiHatProperties.setFxChorusCenter (getFloatValue ("HIHAT", "FX_CHORUS_CENTER", 12.0f), false);
+    hiHatProperties.setFxChorusDepth (getFloatValue ("HIHAT", "FX_CHORUS_DEPTH", 5.0f), false);
+    hiHatProperties.setFxChorusMix (getFloatValue ("HIHAT", "FX_CHORUS_MIX", 1.0f), false);
+    hiHatProperties.setFxChorusSpread (getFloatValue ("HIHAT", "FX_CHORUS_SPREAD", 0.01f), false);
+    hiHatProperties.setFxChorusTaps (getIntValue ("HIHAT", "FX_CHORUS_TAPS", 4), false);
+    hiHatProperties.setFxChorusLfoB (getFloatValue ("HIHAT", "FX_CHORUS_LFO_B", 0.002f), false);
+    hiHatProperties.setFxChorusLfoT (getIntValue ("HIHAT", "FX_CHORUS_LFO_T", 3), false);
+
+    // Reverb
+    hiHatProperties.setFxReverbLpf (getIntValue ("HIHAT", "FX_REVERB_LPF", 9000), false);
+    hiHatProperties.setFxReverbHpf (getIntValue ("HIHAT", "FX_REVERB_HPF", 700), false);
+
+    // Glitch – probability
+    hiHatProperties.setFxGlitchProbabilityMin (getFloatValue ("HIHAT", "FX_GLITCH_PROBABILITY_MIN", 0.00005f), false);
+    hiHatProperties.setFxGlitchProbabilityMax (getFloatValue ("HIHAT", "FX_GLITCH_PROBABILITY_MAX", 0.003f), false);
+
+    // Glitch – weights (low)
+    hiHatProperties.setFxGlitchWeightHoldLow (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_HOLD_LOW", 0.15f), false);
+    hiHatProperties.setFxGlitchWeightStutterLow (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_STUTTER_LOW", 0.05f), false);
+    hiHatProperties.setFxGlitchWeightCrushLow (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_CRUSH_LOW", 0.30f), false);
+    hiHatProperties.setFxGlitchWeightDropLow (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_DROP_LOW", 0.02f), false);
+
+    // Glitch – weights (high)
+    hiHatProperties.setFxGlitchWeightHoldHigh (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_HOLD_HIGH", 0.30f), false);
+    hiHatProperties.setFxGlitchWeightStutterHigh (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_STUTTER_HIGH", 0.20f), false);
+    hiHatProperties.setFxGlitchWeightCrushHigh (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_CRUSH_HIGH", 0.20f), false);
+    hiHatProperties.setFxGlitchWeightDropHigh (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_DROP_HIGH", 0.07f), false);
+
+    // Glitch – drop
+    hiHatProperties.setFxGlitchDropKeepLevelMin (getFloatValue ("HIHAT", "FX_GLITCH_DROP_KEEP_LEVEL_MIN", 0.0f), false);
+    hiHatProperties.setFxGlitchDropKeepLevelMax (getFloatValue ("HIHAT", "FX_GLITCH_DROP_KEEP_LEVEL_MAX", 0.75f), false);
+    hiHatProperties.setFxGlitchDropKeepTimeMin (getFloatValue ("HIHAT", "FX_GLITCH_DROP_KEEP_TIME_MIN", 4.0f), false);
+    hiHatProperties.setFxGlitchDropKeepTimeMax (getFloatValue ("HIHAT", "FX_GLITCH_DROP_KEEP_TIME_MAX", 40.0f), false);
+
+    // Glitch – crush
+    hiHatProperties.setFxGlitchCrushTimeMin (getFloatValue ("HIHAT", "FX_GLITCH_CRUSH_TIME_MIN", 10.0f), false);
+    hiHatProperties.setFxGlitchCrushTimeMax (getFloatValue ("HIHAT", "FX_GLITCH_CRUSH_TIME_MAX", 50.0f), false);
+
+    // Glitch – microloop
+    hiHatProperties.setFxGlitchMicroloopSmplTMin (getFloatValue ("HIHAT", "FX_GLITCH_MICROLOOP_SMPL_T_MIN", 0.2f), false);
+    hiHatProperties.setFxGlitchMicroloopSmplTMax (getFloatValue ("HIHAT", "FX_GLITCH_MICROLOOP_SMPL_T_MAX", 3.0f), false);
+    hiHatProperties.setFxGlitchMicroloopPlayTMin (getFloatValue ("HIHAT", "FX_GLITCH_MICROLOOP_PLAY_T_MIN", 5.0f), false);
+    hiHatProperties.setFxGlitchMicroloopPlayTMax (getFloatValue ("HIHAT", "FX_GLITCH_MICROLOOP_PLAY_T_MAX", 15.0f), false);
+
+    // Glitch – stutter
+    hiHatProperties.setFxGlitchStutterSmplTMin (getFloatValue ("HIHAT", "FX_GLITCH_STUTTER_SMPL_T_MIN", 3.0f), false);
+    hiHatProperties.setFxGlitchStutterSmplTMax (getFloatValue ("HIHAT", "FX_GLITCH_STUTTER_SMPL_T_MAX", 10.0f), false);
+    hiHatProperties.setFxGlitchStutterNumMin (getIntValue ("HIHAT", "FX_GLITCH_STUTTER_NUM_MIN", 2), false);
+    hiHatProperties.setFxGlitchStutterNumMax (getIntValue ("HIHAT", "FX_GLITCH_STUTTER_NUM_MAX", 5), false);
+    hiHatProperties.setFxGlitchStutterWindow (getIntValue ("HIHAT", "FX_GLITCH_STUTTER_WINDOW", 20), false);
+}
+
+class ClutchEditApplication : public juce::JUCEApplication, public juce::Timer
 {
 public:
-    ClutchEditApplication() {}
+    ClutchEditApplication () {}
+    const juce::String getApplicationName () override { return ProjectInfo::projectName; }
+    const juce::String getApplicationVersion () override { return ProjectInfo::versionString; }
+    bool moreThanOneInstanceAllowed () override { return true; }
 
-    const juce::String getApplicationName() override       { return ProjectInfo::projectName; }
-    const juce::String getApplicationVersion() override    { return ProjectInfo::versionString; }
-    bool moreThanOneInstanceAllowed() override             { return true; }
-
-    // layout of HIHAT.INI file
-    // 
-    //     |-section-
-    //     |[HIHAT]
-    //     |-comment-
-    //     |; Pitch control multiplier (both Surface A and Surface B)
-    //     |-key-                               -value-          -comment-                                                 -default-
-    //     |0         0         0         0         0         0         0         0         0         0         1         1         1
-    //     |0         1         2         3         4         5         6         7         8         9         0         1         2
-    //     |0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
-    //     |PITCH_LOW                         = 0.125            ; Min pitch 0.001 to 0.5                                  d: 0.125
-    //
-    // Goal is to write the data back out with the same spacing
-
-    class ClutchData
+    void initialise ([[maybe_unused]] const juce::String& commandLine) override
     {
-    public:
-        ClutchData () = default;
-        ~ClutchData () = default;
+        HiHatData hiHatData;
+        hiHatData.readFromFile (juce::File::getCurrentWorkingDirectory ().getChildFile ("HIHAT.INI"));
+        hiHatData.writeToFile (juce::File::getCurrentWorkingDirectory ().getChildFile ("HIHAT_test.INI"));
+        HiHatProperties hihatProperties {};
+        FillInVtFromData (hihatProperties.getValueTree (), hiHatData);
 
-        void readFromFile (const juce::File& file)
-        {
-            juce::FileInputStream inputStream (file);
-            if (inputStream.openedOk())
-            {
-                juce::String currentSection;
-                while (!inputStream.isExhausted())
-                {
-                    juce::String line { inputStream.readNextLine () };
-                    ClutchIniFileLine iniLine;
-                    iniLine.section = currentSection;
-                    iniLine.rawLine = line;
-                    auto trimmedLine = line.trim ();
-                    if (trimmedLine.isEmpty())
-                    {
-                        iniLine.lineType = LineType::unknown;
-                    }
-                    else if (trimmedLine.startsWithChar (';'))
-                    {
-                        iniLine.lineType = LineType::comment;
-                        iniLine.comment = trimmedLine.substring (1);
-                    }
-                    else if (trimmedLine.startsWithChar ('['))
-                    {
-                        iniLine.lineType = LineType::section;
-                        currentSection = trimmedLine.fromFirstOccurrenceOf ("[", false, false).upToLastOccurrenceOf ("]", false, false).trim ();
-                        iniLine.section = currentSection;
-                    }
-                    else
-                    {
-                        auto key { trimmedLine.upToFirstOccurrenceOf (" ", false, false).trim () };
-                        if (! key.isEmpty())
-                        {
-                            auto afterKey = trimmedLine.fromFirstOccurrenceOf (" ", false, false).trim ();
-                            if (afterKey.startsWithChar ('='))
-                            {
-                                auto valuePart = afterKey.fromFirstOccurrenceOf ("=", false, false).trim ();
-                                if (! valuePart.isEmpty())
-                                {
-                                    iniLine.lineType = LineType::keyValuePair;
-                                    iniLine.key = key;
-                                    iniLine.value = valuePart.upToFirstOccurrenceOf (" ;", false, false).trim ();
-                                    auto comment = valuePart.fromFirstOccurrenceOf (" ;", true, false).trim ();
-                                    if (! comment.isEmpty())
-                                    {
-                                        iniLine.comment = comment;
-                                        auto defaultValueIndex = comment.lastIndexOf ("d:");
-                                        if (defaultValueIndex != -1)
-                                            iniLine.defaultValue = comment.substring (defaultValueIndex + 2).trim();
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            iniLine.lineType = LineType::unknown;
-                        }
-                    }
-                    iniLines.push_back (iniLine);
-                }
-            }
-        }
-        void writeToFile (juce::File outputFile)
-        {
-            juce::FileOutputStream outputStream (outputFile);
-            if (outputStream.openedOk())
-            {
-                for (const auto& iniLine : iniLines)
-                {
-                    switch (iniLine.lineType)
-                    {
-                        case LineType::section:
-                            outputStream << "[" << iniLine.section << "]\n";
-                            break;
+        initAppDirectory ();
+        initLogger ();
+        initCrashHandler ();
+        initPropertyRoots ();
+        //initPresetManager ();
+        initSystemServices ();
+        initClutch();
+        //initAudio ();
+        initUi ();
 
-                        case LineType::unknown:
-                            outputStream << iniLine.rawLine << "\n";
-                        break;
-                        case LineType::comment:
-                            outputStream << iniLine.rawLine << "\n";
-                            break;
+        //ValueTreeHelpers::dumpValueTreeContent (runtimeRootProperties.getValueTree (), false, [this] (juce::String line) { DebugLog ("", line); });
 
-                        case LineType::keyValuePair:
-                            outputStream << iniLine.key.paddedRight(' ', kValueColumn) << "= " << iniLine.value.paddedRight(' ', kCommentColumn - kValueColumn - 2);
-                            if (! iniLine.comment.isEmpty ())
-                            {
-                                outputStream << iniLine.comment.paddedRight (' ', kDefaultValueColumn - kCommentColumn);
-
-                            }
-                            outputStream << "\n";
-                            break;
-
-                        default:
-                            break;
-                    }
-                }
-            }
-        }
-    private:
-        enum class LineType
-        {
-            unknown,
-            comment,
-            section,
-            keyValuePair
-        };
-        struct ClutchIniFileLine
-        {
-            LineType lineType { LineType::unknown };
-            juce::String section;
-            juce::String key;
-            juce::String value;
-            juce::String comment;
-            juce::String defaultValue;
-            juce::String rawLine;
-        };
-        std::vector<ClutchIniFileLine> iniLines;
-    };
-
-    void initialise (const juce::String& commandLine) override
-    {
-        ClutchData clutchData;
-        clutchData.readFromFile (juce::File::getCurrentWorkingDirectory ().getChildFile("HIHAT.INI"));
-        clutchData.writeToFile (juce::File::getCurrentWorkingDirectory ().getChildFile ("HIHAT_test.INI"));
-        mainWindow.reset (new MainWindow (getApplicationName()));
+        // async quit timer
+        startTimer (125);
     }
 
-    void shutdown() override
+    void shutdown () override
     {
-        // Add your application's shutdown code here..
-
+        //audioPlayer.shutdownAudio ();
+        persitentPropertiesFile.save ();
         mainWindow = nullptr; // (deletes our window)
+        juce::Logger::setCurrentLogger (nullptr);
     }
 
-    void systemRequestedQuit() override
-    {
-        // This is called when the app is being asked to quit: you can ignore this
-        // request and let the app carry on running, or call quit() to allow the app to close.
-        quit();
-    }
-
-    void anotherInstanceStarted (const juce::String& commandLine) override
+    void anotherInstanceStarted ([[maybe_unused]] const juce::String& commandLine) override
     {
         // When another instance of the app is launched while this one is running,
         // this method is invoked, and the commandLine parameter tells you what
         // the other instance's command-line arguments were.
     }
 
+    void suspended () override
+    {
+        runtimeRootProperties.triggerAppSuspended (false);
+    }
+
+    void resumed () override
+    {
+        runtimeRootProperties.triggerAppResumed (false);
+    }
+
+    void systemRequestedQuit () override
+    {
+        // reset preferred quit state
+        runtimeRootProperties.setPreferredQuitState (RuntimeRootProperties::QuitState::now, false);
+        // listeners for 'onSystemRequestedQuit' can do runtimeRootProperties.setPreferredQuitState (RuntimeRootProperties::QuitState::idle);
+        // if they need to do something, which also makes them responsible for calling runtimeRootProperties.setQuitState (RuntimeRootProperties::QuitState::now); when they are done...
+        runtimeRootProperties.triggerSystemRequestedQuit (false);
+        localQuitState.store (runtimeRootProperties.getPreferredQuitState ());
+    }
+
+    void timerCallback () override
+    {
+        if (localQuitState.load () == RuntimeRootProperties::QuitState::now)
+            quit ();
+    }
+
+void initClutch ()
+{
+//         // debug tool for watching changes on the Preset Value Tree
+//         //presetPropertiesMonitor.assign (presetProperties.getValueTreeRef ());
+// 
+//         // setup the directory scanner
+//         directoryValueTree.init (runtimeRootProperties.getValueTree ());
+//         directoryDataProperties.wrap (directoryValueTree.getDirectoryDataPropertiesVT (), DirectoryDataProperties::WrapperType::client, DirectoryDataProperties::EnableCallbacks::no);
+//         // debug tool for watching changes on the Directory Data Properties Value Tree
+//         //directoryDataMonitor.assign (directoryDataProperties.getValueTreeRef ());
+// 
+//         // SampleManager requires that the PresetManagerProperties and DirectoryDataProperties are initialized
+//         sampleManager.init (rootProperties.getValueTree ());
+// 
+//         // when the folder being viewed changes, signal the directory scanner to rescan
+//         appProperties.onMostRecentFolderChange = [this] (juce::String folderName)
+//         {
+//             directoryDataProperties.setRootFolder (folderName, false);
+//             directoryDataProperties.triggerStartScan (false);
+//         };
+// 
+//         // start the initial directory scan, based on the last accessed folder stored in the app properties
+//         directoryDataProperties.setRootFolder (appProperties.getMostRecentFolder (), false);
+//         directoryDataProperties.triggerStartScan (false);
+// 
+//         // initialize the Validator
+//         assimil8orValidator.init (rootProperties.getValueTree ());
+}
+
+    void initUi ()
+    {
+        guiControlProperties.wrap (runtimeRootProperties.getValueTree (), GuiControlProperties::WrapperType::owner, GuiControlProperties::EnableCallbacks::no);
+        guiProperties.wrap (persistentRootProperties.getValueTree (), GuiProperties::WrapperType::owner, GuiProperties::EnableCallbacks::no);
+        mainWindow.reset (new MainWindow (getApplicationName () + " - " + getVersionDisplayString (), rootProperties.getValueTree ()));
+    }
+
+    void initPropertyRoots ()
+    {
+        persistentRootProperties.wrap (rootProperties.getValueTree (), PersistentRootProperties::WrapperType::owner, PersistentRootProperties::EnableCallbacks::no);
+        // connect the Properties file and the AppProperties ValueTree with the propertiesFile (ValueTreeFile with auto-save)
+        persitentPropertiesFile.init (persistentRootProperties.getValueTree (), appDirectory.getChildFile ("app" + PropertiesFileExtension), true);
+        appProperties.wrap (persistentRootProperties.getValueTree (), AppProperties::WrapperType::owner, AppProperties::EnableCallbacks::yes);
+        appProperties.setMaxMruEntries (1);
+        runtimeRootProperties.wrap (rootProperties.getValueTree (), RuntimeRootProperties::WrapperType::owner, RuntimeRootProperties::EnableCallbacks::yes);
+        runtimeRootProperties.setAppVersion (getApplicationVersion (), false);
+        runtimeRootProperties.setAppDataPath (appDirectory.getFullPathName (), false);
+        runtimeRootProperties.onQuitStateChanged = [this] (RuntimeRootProperties::QuitState quitState) { localQuitState.store (quitState); };
+
+        if (appProperties.getMostRecentFolder ().isEmpty ())
+            appProperties.setMostRecentFolder (appDirectory.getFullPathName ());
+    }
+
+    void initAudio ()
+    {
+        //audioPlayer.init (rootProperties.getValueTree ());
+        //AudioSettingsProperties audioSettingsProperties (persistentRootProperties.getValueTree (), AudioSettingsProperties::WrapperType::client, AudioSettingsProperties::EnableCallbacks::no);
+        //audioConfigPropertiesMonitor.assign (audioSettingsProperties.getValueTreeRef ());
+    }
+
+    void initSystemServices ()
+    {
+        // connect services to the SystemServices VTW
+        SystemServices systemServices (runtimeRootProperties.getValueTree (), SystemServices::WrapperType::owner, SystemServices::EnableCallbacks::no);
+
+        //audioManager.init (rootProperties.getValueTree ());
+        //systemServices.setAudioManager (&audioManager);
+
+        //systemServices.setEditManager (&editManager);
+    }
+
+    void initAppDirectory ()
+    {
+        // locate the appProperties file in the User Application Data Directory
+
+        const juce::String propertiesFilePath { juce::File::getSpecialLocation (juce::File::userApplicationDataDirectory).getFullPathName () };
+        appDirectory = juce::File (propertiesFilePath).getChildFile (ProjectInfo::companyName).getChildFile (getApplicationName ());
+        if (! appDirectory.exists ())
+        {
+            const auto result { appDirectory.createDirectory () };
+            if (! result.wasOk ())
+            {
+                juce::AlertWindow::showMessageBoxAsync (juce::AlertWindow::WarningIcon, "Application Startup Error",
+                    "Unable to create " + getApplicationName () + " preferences directory, '" + appDirectory.getFullPathName () + "'", {}, nullptr,
+                    juce::ModalCallbackFunction::create ([this] (int) { quit (); }));
+                return;
+            }
+        }
+    }
+
+    juce::String getVersionDisplayString ()
+    {
+        return "v" + getApplicationVersion () + juce::String (kVersionDecorator);
+    }
+
+    void initLogger ()
+    {
+        auto getSessionTextForLogFile = [this] ()
+        {
+            auto resultOrNa = [] (juce::String result)
+            {
+                if (result.isEmpty ())
+                    return juce::String ("n/a");
+                else
+                    return result;
+            };
+            const auto nl { juce::String ("\n") };
+            auto welcomeText { juce::String (getApplicationName () + " - v" + getVersionDisplayString () + " Log File" + nl) };
+            welcomeText += " OS: " + resultOrNa (juce::SystemStats::getOperatingSystemName ()) + nl;
+            welcomeText += " Device Description: " + resultOrNa (juce::SystemStats::getDeviceDescription ()) + nl;
+            welcomeText += " Device Manufacturer: " + resultOrNa (juce::SystemStats::getDeviceManufacturer ()) + nl;
+            welcomeText += " CPU Vendor: " + resultOrNa (juce::SystemStats::getCpuVendor ()) + nl;
+            welcomeText += " CPU Model: " + resultOrNa (juce::SystemStats::getCpuModel ()) + nl;
+            welcomeText += " CPU Speed: " + resultOrNa (juce::String (juce::SystemStats::getCpuSpeedInMegahertz ())) + nl;
+            welcomeText += " Logical/Physicals CPUs: " + resultOrNa (juce::String (juce::SystemStats::getNumCpus ())) + "/" + resultOrNa (juce::String (juce::SystemStats::getNumPhysicalCpus ())) + nl;
+            welcomeText += " Memory: " + resultOrNa (juce::String (juce::SystemStats::getMemorySizeInMegabytes ())) + "mb" + nl;
+            return welcomeText;
+        };
+        fileLogger = std::make_unique<juce::FileLogger> (appDirectory.getChildFile ("DebugLog"), getSessionTextForLogFile ());
+        juce::Logger::setCurrentLogger (fileLogger.get ());
+    }
+
+    void initCrashHandler ()
+    {
+        juce::SystemStats::setApplicationCrashHandler (crashHandler);
+    }
+
+    //==============================================================================
     /*
         This class implements the desktop window that contains an instance of
         our MainComponent class.
@@ -204,46 +355,88 @@ public:
     class MainWindow    : public juce::DocumentWindow
     {
     public:
-        MainWindow (juce::String name)
+        MainWindow (juce::String name, juce::ValueTree rootPropertiesVT)
             : DocumentWindow (name,
-                              juce::Desktop::getInstance().getDefaultLookAndFeel()
-                                                          .findColour (juce::ResizableWindow::backgroundColourId),
+                              juce::Desktop::getInstance ().getDefaultLookAndFeel ().findColour (juce::ResizableWindow::backgroundColourId),
                               DocumentWindow::allButtons)
         {
             setUsingNativeTitleBar (true);
-            setContentOwned (new MainComponent(), true);
+            setContentOwned (new MainComponent (rootPropertiesVT), true);
 
            #if JUCE_IOS || JUCE_ANDROID
             setFullScreen (true);
            #else
             setResizable (true, true);
-            centreWithSize (getWidth(), getHeight());
            #endif
 
+            PersistentRootProperties prp (rootPropertiesVT, PersistentRootProperties::WrapperType::client, PersistentRootProperties::EnableCallbacks::no);
+            guiProperties.wrap (prp.getValueTree (), GuiProperties::WrapperType::client, GuiProperties::EnableCallbacks::no);
+            auto [width, height] { guiProperties.getSize () };
+            auto [x, y] { guiProperties.getPosition () };
+            if (x == -1 || y == -1)
+                centreWithSize (width, height);
+            else
+                setBounds (x, y, width, height);
+
             setVisible (true);
+
+#if ENABLE_MELATONIN_INSPECTOR
+            inspector.setVisible (true);
+#endif
         }
 
-        void closeButtonPressed() override
+#if (! JUCE_IOS) && (! JUCE_ANDROID)
+        void moved () override
         {
-            // This is called when the user tries to close this window. Here, we'll just
-            // ask the app to quit when this happens, but you can change this to do
-            // whatever you need.
-            JUCEApplication::getInstance()->systemRequestedQuit();
+            guiProperties.setPosition (getBounds ().getX (), getBounds ().getY (), false);
+            DocumentWindow::moved ();
         }
 
-        /* Note: Be careful if you override any DocumentWindow methods - the base
-           class uses a lot of them, so by overriding you might break its functionality.
-           It's best to do all your work in your content component instead, but if
-           you really have to override any DocumentWindow methods, make sure your
-           subclass also calls the superclass's method.
-        */
+        void resized () override
+        {
+            guiProperties.setSize (getBounds ().getWidth (), getBounds ().getHeight (), false);
+            DocumentWindow::resized ();
+        }
+#endif // ! JUCE_IOS && ! JUCE_ANDROID
+
+        void closeButtonPressed () override
+        {
+            JUCEApplication::getInstance ()->systemRequestedQuit ();
+        }
 
     private:
+        GuiProperties guiProperties;
+#if ENABLE_MELATONIN_INSPECTOR
+        melatonin::Inspector inspector { *this, false };
+#endif
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
     };
 
 private:
+    juce::File appDirectory;
+    RootProperties rootProperties;
+    ValueTreeFile persitentPropertiesFile;
+    PersistentRootProperties persistentRootProperties;
+    AppProperties appProperties;
+    GuiControlProperties guiControlProperties;
+    GuiProperties guiProperties;
+    RuntimeRootProperties runtimeRootProperties;
+    //SampleManager sampleManager;
+    //Assimil8orValidator assimil8orValidator;
+    //PresetProperties presetProperties;
+    //DirectoryValueTree directoryValueTree;
+    //DirectoryDataProperties directoryDataProperties;
+    std::unique_ptr<juce::FileLogger> fileLogger;
+    std::atomic<RuntimeRootProperties::QuitState> localQuitState { RuntimeRootProperties::QuitState::idle };
     std::unique_ptr<MainWindow> mainWindow;
+    //AudioPlayer audioPlayer;
+    //AudioManager audioManager;
+    //EditManager editManager;
+
+    ValueTreeMonitor audioConfigPropertiesMonitor;
+    ValueTreeMonitor directoryDataMonitor;
+    ValueTreeMonitor presetPropertiesMonitor;
 };
 
+// This macro generates the main () routine that launches the app.
 START_JUCE_APPLICATION (ClutchEditApplication)
