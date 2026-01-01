@@ -39,7 +39,33 @@ HiHatEditorComponent::HiHatEditorComponent ()
         C++;
     };
 
+    accClAmpModEditor.setTooltip ("Amp Mod CLOSED ACC hit");
+    accClAmpModEditor.getMinValueCallback = [this] () { return 0.1; };
+    accClAmpModEditor.getMaxValueCallback = [this] () { return 10.0; };
+    accClAmpModEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    accClAmpModEditor.updateDataCallback = [this] (int value) { accClAmpModUiChanged (value); };
+    accClAmpModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
+    {
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 10;
+            else
+                return 25;
+        } ();
+        const auto newValue { (hiHatProperties.getAccClAmpMod ()) + (multiplier * direction) };
+        accClAmpModEditor.setValue (newValue);
+    };
+    accClAmpModEditor.onPopupMenuCallback = [this] ()
+    {
+        juce::PopupMenu editMenu;
+        editMenu.addItem ("NEED TO IMPLEMENT FUNCTIONS", [this] () {});
+        editMenu.showMenuAsync ({}, [this] (int) {});
+    };
     setupDoubleEditor (accClAmpModEditor, accClAmpModLabel, "Acc Cl Amp Mod");
+
     setupDoubleEditor (accClRelModEditor, accClRelModLabel, "Acc Cl Rel Mod");
     setupDoubleEditor (accOpAmpModEditor, accOpAmpModLabel, "Acc Op Amp Mod");
     setupDoubleEditor (accOpRelModEditor, accOpRelModLabel, "Acc Op Rel Mod");
@@ -120,6 +146,25 @@ void HiHatEditorComponent::init (juce::ValueTree rootPropertiesVT)
     RuntimeRootProperties runtimeRootProperties (rootPropertiesVT, ValueTreeWrapper<RuntimeRootProperties>::WrapperType::client, ValueTreeWrapper<RuntimeRootProperties>::EnableCallbacks::no);
     ClutchProperties clutchProperties (runtimeRootProperties.getValueTree (), ValueTreeWrapper<ClutchProperties>::WrapperType::client, ValueTreeWrapper<ClutchProperties>::EnableCallbacks::no);
     hiHatProperties.wrap (clutchProperties.getValueTree ().getChildWithName ("HiHat"), ValueTreeWrapper<HiHatProperties>::WrapperType::client, ValueTreeWrapper<HiHatProperties>::EnableCallbacks::yes);
+
+    // initialize fields when data first attached
+    accClAmpModDataChanged (hiHatProperties.getAccClAmpMod ());
+}
+
+void HiHatEditorComponent::initializeCallbacks ()
+{
+    jassert (hiHatProperties.isValid ());
+    hiHatProperties.onAccClAmpModChange = [this] (int value) { accClAmpModDataChanged (value); };
+}
+
+void HiHatEditorComponent::accClAmpModDataChanged (int value)
+{
+    accClAmpModEditor.setText (juce::String (value), juce::NotificationType::dontSendNotification);
+}
+
+void HiHatEditorComponent::accClAmpModUiChanged (int value)
+{
+    hiHatProperties.setAccClAmpMod(value, false);
 }
 
 void HiHatEditorComponent::paint (juce::Graphics& g)

@@ -12,6 +12,9 @@ public:
 
     void init (juce::ValueTree rootPropertiesVT);
 
+    void initializeCallbacks ();
+    void accClAmpModDataChanged (int value);
+    void accClAmpModUiChanged (int value);
 private:
     HiHatProperties hiHatProperties;
 
