@@ -48,12 +48,29 @@
         <FILE id="kn1He1" name="MainComponent.h" compile="0" resource="0" file="Source/GUI/MainComponent.h"/>
       </GROUP>
       <GROUP id="{905758B9-9B90-95E4-AC1D-89D683BE7B76}" name="Utility">
+        <FILE id="kVQCYf" name="CustomComboBox.cpp" compile="1" resource="0"
+              file="Source/Utility/CustomComboBox.cpp"/>
+        <FILE id="qigEBk" name="CustomComboBox.h" compile="0" resource="0"
+              file="Source/Utility/CustomComboBox.h"/>
+        <FILE id="ttDEnB" name="CustomComponentMouseHandler.cpp" compile="1"
+              resource="0" file="Source/Utility/CustomComponentMouseHandler.cpp"/>
+        <FILE id="udLVBR" name="CustomComponentMouseHandler.h" compile="0"
+              resource="0" file="Source/Utility/CustomComponentMouseHandler.h"/>
+        <FILE id="ZklU0J" name="CustomTextButton.cpp" compile="1" resource="0"
+              file="Source/Utility/CustomTextButton.cpp"/>
+        <FILE id="g9vB98" name="CustomTextButton.h" compile="0" resource="0"
+              file="Source/Utility/CustomTextButton.h"/>
+        <FILE id="NUzydG" name="CustomTextEditor.h" compile="0" resource="0"
+              file="Source/Utility/CustomTextEditor.h"/>
         <FILE id="vqmumH" name="DebugLog.cpp" compile="1" resource="0" file="Source/Utility/DebugLog.cpp"/>
         <FILE id="d0pXFL" name="DebugLog.h" compile="0" resource="0" file="Source/Utility/DebugLog.h"/>
         <FILE id="MhOeui" name="DebugLogImplementation.h" compile="0" resource="0"
               file="Source/Utility/DebugLogImplementation.h"/>
         <FILE id="nZIOcV" name="DumpStack.cpp" compile="1" resource="0" file="Source/Utility/DumpStack.cpp"/>
         <FILE id="fN1cWq" name="DumpStack.h" compile="0" resource="0" file="Source/Utility/DumpStack.h"/>
+        <FILE id="VPIcG6" name="ErrorHelpers.cpp" compile="1" resource="0"
+              file="Source/Utility/ErrorHelpers.cpp"/>
+        <FILE id="d43Qqa" name="ErrorHelpers.h" compile="0" resource="0" file="Source/Utility/ErrorHelpers.h"/>
         <FILE id="vlbRjE" name="PersistentRootProperties.cpp" compile="1" resource="0"
               file="Source/Utility/PersistentRootProperties.cpp"/>
         <FILE id="v98kmc" name="PersistentRootProperties.h" compile="0" resource="0"
