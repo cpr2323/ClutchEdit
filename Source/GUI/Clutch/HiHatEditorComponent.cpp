@@ -97,17 +97,17 @@ HiHatEditorComponent::HiHatEditorComponent ()
     };
     setupDoubleEditor (accOpAmpModEditor, accOpAmpModLabel, "Acc Op Amp Mod");
 
-    accOpAmpModEditor.setTooltip ("Acc Op Amp Mod");
-    accOpAmpModEditor.getMinValueCallback = [this] () { return 0.0; };
-    accOpAmpModEditor.getMaxValueCallback = [this] () { return 1.0; };
-    accOpAmpModEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    accOpAmpModEditor.updateDataCallback = [this] (double value) { accOpAmpModUiChanged (value); };
-    accOpAmpModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
+    accOpRelModEditor.setTooltip ("Acc Op Rel Mod");
+    accOpRelModEditor.getMinValueCallback = [this] () { return 0.0; };
+    accOpRelModEditor.getMaxValueCallback = [this] () { return 1.0; };
+    accOpRelModEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    accOpRelModEditor.updateDataCallback = [this] (double value) { accOpRelModUiChanged (value); };
+    accOpRelModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
-        accOpAmpModEditor.setValue (hiHatProperties.getAccOpAmpMod () + (multiplier * direction));
+        accOpRelModEditor.setValue (hiHatProperties.getAccOpRelMod () + (multiplier * direction));
     };
-    accOpAmpModEditor.onPopupMenuCallback = [this] ()
+    accOpRelModEditor.onPopupMenuCallback = [this] ()
     {
         juce::PopupMenu m;
         m.addItem ("NEED TO IMPLEMENT FUNCTIONS", [this] () {});
@@ -133,17 +133,17 @@ HiHatEditorComponent::HiHatEditorComponent ()
     };
     setupDoubleEditor (chokeReleaseEditor, chokeReleaseLabel, "Choke Release");
 
-    chokeReleaseEditor.setTooltip ("Choke Release");
-    chokeReleaseEditor.getMinValueCallback = [this] () { return 0.0; };
-    chokeReleaseEditor.getMaxValueCallback = [this] () { return 1.0; };
-    chokeReleaseEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    chokeReleaseEditor.updateDataCallback = [this] (double value) { chokeReleaseUiChanged (value); };
-    chokeReleaseEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
+    clsdMaxReleaseEditor.setTooltip ("Choke Release");
+    clsdMaxReleaseEditor.getMinValueCallback = [this] () { return 0.0; };
+    clsdMaxReleaseEditor.getMaxValueCallback = [this] () { return 1.0; };
+    clsdMaxReleaseEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    clsdMaxReleaseEditor.updateDataCallback = [this] (double value) { clsdMaxReleaseUiChanged (value); };
+    clsdMaxReleaseEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
-        chokeReleaseEditor.setValue (hiHatProperties.getChokeRelease () + (multiplier * direction));
+        chokeReleaseEditor.setValue (hiHatProperties.getClsdMaxRelease () + (multiplier * direction));
     };
-    chokeReleaseEditor.onPopupMenuCallback = [this] ()
+    clsdMaxReleaseEditor.onPopupMenuCallback = [this] ()
     {
         juce::PopupMenu m;
         m.addItem ("NEED TO IMPLEMENT FUNCTIONS", [this] () {});
@@ -151,17 +151,17 @@ HiHatEditorComponent::HiHatEditorComponent ()
     };
     setupDoubleEditor (clsdMaxReleaseEditor, clsdMaxReleaseLabel, "Clsd Max Release");
 
-    chokeReleaseEditor.setTooltip ("Choke Release");
-    chokeReleaseEditor.getMinValueCallback = [this] () { return 0.0; };
-    chokeReleaseEditor.getMaxValueCallback = [this] () { return 1.0; };
-    chokeReleaseEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    chokeReleaseEditor.updateDataCallback = [this] (double value) { chokeReleaseUiChanged (value); };
-    chokeReleaseEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
+    clsdRelOfstScaleEditor.setTooltip ("Choke Release");
+    clsdRelOfstScaleEditor.getMinValueCallback = [this] () { return 0.0; };
+    clsdRelOfstScaleEditor.getMaxValueCallback = [this] () { return 1.0; };
+    clsdRelOfstScaleEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    clsdRelOfstScaleEditor.updateDataCallback = [this] (double value) { clsdRelOfstScaleUiChanged (value); };
+    clsdRelOfstScaleEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
-        chokeReleaseEditor.setValue (hiHatProperties.getChokeRelease () + (multiplier * direction));
+        clsdRelOfstScaleEditor.setValue (hiHatProperties.getClsdRelOfstScale () + (multiplier * direction));
     };
-    chokeReleaseEditor.onPopupMenuCallback = [this] ()
+    clsdRelOfstScaleEditor.onPopupMenuCallback = [this] ()
     {
         juce::PopupMenu m;
         m.addItem ("NEED TO IMPLEMENT FUNCTIONS", [this] () {});
@@ -775,12 +775,12 @@ HiHatEditorComponent::HiHatEditorComponent ()
     }; 
     setupDoubleEditor (fxDjfilterQGainReductionEditor, fxDjfilterQGainReductionLabel, "FX DJ Filter Q Gain Reduction");
 
-    fxDjfilterQGainReductionEditor.setTooltip ("FX DJ Filter Q Gain Reduction");
-    fxDjfilterQGainReductionEditor.getMinValueCallback = [this] () { return 0.0; };
-    fxDjfilterQGainReductionEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxDjfilterQGainReductionEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxDjfilterQGainReductionEditor.updateDataCallback = [this] (double value) { fxDjfilterQGainReductionUiChanged (value); };
-    fxDjfilterQGainReductionEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
+    fxDjfilterQMaxEditor.setTooltip ("FX DJ Filter Q Gain Reduction");
+    fxDjfilterQMaxEditor.getMinValueCallback = [this] () { return 0.0; };
+    fxDjfilterQMaxEditor.getMaxValueCallback = [this] () { return 1.0; };
+    fxDjfilterQMaxEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxDjfilterQMaxEditor.updateDataCallback = [this] (double value) { fxDjfilterQMaxUiChanged (value); };
+    fxDjfilterQMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
             {
@@ -789,10 +789,10 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxDjfilterQGainReduction () + (multiplier * direction) };
-        fxDjfilterQGainReductionEditor.setValue (newValue);
+        const auto newValue { hiHatProperties.getFxDjfilterQMax () + (multiplier * direction) };
+        fxDjfilterQMaxEditor.setValue (newValue);
     };
-    fxDjfilterQGainReductionEditor.onPopupMenuCallback = [this] ()
+    fxDjfilterQMaxEditor.onPopupMenuCallback = [this] ()
     {
         juce::PopupMenu editMenu;
         editMenu.addItem ("NEED TO IMPLEMENT FUNCTIONS", [this] () {});
