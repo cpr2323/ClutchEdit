@@ -622,8 +622,8 @@ HiHatEditorComponent::HiHatEditorComponent ()
     fxChorusTapsEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
-        const auto fxChorusTaps { fxChorusTapsEditor.getSelectedId () - 1 };
-        hiHatProperties.setFxChorusTaps (std::clamp (fxChorusTaps + scrollAmount, 0, 3), true);
+        const auto fxChorusTaps { fxChorusTapsEditor.getSelectedId () };
+        hiHatProperties.setFxChorusTaps (std::clamp (fxChorusTaps + scrollAmount, 1, 4), true);
     };
     fxChorusTapsEditor.onPopupMenuCallback = [this] ()
     {
@@ -1987,7 +1987,7 @@ void HiHatEditorComponent::feelAmpModUiChanged (float value)
 
 void HiHatEditorComponent::fxCvUnipolarDataChanged (int value)
 {
-    fxCvUnipolarEditor.setText (juce::String (value), juce::dontSendNotification);
+    fxCvUnipolarEditor.setSelectedId (value + 1);
 }
 
 void HiHatEditorComponent::fxCvUnipolarUiChanged (int value)
@@ -2257,7 +2257,7 @@ void HiHatEditorComponent::fxChorusSpreadUiChanged (float value)
 
 void HiHatEditorComponent::fxChorusTapsDataChanged (int value)
 {
-    fxChorusTapsEditor.setSelectedId (value + 1);
+    fxChorusTapsEditor.setSelectedId (value);
 }
 
 void HiHatEditorComponent::fxChorusTapsUiChanged (int value)
