@@ -3,6 +3,7 @@
 #include "../../Clutch/HiHatProperties.h"
 #include "../../Utility/CustomComboBox.h"
 #include "../../Utility/CustomTextEditor.h"
+#include "../../Utility/NoArrowComboBoxLnF.h"
 
 class HiHatEditorComponent : public juce::Component
 {
@@ -16,6 +17,8 @@ public:
 
 private:
     HiHatProperties hiHatProperties;
+
+    NoArrowComboBoxLnF noArrowComboBoxLnF;
 
     CustomTextEditorDouble accClAmpModEditor;
     juce::Label accClAmpModLabel;
