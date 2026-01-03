@@ -10,6 +10,8 @@ HiHatEditorComponent::HiHatEditorComponent ()
     {
         label.setText (labelText, juce::dontSendNotification);
         addAndMakeVisible (label);
+        editor.setColour (juce::TextEditor::backgroundColourId, juce::Colours::darkgrey.darker (0.5f));
+        editor.setIndents (5, 2);
         addAndMakeVisible (editor);
     };
     auto setupIntEditor = [this] (CustomTextEditorInt& editor,
@@ -18,6 +20,8 @@ HiHatEditorComponent::HiHatEditorComponent ()
     {
         label.setText (labelText, juce::dontSendNotification);
         addAndMakeVisible (label);
+        editor.setColour (juce::TextEditor::backgroundColourId, juce::Colours::darkgrey.darker (0.5f));
+        editor.setIndents (5, 2);
         addAndMakeVisible (editor);
     };
     auto setupComboBox = [this] (CustomComboBox& comboBox,
@@ -26,24 +30,25 @@ HiHatEditorComponent::HiHatEditorComponent ()
     {
         label.setText (labelText, juce::dontSendNotification);
         addAndMakeVisible (label);
+        comboBox.setColour (juce::ComboBox::backgroundColourId, juce::Colours::darkgrey.darker (0.5f));
         addAndMakeVisible (comboBox);
     };
 
     accClAmpModEditor.setTooltip ("Amp Mod CLOSED ACC hit");
     accClAmpModEditor.getMinValueCallback = [this] () { return 0.1; };
     accClAmpModEditor.getMaxValueCallback = [this] () { return 10.0; };
-    accClAmpModEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    accClAmpModEditor.toStringCallback = [this] (double value) { return juce::String (value, 4).trimCharactersAtEnd ("0").trimCharactersAtEnd ("."); };
     accClAmpModEditor.updateDataCallback = [this] (double value) { accClAmpModUiChanged (value); };
     accClAmpModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [this, dragSpeed] ()
         {
             if (dragSpeed == DragSpeed::slow)
-                return 1;
+                return 0.01f;
             else if (dragSpeed == DragSpeed::medium)
-                return 10;
+                return 0.1f;
             else
-                return 25;
+                return 1.0f;
         } ();
         const auto newValue { hiHatProperties.getAccClAmpMod () + (multiplier * direction) };
         accClAmpModEditor.setValue (newValue);
@@ -1593,7 +1598,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
     // 1 to require passing old value
     knobPosTakeupEditor.setLookAndFeel (&noArrowComboBoxLnF);
     knobPosTakeupEditor.setTooltip ("");
-    knobPosTakeupEditor.addItem ("Small Mocvement", 1);
+    knobPosTakeupEditor.addItem ("Small Movement", 1);
     knobPosTakeupEditor.addItem ("Pass Old Value", 2);
     knobPosTakeupEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
@@ -1658,6 +1663,23 @@ HiHatEditorComponent::HiHatEditorComponent ()
     }; 
     setupDoubleEditor (pitchLowEditor, pitchLowLabel, "Pitch Low");
 
+    // 0: 0V = 100 % -5 = 0 % +5 = 200 %
+    // 1: 0V = 10 % +5 = 100 %
+    velocityUnipolarEditor.setLookAndFeel (&noArrowComboBoxLnF);
+    velocityUnipolarEditor.setTooltip ("");
+    velocityUnipolarEditor.addItem ("0%-100%-200%", 1);
+    velocityUnipolarEditor.addItem ("0%-100%", 2);
+    velocityUnipolarEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
+    {
+        const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
+        const auto velocityUnipolar { velocityUnipolarEditor.getSelectedId () - 1 };
+        hiHatProperties.setVelocityUnipolar (std::clamp (velocityUnipolar + scrollAmount, 0, 1), true);
+    };
+    velocityUnipolarEditor.onPopupMenuCallback = [this] ()
+    {
+        juce::PopupMenu editMenu;
+        editMenu.showMenuAsync ({}, [this] (int) {});
+    };
     setupComboBox (velocityUnipolarEditor, velocityUnipolarLabel, "Velocity Unipolar");
 }
 
@@ -1975,7 +1997,7 @@ void HiHatEditorComponent::fxCvUnipolarUiChanged (int value)
 
 void HiHatEditorComponent::velocityUnipolarDataChanged (int value)
 {
-    velocityUnipolarEditor.setText (juce::String (value), juce::dontSendNotification);
+    velocityUnipolarEditor.setSelectedId (value + 1);
 }
 
 void HiHatEditorComponent::velocityUnipolarUiChanged (int value)
