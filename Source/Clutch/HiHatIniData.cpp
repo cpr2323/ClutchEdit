@@ -124,3 +124,15 @@ juce::String HiHatData::getValue (const juce::String& section, const juce::Strin
     }
     return {};
 }
+
+void HiHatData::setValue (const juce::String& section, const juce::String& key, const juce::String& value)
+{
+    for (auto& iniLine : iniLines)
+    {
+        if (iniLine.lineType == LineType::keyValuePair)
+        {
+            if (iniLine.section == section && iniLine.key == key)
+                iniLine.value = value;
+        }
+    }
+}

@@ -23,6 +23,7 @@ public:
     void writeToFile (juce::File outputFile);
 
     juce::String getValue (const juce::String& section, const juce::String& key) const;
+    void setValue (const juce::String& section, const juce::String& key, const juce::String& value);
 
 private:
     enum class LineType
