@@ -612,7 +612,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
     }; 
     setupDoubleEditor (fxChorusSpreadEditor, fxChorusSpreadLabel, "FX Chorus Spread");
 
-    // Integer # of Taps (1–4)
+    // Integer # of Taps (1â€“4)
     fxChorusTapsEditor.setLookAndFeel (&noArrowComboBoxLnF);
     fxChorusTapsEditor.setTooltip ("");
     fxChorusTapsEditor.addItem ("1", 1);

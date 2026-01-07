@@ -2,8 +2,10 @@
 #include "AppProperties.h"
 #include "SystemServices.h"
 #include "Clutch/ClutchProperties.h"
+#include "Clutch/EffectListProperties.h"
 #include "Clutch/HiHatIniData.h"
 #include "Clutch/HiHatProperties.h"
+#include "Clutch/PatternListProperties.h"
 #include "GUI/GuiControlProperties.h"
 #include "GUI/GuiProperties.h"
 #include "GUI/MainComponent.h"
@@ -30,10 +32,11 @@ void crashHandler (void* /*data*/)
     FlushDebugLog ();
 }
 
-void FillInDataFromVt (HiHatData& data, const juce::ValueTree& vt)
+HiHatData gHiHatData;
+
+void FillInDataFromVt (HiHatData& data, const juce::ValueTree vt)
 {
-    HiHatProperties hiHatProperties;
-    hiHatProperties.wrap (vt, ValueTreeWrapper<HiHatProperties>::WrapperType::client, ValueTreeWrapper<HiHatProperties>::EnableCallbacks::no);
+    HiHatProperties hiHatProperties (vt, ValueTreeWrapper<HiHatProperties>::WrapperType::client, ValueTreeWrapper<HiHatProperties>::EnableCallbacks::no);
 
     const auto setFloatValue = [&data] (const juce::String& section, const juce::String& key, float value)
     {
@@ -142,13 +145,17 @@ void FillInDataFromVt (HiHatData& data, const juce::ValueTree& vt)
     setIntValue ("HIHAT", "FX_GLITCH_STUTTER_NUM_MIN", hiHatProperties.getFxGlitchStutterNumMin ());
     setIntValue ("HIHAT", "FX_GLITCH_STUTTER_NUM_MAX", hiHatProperties.getFxGlitchStutterNumMax ());
     setIntValue ("HIHAT", "FX_GLITCH_STUTTER_WINDOW", hiHatProperties.getFxGlitchStutterWindow ());
+
+    // TODO: swrite out the pattern list
+
+    // TODO: write out effect list
 }
 
-void FillInVtFromData (juce::ValueTree& vt, const HiHatData& data)
+void FillInVtFromData (juce::ValueTree clutchVt, const HiHatData& data)
 {
-    HiHatProperties hiHatProperties;
-    hiHatProperties.wrap (vt, ValueTreeWrapper<HiHatProperties>::WrapperType::client, ValueTreeWrapper<HiHatProperties>::EnableCallbacks::no);
-
+    HiHatProperties hiHatProperties (clutchVt, ValueTreeWrapper<HiHatProperties>::WrapperType::client, ValueTreeWrapper<HiHatProperties>::EnableCallbacks::no);
+    PatternListProperties patternListProperties (clutchVt, ValueTreeWrapper<PatternListProperties>::WrapperType::client, ValueTreeWrapper<PatternListProperties>::EnableCallbacks::no);
+    EffectListProperties effectListProperties (clutchVt, ValueTreeWrapper<EffectListProperties>::WrapperType::client, ValueTreeWrapper<EffectListProperties>::EnableCallbacks::no);
     const auto getFloatValue = [&data](const juce::String& section, const juce::String& key, float defaultValue) -> float
     {
         const auto valueString = data.getValue (section, key);
@@ -261,6 +268,19 @@ void FillInVtFromData (juce::ValueTree& vt, const HiHatData& data)
     hiHatProperties.setFxGlitchStutterNumMin (getIntValue ("HIHAT", "FX_GLITCH_STUTTER_NUM_MIN", 2), false);
     hiHatProperties.setFxGlitchStutterNumMax (getIntValue ("HIHAT", "FX_GLITCH_STUTTER_NUM_MAX", 5), false);
     hiHatProperties.setFxGlitchStutterWindow (getIntValue ("HIHAT", "FX_GLITCH_STUTTER_WINDOW", 20), false);
+
+    patternListProperties.forEachPattern ([&data] (juce::ValueTree patternVT, int patternIndex)
+    {
+        PatternProperties patternProperties (patternVT, ValueTreeWrapper<PatternProperties>::WrapperType::client, ValueTreeWrapper<PatternProperties>::EnableCallbacks::no);
+        patternProperties.setPattern (data.getValue ("PATTERNS", patternProperties.getId ()), false);
+        return true;
+    });
+    effectListProperties.forEachEffect ([&data] (juce::ValueTree effectVT, int effectIndex)
+    {
+        EffectProperties effectProperties (effectVT, ValueTreeWrapper<EffectProperties>::WrapperType::client, ValueTreeWrapper<EffectProperties>::EnableCallbacks::no);
+        effectProperties.setEffect (data.getValue ("EFFECTS", effectProperties.getId ()), false);
+        return true;
+    });
 }
 
 class ClutchEditApplication : public juce::JUCEApplication, public juce::Timer
@@ -329,16 +349,19 @@ public:
             quit ();
     }
 
-void initClutch ()
-{
-        HiHatData hiHatData;
-        hiHatData.readFromFile (juce::File::getCurrentWorkingDirectory ().getChildFile ("HIHAT.INI"));
-        hiHatData.writeToFile (juce::File::getCurrentWorkingDirectory ().getChildFile ("HIHAT_test.INI"));
-        HiHatProperties hihatProperties;
-        FillInVtFromData (hihatProperties.getValueTreeRef (), hiHatData);
-        ClutchProperties clutchProperties;
-        clutchProperties.wrap (runtimeRootProperties.getValueTree (), ClutchProperties::WrapperType::owner, ClutchProperties::EnableCallbacks::no);
-        clutchProperties.getValueTree().addChild (hihatProperties.getValueTree(), -1, nullptr);
+    void initClutch ()
+    {
+        gHiHatData.readFromFile (juce::File::getCurrentWorkingDirectory ().getChildFile ("HIHAT.INI"));
+        gHiHatData.writeToFile (juce::File::getCurrentWorkingDirectory ().getChildFile ("HIHAT_test.INI"));
+
+        HiHatProperties hiHatProperties;
+        PatternListProperties patternListProperties;
+        EffectListProperties effectListProperties;
+        ClutchProperties clutchProperties (runtimeRootProperties.getValueTree (), ClutchProperties::WrapperType::owner, ClutchProperties::EnableCallbacks::no);
+        clutchProperties.getValueTree ().addChild (hiHatProperties.getValueTree(), -1, nullptr);
+        clutchProperties.getValueTree ().addChild (patternListProperties.getValueTree (), -1, nullptr);
+        clutchProperties.getValueTree ().addChild (effectListProperties.getValueTree (), -1, nullptr);
+        FillInVtFromData (clutchProperties.getValueTree (), gHiHatData);
 
 //         // debug tool for watching changes on the Preset Value Tree
 //         //presetPropertiesMonitor.assign (presetProperties.getValueTreeRef ());
@@ -365,7 +388,7 @@ void initClutch ()
 // 
 //         // initialize the Validator
 //         assimil8orValidator.init (rootProperties.getValueTree ());
-}
+    }
 
     void initUi ()
     {

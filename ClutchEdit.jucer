@@ -9,14 +9,14 @@
               file="Source/Clutch/ClutchProperties.cpp"/>
         <FILE id="gzLMf2" name="ClutchProperties.h" compile="0" resource="0"
               file="Source/Clutch/ClutchProperties.h"/>
-        <FILE id="wBr4cC" name="EffectsProperties.cpp" compile="1" resource="0"
-              file="Source/Clutch/EffectsProperties.cpp"/>
-        <FILE id="zty9gZ" name="EffectsProperties.h" compile="0" resource="0"
-              file="Source/Clutch/EffectsProperties.h"/>
-        <FILE id="kDflIv" name="PatternsProperties.cpp" compile="1" resource="0"
-              file="Source/Clutch/PatternsProperties.cpp"/>
-        <FILE id="almlvE" name="PatternsProperties.h" compile="0" resource="0"
-              file="Source/Clutch/PatternsProperties.h"/>
+        <FILE id="wBr4cC" name="EffectListProperties.cpp" compile="1" resource="0"
+              file="Source/Clutch/EffectListProperties.cpp"/>
+        <FILE id="zty9gZ" name="EffectListProperties.h" compile="0" resource="0"
+              file="Source/Clutch/EffectListProperties.h"/>
+        <FILE id="kDflIv" name="PatternListProperties.cpp" compile="1" resource="0"
+              file="Source/Clutch/PatternListProperties.cpp"/>
+        <FILE id="almlvE" name="PatternListProperties.h" compile="0" resource="0"
+              file="Source/Clutch/PatternListProperties.h"/>
         <FILE id="sdbqsq" name="HiHatProperties.cpp" compile="1" resource="0"
               file="Source/Clutch/HiHatProperties.cpp"/>
         <FILE id="UMo0Ba" name="HiHatProperties.h" compile="0" resource="0"
