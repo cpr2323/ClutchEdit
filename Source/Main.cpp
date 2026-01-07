@@ -34,9 +34,11 @@ void crashHandler (void* /*data*/)
 
 HiHatData gHiHatData;
 
-void FillInDataFromVt (HiHatData& data, const juce::ValueTree vt)
+void FillInDataFromVt (HiHatData& data, const juce::ValueTree clutchVT)
 {
-    HiHatProperties hiHatProperties (vt, ValueTreeWrapper<HiHatProperties>::WrapperType::client, ValueTreeWrapper<HiHatProperties>::EnableCallbacks::no);
+    HiHatProperties hiHatProperties (clutchVT, ValueTreeWrapper<HiHatProperties>::WrapperType::client, ValueTreeWrapper<HiHatProperties>::EnableCallbacks::no);
+    PatternListProperties patternListProperties (clutchVT, ValueTreeWrapper<PatternListProperties>::WrapperType::client, ValueTreeWrapper<PatternListProperties>::EnableCallbacks::no);
+    EffectListProperties effectListProperties (clutchVT, ValueTreeWrapper<EffectListProperties>::WrapperType::client, ValueTreeWrapper<EffectListProperties>::EnableCallbacks::no);
 
     const auto setFloatValue = [&data] (const juce::String& section, const juce::String& key, float value)
     {
@@ -146,9 +148,18 @@ void FillInDataFromVt (HiHatData& data, const juce::ValueTree vt)
     setIntValue ("HIHAT", "FX_GLITCH_STUTTER_NUM_MAX", hiHatProperties.getFxGlitchStutterNumMax ());
     setIntValue ("HIHAT", "FX_GLITCH_STUTTER_WINDOW", hiHatProperties.getFxGlitchStutterWindow ());
 
-    // TODO: swrite out the pattern list
-
-    // TODO: write out effect list
+    patternListProperties.forEachPattern ([&data] (juce::ValueTree patternVT, int patternIndex)
+    {
+        PatternProperties patternProperties (patternVT, ValueTreeWrapper<PatternProperties>::WrapperType::client, ValueTreeWrapper<PatternProperties>::EnableCallbacks::no);
+        data.setValue ("PATTERNS", patternProperties.getId (), patternProperties.getPattern ());
+        return true;
+    });
+    effectListProperties.forEachEffect ([&data] (juce::ValueTree effectVT, int effectIndex)
+    {
+        EffectProperties effectProperties (effectVT, ValueTreeWrapper<EffectProperties>::WrapperType::client, ValueTreeWrapper<EffectProperties>::EnableCallbacks::no);
+        data.setValue ("EFFECTS", effectProperties.getId (), effectProperties.getEffect ());
+        return true;
+    });
 }
 
 void FillInVtFromData (juce::ValueTree clutchVt, const HiHatData& data)
