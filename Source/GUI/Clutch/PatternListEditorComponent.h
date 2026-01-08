@@ -5,6 +5,24 @@
 #include "../../Utility/CustomComboBox.h"
 #include "../../Utility/NoArrowComboBoxLnF.h"
 
+class PatternEditorComponent : public juce::Component
+{
+public:
+    PatternEditorComponent ();
+    ~PatternEditorComponent ();
+
+    void init (juce::ValueTree rootPropertiesVT);
+
+private:
+    PatternProperties patternProperties;
+    std::array<CustomComboBox, 32> stepEditors;
+    std::array<juce::ToggleButton, 32> lengthSelectors;
+    NoArrowComboBoxLnF noArrowComboBoxLnF;
+
+    void paint (juce::Graphics& g) override;
+    void resized () override;
+};
+
 class PatternListEditorComponent : public juce::Component
 {
 public:
@@ -15,9 +33,7 @@ public:
 
 private:
     PatternListProperties patternListProperties;
-    int curPatternIndex { 0 };
-    std::array<CustomComboBox, 32> stepEditor;
-    NoArrowComboBoxLnF noArrowComboBoxLnF;
+    std::array<PatternEditorComponent, 8> patternEditors;
 
     void paint (juce::Graphics& g) override;
     void resized () override;
