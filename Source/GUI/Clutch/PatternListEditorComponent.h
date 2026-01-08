@@ -31,6 +31,8 @@ public:
 
     void init (juce::ValueTree rootPropertiesVT);
 
+    std::vector<float> getColumnCenters ();
+
 private:
     PatternProperties patternProperties;
     std::array<CustomComboBox, 32> stepEditors;
@@ -51,7 +53,9 @@ public:
 
 private:
     PatternListProperties patternListProperties;
+    std::array<juce::Label, 32> stepNumbers;
     std::array<PatternEditorComponent, 8> patternEditors;
+    std::array<juce::Label, 8> patternLabels;
 
     void paint (juce::Graphics& g) override;
     void resized () override;

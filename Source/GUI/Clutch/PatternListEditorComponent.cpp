@@ -2,6 +2,9 @@
 #include "../../Clutch/ClutchProperties.h"
 #include "../../Utility/RuntimeRootProperties.h"
 
+constexpr auto kEnabledStepColor { 0.7f };
+constexpr auto kDisabledStepColor { 0.1f };
+
 PatternEditorComponent::PatternEditorComponent ()
 {
     for (auto curStepIndex { 0 }; curStepIndex < 32; ++curStepIndex)
@@ -17,7 +20,7 @@ PatternEditorComponent::PatternEditorComponent ()
         stepComboBox.addItem ("150%", 8);
         stepComboBox.addItem ("200%", 9);
         stepComboBox.setLookAndFeel (&noArrowComboBoxLnF);
-        stepComboBox.setColour (juce::ComboBox::backgroundColourId, juce::Colours::darkgrey.darker (0.5f));
+        stepComboBox.setColour (juce::ComboBox::backgroundColourId, juce::Colours::darkgrey.darker (curStepIndex == 0 ? kEnabledStepColor : kDisabledStepColor));
         stepComboBox.setSelectedId (1);
         stepComboBox.setComponentID ("StepComboBox" + juce::String (curStepIndex));
         addAndMakeVisible (stepComboBox);
@@ -26,6 +29,13 @@ PatternEditorComponent::PatternEditorComponent ()
         lengthSelector.setComponentID ("LengthSelector" + juce::String (curStepIndex));
         lengthSelector.setLookAndFeel (&toggleButtonLnF);
         lengthSelector.setRadioGroupId (1, juce::NotificationType::dontSendNotification);
+        lengthSelector.onClick = [this, curStepIndex] ()
+        {
+            for (auto stepIndex { 0 }; stepIndex < 32; ++stepIndex)
+            {
+                stepEditors [stepIndex].setColour (juce::ComboBox::backgroundColourId, juce::Colours::darkgrey.darker (stepIndex <= curStepIndex ? kEnabledStepColor : kDisabledStepColor));
+            }
+        };
         addAndMakeVisible (lengthSelector);
     }
     auto lengthSelector { dynamic_cast <juce::ToggleButton*> (findChildWithID ("LengthSelector" + juce::String (0))) };
@@ -52,17 +62,33 @@ void PatternEditorComponent::paint (juce::Graphics& g)
 
 }
 
+std::vector<float> PatternEditorComponent::getColumnCenters()
+{
+    constexpr auto kStepComboBoxHeight { 20 };
+    constexpr auto kStepComboBoxWidth { 57 };
+    constexpr auto kSpaceBetweenStepEditors { 2 };
+    auto curButtonX { 10 };
+    std::vector<float> centers;
+    for (auto step { 0 }; step < 32; ++step)
+    {
+        centers.push_back (curButtonX + (kStepComboBoxWidth / 2));
+        curButtonX += kStepComboBoxWidth + kSpaceBetweenStepEditors;
+    }
+
+    return centers;
+}
+
 void PatternEditorComponent::resized ()
 {
     constexpr auto kStepComboBoxHeight { 20 };
     constexpr auto kStepComboBoxWidth { 57 };
     constexpr auto kSpaceBetweenStepEditors { 2 };
-    auto curButtonY { 10 };
+    auto curButtonX { 10 };
     for (auto step { 0 }; step < 32; ++step)
     {
         auto comboBox { findChildWithID ("StepComboBox" + juce::String (step)) };
-        comboBox->setBounds (curButtonY, 0, kStepComboBoxWidth, kStepComboBoxHeight);
-        curButtonY += kStepComboBoxWidth + kSpaceBetweenStepEditors;
+        comboBox->setBounds (curButtonX, 0, kStepComboBoxWidth, kStepComboBoxHeight);
+        curButtonX += kStepComboBoxWidth + kSpaceBetweenStepEditors;
 
         constexpr auto kWidthOfLegnthSelector { 15 };
         auto lengthSelector { findChildWithID ("LengthSelector" + juce::String (step)) };
@@ -72,10 +98,34 @@ void PatternEditorComponent::resized ()
 
 PatternListEditorComponent::PatternListEditorComponent ()
 {
-
-    for (auto& patternEditorComponent : patternEditors)
+    std::array<juce::String, 8> patternIds
     {
-        addAndMakeVisible (patternEditorComponent);
+        "WHITE",
+        "RED",
+        "ORANGE",
+        "YELLOW",
+        "GREEN",
+        "BLUE",
+        "CYAN",
+        "VIOLET"
+    };
+
+    for (auto columnIndex { 0 }; columnIndex < stepNumbers.size (); ++columnIndex)
+    {
+        auto& stepNumber { stepNumbers [columnIndex] };
+        stepNumber.setJustificationType (juce::Justification::centred);
+        stepNumber.setText (juce::String (columnIndex + 1), juce::NotificationType::dontSendNotification);
+        addAndMakeVisible (stepNumber);
+    }
+    for (auto patternIndex { 0 }; patternIndex < patternLabels.size (); ++patternIndex)
+    {
+        addAndMakeVisible (patternEditors [patternIndex]);
+
+        auto& patternLabel { patternLabels [patternIndex] };
+        patternLabel.setColour (juce::Label::textColourId, juce::Colours::white);
+        patternLabel.setText (patternIds [patternIndex], juce::NotificationType::dontSendNotification);
+        patternLabel.setJustificationType (juce::Justification::topLeft);
+        addAndMakeVisible (patternLabel);
     }
 }
 
@@ -98,16 +148,31 @@ void PatternListEditorComponent::init (juce::ValueTree rootPropertiesVT)
 
 void PatternListEditorComponent::paint (juce::Graphics& g)
 {
-
+//     g.setColour (juce::Colours::red);
+//     for (auto patternIndex { 0 }; patternIndex < patternEditors.size (); ++patternIndex)
+//     {
+//         g.drawRect (patternLabels [patternIndex].getBounds ());
+//     }
 }
 
 void PatternListEditorComponent::resized ()
 {
+    constexpr auto kInitialYOffset { 25 };
+    constexpr auto kInitialXOffset { 55 };
     constexpr auto kPatternEditorHeight { 60 };
     auto bounds { getLocalBounds ().reduced (5, 5) };
     
+    auto columnCenters { patternEditors [0].getColumnCenters () };
+    for (auto columnIndex { 0 }; columnIndex < stepNumbers.size (); ++columnIndex)
+    {
+        auto& stepNumber { stepNumbers [columnIndex] };
+        auto numberWidth { stepNumber.getFont ().getStringWidth (stepNumber.getText ()) };
+        auto halfNumberWidth { numberWidth / 2 };
+        stepNumber.setBounds (kInitialXOffset + (columnCenters [columnIndex] - halfNumberWidth) - 5, 0, numberWidth + 10, 20);
+    }
     for (auto patternIndex { 0 }; patternIndex < patternEditors.size (); ++patternIndex)
     {
-        patternEditors [patternIndex].setBounds (0, patternIndex * kPatternEditorHeight, bounds.getWidth (), kPatternEditorHeight);
+        patternLabels [patternIndex].setBounds (0, kInitialYOffset + (patternIndex * kPatternEditorHeight), kInitialXOffset, kPatternEditorHeight);
+        patternEditors [patternIndex].setBounds (kInitialXOffset, kInitialYOffset + (patternIndex * kPatternEditorHeight), bounds.getWidth (), kPatternEditorHeight);
     }
 }
