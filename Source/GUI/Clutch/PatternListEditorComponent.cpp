@@ -2,7 +2,6 @@
 #include "../../Clutch/ClutchProperties.h"
 #include "../../Utility/RuntimeRootProperties.h"
 
-
 PatternEditorComponent::PatternEditorComponent ()
 {
     for (auto curStepIndex { 0 }; curStepIndex < 32; ++curStepIndex)
@@ -25,6 +24,7 @@ PatternEditorComponent::PatternEditorComponent ()
 
         auto& lengthSelector { lengthSelectors [curStepIndex] };
         lengthSelector.setComponentID ("LengthSelector" + juce::String (curStepIndex));
+        lengthSelector.setLookAndFeel (&toggleButtonLnF);
         lengthSelector.setRadioGroupId (1, juce::NotificationType::dontSendNotification);
         addAndMakeVisible (lengthSelector);
     }
@@ -37,6 +37,9 @@ PatternEditorComponent::~PatternEditorComponent ()
 {
     for (auto& stepComboBox : stepEditors)
         stepComboBox.setLookAndFeel (nullptr);
+
+    for (auto& lengthSelector : lengthSelectors)
+        lengthSelector.setLookAndFeel (nullptr);
 }
 
 void PatternEditorComponent::init (juce::ValueTree patternVT)
