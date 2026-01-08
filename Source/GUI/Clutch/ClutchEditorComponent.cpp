@@ -10,6 +10,7 @@ ClutchEditorComponent::ClutchEditorComponent ()
     editorTabs.addTab ("GLOBAL", juce::Colours::darkgrey, &hiHatEditorComponent, false);
     editorTabs.addTab ("PATTERNS", juce::Colours::darkgrey, &patternListEditorComponent, false);
     editorTabs.addTab ("EFFECTS", juce::Colours::darkgrey, &effectEditorComponent, false);
+    editorTabs.addTab ("SAMPLES", juce::Colours::darkgrey, &sampleManagerComponent, false);
     addAndMakeVisible (editorTabs);
 
     // SAVE BUTTON
@@ -36,6 +37,7 @@ void ClutchEditorComponent::init (juce::ValueTree rootPropertiesVT)
     hiHatEditorComponent.init (rootPropertiesVT);
     patternListEditorComponent.init (rootPropertiesVT);
     effectEditorComponent.init (rootPropertiesVT);
+    sampleManagerComponent.init (rootPropertiesVT);
 }
 
 void ClutchEditorComponent::resized()

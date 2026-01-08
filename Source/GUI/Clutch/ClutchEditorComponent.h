@@ -3,6 +3,7 @@
 #include "EffectEditorComponent.h"
 #include "HiHatEditorComponent.h"
 #include "PatternListEditorComponent.h"
+#include "SampleManagerComponent.h"
 #include "../../Clutch/ClutchProperties.h"
 
 class ClutchEditorComponent : public juce::Component
@@ -18,6 +19,7 @@ private:
     HiHatEditorComponent hiHatEditorComponent;
     PatternListEditorComponent patternListEditorComponent;
     EffectEditorComponent effectEditorComponent;
+    SampleManagerComponent sampleManagerComponent;
     juce::TextButton saveButton;
     juce::TabbedComponent editorTabs { juce::TabbedButtonBar::Orientation::TabsAtTop };
 

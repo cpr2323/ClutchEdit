@@ -5,6 +5,10 @@
   <MAINGROUP id="yofyvK" name="ClutchEdit">
     <GROUP id="{B4985F1C-C0B3-14FE-5BF5-BC3E89B7C97C}" name="Source">
       <GROUP id="{C33C0C59-ECFE-D357-BCF4-535A71D77EC9}" name="Clutch">
+        <FILE id="JNaYWa" name="SampleProperties.cpp" compile="1" resource="0"
+              file="Source/Clutch/SampleProperties.cpp"/>
+        <FILE id="PuM1rr" name="SampleProperties.h" compile="0" resource="0"
+              file="Source/Clutch/SampleProperties.h"/>
         <FILE id="U6khlc" name="ClutchProperties.cpp" compile="1" resource="0"
               file="Source/Clutch/ClutchProperties.cpp"/>
         <FILE id="gzLMf2" name="ClutchProperties.h" compile="0" resource="0"
@@ -43,6 +47,10 @@
                 resource="0" file="Source/GUI/Clutch/PatternListEditorComponent.cpp"/>
           <FILE id="tW3XcE" name="PatternListEditorComponent.h" compile="0" resource="0"
                 file="Source/GUI/Clutch/PatternListEditorComponent.h"/>
+          <FILE id="T7H1cR" name="SampleManagerComponent.cpp" compile="1" resource="0"
+                file="Source/GUI/Clutch/SampleManagerComponent.cpp"/>
+          <FILE id="lJguHZ" name="SampleManagerComponent.h" compile="0" resource="0"
+                file="Source/GUI/Clutch/SampleManagerComponent.h"/>
         </GROUP>
         <FILE id="QRarSY" name="GuiControlProperties.cpp" compile="1" resource="0"
               file="Source/GUI/GuiControlProperties.cpp"/>
