@@ -31,10 +31,18 @@
                 file="Source/GUI/Clutch/ClutchEditorComponent.cpp"/>
           <FILE id="EOQC3B" name="ClutchEditorComponent.h" compile="0" resource="0"
                 file="Source/GUI/Clutch/ClutchEditorComponent.h"/>
+          <FILE id="SCBhW3" name="EffectEditorComponent.cpp" compile="1" resource="0"
+                file="Source/GUI/Clutch/EffectEditorComponent.cpp"/>
+          <FILE id="SLTGHQ" name="EffectEditorComponent.h" compile="0" resource="0"
+                file="Source/GUI/Clutch/EffectEditorComponent.h"/>
           <FILE id="e37rZ2" name="HiHatEditorComponent.cpp" compile="1" resource="0"
                 file="Source/GUI/Clutch/HiHatEditorComponent.cpp"/>
           <FILE id="rMMGJW" name="HiHatEditorComponent.h" compile="0" resource="0"
                 file="Source/GUI/Clutch/HiHatEditorComponent.h"/>
+          <FILE id="YYdCVo" name="PatternListEditorComponent.cpp" compile="1"
+                resource="0" file="Source/GUI/Clutch/PatternListEditorComponent.cpp"/>
+          <FILE id="tW3XcE" name="PatternListEditorComponent.h" compile="0" resource="0"
+                file="Source/GUI/Clutch/PatternListEditorComponent.h"/>
         </GROUP>
         <FILE id="QRarSY" name="GuiControlProperties.cpp" compile="1" resource="0"
               file="Source/GUI/GuiControlProperties.cpp"/>
@@ -115,6 +123,8 @@
     <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="melatonin_inspector" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
   </MODULES>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
   <EXPORTFORMATS>
@@ -129,6 +139,8 @@
         <MODULEPATH id="juce_events" path="../JUCE/modules"/>
         <MODULEPATH id="juce_graphics" path="../JUCE/modules"/>
         <MODULEPATH id="juce_gui_basics" path="../JUCE/modules"/>
+        <MODULEPATH id="melatonin_inspector" path="../other_juce_modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../JUCE/modules"/>
       </MODULEPATHS>
     </VS2022>
     <XCODE_MAC targetFolder="Builds/MacOSX">
@@ -142,6 +154,8 @@
         <MODULEPATH id="juce_events" path="../JUCE/modules"/>
         <MODULEPATH id="juce_graphics" path="../JUCE/modules"/>
         <MODULEPATH id="juce_gui_basics" path="../JUCE/modules"/>
+        <MODULEPATH id="melatonin_inspector" path="../other_juce_modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
   </EXPORTFORMATS>

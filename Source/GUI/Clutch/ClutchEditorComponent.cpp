@@ -7,6 +7,11 @@ extern HiHatData gHiHatData;
 
 ClutchEditorComponent::ClutchEditorComponent ()
 {
+    editorTabs.addTab ("GLOBAL", juce::Colours::darkgrey, &hiHatEditorComponent, false);
+    editorTabs.addTab ("PATTERNS", juce::Colours::darkgrey, &patternListEditorComponent, false);
+    editorTabs.addTab ("EFFECTS", juce::Colours::darkgrey, &effectEditorComponent, false);
+    addAndMakeVisible (editorTabs);
+
     // SAVE BUTTON
     saveButton.setButtonText ("SAVE");
     //saveButton.setEnabled (false);
@@ -18,8 +23,6 @@ ClutchEditorComponent::ClutchEditorComponent ()
         gHiHatData.writeToFile (juce::File::getCurrentWorkingDirectory ().getChildFile ("HIHAT_edit.INI"));
     };
     addAndMakeVisible (saveButton);
-
-    addAndMakeVisible (hiHatEditorComponent);
 }
 
 ClutchEditorComponent::~ClutchEditorComponent ()
@@ -31,6 +34,8 @@ void ClutchEditorComponent::init (juce::ValueTree rootPropertiesVT)
     RuntimeRootProperties runtimeRootProperties (rootPropertiesVT, ValueTreeWrapper<RuntimeRootProperties>::WrapperType::client, ValueTreeWrapper<RuntimeRootProperties>::EnableCallbacks::no);
     clutchProperties.wrap (runtimeRootProperties.getValueTree (), ValueTreeWrapper<ClutchProperties>::WrapperType::client, ValueTreeWrapper<ClutchProperties>::EnableCallbacks::no);
     hiHatEditorComponent.init (rootPropertiesVT);
+    patternListEditorComponent.init (rootPropertiesVT);
+    effectEditorComponent.init (rootPropertiesVT);
 }
 
 void ClutchEditorComponent::resized()
@@ -38,7 +43,7 @@ void ClutchEditorComponent::resized()
     auto bounds { getLocalBounds () };
     auto topLine { bounds.removeFromTop (30) };
     saveButton.setBounds (topLine.removeFromRight (100).reduced (5));
-    hiHatEditorComponent.setBounds (bounds);
+    editorTabs.setBounds (getLocalBounds ());
 }
 
 void ClutchEditorComponent::paint (juce::Graphics& g)
