@@ -469,101 +469,175 @@ private:
 };
 
 /*
+; =======================================================================================================================
+; HIHAT.INI
+; WMD CLUTCH — User adjustable parameters and FEEL Patterns
+;
+; This file uses standard INI format with [section] headers and key=value pairs.
+; Comments start with semicolon (;). Defaults are marked with "d:".
+; Ranges are in parenthesis ( )
+; =======================================================================================================================
+
 [HIHAT]
 ; Pitch control multiplier (both Surface A and Surface B)
-PITCH_LOW = 0.125; Min pitch 0.001 to 0.5                                  d: 0.125
-PITCH_HIGH = 2.5; Max pitch 1.5 to 3.7                                    d: 2.5
+PITCH_LOW                         = 0.125            ; Min pitch (0.001 to 0.5)                                d: 0.125
+PITCH_HIGH                        = 2.5              ; Max pitch (1.5 to 3.7)                                  d: 2.5
+
 ; Envelope Release Parameters in seconds
-ENVELOPE_MAX_RELEASE = 4.000; Max release 0.6 to 20 s                                 d : 4.0
-CHOKE_RELEASE = 0.080; Choke release time                                      d : 0.080
+ENVELOPE_MAX_RELEASE              = 4.000            ; Max release seconds at CW (0.6 to 20)                   d: 4.0
+CHOKE_RELEASE                     = 0.080            ; Choke release time seconds (0.002 to 0.400)             d: 0.080
+
 ; CLOSED Hit Release scale options and modifiers
-CLSD_RELEASE_MODE = 1; 1: Release Offset mode                                  d : 1
-; 0: Independent Release for Closed
+CLSD_RELEASE_MODE                 = 1                ; 1: Release Offset mode                                  d: 1
+                                                     ; 0: Independent Release for Closed
+
 ; Scale of envelope for closed hits (multiply ENV_MAX_RELEASE for Closed Hits)
 ; Only applies if CLSD_RELEASE_MODE = 1
-CLSD_REL_OFST_SCALE = 0.5; Range 0.1 to 0.9                                        d: 0.5
+CLSD_REL_OFST_SCALE               = 0.5              ; Range (0.1 to 0.9)                                      d: 0.5
+
 ; CLOSED Hit Max Release, only applies if CLSD_RELEASE_MODE = 0
-CLSD_MAX_RELEASE = 0.8; Max release time 0.3 to 2.0                             d: 0.8
-; Envelope Release Modifiers for Accented hits, extends release (FEEL OFF)
-ACC_CL_REL_MOD = 1.18; Release Mod CLOSED ACC hit                              d : 1.18
-ACC_OP_REL_MOD = 1.25; Release Mod OPEN ACC hit                                d : 1.25
-ACC_CL_AMP_MOD = 1.3; Amp Mod CLOSED ACC hit                                  d : 1.3
-ACC_OP_AMP_MOD = 1.25; Amp Mod OPEN ACC hit                                    d : 1.25
+CLSD_MAX_RELEASE                  = 0.8              ; Max release time (0.3 to 2.0)                           d: 0.8
+
+; Envelope Release Multipliers for Accented hits, > 1 extends release, < 1 shortens release (FEEL OFF)
+ACC_CL_REL_MOD                    = 1.18             ; Release Mod CLOSED ACC hit (0.5 to 3.0)                 d: 1.18
+ACC_OP_REL_MOD                    = 1.25             ; Release Mod OPEN ACC hit   (0.5 to 3.0)                 d: 1.25
+; Amplitude Multipliers for Accented hits, > 1 increases amplitude, < 1 reduces amplitude (FEEL OFF)
+ACC_CL_AMP_MOD                    = 1.3              ; Amp Mod CLOSED ACC hit     (0.5 to 3.0)                 d: 1.3
+ACC_OP_AMP_MOD                    = 1.25             ; Amp Mod OPEN ACC hit       (0.5 to 3.0)                 d: 1.25
+
 ; CV Bipolar or Unipolar options
-FX_CV_UNIPOLAR = 1; 0: -5 to 5V, 1 : 0 to 5V                                 d : 1
-VELOCITY_UNIPOLAR = 0; 0: 0V = 100 % -5 = 0 % +5 = 200 % d : 0, 1: 0V = 10 % +5 = 100 %
-; CV OFF / ON Switch Options
-CV_DISABLE_VELOCITY = 0; 0: Velocity always enabled, 1: CV Off SW affects velocity                              d : 0
-;
-CV_DISABLE_FX = 0; 0: FX CV Always On                                      d : 0
-; 1: CV Disable : Freeze FX CV
+FX_CV_UNIPOLAR                    = 1                ; 0: -5 to 5V, 1: 0 to 5V                                 d: 1
+VELOCITY_UNIPOLAR                 = 0                ; 0: 0V=100%  -5=0%  +5=200%                              d: 0
+                                                     ; 1: 0V=10%         +5=100%
+
+; CV OFF/ON Switch Options
+CV_DISABLE_VELOCITY               = 0                ; 0: Velocity always enabled                              d: 0
+                                                     ; 1: CV Off SW affects velocity
+CV_DISABLE_FX                     = 0                ; 0: FX CV Always On                                      d: 0
+                                                     ; 1: CV Disable : Freeze FX CV
+
 ; Gate behavior
-GATE_MODE = 0; 0: Release immediately (TRIGGER MODE)                   d : 0
-; 1: Release after gate falls
+GATE_MODE                         = 0                ; 0: Release immediately (TRIGGER MODE)                   d: 0
+                                                     ; 1: Release after gate falls
+
 ; Feel behavior - modulation multipliers for feel params
-FEEL_ATTACK_MOD = 1.0; 0.000 (none) to 5.000 (5x)                              d: 1.0
-FEEL_RELEASE_MOD = 1.0; 0.000 (none) to 5.000 (5x)                              d: 1.0
-FEEL_AMP_MOD = 1.0; 0.000 (none) to 2.000 (2x)                              d: 1.0
+FEEL_ATTACK_MOD                   = 1.0              ; 0.000 (none) to 5.000 (5x)                              d: 1.0
+FEEL_RELEASE_MOD                  = 1.0              ; 0.000 (none) to 5.000 (5x)                              d: 1.0
+FEEL_AMP_MOD                      = 1.0              ; 0.000 (none) to 2.000 (2x)                              d: 1.0
+
 ; Multipurpose Knobs - Wiggle or Positional Takeup
-KNOB_POS_TAKEUP = 1; 0 to sense small movement (wiggle)                      d: 0
-; 1 to require passing old value
+KNOB_POS_TAKEUP                   = 1                ; 0 to sense small movement (wiggle)                      d: 0
+                                                     ; 1 to require passing old value
+
 ; Filter Frequency Ranges
-FLTR_HPF_MIN_FREQ = 100; HPF minimum frequency (Hz)                              d: 100
-FLTR_HPF_MAX_FREQ = 14000; HPF maximum frequency (Hz)                              d: 14000
-FLTR_LPF_MIN_FREQ = 200; LPF minimum frequency (Hz)                              d: 200
-FLTR_LPF_MAX_FREQ = 20000; LPF maximum frequency (Hz)                              d: 20000
-FLTR_HPF_Q = 1.0; HPF resonance (Q factor) 0.25 - 4.0                     d: 1.0
-FLTR_LPF_Q = 0.707; LPF resonance (Q factor) 0.25 - 4.0                     d: 0.707
+FLTR_HPF_MIN_FREQ                 = 100              ; HPF minimum frequency (Hz)  (20 to 1000)                d: 100
+FLTR_HPF_MAX_FREQ                 = 14000            ; HPF maximum frequency (Hz)  (8000 - 20000)              d: 14000
+FLTR_LPF_MIN_FREQ                 = 200              ; LPF minimum frequency (Hz)  (20 to 1000)                d: 200
+FLTR_LPF_MAX_FREQ                 = 20000            ; LPF maximum frequency (Hz)  (12000 - 20000)             d: 20000
+FLTR_HPF_Q                        = 1.0              ; HPF resonance (Q factor) (0.25 - 4.0)                   d: 1.0
+FLTR_LPF_Q                        = 0.707            ; LPF resonance (Q factor) (0.25 - 4.0)                   d: 0.707
+
 ; DJ Filter Frequency Ranges
-FX_DJFILTER_HPF_MIN = 100; DJ HPF minimum frequency (Hz)                           d: 100
-FX_DJFILTER_HPF_MAX = 14000; DJ HPF maximum frequency (Hz)                           d: 14000
-FX_DJFILTER_LPF_MIN = 200; DJ LPF minimum frequency (Hz)                           d: 200
-FX_DJFILTER_LPF_MAX = 20000; DJ LPF maximum frequency (Hz)                           d: 20000
-FX_DJFILTER_Q_MIN = 0.5; DJ Filter minimum Q (resonance)                         d: 0.5
-FX_DJFILTER_Q_MAX = 4.0; DJ Filter maximum Q (resonance)                         d: 4.0
-FX_DJFILTER_Q_GAIN_REDUCTION = 0.12; Gain reduction factor for high Q                        d : 0.12
+FX_DJFILTER_HPF_MIN               = 100              ; DJ HPF minimum frequency (Hz) (20 to 2000)              d: 100
+FX_DJFILTER_HPF_MAX               = 14000            ; DJ HPF maximum frequency (Hz) (8000 to 20000)           d: 14000
+FX_DJFILTER_LPF_MIN               = 200              ; DJ LPF minimum frequency (Hz) (20 to 2000)              d: 200
+FX_DJFILTER_LPF_MAX               = 20000            ; DJ LPF maximum frequency (Hz) (12000 to 20000)          d: 20000
+FX_DJFILTER_Q_MIN                 = 0.5              ; DJ Filter minimum Q (resonance) (0.25 to 12.0)          d: 0.5
+FX_DJFILTER_Q_MAX                 = 4.0              ; DJ Filter maximum Q (resonance) (0.25 to 12.0)          d: 4.0
+FX_DJFILTER_Q_GAIN_REDUCTION      = 0.12             ; Gain reduction factor for high Q (0.0 to 0.5)           d: 0.12
+
 ; FX Parameters — voicing for specific effects
-FX_DUB_ECHO_TMIN = 30; Minimum Time at PARAM CCW                               d : 30
-FX_DUB_ECHO_HPF = 400; HPF Cutoff Frequency (Hz)                               d: 400
-FX_DUB_ECHO_LPF = 8400; LPF Cutoff Frequency (Hz)                               d: 8400
-FX_DUB_ECHO_MIX = 0.38; MIX level for DUB ECHO                                  d : 0.38
-FX_CHORUS_CENTER = 12.0; Center Delay in ms (1–120)                              d: 12.0
-FX_CHORUS_DEPTH = 5.0; Depth in ms (1–CENTER)                                  d: 5.0
-FX_CHORUS_MIX = 1.0; Mix level (0.1–1)                                       d: 1.0
-FX_CHORUS_SPREAD = 0.01; LFO Freq Spread% per tap                               d : 0.01
-FX_CHORUS_TAPS = 4; Integer # of Taps (1–4)                                 d: 4
-FX_CHORUS_LFO_B = 0.002; LFO at slowest in Hz                                    d : 0.002
-FX_CHORUS_LFO_T = 3; LFO at fastest in Hz                                    d : 3
-FX_REVERB_LPF = 9000; LPF for FB in Hz                                        d : 9000
-FX_REVERB_HPF = 700; HPF for FB in Hz                                        d : 700
-; ---- - Glitch Engine (probabilities, weights, and per - mode timing / levels) ---- -
-FX_GLITCH_PROBABILITY_MIN = 0.00005; Master probability to glitch at PARAM 0 % d: 0.00005
-FX_GLITCH_PROBABILITY_MAX = 0.003; Master probability to glitch at PARAM 100 % d: 0.003
-FX_GLITCH_WEIGHT_HOLD_LOW = 0.15; Weighted chance of hold at PARAM 0 % d: 0.15
-FX_GLITCH_WEIGHT_STUTTER_LOW = 0.05; Weighted chance of stutter at PARAM 0 % d: 0.05
-FX_GLITCH_WEIGHT_CRUSH_LOW = 0.30; Weighted chance of bit crush at PARAM 0 % d: 0.30
-FX_GLITCH_WEIGHT_DROP_LOW = 0.02; Weighted chance of dropout at PARAM 0 % d: 0.02
-FX_GLITCH_WEIGHT_HOLD_HIGH = 0.30; Weighted chance of hold at PARAM 100 % d: 0.30
-FX_GLITCH_WEIGHT_STUTTER_HIGH = 0.20; Weighted chance of stutter at PARAM 100 % d: 0.20
-FX_GLITCH_WEIGHT_CRUSH_HIGH = 0.20; Weighted chance of bit crush at PARAM 100 % d: 0.20
-FX_GLITCH_WEIGHT_DROP_HIGH = 0.07; Weighted chance of dropout at PARAM 100 % d: 0.07
-; DROP (ghost / attenuation)
-FX_GLITCH_DROP_KEEP_LEVEL_MIN = 0.00; Dropout minimum level (0 = mute, 1 = no drop)           d: 0.0
-FX_GLITCH_DROP_KEEP_LEVEL_MAX = 0.75; Dropout maximum level (0 = mute, 1 = no drop)           d: 0.75
-FX_GLITCH_DROP_KEEP_TIME_MIN = 4.0; Dropout duration minimum (ms)                           d: 4.0
-FX_GLITCH_DROP_KEEP_TIME_MAX = 40.0; Dropout duration maximum (ms)                           d: 40.0
-; CRUSH (sample - rate reduction)
-FX_GLITCH_CRUSH_TIME_MIN = 10.0; Bit crush duration minimum (ms)                         d: 10.0
-FX_GLITCH_CRUSH_TIME_MAX = 50.0; Bit crush duration maximum (ms)                         d: 50.0
+FX_DUB_ECHO_TMIN                  = 30               ; Minimum Time at PARAM CCW in ms (5 to 80)               d: 30
+FX_DUB_ECHO_HPF                   = 400              ; HPF Cutoff Frequency (Hz) (20 to 2000)                  d: 400
+FX_DUB_ECHO_LPF                   = 8400             ; LPF Cutoff Frequency (Hz) (2000 to 20000)               d: 8400
+FX_DUB_ECHO_MIX                   = 0.38             ; MIX level for DUB ECHO    (0.01 to 0.80)                d: 0.38
+
+FX_CHORUS_CENTER                  = 12.0             ; Center Delay in ms (1 to 120)                           d: 12.0
+FX_CHORUS_DEPTH                   = 5.0              ; Depth in ms (1 to FX_CHORUS_CENTER / 2)                 d: 5.0
+FX_CHORUS_MIX                     = 1.0              ; Mix level (0.1 to 1.0)                                  d: 1.0
+FX_CHORUS_SPREAD                  = 0.01             ; LFO Freq Spread % per tap (0.001 to 0.1)                d: 0.01
+FX_CHORUS_TAPS                    = 4                ; Integer # of Taps (1 to 4)                              d: 4
+FX_CHORUS_LFO_B                   = 0.002            ; LFO at slowest in Hz  (0.0001 to 0.1)                   d: 0.002
+FX_CHORUS_LFO_T                   = 3                ; LFO at fastest in Hz  (0.1 to 20)                       d: 3
+
+FX_REVERB_LPF                     = 9000             ; LPF for FB in Hz  (1000 - 20000)                        d: 9000
+FX_REVERB_HPF                     = 700              ; HPF for FB in Hz  (20 - 8000)                           d: 700
+
+; ----- Glitch Engine (probabilities, weights, and per-mode timing/levels) -----
+FX_GLITCH_PROBABILITY_MIN         = 0.00005          ; Master probability PARAM 0% (0.0000001 to 0.001)        d: 0.00005
+FX_GLITCH_PROBABILITY_MAX         = 0.003            ; Master probability at PARAM 100% (0.000001 to 0.1)      d: 0.003
+
+FX_GLITCH_WEIGHT_HOLD_LOW         = 0.15             ; Weighted chance of hold at PARAM 0%       (0 to 1)      d: 0.15
+FX_GLITCH_WEIGHT_STUTTER_LOW      = 0.05             ; Weighted chance of stutter at PARAM 0%    (0 to 1)      d: 0.05
+FX_GLITCH_WEIGHT_CRUSH_LOW        = 0.30             ; Weighted chance of bit crush at PARAM 0%  (0 to 1)      d: 0.30
+FX_GLITCH_WEIGHT_DROP_LOW         = 0.02             ; Weighted chance of dropout at PARAM 0%    (0 to 1)      d: 0.02
+
+FX_GLITCH_WEIGHT_HOLD_HIGH        = 0.30             ; Weighted chance of hold at PARAM 100%      (0 to 1)     d: 0.30
+FX_GLITCH_WEIGHT_STUTTER_HIGH     = 0.20             ; Weighted chance of stutter at PARAM 100%   (0 to 1)     d: 0.20
+FX_GLITCH_WEIGHT_CRUSH_HIGH       = 0.20             ; Weighted chance of bit crush at PARAM 100% (0 to 1)     d: 0.20
+FX_GLITCH_WEIGHT_DROP_HIGH        = 0.07             ; Weighted chance of dropout at PARAM 100%   (0 to 1)     d: 0.07
+
+; DROP (ghost/attenuation)
+FX_GLITCH_DROP_KEEP_LEVEL_MIN     = 0.00             ; Dropout minimum level (0 = mute, 1 = no drop) (0 to 1)  d: 0.0
+FX_GLITCH_DROP_KEEP_LEVEL_MAX     = 0.75             ; Dropout maximum level (0 = mute, 1 = no drop) (0 to 1)  d: 0.75
+FX_GLITCH_DROP_KEEP_TIME_MIN      = 4.0              ; Dropout duration minimum (ms)       (1 to 100)          d: 4.0
+FX_GLITCH_DROP_KEEP_TIME_MAX      = 40.0             ; Dropout duration maximum (ms)       (^ MIN to 1000)     d: 40.0
+
+; CRUSH (sample-rate reduction)
+FX_GLITCH_CRUSH_TIME_MIN          = 10.0             ; Bit crush duration minimum (ms)     (1 to 100)          d: 10.0
+FX_GLITCH_CRUSH_TIME_MAX          = 50.0             ; Bit crush duration maximum (ms)     (^ MIN to 1000)     d: 50.0
+
 ; MICRO LOOP
-FX_GLITCH_MICROLOOP_SMPL_T_MIN = 0.2; Hold micro loop time minimum (ms)                       d: 0.2
-FX_GLITCH_MICROLOOP_SMPL_T_MAX = 3.0; Hold micro loop time maximum (ms)                       d: 3.0
-FX_GLITCH_MICROLOOP_PLAY_T_MIN = 5.0; Hold micro loop play time minimum (ms)                  d: 5.0
-FX_GLITCH_MICROLOOP_PLAY_T_MAX = 15.0; Hold micro loop play time maximum (ms)                  d: 15.0
+FX_GLITCH_MICROLOOP_SMPL_T_MIN     = 0.2             ; Hold micro loop time minimum (ms)   (0.01 to 20)        d: 0.2
+FX_GLITCH_MICROLOOP_SMPL_T_MAX     = 3.0             ; Hold micro loop time maximum (ms)   (^ MIN to 100)      d: 3.0
+FX_GLITCH_MICROLOOP_PLAY_T_MIN     = 5.0             ; Hold micro loop play time minimum (ms) (0.5 to 200)     d: 5.0
+FX_GLITCH_MICROLOOP_PLAY_T_MAX     = 15.0            ; Hold micro loop play time maximum (ms) (^ MIN to 1000)  d: 15.0
+
 ; REPEAT (onset stutter)
-FX_GLITCH_STUTTER_SMPL_T_MIN = 3.0; Stutter sample time minimum (ms)                        d: 3.0
-FX_GLITCH_STUTTER_SMPL_T_MAX = 10.0; Stutter sample time maximum (ms)                        d: 10.0
-FX_GLITCH_STUTTER_NUM_MIN = 2; Stutter repeat quantity minimum (integer)               d: 2
-FX_GLITCH_STUTTER_NUM_MAX = 5; Stutter repeat quantity maximum (integer)               d: 5
-FX_GLITCH_STUTTER_WINDOW = 20; Stutter can happen within x ms of sample trigger        d : 20
+FX_GLITCH_STUTTER_SMPL_T_MIN       = 3.0             ; Stutter sample time minimum (ms)        (0.5 to 50)     d: 3.0
+FX_GLITCH_STUTTER_SMPL_T_MAX       = 10.0            ; Stutter sample time maximum (ms)        (^ MIN to 100)  d: 10.0
+FX_GLITCH_STUTTER_NUM_MIN          = 2               ; Stutter repeat quantity minimum (integer) (1 to 40)     d: 2
+FX_GLITCH_STUTTER_NUM_MAX          = 5               ; Stutter repeat quantity maximum (integer) (1 to 40)     d: 5
+FX_GLITCH_STUTTER_WINDOW           = 20              ; Stutter window after trigger (ms) (1 to 100)            d: 20
+
+
+; =======================================================================================================================
+[PATTERNS]
+; User-customizable patterns for the FEEL option
+; 8× patterns of numbers 1–9. A 0 ends the pattern.
+; 1:10%, 2:30%, 3:60%, 4:80%, 5:100%, 6:110%, 7:125%, 8:150%, 9:200%
+; MAX STEPS is 32 + a trailing 0 to denote pattern end.
+; Example: PTN_WHITE = 6,5,7,5,0  (four-step pattern)
+; =======================================================================================================================
+
+;             1|2|3|4|5|6|7|8|1|2|3|4|5|6|7|8|1|2|3|4|5|6|7|8|1|2|3|4|5|6|7|8|END
+PTN_WHITE   = 6,5,7,5,0
+PTN_RED     = 6,5,5,7,5,6,5,6,4,0
+PTN_ORANGE  = 3,2,8,5,2,6,2,2,0
+PTN_YELLOW  = 7,3,5,7,3,5,2,5,7,3,5,3,2,8,3,2,0
+PTN_GREEN   = 4,3,6,3,4,7,1,2,6,4,3,6,3,6,4,5,0
+PTN_BLUE    = 5,2,3,5,1,5,1,0
+PTN_CYAN    = 5,5,5,7,0
+PTN_VIOLET  = 5,4,5,5,9,5,5,4,5,5,7,4,6,4,5,3,0
+;             1|2|3|4|5|6|7|8|1|2|3|4|5|6|7|8|1|2|3|4|5|6|7|8|1|2|3|4|5|6|7|8|END
+
+; =======================================================================================================================
+[EFFECTS]
+; Color-to-Effect Mapping
+; Maps each LED color to an effect. Set to "NONE" to bypass.
+; Available effects: SPUTTER, BITCRUSH, COMBFILTER, WAVEFOLD, DUBECHO, CHORUS, REVERB, GLITCH, DJFILTER, NONE
+; =======================================================================================================================
+
+FX_WHITE   = SPUTTER           ; d: SPUTTER
+FX_RED     = BITCRUSH          ; d: BITCRUSH
+FX_GREEN   = COMBFILTER        ; d: COMBFILTER
+FX_BLUE    = DJFILTER          ; d: DJFILTER
+FX_ORANGE  = DUBECHO           ; d: DUBECHO
+FX_CYAN    = CHORUS            ; d: CHORUS
+FX_VIOLET  = REVERB            ; d: REVERB
+FX_YELLOW  = GLITCH            ; d: GLITCH
+
+; =======================================================================================================================
+; End of HIHAT.INI
+; =======================================================================================================================
 */
