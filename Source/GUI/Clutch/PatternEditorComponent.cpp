@@ -22,7 +22,10 @@ PatternEditorComponent::PatternEditorComponent ()
         stepComboBox.setColour (juce::ComboBox::backgroundColourId, juce::Colours::darkgrey.darker (curStepIndex == 0 ? kEnabledStepColor : kDisabledStepColor));
         stepComboBox.setSelectedId (1);
         stepComboBox.setComponentID ("StepComboBox" + juce::String (curStepIndex));
-        stepComboBox.onChange = [this] () { onPatternUiChanged (); };
+        stepComboBox.onChange = [this] ()
+        {
+            onPatternUiChanged ();
+        };
         addAndMakeVisible (stepComboBox);
 
         auto& lengthSelector { lengthSelectors [curStepIndex] };
@@ -30,10 +33,13 @@ PatternEditorComponent::PatternEditorComponent ()
         lengthSelector.setLookAndFeel (&toggleButtonLnF);
         lengthSelector.setRadioGroupId (1, juce::NotificationType::dontSendNotification);
         lengthSelector.onClick = [this, curStepIndex] ()
+        {
+            if (lengthSelectors [curStepIndex].getToggleState () == true)
             {
                 onPatternUiChanged ();
                 updateUiFromLengthChange (curStepIndex);
-            };
+            }
+        };
         addAndMakeVisible (lengthSelector);
     }
     auto lengthSelector { dynamic_cast <juce::ToggleButton*> (findChildWithID ("LengthSelector" + juce::String (0))) };
@@ -69,8 +75,8 @@ void PatternEditorComponent::init (juce::ValueTree patternVT)
 
 void PatternEditorComponent::updateUiFromLengthChange (int length)
 {
-    for (auto stepIndex { 0 }; stepIndex < 32; ++stepIndex)
-        stepEditors [stepIndex].setColour (juce::ComboBox::backgroundColourId, juce::Colours::darkgrey.darker (stepIndex <= length ? kEnabledStepColor : kDisabledStepColor));
+   for (auto stepIndex { 0 }; stepIndex < 32; ++stepIndex)
+       stepEditors [stepIndex].setColour (juce::ComboBox::backgroundColourId, juce::Colours::darkgrey.darker (stepIndex <= length ? kEnabledStepColor : kDisabledStepColor));
 }
 
 void PatternEditorComponent::paint (juce::Graphics& g)
@@ -112,10 +118,29 @@ void PatternEditorComponent::resized ()
     }
 }
 
+int PatternEditorComponent::getPatternLength ()
+{
+    for (auto stepIndex { 0 }; stepIndex < 32; ++stepIndex)
+    {
+        auto lengthSelector { dynamic_cast <juce::ToggleButton*> (findChildWithID ("LengthSelector" + juce::String (stepIndex))) };
+        if (lengthSelector->getToggleState ())
+            return stepIndex + 1;
+    }
+    return 1;
+}
+
 void PatternEditorComponent::onPatternUiChanged ()
 {
-    // TODO build a string for the pattern field
-    //      write new pattern data
+    const auto patternLength { getPatternLength () };
+    juce::String patternString;
+    for (auto stepIndex { 0 }; stepIndex < patternLength; ++stepIndex)
+    {
+        if (stepIndex > 0)
+            patternString += ",";
+        patternString += juce::String (stepEditors [stepIndex].getSelectedId ());
+    }
+    patternString += (patternString.isNotEmpty () ? "," : "") + juce::String ("0");
+    patternProperties.setPattern (patternString, false);
 }
 
 void PatternEditorComponent::onPatternDataChanged ()

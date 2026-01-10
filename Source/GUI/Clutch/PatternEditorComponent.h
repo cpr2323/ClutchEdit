@@ -30,9 +30,7 @@ public:
     ~PatternEditorComponent ();
 
     void init (juce::ValueTree rootPropertiesVT);
-
     void updateUiFromLengthChange (int length);
-
     std::vector<float> getColumnCenters ();
 
 private:
@@ -41,8 +39,11 @@ private:
     std::array<juce::ToggleButton, 32> lengthSelectors;
     NoArrowComboBoxLnF noArrowComboBoxLnF;
     ToggleButtonLnF toggleButtonLnF;
-    void paint (juce::Graphics& g) override;
-    void resized () override;
+
+    int getPatternLength ();
     void onPatternUiChanged ();
     void onPatternDataChanged ();
+
+    void paint (juce::Graphics& g) override;
+    void resized () override;
 };
