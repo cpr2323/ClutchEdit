@@ -20,9 +20,9 @@ EffectEditorComponent::EffectEditorComponent ()
         effectEditor.setColour (juce::ComboBox::backgroundColourId, juce::Colours::darkgrey.darker (0.7f));
         effectEditor.setSelectedId (1);
         effectEditor.setComponentID ("StepComboBox" + juce::String (curStepIndex));
-        effectEditor.onChange = [this] ()
+        effectEditor.onChange = [this, curStepIndex] ()
         {
-            onEffectUiChanged ();
+            onEffectUiChanged (curStepIndex);
         };
         addAndMakeVisible (effectEditor);
     }
@@ -38,7 +38,6 @@ EffectEditorComponent::EffectEditorComponent ()
         effectEditor.setJustificationType (juce::Justification::centredLeft);
         effectEditor.setSelectedId (1);
         addAndMakeVisible (effectEditor);
-
     }
 }
 
@@ -76,34 +75,13 @@ void EffectEditorComponent::resized ()
     }
 }
 
-void EffectEditorComponent::onEffectUiChanged ()
+void EffectEditorComponent::onEffectUiChanged (int effectIndex)
 {
-//     const auto patternLength { getPatternLength () };
-//     juce::String patternString;
-//     for (auto stepIndex { 0 }; stepIndex < patternLength; ++stepIndex)
-//     {
-//         if (stepIndex > 0)
-//             patternString += ",";
-//         patternString += juce::String (stepEditors [stepIndex].getSelectedId ());
-//     }
-//     patternString += (patternString.isNotEmpty () ? "," : "") + juce::String ("0");
-//     patternProperties.setPattern (patternString, false);
+    effectProperties [effectIndex].setEffect (effectEditors [effectIndex].getText (), juce::NotificationType::dontSendNotification);
 }
 
 void EffectEditorComponent::onEffectDataChanged (int effectIndex)
 {
-//     const auto patternString { patternProperties.getPattern () };
-//     const auto stepValues { juce::StringArray::fromTokens (patternString, ",", "") };
-//     for (auto stepIndex { 0 }; stepIndex < 32; ++stepIndex)
-//     {
-//         if (stepIndex < stepValues.size () - 1)
-//             stepEditors [stepIndex].setSelectedId (stepValues [stepIndex].getIntValue (), juce::NotificationType::dontSendNotification);
-//         else
-//             stepEditors [stepIndex].setSelectedId (1, juce::NotificationType::dontSendNotification);
-//     }
-//     const auto patternLength { stepValues.size () - 2 };
-//     updateUiFromLengthChange (patternLength);
-//     auto lengthSelector { dynamic_cast <juce::ToggleButton*> (findChildWithID ("LengthSelector" + juce::String (patternLength))) };
-//     lengthSelector->setToggleState (true, juce::NotificationType::dontSendNotification);
+    effectEditors [effectIndex].setText (effectProperties [effectIndex].getEffect (), juce::NotificationType::dontSendNotification);
 }
 

@@ -22,6 +22,6 @@ private:
 
     void paint (juce::Graphics& g) override;
     void resized () override;
-    void onEffectUiChanged ();
+    void onEffectUiChanged (int effectIndex);
     void onEffectDataChanged (int effectIndex);
 };
