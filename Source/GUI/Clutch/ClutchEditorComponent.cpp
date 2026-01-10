@@ -32,6 +32,7 @@ void ClutchEditorComponent::init (juce::ValueTree rootPropertiesVT)
 {
     RuntimeRootProperties runtimeRootProperties (rootPropertiesVT, ValueTreeWrapper<RuntimeRootProperties>::WrapperType::client, ValueTreeWrapper<RuntimeRootProperties>::EnableCallbacks::no);
     clutchProperties.wrap (runtimeRootProperties.getValueTree (), ValueTreeWrapper<ClutchProperties>::WrapperType::client, ValueTreeWrapper<ClutchProperties>::EnableCallbacks::no);
+    // TODO pass in the clutch VT directly instead of root VT
     hiHatEditorComponent.init (rootPropertiesVT);
     patternListEditorComponent.init (rootPropertiesVT);
     effectEditorComponent.init (rootPropertiesVT);
