@@ -43,6 +43,10 @@
                 file="Source/GUI/Clutch/HiHatEditorComponent.cpp"/>
           <FILE id="rMMGJW" name="HiHatEditorComponent.h" compile="0" resource="0"
                 file="Source/GUI/Clutch/HiHatEditorComponent.h"/>
+          <FILE id="LZCrjd" name="PatternEditorComponent.cpp" compile="1" resource="0"
+                file="Source/GUI/Clutch/PatternEditorComponent.cpp"/>
+          <FILE id="XAHcdW" name="PatternEditorComponent.h" compile="0" resource="0"
+                file="Source/GUI/Clutch/PatternEditorComponent.h"/>
           <FILE id="YYdCVo" name="PatternListEditorComponent.cpp" compile="1"
                 resource="0" file="Source/GUI/Clutch/PatternListEditorComponent.cpp"/>
           <FILE id="tW3XcE" name="PatternListEditorComponent.h" compile="0" resource="0"
