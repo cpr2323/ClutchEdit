@@ -18,9 +18,7 @@ ClutchEditorComponent::ClutchEditorComponent ()
     //saveButton.setEnabled (false);
     saveButton.onClick = [this] ()
     {
-        HiHatProperties hihatProperties { clutchProperties.getValueTree ().getChildWithName (HiHatProperties::HiHatTypeId),
-                                          ValueTreeWrapper<HiHatProperties>::WrapperType::client, ValueTreeWrapper<HiHatProperties>::EnableCallbacks::no };
-        FillInDataFromVt (gHiHatData, hihatProperties.getValueTreeRef ());
+        FillInDataFromVt (gHiHatData, clutchProperties.getValueTreeRef ());
         gHiHatData.writeToFile (juce::File::getCurrentWorkingDirectory ().getChildFile ("HIHAT_edit.INI"));
     };
     addAndMakeVisible (saveButton);

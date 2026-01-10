@@ -58,19 +58,8 @@ PatternEditorComponent::~PatternEditorComponent ()
 void PatternEditorComponent::init (juce::ValueTree patternVT)
 {
     patternProperties.wrap (patternVT, PatternProperties::WrapperType::client, PatternProperties::EnableCallbacks::yes);
-    const auto patternString { patternProperties.getPattern () };
-    const auto stepValues { juce::StringArray::fromTokens (patternString, ",", "") };
-    for (auto stepIndex { 0 }; stepIndex < 32; ++stepIndex)
-    {
-        if (stepIndex < stepValues.size () - 1)
-            stepEditors [stepIndex].setSelectedId (stepValues [stepIndex].getIntValue (), juce::NotificationType::dontSendNotification);
-        else
-            stepEditors [stepIndex].setSelectedId (1, juce::NotificationType::dontSendNotification);
-    }
-    updateUiFromLengthChange (stepValues.size () - 2);
-    const auto patternLength { stepValues.size () - 1 };
-    auto lengthSelector { dynamic_cast <juce::ToggleButton*> (findChildWithID ("LengthSelector" + juce::String (patternLength - 1))) };
-    lengthSelector->setToggleState (true, juce::NotificationType::dontSendNotification);
+    patternProperties.onPatternChange = [this] (juce::String) { onPatternDataChanged (); };
+    onPatternDataChanged ();
 }
 
 void PatternEditorComponent::updateUiFromLengthChange (int length)
@@ -145,7 +134,18 @@ void PatternEditorComponent::onPatternUiChanged ()
 
 void PatternEditorComponent::onPatternDataChanged ()
 {
-    // TODO parse pattern string
-    //      update UI pattern data
+    const auto patternString { patternProperties.getPattern () };
+    const auto stepValues { juce::StringArray::fromTokens (patternString, ",", "") };
+    for (auto stepIndex { 0 }; stepIndex < 32; ++stepIndex)
+    {
+        if (stepIndex < stepValues.size () - 1)
+            stepEditors [stepIndex].setSelectedId (stepValues [stepIndex].getIntValue (), juce::NotificationType::dontSendNotification);
+        else
+            stepEditors [stepIndex].setSelectedId (1, juce::NotificationType::dontSendNotification);
+    }
+    const auto patternLength { stepValues.size () - 2 };
+    updateUiFromLengthChange (patternLength);
+    auto lengthSelector { dynamic_cast <juce::ToggleButton*> (findChildWithID ("LengthSelector" + juce::String (patternLength))) };
+    lengthSelector->setToggleState (true, juce::NotificationType::dontSendNotification);
 }
 
