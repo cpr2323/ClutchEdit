@@ -31,6 +31,7 @@ public:
 
     void init (juce::ValueTree rootPropertiesVT);
 
+    void setLength (int length);
     std::vector<float> getColumnCenters ();
 
 private:
