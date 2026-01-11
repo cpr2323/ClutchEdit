@@ -362,8 +362,9 @@ public:
 
     void initClutch ()
     {
-        gHiHatData.readFromFile (juce::File::getCurrentWorkingDirectory ().getChildFile ("HIHAT.INI"));
-        gHiHatData.writeToFile (juce::File::getCurrentWorkingDirectory ().getChildFile ("HIHAT_test.INI"));
+        auto appDataPath = juce::File (runtimeRootProperties.getAppDataPath ()).getChildFile ("sdcard_test");
+        gHiHatData.readFromFile (appDataPath.getChildFile ("HIHAT.INI"));
+        gHiHatData.writeToFile (appDataPath.getChildFile ("HIHAT_test.INI"));
 
         HiHatProperties hiHatProperties;
         PatternListProperties patternListProperties;

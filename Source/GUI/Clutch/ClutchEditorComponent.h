@@ -5,6 +5,7 @@
 #include "PatternListEditorComponent.h"
 #include "SampleManagerComponent.h"
 #include "../../Clutch/ClutchProperties.h"
+#include "../../Utility/RuntimeRootProperties.h"
 
 class ClutchEditorComponent : public juce::Component
 {
@@ -15,6 +16,7 @@ public:
     void init (juce::ValueTree rootPropertiesVT);
 
 private:
+    RuntimeRootProperties runtimeRootProperties;
     ClutchProperties clutchProperties;
     HiHatEditorComponent hiHatEditorComponent;
     PatternListEditorComponent patternListEditorComponent;

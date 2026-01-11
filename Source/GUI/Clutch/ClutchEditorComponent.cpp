@@ -1,6 +1,5 @@
 #include "ClutchEditorComponent.h"
 #include "../../Clutch/HiHatIniData.h"
-#include "../../Utility/RuntimeRootProperties.h"
 
 void FillInDataFromVt (HiHatData& data, const juce::ValueTree vt);
 extern HiHatData gHiHatData;
@@ -19,7 +18,8 @@ ClutchEditorComponent::ClutchEditorComponent ()
     saveButton.onClick = [this] ()
     {
         FillInDataFromVt (gHiHatData, clutchProperties.getValueTreeRef ());
-        gHiHatData.writeToFile (juce::File::getCurrentWorkingDirectory ().getChildFile ("HIHAT_edit.INI"));
+        auto appDataPath = juce::File (runtimeRootProperties.getAppDataPath ()).getChildFile ("sdcard_test");
+        gHiHatData.writeToFile (appDataPath.getChildFile ("HIHAT_edit.INI"));
     };
     addAndMakeVisible (saveButton);
 }
@@ -30,7 +30,7 @@ ClutchEditorComponent::~ClutchEditorComponent ()
 
 void ClutchEditorComponent::init (juce::ValueTree rootPropertiesVT)
 {
-    RuntimeRootProperties runtimeRootProperties (rootPropertiesVT, ValueTreeWrapper<RuntimeRootProperties>::WrapperType::client, ValueTreeWrapper<RuntimeRootProperties>::EnableCallbacks::no);
+    runtimeRootProperties.wrap (rootPropertiesVT, ValueTreeWrapper<RuntimeRootProperties>::WrapperType::client, ValueTreeWrapper<RuntimeRootProperties>::EnableCallbacks::no);
     clutchProperties.wrap (runtimeRootProperties.getValueTree (), ValueTreeWrapper<ClutchProperties>::WrapperType::client, ValueTreeWrapper<ClutchProperties>::EnableCallbacks::no);
     // TODO pass in the clutch VT directly instead of root VT
     hiHatEditorComponent.init (rootPropertiesVT);

@@ -1,6 +1,8 @@
 ﻿#pragma once
 
-// There are eight folders at the root level
+#include <JuceHeader.h>
+
+// There are eight folders (banks) at the root level
 //      "WHITE", "RED", "ORANGE", "YELLOW", "GREEN", "BLUE", "CYAN", "VIOLET"
 // Each folder contains 32 samples, or 16 pairs of open/closed samples
 //      01CH.wav, 01OH.wav, 02CH.wav, 02OH.wav, ..., 16CH.wav, 16OH.wav
@@ -26,3 +28,11 @@
 // * Sample rate recommended : 48kHz or 44.1kHz -
 // — this is ignored internally, sample rate is determined by pitch control
 // - 48kHz will yield best results
+
+// Max sample length is limited by the length of the release envelope set in the HIHAT.INI file. 4 seconds default.
+
+// <SAMPLES>
+//     <BANK id=0>
+//         <SAMPLE surface=0 state="open"
+//     </BANK>
+// </SAMPLES>
