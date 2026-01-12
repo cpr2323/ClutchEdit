@@ -51,6 +51,10 @@
                 resource="0" file="Source/GUI/Clutch/PatternListEditorComponent.cpp"/>
           <FILE id="tW3XcE" name="PatternListEditorComponent.h" compile="0" resource="0"
                 file="Source/GUI/Clutch/PatternListEditorComponent.h"/>
+          <FILE id="XLbR4d" name="SampleBankComponent.cpp" compile="1" resource="0"
+                file="Source/GUI/Clutch/SampleBankComponent.cpp"/>
+          <FILE id="jK0Isn" name="SampleBankComponent.h" compile="0" resource="0"
+                file="Source/GUI/Clutch/SampleBankComponent.h"/>
           <FILE id="T7H1cR" name="SampleManagerComponent.cpp" compile="1" resource="0"
                 file="Source/GUI/Clutch/SampleManagerComponent.cpp"/>
           <FILE id="lJguHZ" name="SampleManagerComponent.h" compile="0" resource="0"
