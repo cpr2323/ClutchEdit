@@ -1,7 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "../../Clutch/EffectListProperties.h"
+#include "../../AppProperties.h"
 
 class FileDropLabel : public juce::Label,
                       public juce::FileDragAndDropTarget
@@ -46,9 +46,9 @@ public:
 
     void setBankName (const juce::String& newBankName);
     void updateFileStatus ();
+    void setBankFolder (const juce::File& newBankFolder);
 
 private:
-    //SampleProperties effectListProperties;
     juce::Label bankName;
     struct SurfaceInfo
     {
@@ -57,6 +57,7 @@ private:
         FileDropLabel closedName;
     };
     std::array<SurfaceInfo, 16> surfaceComponents;
+    juce::File bankFolder;
 
     void paint (juce::Graphics& g) override;
     void resized () override;
@@ -72,8 +73,10 @@ public:
     void init (juce::ValueTree rootPropertiesVT);
 
 private:
-    EffectListProperties effectListProperties;
     std::array<SampleBankComponent, 8> sampleBankComponents;
+    AppProperties appProperties;
+
+    void updateBanks ();
 
     void paint (juce::Graphics& g) override;
     void resized () override;

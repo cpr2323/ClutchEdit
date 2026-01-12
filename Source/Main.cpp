@@ -362,18 +362,20 @@ public:
 
     void initClutch ()
     {
-        auto appDataPath = juce::File (runtimeRootProperties.getAppDataPath ()).getChildFile ("sdcard_test");
-        gHiHatData.readFromFile (appDataPath.getChildFile ("HIHAT.INI"));
-        gHiHatData.writeToFile (appDataPath.getChildFile ("HIHAT_test.INI"));
-
         HiHatProperties hiHatProperties;
         PatternListProperties patternListProperties;
         EffectListProperties effectListProperties;
         ClutchProperties clutchProperties (runtimeRootProperties.getValueTree (), ClutchProperties::WrapperType::owner, ClutchProperties::EnableCallbacks::no);
-        clutchProperties.getValueTree ().addChild (hiHatProperties.getValueTree(), -1, nullptr);
+        clutchProperties.getValueTree ().addChild (hiHatProperties.getValueTree (), -1, nullptr);
         clutchProperties.getValueTree ().addChild (patternListProperties.getValueTree (), -1, nullptr);
         clutchProperties.getValueTree ().addChild (effectListProperties.getValueTree (), -1, nullptr);
-        FillInVtFromData (clutchProperties.getValueTree (), gHiHatData);
+
+        auto hiHatIniFile { juce::File (appProperties.getMostRecentFolder ()).getChildFile ("HIHAT.INI") };
+        if (hiHatIniFile.existsAsFile ())
+        {
+            gHiHatData.readFromFile (hiHatIniFile);
+            FillInVtFromData (clutchProperties.getValueTree (), gHiHatData);
+        }
 
 //         // debug tool for watching changes on the Preset Value Tree
 //         //presetPropertiesMonitor.assign (presetProperties.getValueTreeRef ());

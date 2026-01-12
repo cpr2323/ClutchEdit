@@ -1,4 +1,5 @@
 #include "SampleManagerComponent.h"
+#include "../../Utility/PersistentRootProperties.h"
 
 SampleBankComponent::SampleBankComponent ()
 {
@@ -26,21 +27,26 @@ SampleBankComponent::~SampleBankComponent ()
 void SampleBankComponent::updateFileStatus ()
 {
     enum class WhichHiHat { opened, closed };
-    for (auto surfaceIndex { 0 }; surfaceIndex < surfaceComponents.size (); ++surfaceIndex)
+    if (bankFolder != juce::File ())
     {
-        auto doesFileExist = [this] (int surfaceIndex, WhichHiHat whichHiHat)
+        for (auto surfaceIndex { 0 }; surfaceIndex < surfaceComponents.size (); ++surfaceIndex)
         {
-            //auto appDataPath = juce::File (runtimeRootProperties.getAppDataPath ()).getChildFile ("sdcard_test");
-            juce::String fileName { juce::String (surfaceIndex + 1).paddedLeft ('0', 2) + juce::String (whichHiHat == WhichHiHat::opened ? "OH" : "CH") };
-            auto file { juce::File ("C:/Users/cpran/AppData/Roaming/ClutchEdit/sdcard_test").getChildFile (bankName.getText ()).getChildFile (fileName).withFileExtension("wav")};
-            return file.existsAsFile ();
-        };
-        surfaceComponents [surfaceIndex].openedName.setColour (juce::Label::ColourIds::textColourId,
-                                                               doesFileExist (surfaceIndex, WhichHiHat::opened) ? juce::Colours::white : juce::Colours::grey);
-        surfaceComponents [surfaceIndex].closedName.setColour (juce::Label::ColourIds::textColourId,
-                                                               doesFileExist (surfaceIndex, WhichHiHat::closed) ? juce::Colours::white : juce::Colours::grey);
+            auto doesFileExist = [this] (int surfaceIndex, WhichHiHat whichHiHat)
+                {
+                    juce::String fileName { juce::String (surfaceIndex + 1).paddedLeft ('0', 2) + juce::String (whichHiHat == WhichHiHat::opened ? "OH" : "CH") };
+                    auto file { bankFolder.getChildFile (bankName.getText ()).getChildFile (fileName).withFileExtension ("wav") };
+                    return file.existsAsFile ();
+                };
+            surfaceComponents [surfaceIndex].openedName.setColour (juce::Label::ColourIds::textColourId, doesFileExist (surfaceIndex, WhichHiHat::opened) ? juce::Colours::white : juce::Colours::grey);
+            surfaceComponents [surfaceIndex].closedName.setColour (juce::Label::ColourIds::textColourId, doesFileExist (surfaceIndex, WhichHiHat::closed) ? juce::Colours::white : juce::Colours::grey);
+        }
     }
     repaint ();
+}
+
+void SampleBankComponent::setBankFolder (const juce::File& newBankFolder)
+{
+    bankFolder = newBankFolder;
 }
 
 void SampleBankComponent::paint (juce::Graphics& g)
@@ -106,7 +112,22 @@ SampleManagerComponent::~SampleManagerComponent ()
 
 void SampleManagerComponent::init (juce::ValueTree rootPropertiesVT)
 {
+    PersistentRootProperties persistentRootProperties (rootPropertiesVT, PersistentRootProperties::WrapperType::owner, PersistentRootProperties::EnableCallbacks::no);
+    appProperties.wrap (persistentRootProperties.getValueTree (), AppProperties::WrapperType::owner, AppProperties::EnableCallbacks::yes);
+    appProperties.onMostRecentFolderChange = [this] (juce::String folderName)
+    {
+        updateBanks ();
+    };
+    updateBanks ();
+}
 
+void SampleManagerComponent::updateBanks ()
+{
+    for (auto& sampleBankComponent : sampleBankComponents)
+    {
+        sampleBankComponent.setBankFolder (appProperties.getMostRecentFolder ());
+        sampleBankComponent.updateFileStatus ();
+    }
 }
 
 void SampleManagerComponent::paint (juce::Graphics& g)
