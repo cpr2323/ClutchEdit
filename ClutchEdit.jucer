@@ -71,6 +71,10 @@
               file="Source/GUI/MainComponent.cpp"/>
         <FILE id="kn1He1" name="MainComponent.h" compile="0" resource="0" file="Source/GUI/MainComponent.h"/>
       </GROUP>
+      <GROUP id="{7438C2F4-8B76-9070-CC53-909FC5EA2150}" name="SRC">
+        <FILE id="JYnVP9" name="libsamplerate.c" compile="1" resource="0" file="Source/SRC/libsamplerate.c"/>
+        <FILE id="S63qeT" name="samplerate.h" compile="0" resource="0" file="Source/SRC/libsamplerate-0.1.9/src/samplerate.h"/>
+      </GROUP>
       <GROUP id="{905758B9-9B90-95E4-AC1D-89D683BE7B76}" name="Utility">
         <FILE id="kVQCYf" name="CustomComboBox.cpp" compile="1" resource="0"
               file="Source/Utility/CustomComboBox.cpp"/>
@@ -134,6 +138,8 @@
     </GROUP>
   </MAINGROUP>
   <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
@@ -157,6 +163,8 @@
         <MODULEPATH id="juce_gui_basics" path="../JUCE/modules"/>
         <MODULEPATH id="melatonin_inspector" path="../other_juce_modules"/>
         <MODULEPATH id="juce_gui_extra" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../JUCE/modules"/>
       </MODULEPATHS>
     </VS2022>
     <XCODE_MAC targetFolder="Builds/MacOSX">
@@ -172,6 +180,8 @@
         <MODULEPATH id="juce_gui_basics" path="../JUCE/modules"/>
         <MODULEPATH id="melatonin_inspector" path="../other_juce_modules"/>
         <MODULEPATH id="juce_gui_extra" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
   </EXPORTFORMATS>
