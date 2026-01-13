@@ -68,6 +68,7 @@ private:
     juce::File bankFolder;
 
     void copySampleFile (juce::File sourceFile, int surfaceIndex, WhichHiHat whichHiHat);
+    void sampleConvert (juce::AudioFormatReader* reader, juce::AudioBuffer<float>& outputBuffer);
 
     void paint (juce::Graphics& g) override;
     void resized () override;
