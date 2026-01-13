@@ -81,6 +81,10 @@ void SampleBankComponent::copySampleFile (juce::File sourceFile, int surfaceInde
         // TODO : reflect error up to UI
         return;
     }
+
+    juce::String destinationFileName { juce::String (surfaceIndex + 1).paddedLeft ('0', 2) + (whichHiHat == WhichHiHat::closed ? "C" : "O") + "H.wav" };
+    juce::File destFile { bankFolder.getChildFile (bankName.getText ()).getChildFile (destinationFileName) };
+
     if (reader->getFormatName () == "WAV file" && reader->numChannels == 1 && reader->bitsPerSample == 16 && (reader->sampleRate == 44100 || reader->sampleRate == 48000))
     {
         sourceFile.copyFileTo (destFile);
@@ -88,8 +92,6 @@ void SampleBankComponent::copySampleFile (juce::File sourceFile, int surfaceInde
     else
     {
         // Source file does not meet required format
-        juce::String destinationFileName { juce::String (surfaceIndex + 1).paddedLeft ('0', 2) + (whichHiHat == WhichHiHat::closed ? "C" : "O") + "H.wav" };
-        juce::File destFile { bankFolder.getChildFile (bankName.getText ()).getChildFile (destinationFileName) };
         auto destinationFileStream { std::make_unique<juce::FileOutputStream> (destFile) };
         destinationFileStream->setPosition (0);
         destinationFileStream->truncate ();
