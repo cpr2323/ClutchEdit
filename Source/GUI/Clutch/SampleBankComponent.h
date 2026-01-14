@@ -65,7 +65,7 @@ private:
         FileDropLabel closedName;
     };
     std::array<SurfaceInfo, 16> surfaceComponents;
-    juce::File bankFolder;
+    juce::File banksRootFolder;
 
     void copySampleFile (juce::File sourceFile, int surfaceIndex, WhichHiHat whichHiHat);
     void sampleConvert (juce::AudioFormatReader* reader, juce::AudioBuffer<float>& outputBuffer);

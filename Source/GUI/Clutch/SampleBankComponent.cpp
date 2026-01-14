@@ -14,7 +14,7 @@ SampleBankComponent::SampleBankComponent ()
         surfaceComponent.openedName.onFilesSelected = [this, surfaceIndex] (juce::StringArray files)
         {
             jassert (files.size () == 1);
-            copySampleFile(juce::File (files[0]), surfaceIndex, WhichHiHat::opened);
+            copySampleFile (juce::File (files[0]), surfaceIndex, WhichHiHat::opened);
         };
 
         surfaceComponent.closedName.setJustificationType (juce::Justification::centred);
@@ -87,7 +87,24 @@ void SampleBankComponent::copySampleFile (juce::File sourceFile, int surfaceInde
     }
 
     juce::String destinationFileName { juce::String (surfaceIndex + 1).paddedLeft ('0', 2) + (whichHiHat == WhichHiHat::closed ? "C" : "O") + "H.wav" };
-    juce::File destFile { bankFolder.getChildFile (bankName.getText ()).getChildFile (destinationFileName) };
+    juce::File bankFolder { banksRootFolder.getChildFile (bankName.getText ()) };
+    if (! bankFolder.exists ())
+    {
+        if (auto createdBankFolder { bankFolder.createDirectory () }; createdBankFolder.failed ())
+        {
+            // TODO reflect this error up to the UI
+            jassertfalse;
+            return;
+        }
+
+    }
+    if (! bankFolder.isDirectory ())
+    {
+        // TODO reflect this issue to the UI
+        jassertfalse;
+        return;
+    }
+    juce::File destFile { bankFolder.getChildFile (destinationFileName) };
 
     if (reader->getFormatName () == "WAV file" && reader->numChannels == 1 && reader->bitsPerSample == 16 && (reader->sampleRate == 44100 || reader->sampleRate == 48000))
     {
@@ -159,14 +176,14 @@ void SampleBankComponent::copySampleFile (juce::File sourceFile, int surfaceInde
 // TODO : move this to a thread
 void SampleBankComponent::updateFileStatus ()
 {
-    if (bankFolder != juce::File ())
+    if (banksRootFolder != juce::File ())
     {
         for (auto surfaceIndex { 0 }; surfaceIndex < surfaceComponents.size (); ++surfaceIndex)
         {
             auto doesFileExist = [this] (int surfaceIndex, WhichHiHat whichHiHat)
             {
                 juce::String fileName { juce::String (surfaceIndex + 1).paddedLeft ('0', 2) + juce::String (whichHiHat == WhichHiHat::opened ? "OH" : "CH") };
-                auto file { bankFolder.getChildFile (bankName.getText ()).getChildFile (fileName).withFileExtension ("wav") };
+                auto file { banksRootFolder.getChildFile (bankName.getText ()).getChildFile (fileName).withFileExtension ("wav") };
                 return file.existsAsFile ();
             };
             surfaceComponents [surfaceIndex].openedName.setFileExists (doesFileExist (surfaceIndex, WhichHiHat::opened));
@@ -178,7 +195,7 @@ void SampleBankComponent::updateFileStatus ()
 
 void SampleBankComponent::setBankFolder (const juce::File& newBankFolder)
 {
-    bankFolder = newBankFolder;
+    banksRootFolder = newBankFolder;
 }
 
 void SampleBankComponent::paint (juce::Graphics& g)
