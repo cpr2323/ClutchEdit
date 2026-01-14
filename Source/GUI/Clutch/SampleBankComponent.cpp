@@ -186,8 +186,8 @@ void SampleBankComponent::paint (juce::Graphics& g)
     g.setColour (juce::Colours::black);
     for (auto lineIndex { 0 }; lineIndex < 15; ++lineIndex)
     {
-        g.drawLine (surfaceComponents [lineIndex].openedName.getX (), surfaceComponents [lineIndex].openedName.getBottom (),
-                    surfaceComponents [lineIndex].closedName.getRight (), surfaceComponents [lineIndex].openedName.getBottom (), 1.0f);
+        g.drawLine (surfaceComponents [lineIndex].openedName.getX (), surfaceComponents [lineIndex].openedName.getBottom () + 1,
+                    surfaceComponents [lineIndex].closedName.getRight (), surfaceComponents [lineIndex].openedName.getBottom () + 1, 1.0f);
     }
     g.drawLine (surfaceComponents [0].openedName.getRight (), surfaceComponents [0].openedName.getY (),
                 surfaceComponents [0].openedName.getRight (), surfaceComponents [15].openedName.getBottom () + 2, 1.0f);

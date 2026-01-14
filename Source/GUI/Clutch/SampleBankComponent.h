@@ -13,7 +13,7 @@ public:
     }
 private:
     bool fileExists { false };
-
+    juce::Colour hoverColor { juce::Colours::lightseagreen };
     bool isInterestedInFileDrag ([[maybe_unused]] const juce::StringArray& files) override
     {
         return files.size () == 1;
@@ -27,12 +27,12 @@ private:
 
     void fileDragEnter (const juce::StringArray& files, int x, int y) override
     {
-        setColour (juce::Label::ColourIds::textColourId, juce::Colours::yellow);
+        setColour (juce::Label::ColourIds::textColourId, hoverColor);
     }
 
     void fileDragMove (const juce::StringArray& files, int, int) override
     {
-        setColour (juce::Label::ColourIds::textColourId, juce::Colours::yellow);
+        setColour (juce::Label::ColourIds::textColourId, hoverColor);
     }
 
     void fileDragExit (const juce::StringArray&) override
