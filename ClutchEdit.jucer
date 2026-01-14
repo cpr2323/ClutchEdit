@@ -60,6 +60,10 @@
           <FILE id="lJguHZ" name="SampleManagerComponent.h" compile="0" resource="0"
                 file="Source/GUI/Clutch/SampleManagerComponent.h"/>
         </GROUP>
+        <FILE id="NaLs4V" name="CurrentFolderComponent.cpp" compile="1" resource="0"
+              file="Source/GUI/CurrentFolderComponent.cpp"/>
+        <FILE id="qY4kX9" name="CurrentFolderComponent.h" compile="0" resource="0"
+              file="Source/GUI/CurrentFolderComponent.h"/>
         <FILE id="QRarSY" name="GuiControlProperties.cpp" compile="1" resource="0"
               file="Source/GUI/GuiControlProperties.cpp"/>
         <FILE id="RhfkU2" name="GuiControlProperties.h" compile="0" resource="0"

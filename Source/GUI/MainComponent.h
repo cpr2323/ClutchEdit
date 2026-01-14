@@ -1,7 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-//#include "CurrentFolderComponent.h"
+#include "CurrentFolderComponent.h"
 #include "GuiProperties.h"
 //#include "BottomStatusWindow.h"
 #include "Clutch/ClutchEditorComponent.h"
@@ -16,7 +16,7 @@ public:
 private:
     ClutchEditorComponent clutchEditorComponent;
     GuiProperties guiProperties;
-    //CurrentFolderComponent currentFolderComponent;
+    CurrentFolderComponent currentFolderComponent;
     //MidiConfigComponent midiConfigComponent;
     //FileViewComponent fileViewComponent;
     //PresetListComponent presetListComponent;
