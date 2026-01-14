@@ -370,7 +370,7 @@ public:
         clutchProperties.getValueTree ().addChild (patternListProperties.getValueTree (), -1, nullptr);
         clutchProperties.getValueTree ().addChild (effectListProperties.getValueTree (), -1, nullptr);
 
-        auto hiHatIniFile { juce::File (appProperties.getMostRecentFolder ()).getChildFile ("HIHAT.INI") };
+        auto hiHatIniFile { juce::File (appProperties.getRecentlyUsedFile (0))};
         if (hiHatIniFile.existsAsFile ())
         {
             gHiHatData.readFromFile (hiHatIniFile);
@@ -424,7 +424,10 @@ public:
         runtimeRootProperties.onQuitStateChanged = [this] (RuntimeRootProperties::QuitState quitState) { localQuitState.store (quitState); };
 
         if (appProperties.getMostRecentFolder ().isEmpty ())
+        {
             appProperties.setMostRecentFolder (appDirectory.getFullPathName ());
+            appProperties.addRecentlyUsedFile (juce::File (appDirectory.getFullPathName ()).getChildFile ("HIHAT.INI").getFullPathName ());
+        }
     }
 
     void initAudio ()

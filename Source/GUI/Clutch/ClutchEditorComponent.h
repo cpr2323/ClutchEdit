@@ -4,6 +4,7 @@
 #include "HiHatEditorComponent.h"
 #include "PatternListEditorComponent.h"
 #include "SampleManagerComponent.h"
+#include "../../AppProperties.h"
 #include "../../Clutch/ClutchProperties.h"
 #include "../../Utility/RuntimeRootProperties.h"
 
@@ -16,14 +17,17 @@ public:
     void init (juce::ValueTree rootPropertiesVT);
 
 private:
-    RuntimeRootProperties runtimeRootProperties;
+    AppProperties appProperties;
     ClutchProperties clutchProperties;
+    RuntimeRootProperties runtimeRootProperties;
+    EffectEditorComponent effectEditorComponent;
     HiHatEditorComponent hiHatEditorComponent;
     PatternListEditorComponent patternListEditorComponent;
-    EffectEditorComponent effectEditorComponent;
     SampleManagerComponent sampleManagerComponent;
     juce::TextButton saveButton;
+    juce::TextButton openButton;
     juce::TabbedComponent editorTabs { juce::TabbedButtonBar::Orientation::TabsAtTop };
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
     void paint (juce::Graphics& g) override;
     void resized () override;

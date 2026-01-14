@@ -10,6 +10,7 @@ void HiHatData::readFromFile (const juce::File& file)
     juce::FileInputStream inputStream (file);
     if (inputStream.openedOk ())
     {
+        iniLines.clear ();
         juce::String currentSection;
         while (!inputStream.isExhausted ())
         {

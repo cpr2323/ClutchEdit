@@ -43,7 +43,7 @@ void SampleManagerComponent::updateBanks ()
 {
     for (auto& sampleBankComponent : sampleBankComponents)
     {
-        sampleBankComponent.setBankFolder (appProperties.getMostRecentFolder ());
+        sampleBankComponent.setBankFolder (juce::File (appProperties.getRecentlyUsedFile (0)).getParentDirectory ().getFullPathName ());
         sampleBankComponent.updateFileStatus ();
     }
 }
