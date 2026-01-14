@@ -16,14 +16,6 @@ PatternListEditorComponent::PatternListEditorComponent ()
         "VIOLET"
     };
 
-    // create the step numbers at the top of the columns
-    for (auto columnIndex { 0 }; columnIndex < stepNumbers.size (); ++columnIndex)
-    {
-        auto& stepNumber { stepNumbers [columnIndex] };
-        stepNumber.setJustificationType (juce::Justification::centred);
-        stepNumber.setText (juce::String (columnIndex + 1), juce::NotificationType::dontSendNotification);
-        addAndMakeVisible (stepNumber);
-    }
     // create the pattern label and pattern editor rows
     for (auto patternIndex { 0 }; patternIndex < patternLabels.size (); ++patternIndex)
     {
@@ -65,20 +57,11 @@ void PatternListEditorComponent::paint (juce::Graphics& g)
 
 void PatternListEditorComponent::resized ()
 {
-    constexpr auto kInitialYOffset { 25 };
+    constexpr auto kInitialYOffset { 10 };
     constexpr auto kInitialXOffset { 55 };
     constexpr auto kPatternEditorHeight { 60 };
     auto bounds { getLocalBounds ().reduced (5, 5) };
     
-    // position the step numbers in the middle/top of each column
-    auto columnCenters { patternEditors [0].getColumnCenters () };
-    for (auto columnIndex { 0 }; columnIndex < stepNumbers.size (); ++columnIndex)
-    {
-        auto& stepNumber { stepNumbers [columnIndex] };
-        auto numberWidth { stepNumber.getFont ().getStringWidth (stepNumber.getText ()) };
-        auto halfNumberWidth { numberWidth / 2 };
-        stepNumber.setBounds (kInitialXOffset + (columnCenters [columnIndex] - halfNumberWidth) - 5, 0, numberWidth + 10, 20);
-    }
     // position the pattern name and pattern editor rows
     for (auto patternIndex { 0 }; patternIndex < patternEditors.size (); ++patternIndex)
     {

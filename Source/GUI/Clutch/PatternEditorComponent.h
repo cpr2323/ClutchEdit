@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include "../../Clutch/PatternListProperties.h"
 #include "../../Utility/CustomComboBox.h"
+#include "../../Utility/CustomTextEditor.h"
 #include "../../Utility/NoArrowComboBoxLnF.h"
 
 class ToggleButtonLnF : public juce::LookAndFeel_V4
@@ -31,16 +32,15 @@ public:
 
     void init (juce::ValueTree rootPropertiesVT);
     void updateUiFromLengthChange (int length);
-    std::vector<float> getColumnCenters ();
 
 private:
     PatternProperties patternProperties;
+    CustomTextEditorInt numberOfStepsEditor;
     std::array<CustomComboBox, 32> stepEditors;
-    std::array<juce::ToggleButton, 32> lengthSelectors;
     NoArrowComboBoxLnF noArrowComboBoxLnF;
     ToggleButtonLnF toggleButtonLnF;
+    std::array<juce::Label, 32> stepNumbers;
 
-    int getPatternLength ();
     void onPatternUiChanged ();
     void onPatternDataChanged ();
 

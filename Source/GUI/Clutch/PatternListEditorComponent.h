@@ -14,7 +14,6 @@ public:
 
 private:
     PatternListProperties patternListProperties;
-    std::array<juce::Label, 32> stepNumbers;
     std::array<PatternEditorComponent, 8> patternEditors;
     std::array<juce::Label, 8> patternLabels;
 
