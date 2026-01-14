@@ -8,12 +8,16 @@ SampleBankComponent::SampleBankComponent ()
     {
         auto& surfaceComponent { surfaceComponents [surfaceIndex] };
         surfaceComponent.name.setText (juce::String (surfaceIndex + 1), juce::NotificationType::dontSendNotification);
+
+        surfaceComponent.openedName.setJustificationType (juce::Justification::centred);
         surfaceComponent.openedName.setText ("Opened", juce::NotificationType::dontSendNotification);
         surfaceComponent.openedName.onFilesSelected = [this, surfaceIndex] (juce::StringArray files)
         {
             jassert (files.size () == 1);
             copySampleFile(juce::File (files[0]), surfaceIndex, WhichHiHat::opened);
         };
+
+        surfaceComponent.closedName.setJustificationType (juce::Justification::centred);
         surfaceComponent.closedName.setText ("Closed", juce::NotificationType::dontSendNotification);
         surfaceComponent.closedName.onFilesSelected = [this, surfaceIndex] (juce::StringArray files)
         {
@@ -179,11 +183,22 @@ void SampleBankComponent::setBankFolder (const juce::File& newBankFolder)
 
 void SampleBankComponent::paint (juce::Graphics& g)
 {
+    g.setColour (juce::Colours::black);
+    for (auto lineIndex { 0 }; lineIndex < 15; ++lineIndex)
+    {
+        g.drawLine (surfaceComponents [lineIndex].openedName.getX (), surfaceComponents [lineIndex].openedName.getBottom (),
+                    surfaceComponents [lineIndex].closedName.getRight (), surfaceComponents [lineIndex].openedName.getBottom (), 1.0f);
+    }
+    g.drawLine (surfaceComponents [0].openedName.getRight (), surfaceComponents [0].openedName.getY (),
+                surfaceComponents [0].openedName.getRight (), surfaceComponents [15].openedName.getBottom () + 2, 1.0f);
+    g.drawRect (surfaceComponents [0].openedName.getX (), surfaceComponents [0].openedName.getY (),
+                surfaceComponents [0].closedName.getRight () - surfaceComponents [0].openedName.getX (),
+                surfaceComponents [15].openedName.getBottom () - surfaceComponents [0].openedName.getY () + 2);
 }
 
 void SampleBankComponent::resized ()
 {
-    auto bounds { getLocalBounds ().reduced (5) };
+    auto bounds { getLocalBounds ().reduced (3) };
     bankName.setBounds (bounds.removeFromTop (20));
     for (auto surfaceIndex { 0 }; surfaceIndex < surfaceComponents.size (); ++surfaceIndex)
     {
@@ -191,8 +206,8 @@ void SampleBankComponent::resized ()
         auto surfaceBounds { bounds.removeFromTop (20).withTrimmedLeft (1) };
         surfaceComponent.name.setBounds (surfaceBounds.removeFromLeft (25));
 
-        surfaceComponent.openedName.setBounds (surfaceBounds.removeFromLeft (50));
-        surfaceComponent.closedName.setBounds (surfaceBounds);
+        surfaceComponent.openedName.setBounds (surfaceBounds.removeFromLeft (57));
+        surfaceComponent.closedName.setBounds (surfaceBounds.removeFromLeft (57));
     }
 }
 
