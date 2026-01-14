@@ -24,7 +24,7 @@ PatternListEditorComponent::PatternListEditorComponent ()
         auto& patternLabel { patternLabels [patternIndex] };
         patternLabel.setColour (juce::Label::textColourId, juce::Colours::white);
         patternLabel.setText (patternNames [patternIndex], juce::NotificationType::dontSendNotification);
-        patternLabel.setJustificationType (juce::Justification::topLeft);
+        patternLabel.setJustificationType (juce::Justification::topRight);
         addAndMakeVisible (patternLabel);
     }
 }
@@ -57,15 +57,15 @@ void PatternListEditorComponent::paint (juce::Graphics& g)
 
 void PatternListEditorComponent::resized ()
 {
-    constexpr auto kInitialYOffset { 10 };
-    constexpr auto kInitialXOffset { 55 };
-    constexpr auto kPatternEditorHeight { 60 };
+    constexpr auto kInitialYOffset { 5 };
+    constexpr auto kInitialXOffset { 60 };
+    constexpr auto kPatternEditorHeight { 85 };
     auto bounds { getLocalBounds ().reduced (5, 5) };
     
     // position the pattern name and pattern editor rows
     for (auto patternIndex { 0 }; patternIndex < patternEditors.size (); ++patternIndex)
     {
-        patternLabels [patternIndex].setBounds (0, kInitialYOffset + (patternIndex * kPatternEditorHeight), kInitialXOffset, kPatternEditorHeight);
+        patternLabels [patternIndex].setBounds (0, kInitialYOffset + (patternIndex * kPatternEditorHeight) + 35, kInitialXOffset, kPatternEditorHeight);
         patternEditors [patternIndex].setBounds (kInitialXOffset, kInitialYOffset + (patternIndex * kPatternEditorHeight), bounds.getWidth (), kPatternEditorHeight);
     }
 }

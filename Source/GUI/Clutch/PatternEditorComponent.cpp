@@ -77,21 +77,31 @@ void PatternEditorComponent::paint (juce::Graphics& g)
 void PatternEditorComponent::resized ()
 {
     const auto numberOfStepsWidth { (getHeight () / 2.0f) * 0.75f };
-    constexpr auto kInitialXOffset { 10 };
-    numberOfStepsEditor.setBounds (kInitialXOffset, 0, numberOfStepsWidth, getHeight () / 2);
+    numberOfStepsEditor.setBounds (0, 23, numberOfStepsWidth, getHeight () / 2);
+
     const auto initialStepsOffset { numberOfStepsEditor.getRight () };
     auto curButtonX { initialStepsOffset };
     // position the step numbers in the middle/top of each column
-    for (auto stepIndex { 0 }; stepIndex < stepNumbers.size (); ++stepIndex)
+    for (auto stepIndex { 0 }; stepIndex < stepNumbers.size () / 2; ++stepIndex)
     {
-        auto& stepNumber { stepNumbers [stepIndex] };
-        const auto numberWidth { stepNumber.getFont ().getStringWidth (stepNumber.getText ()) };
-        const auto halfNumberWidth { numberWidth / 2 };
+        auto setStepNumberBounds = [this, &curButtonX] (juce::Label& stepNumber, int yOffset)
+        {
+            const auto numberWidth { stepNumber.getFont ().getStringWidth (stepNumber.getText ()) };
+            const auto halfNumberWidth { numberWidth / 2 };
+            stepNumber.setBounds (curButtonX + (kStepComboBoxWidth / 2) - halfNumberWidth, yOffset, numberWidth + 10, 15);
+        };
 
-        stepNumber.setBounds (curButtonX + (kStepComboBoxWidth / 2) - halfNumberWidth, 0, numberWidth + 10, 15);
+        auto setStepEditorBounds = [this, &curButtonX] (int stepIndex, int yOffset)
+        {
+            auto comboBox { findChildWithID ("StepComboBox" + juce::String (stepIndex)) };
+            comboBox->setBounds (5 + curButtonX, yOffset + 15, kStepComboBoxWidth, kStepComboBoxHeight);
+        };
 
-        auto comboBox { findChildWithID ("StepComboBox" + juce::String (stepIndex)) };
-        comboBox->setBounds (5 + curButtonX, stepNumbers [0].getBottom (), kStepComboBoxWidth, kStepComboBoxHeight);
+        setStepNumberBounds (stepNumbers [stepIndex], 0);
+        setStepNumberBounds (stepNumbers [stepIndex + 16], 35);
+        setStepEditorBounds (stepIndex, 0);
+        setStepEditorBounds (stepIndex + 16, 35);
+
         curButtonX += kStepComboBoxWidth + kSpaceBetweenStepEditors;
     }
 }
