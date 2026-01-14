@@ -71,6 +71,8 @@ void HiHatData::readFromFile (const juce::File& file)
 void HiHatData::writeToFile (juce::File outputFile)
 {
     juce::FileOutputStream outputStream (outputFile);
+    outputStream.setPosition (0);
+    outputStream.truncate ();
     if (outputStream.openedOk ())
     {
         for (const auto& iniLine : iniLines)
