@@ -201,13 +201,17 @@ void SampleBankComponent::setBankFolder (const juce::File& newBankFolder)
 void SampleBankComponent::paint (juce::Graphics& g)
 {
     g.setColour (juce::Colours::black);
+    // draw horizontal lines
     for (auto lineIndex { 0 }; lineIndex < 15; ++lineIndex)
     {
         g.drawLine (surfaceComponents [lineIndex].openedName.getX (), surfaceComponents [lineIndex].openedName.getBottom () + 1,
                     surfaceComponents [lineIndex].closedName.getRight (), surfaceComponents [lineIndex].openedName.getBottom () + 1, 1.0f);
     }
-    g.drawLine (surfaceComponents [0].openedName.getRight (), surfaceComponents [0].openedName.getY (),
-                surfaceComponents [0].openedName.getRight (), surfaceComponents [15].openedName.getBottom () + 2, 1.0f);
+    // draw vertical center line
+    g.drawLine (surfaceComponents [0].openedName.getRight () + 2, surfaceComponents [0].openedName.getY (),
+                surfaceComponents [0].openedName.getRight () + 2, surfaceComponents [15].openedName.getBottom () + 2, 1.0f);
+
+    // draw box outline
     g.drawRect (surfaceComponents [0].openedName.getX (), surfaceComponents [0].openedName.getY (),
                 surfaceComponents [0].closedName.getRight () - surfaceComponents [0].openedName.getX (),
                 surfaceComponents [15].openedName.getBottom () - surfaceComponents [0].openedName.getY () + 2);
