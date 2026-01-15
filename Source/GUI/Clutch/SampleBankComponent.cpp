@@ -18,6 +18,7 @@ SampleBankComponent::SampleBankComponent ()
             copySampleFile (juce::File (files[0]), surfaceIndex, WhichHiHat::opened);
         };
 
+
         surfaceComponent.closedName.setJustificationType (juce::Justification::centred);
         surfaceComponent.closedName.setText ("Closed", juce::NotificationType::dontSendNotification);
         surfaceComponent.closedName.onFilesSelected = [this, surfaceIndex] (juce::StringArray files)
@@ -187,8 +188,8 @@ void SampleBankComponent::updateFileStatus ()
                 auto file { banksRootFolder.getChildFile (bankName.getText ()).getChildFile (fileName).withFileExtension ("wav") };
                 return file.existsAsFile ();
             };
-            surfaceComponents [surfaceIndex].openedName.setFileExists (doesFileExist (surfaceIndex, WhichHiHat::opened));
-            surfaceComponents [surfaceIndex].closedName.setFileExists (doesFileExist (surfaceIndex, WhichHiHat::closed));
+            surfaceComponents [surfaceIndex].openedName.setFileExistState (doesFileExist (surfaceIndex, WhichHiHat::opened));
+            surfaceComponents [surfaceIndex].closedName.setFileExistState (doesFileExist (surfaceIndex, WhichHiHat::closed));
         }
     }
     repaint ();

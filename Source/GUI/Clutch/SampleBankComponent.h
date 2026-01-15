@@ -6,7 +6,7 @@ class FileDropLabel : public juce::Label,
 {
 public:
     std::function<void (juce::StringArray)> onFilesSelected;
-    void setFileExists (bool doesFileExist)
+    void setFileExistState (bool doesFileExist)
     {
         fileExists = doesFileExist;
         setColour (juce::Label::ColourIds::textColourId, fileExists ? juce::Colours::white : juce::Colours::grey);
