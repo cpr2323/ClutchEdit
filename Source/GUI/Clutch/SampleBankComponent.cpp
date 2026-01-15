@@ -7,6 +7,7 @@ SampleBankComponent::SampleBankComponent ()
     for (auto surfaceIndex { 0 }; surfaceIndex < surfaceComponents.size (); ++surfaceIndex)
     {
         auto& surfaceComponent { surfaceComponents [surfaceIndex] };
+        surfaceComponent.name.setJustificationType (juce::Justification::centredRight);
         surfaceComponent.name.setText (juce::String (surfaceIndex + 1), juce::NotificationType::dontSendNotification);
 
         surfaceComponent.openedName.setJustificationType (juce::Justification::centred);
