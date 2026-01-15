@@ -36,6 +36,9 @@ void SampleManagerComponent::init (juce::ValueTree rootPropertiesVT)
     {
         updateBanks ();
     };
+    for (auto sampleBankIndex { 0 }; sampleBankIndex < sampleBankComponents.size (); ++sampleBankIndex)
+        sampleBankComponents [sampleBankIndex].init (rootPropertiesVT);
+
     updateBanks ();
 }
 
