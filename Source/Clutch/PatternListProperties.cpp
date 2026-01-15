@@ -55,7 +55,7 @@ void PatternListProperties::initValueTree ()
         PatternProperties patternProp ({}, ValueTreeWrapper<PatternProperties>::WrapperType::owner, ValueTreeWrapper<PatternProperties>::EnableCallbacks::no);
         patternProp.setId (pattern.first, false);
         patternProp.setPattern (pattern.second, false);
-        getValueTreeRef ().addChild (patternProp.getValueTree (), -1, nullptr);
+        getValueTree ().addChild (patternProp.getValueTree (), -1, nullptr);
     }
 }
 

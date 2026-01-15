@@ -56,7 +56,7 @@ void EffectListProperties::initValueTree ()
         EffectProperties effectProp ({}, ValueTreeWrapper<EffectProperties>::WrapperType::owner, ValueTreeWrapper<EffectProperties>::EnableCallbacks::no);
         effectProp.setId (effect.first, false);
         effectProp.setEffect (effect.second, false);
-        getValueTreeRef ().addChild (effectProp.getValueTree (), -1, nullptr);
+        getValueTree ().addChild (effectProp.getValueTree (), -1, nullptr);
     }
 }
 
