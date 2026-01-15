@@ -61,17 +61,19 @@ void EffectEditorComponent::init (juce::ValueTree rootPropertiesVT)
     });
 }
 
-void EffectEditorComponent::paint (juce::Graphics& g)
+void EffectEditorComponent::paintOverChildren (juce::Graphics& g)
 {
-
+    g.setColour (juce::Colours::black);
+    g.drawRect (effectLabels [0].getX (), effectLabels [0].getY () - 5, effectEditors [0].getRight () - effectLabels [0].getX () + 5,
+                effectLabels [7].getBottom () - effectLabels [0].getY () + 10);
 }
 
 void EffectEditorComponent::resized ()
 {
     for (auto effectIndex { 0 }; effectIndex < effectEditors.size (); ++effectIndex)
     {
-        effectLabels [effectIndex].setBounds (0, effectIndex * 30, 100, 25);
-        effectEditors [effectIndex].setBounds (100, effectIndex * 30, 100, 25);
+        effectLabels [effectIndex].setBounds (10, 15 + (effectIndex * 30), 100, 25);
+        effectEditors [effectIndex].setBounds (10 + 100, 15 + (effectIndex * 30), 100, 25);
     }
 }
 

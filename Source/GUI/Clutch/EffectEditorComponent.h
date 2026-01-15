@@ -20,7 +20,7 @@ private:
     std::array<EffectProperties, 8> effectProperties;
     NoArrowComboBoxLnF noArrowComboBoxLnF;
 
-    void paint (juce::Graphics& g) override;
+    void paintOverChildren (juce::Graphics& g) override;
     void resized () override;
     void onEffectUiChanged (int effectIndex);
     void onEffectDataChanged (int effectIndex);
