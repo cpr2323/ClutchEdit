@@ -5,6 +5,18 @@
   <MAINGROUP id="yofyvK" name="ClutchEdit">
     <GROUP id="{B4985F1C-C0B3-14FE-5BF5-BC3E89B7C97C}" name="Source">
       <GROUP id="{C33C0C59-ECFE-D357-BCF4-535A71D77EC9}" name="Clutch">
+        <GROUP id="{65A89516-E52B-D1CE-6402-C582ADB4F294}" name="Audio">
+          <FILE id="EzIS6r" name="AudioPlayer.cpp" compile="1" resource="0" file="Source/Clutch/Audio/AudioPlayer.cpp"/>
+          <FILE id="uQHRXG" name="AudioPlayer.h" compile="0" resource="0" file="Source/Clutch/Audio/AudioPlayer.h"/>
+          <FILE id="Y2FVxr" name="AudioPlayerProperties.cpp" compile="1" resource="0"
+                file="Source/Clutch/Audio/AudioPlayerProperties.cpp"/>
+          <FILE id="XdamfG" name="AudioPlayerProperties.h" compile="0" resource="0"
+                file="Source/Clutch/Audio/AudioPlayerProperties.h"/>
+          <FILE id="OKif7R" name="AudioSettingsProperties.cpp" compile="1" resource="0"
+                file="Source/Clutch/Audio/AudioSettingsProperties.cpp"/>
+          <FILE id="dMxHFQ" name="AudioSettingsProperties.h" compile="0" resource="0"
+                file="Source/Clutch/Audio/AudioSettingsProperties.h"/>
+        </GROUP>
         <FILE id="JNaYWa" name="SampleProperties.cpp" compile="1" resource="0"
               file="Source/Clutch/SampleProperties.cpp"/>
         <FILE id="PuM1rr" name="SampleProperties.h" compile="0" resource="0"
@@ -145,6 +157,8 @@
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
@@ -171,6 +185,8 @@
         <MODULEPATH id="juce_audio_formats" path="../JUCE/modules"/>
         <MODULEPATH id="juce_audio_basics" path="../JUCE/modules"/>
         <MODULEPATH id="juce_audio_devices" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../JUCE/modules"/>
       </MODULEPATHS>
     </VS2022>
     <XCODE_MAC targetFolder="Builds/MacOSX">
@@ -189,6 +205,8 @@
         <MODULEPATH id="juce_audio_formats" path="../JUCE/modules"/>
         <MODULEPATH id="juce_audio_basics" path="../JUCE/modules"/>
         <MODULEPATH id="juce_audio_devices" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
   </EXPORTFORMATS>

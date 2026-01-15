@@ -6,6 +6,7 @@
 #include "Clutch/HiHatIniData.h"
 #include "Clutch/HiHatProperties.h"
 #include "Clutch/PatternListProperties.h"
+#include "Clutch/Audio/AudioPlayer.h"
 #include "GUI/GuiControlProperties.h"
 #include "GUI/GuiProperties.h"
 #include "GUI/MainComponent.h"
@@ -310,7 +311,7 @@ public:
         initPropertyRoots ();
         initSystemServices ();
         initClutch();
-        //initAudio ();
+        initAudio ();
         initUi ();
 
         //ValueTreeHelpers::dumpValueTreeContent (runtimeRootProperties.getValueTree (), false, [this] (juce::String line) { DebugLog ("", line); });
@@ -321,7 +322,7 @@ public:
 
     void shutdown () override
     {
-        //audioPlayer.shutdownAudio ();
+        audioPlayer.shutdownAudio ();
         persitentPropertiesFile.save ();
         mainWindow = nullptr; // (deletes our window)
         juce::Logger::setCurrentLogger (nullptr);
@@ -376,32 +377,6 @@ public:
             gHiHatData.readFromFile (hiHatIniFile);
             FillInVtFromData (clutchProperties.getValueTree (), gHiHatData);
         }
-
-//         // debug tool for watching changes on the Preset Value Tree
-//         //presetPropertiesMonitor.assign (presetProperties.getValueTreeRef ());
-// 
-//         // setup the directory scanner
-//         directoryValueTree.init (runtimeRootProperties.getValueTree ());
-//         directoryDataProperties.wrap (directoryValueTree.getDirectoryDataPropertiesVT (), DirectoryDataProperties::WrapperType::client, DirectoryDataProperties::EnableCallbacks::no);
-//         // debug tool for watching changes on the Directory Data Properties Value Tree
-//         //directoryDataMonitor.assign (directoryDataProperties.getValueTreeRef ());
-// 
-//         // SampleManager requires that the PresetManagerProperties and DirectoryDataProperties are initialized
-//         sampleManager.init (rootProperties.getValueTree ());
-// 
-//         // when the folder being viewed changes, signal the directory scanner to rescan
-//         appProperties.onMostRecentFolderChange = [this] (juce::String folderName)
-//         {
-//             directoryDataProperties.setRootFolder (folderName, false);
-//             directoryDataProperties.triggerStartScan (false);
-//         };
-// 
-//         // start the initial directory scan, based on the last accessed folder stored in the app properties
-//         directoryDataProperties.setRootFolder (appProperties.getMostRecentFolder (), false);
-//         directoryDataProperties.triggerStartScan (false);
-// 
-//         // initialize the Validator
-//         assimil8orValidator.init (rootProperties.getValueTree ());
     }
 
     void initUi ()
@@ -432,9 +407,7 @@ public:
 
     void initAudio ()
     {
-        //audioPlayer.init (rootProperties.getValueTree ());
-        //AudioSettingsProperties audioSettingsProperties (persistentRootProperties.getValueTree (), AudioSettingsProperties::WrapperType::client, AudioSettingsProperties::EnableCallbacks::no);
-        //audioConfigPropertiesMonitor.assign (audioSettingsProperties.getValueTreeRef ());
+        audioPlayer.init (rootProperties.getValueTree ());
     }
 
     void initSystemServices ()
@@ -586,7 +559,7 @@ private:
     std::unique_ptr<juce::FileLogger> fileLogger;
     std::atomic<RuntimeRootProperties::QuitState> localQuitState { RuntimeRootProperties::QuitState::idle };
     std::unique_ptr<MainWindow> mainWindow;
-    //AudioPlayer audioPlayer;
+    AudioPlayer audioPlayer;
     //AudioManager audioManager;
     //EditManager editManager;
 

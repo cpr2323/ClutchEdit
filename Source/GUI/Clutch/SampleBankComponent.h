@@ -1,11 +1,14 @@
 #pragma once
 #include <JuceHeader.h>
+#include "../../Clutch/Audio/AudioPlayerProperties.h"
 
 class FileDropLabel : public juce::Label,
                       public juce::FileDragAndDropTarget
 {
 public:
     std::function<void (juce::StringArray)> onFilesSelected;
+    std::function<void (const juce::MouseEvent& mouseEvent)> onMouseUp;
+
     void setFileExistState (bool doesFileExist)
     {
         fileExists = doesFileExist;
@@ -14,6 +17,13 @@ public:
 private:
     bool fileExists { false };
     juce::Colour hoverColor { juce::Colours::lightseagreen };
+
+    void mouseUp (const juce::MouseEvent& mouseEvent) override
+    {
+        if (onMouseUp != nullptr)
+            onMouseUp (mouseEvent);
+    }
+
     bool isInterestedInFileDrag ([[maybe_unused]] const juce::StringArray& files) override
     {
         return files.size () == 1;
@@ -66,6 +76,7 @@ private:
     };
     std::array<SurfaceInfo, 16> surfaceComponents;
     juce::File banksRootFolder;
+    AudioPlayerProperties audioPlayerProperties;
 
     void copySampleFile (juce::File sourceFile, int surfaceIndex, WhichHiHat whichHiHat);
     void sampleConvert (juce::AudioFormatReader* reader, juce::AudioBuffer<float>& outputBuffer);

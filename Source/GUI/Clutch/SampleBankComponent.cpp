@@ -1,5 +1,6 @@
 #include "SampleBankComponent.h"
 #include "../../SRC/libsamplerate-0.1.9/src/samplerate.h"
+#include "../../Utility/RuntimeRootProperties.h"
 
 SampleBankComponent::SampleBankComponent ()
 {
@@ -7,27 +8,44 @@ SampleBankComponent::SampleBankComponent ()
     for (auto surfaceIndex { 0 }; surfaceIndex < surfaceComponents.size (); ++surfaceIndex)
     {
         auto& surfaceComponent { surfaceComponents [surfaceIndex] };
+
+        // add bank name (ake WHITE, RED, etc) label
         surfaceComponent.name.setJustificationType (juce::Justification::centredRight);
         surfaceComponent.name.setText (juce::String (surfaceIndex + 1), juce::NotificationType::dontSendNotification);
+        addAndMakeVisible (surfaceComponent.name);
 
+        // add opened sample label
         surfaceComponent.openedName.setJustificationType (juce::Justification::centred);
         surfaceComponent.openedName.setText ("Opened", juce::NotificationType::dontSendNotification);
         surfaceComponent.openedName.onFilesSelected = [this, surfaceIndex] (juce::StringArray files)
         {
             jassert (files.size () == 1);
+            audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
             copySampleFile (juce::File (files[0]), surfaceIndex, WhichHiHat::opened);
         };
+        surfaceComponent.openedName.onMouseUp = [this, surfaceIndex] (const juce::MouseEvent& mouseEvent)
+        {
+            // play sample
+            audioPlayerProperties.setSampleSource (surfaceIndex, AudioPlayerProperties::WhichHiHat::opened, false);
+            audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::play, false);
+        };
+        addAndMakeVisible (surfaceComponent.openedName);
 
-
+        // add closed sample label
         surfaceComponent.closedName.setJustificationType (juce::Justification::centred);
         surfaceComponent.closedName.setText ("Closed", juce::NotificationType::dontSendNotification);
         surfaceComponent.closedName.onFilesSelected = [this, surfaceIndex] (juce::StringArray files)
         {
             jassert (files.size () == 1);
+            audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
             copySampleFile (juce::File (files [0]), surfaceIndex, WhichHiHat::closed);
         };
-        addAndMakeVisible (surfaceComponent.name);
-        addAndMakeVisible (surfaceComponent.openedName);
+        surfaceComponent.closedName.onMouseUp = [this, surfaceIndex] (const juce::MouseEvent& mouseEvent)
+        {
+            // play sample
+                audioPlayerProperties.setSampleSource (surfaceIndex, AudioPlayerProperties::WhichHiHat::closed, false);
+                audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::play, false);
+        };
         addAndMakeVisible (surfaceComponent.closedName);
     }
 
@@ -38,6 +56,12 @@ SampleBankComponent::SampleBankComponent ()
 SampleBankComponent::~SampleBankComponent ()
 {
 
+}
+
+void SampleBankComponent::init (juce::ValueTree rootPropertiesVT)
+{
+    RuntimeRootProperties runtimeRootProperties { rootPropertiesVT, RuntimeRootProperties::WrapperType::client, RuntimeRootProperties::EnableCallbacks::no };
+    audioPlayerProperties.wrap (runtimeRootProperties.getValueTree (), AudioPlayerProperties::WrapperType::client, AudioPlayerProperties::EnableCallbacks::yes);
 }
 
 void SampleBankComponent::sampleConvert (juce::AudioFormatReader* reader, juce::AudioBuffer<float>& outputBuffer)
