@@ -46,18 +46,23 @@ void PatternListEditorComponent::init (juce::ValueTree rootPropertiesVT)
     }
 }
 
-void PatternListEditorComponent::paint (juce::Graphics& g)
+void PatternListEditorComponent::paintOverChildren (juce::Graphics& g)
 {
-//     g.setColour (juce::Colours::red);
-//     for (auto patternIndex { 0 }; patternIndex < patternEditors.size (); ++patternIndex)
-//     {
-//         g.drawRect (patternLabels [patternIndex].getBounds ());
-//     }
+    g.setColour (juce::Colours::black);
+    g.drawLine (patternLabels [0].getX (), patternEditors [0].getY () - 5,
+                patternEditors [0].getRight (), patternEditors [0].getY () - 5, 1.0f);
+    for (auto patternIndex { 0 }; patternIndex < patternEditors.size (); ++patternIndex)
+    {
+        g.drawRect (patternLabels [patternIndex].getX (), patternEditors[patternIndex].getY () - 5,
+                    patternEditors[patternIndex].getRight () - patternLabels[patternIndex].getX (), patternEditors[patternIndex].getHeight());
+    }
+    g.drawLine (patternLabels [7].getX (), patternEditors [7].getBottom () - 5,
+                patternEditors [7].getRight (), patternEditors [7].getBottom () -5, 1.0f);
 }
 
 void PatternListEditorComponent::resized ()
 {
-    constexpr auto kInitialYOffset { 5 };
+    constexpr auto kInitialYOffset { 8 };
     constexpr auto kInitialXOffset { 60 };
     constexpr auto kPatternEditorHeight { 85 };
     auto bounds { getLocalBounds ().reduced (5, 5) };
@@ -65,7 +70,7 @@ void PatternListEditorComponent::resized ()
     // position the pattern name and pattern editor rows
     for (auto patternIndex { 0 }; patternIndex < patternEditors.size (); ++patternIndex)
     {
-        patternLabels [patternIndex].setBounds (0, kInitialYOffset + (patternIndex * kPatternEditorHeight) + 35, kInitialXOffset, kPatternEditorHeight);
+        patternLabels [patternIndex].setBounds (0, kInitialYOffset + (patternIndex * kPatternEditorHeight) + 33, kInitialXOffset, kPatternEditorHeight);
         patternEditors [patternIndex].setBounds (kInitialXOffset, kInitialYOffset + (patternIndex * kPatternEditorHeight), bounds.getWidth (), kPatternEditorHeight);
     }
 }

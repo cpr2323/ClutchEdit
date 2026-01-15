@@ -1,7 +1,7 @@
 #include "PatternEditorComponent.h"
 
 constexpr auto kEnabledStepColor { 0.7f };
-constexpr auto kDisabledStepColor { 0.1f };
+constexpr auto kDisabledStepColor { 0.15f };
 
 constexpr auto kStepComboBoxHeight { 20 };
 constexpr auto kStepComboBoxWidth { 57 };
@@ -43,7 +43,8 @@ PatternEditorComponent::PatternEditorComponent ()
 
     numberOfStepsEditor.setColour (juce::TextEditor::backgroundColourId, juce::Colours::darkgrey.darker (kEnabledStepColor));
     numberOfStepsEditor.setJustification (juce::Justification::centred);
-    numberOfStepsEditor.setIndents (0, 0);
+    numberOfStepsEditor.setIndents (3, 0);
+    numberOfStepsEditor.setFont (numberOfStepsEditor.getFont ().withPointHeight (numberOfStepsEditor.getFont ().getHeightInPoints () + 3));
     numberOfStepsEditor.onFocusLost = [this] () { updateUiFromLengthChange (numberOfStepsEditor.getText ().getIntValue ()); };
     numberOfStepsEditor.onReturnKey = [this] () { updateUiFromLengthChange (numberOfStepsEditor.getText ().getIntValue ()); };
     numberOfStepsEditor.onTextChange = [this] () { updateUiFromLengthChange (numberOfStepsEditor.getText ().getIntValue ()); };
@@ -77,7 +78,7 @@ void PatternEditorComponent::paint (juce::Graphics& g)
 void PatternEditorComponent::resized ()
 {
     const auto numberOfStepsWidth { (getHeight () / 2.0f) * 0.75f };
-    numberOfStepsEditor.setBounds (0, 23, numberOfStepsWidth, getHeight () / 2);
+    numberOfStepsEditor.setBounds (0, 21, numberOfStepsWidth, getHeight () / 2);
 
     const auto initialStepsOffset { numberOfStepsEditor.getRight () };
     auto curButtonX { initialStepsOffset };
@@ -131,7 +132,7 @@ void PatternEditorComponent::onPatternDataChanged ()
         else
             stepEditors [stepIndex].setSelectedId (1, juce::NotificationType::dontSendNotification);
     }
-    const auto patternLength { stepValues.size () - 2 };
+    const auto patternLength { stepValues.size () - 1 };
     updateUiFromLengthChange (patternLength);
 }
 
