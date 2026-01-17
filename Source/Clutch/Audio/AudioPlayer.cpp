@@ -91,8 +91,10 @@ void AudioPlayer::prepareSampleForPlayback ()
     else
     {
         LogAudioPlayer ("prepareSampleForPlayback: sample file does NOT exist");
-        curSampleOffset = 0;
         sampleBuffer = std::make_unique<juce::AudioBuffer<float>> (2, 0);
+        curSampleOffset = 0;
+        sampleStart = 0;
+        sampleLength = 0;
     }
 }
 
@@ -201,7 +203,7 @@ void AudioPlayer::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferT
         // NOTE: I am using a lock in the audio callback ONLY BECAUSE the audio play back is a simple audition feature, not recording or performance playback
         juce::ScopedLock sl (dataCS);
         jassert (curSampleOffset >= sampleStart);
-        jassert (curSampleOffset < sampleStart + sampleLength);
+        //jassert (curSampleOffset < sampleStart + sampleLength);
         originalSampleOffset =  curSampleOffset; // should be >= sampleStart and < sampleStart + sampleLength
         cachedSampleLength = sampleLength;
         cachedSampleStart = sampleStart;
@@ -210,6 +212,13 @@ void AudioPlayer::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferT
         LogAudioPlayer ("AudioPlayer::getNextAudioBlock - cachedSampleStart: " + juce::String (cachedSampleStart) + ", chachedSampleLength: " + juce::String (cachedSampleLength) +
                         ", curSampleOffset: " + juce::String (curSampleOffset) + ", cachedLocalSampleOffset: " + juce::String (cachedLocalSampleOffset));
     }
+
+    if (cachedSampleLength <= 0)
+    {
+        playState = AudioPlayerProperties::PlayState::stop;
+        return;
+    }
+
     auto numSamplesToCopy { 0 };
     auto outputBufferWritePos { 0 };
     while (cachedSampleLength > 0 && outputBufferWritePos < numOutputSamples)
