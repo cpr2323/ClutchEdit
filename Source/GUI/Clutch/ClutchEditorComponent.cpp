@@ -14,6 +14,14 @@ ClutchEditorComponent::ClutchEditorComponent ()
     editorTabs.addTab ("SAMPLES", juce::Colours::darkgrey, &sampleManagerComponent, false);
     addAndMakeVisible (editorTabs);
 
+    // SETTINGS BUTTON
+    settingsButton.setButtonText ("SETTINGS");
+    settingsButton.onClick = [this] ()
+    {
+        audioPlayerProperties.showConfigDialog (false);
+    };
+    addAndMakeVisible (settingsButton);
+
     // OPEN BUTTON
     openButton.setButtonText ("OPEN");
     openButton.onClick = [this] ()
@@ -57,6 +65,7 @@ void ClutchEditorComponent::init (juce::ValueTree rootPropertiesVT)
     PersistentRootProperties persistentRootProperties (rootPropertiesVT, PersistentRootProperties::WrapperType::owner, PersistentRootProperties::EnableCallbacks::no);
     appProperties.wrap (persistentRootProperties.getValueTree (), AppProperties::WrapperType::owner, AppProperties::EnableCallbacks::yes);
     runtimeRootProperties.wrap (rootPropertiesVT, ValueTreeWrapper<RuntimeRootProperties>::WrapperType::client, ValueTreeWrapper<RuntimeRootProperties>::EnableCallbacks::no);
+    audioPlayerProperties.wrap (runtimeRootProperties.getValueTree (), AudioPlayerProperties::WrapperType::client, AudioPlayerProperties::EnableCallbacks::no);
     clutchProperties.wrap (runtimeRootProperties.getValueTree (), ValueTreeWrapper<ClutchProperties>::WrapperType::client, ValueTreeWrapper<ClutchProperties>::EnableCallbacks::no);
     // TODO pass in the clutch VT directly instead of root VT
     hiHatEditorComponent.init (rootPropertiesVT);
@@ -69,6 +78,7 @@ void ClutchEditorComponent::resized()
 {
     auto bounds { getLocalBounds () };
     auto topLine { bounds.removeFromTop (30) };
+    settingsButton.setBounds (topLine.removeFromRight (100).reduced (5));
     saveButton.setBounds (topLine.removeFromRight (100).reduced (5));
     openButton.setBounds (topLine.removeFromRight (100).reduced (5));
     editorTabs.setBounds (getLocalBounds ());

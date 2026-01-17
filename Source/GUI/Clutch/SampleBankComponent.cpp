@@ -27,6 +27,7 @@ SampleBankComponent::SampleBankComponent ()
         {
             // play sample
             juce::String fileName { bankName.getText () + juce::File::getSeparatorString() + juce::String (surfaceIndex + 1).paddedLeft ('0', 2) + "OH.wav"};
+            audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
             audioPlayerProperties.setSampleSource (fileName, false);
             audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::play, false);
         };
@@ -45,6 +46,7 @@ SampleBankComponent::SampleBankComponent ()
         {
             // play sample
             juce::String fileName { bankName.getText () + juce::File::getSeparatorString () + juce::String (surfaceIndex + 1).paddedLeft ('0', 2) + "CH.wav" };
+            audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
             audioPlayerProperties.setSampleSource (fileName, false);
             audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::play, false);
         };

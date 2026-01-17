@@ -27,7 +27,10 @@ void AudioPlayer::init (juce::ValueTree rootPropertiesVT)
     };
 
     audioPlayerProperties.wrap (runtimeRootProperties.getValueTree (), AudioPlayerProperties::WrapperType::owner, AudioPlayerProperties::EnableCallbacks::yes);
-    audioPlayerProperties.onShowConfigDialog = [this] () { showConfigDialog (); };
+    audioPlayerProperties.onShowConfigDialog = [this] ()
+    {
+        showConfigDialog ();
+    };
     audioPlayerProperties.onPlayStateChange = [this] (AudioPlayerProperties::PlayState newPlayState)
     {
         LogAudioPlayer ("init: audioPlayerProperties.onPlayStateChange");
@@ -88,6 +91,8 @@ void AudioPlayer::prepareSampleForPlayback ()
     else
     {
         LogAudioPlayer ("prepareSampleForPlayback: sample file does NOT exist");
+        curSampleOffset = 0;
+        sampleBuffer = std::make_unique<juce::AudioBuffer<float>> (2, 0);
     }
 }
 
