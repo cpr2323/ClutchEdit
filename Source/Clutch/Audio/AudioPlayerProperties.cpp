@@ -3,7 +3,7 @@
 void AudioPlayerProperties::initValueTree ()
 {
     setPlayState (PlayState::stop, false);
-    setSampleSource (0, WhichHiHat::opened, false);
+    setSampleSource ("", false);
 }
 
 void AudioPlayerProperties::setPlayState (PlayState playState, bool includeSelfCallback)
@@ -16,10 +16,9 @@ void AudioPlayerProperties::setPlayMode (PlayMode playMode, bool includeSelfCall
     setValue (static_cast<int> (playMode), PlayModePropertyId, includeSelfCallback);
 }
 
-void AudioPlayerProperties::setSampleSource (int surfaceIndex, WhichHiHat whichHiHat, bool includeSelfCallback)
+void AudioPlayerProperties::setSampleSource (juce::String sampleSource, bool includeSelfCallback)
 {
-    juce::String destinationFileName { juce::String (surfaceIndex + 1).paddedLeft ('0', 2) + (whichHiHat == WhichHiHat::closed ? "C" : "O") + "H.wav" };
-    setValue (destinationFileName, SampleSourcePropertyId, includeSelfCallback);
+    setValue (sampleSource, SampleSourcePropertyId, includeSelfCallback);
 }
 
 void AudioPlayerProperties::showConfigDialog (bool includeSelfCallback)

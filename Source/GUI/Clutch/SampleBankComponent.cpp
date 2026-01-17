@@ -26,7 +26,8 @@ SampleBankComponent::SampleBankComponent ()
         surfaceComponent.openedName.onMouseUp = [this, surfaceIndex] (const juce::MouseEvent& mouseEvent)
         {
             // play sample
-            audioPlayerProperties.setSampleSource (surfaceIndex, AudioPlayerProperties::WhichHiHat::opened, false);
+            juce::String fileName { bankName.getText () + juce::File::getSeparatorString() + juce::String (surfaceIndex + 1).paddedLeft ('0', 2) + "OH.wav"};
+            audioPlayerProperties.setSampleSource (fileName, false);
             audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::play, false);
         };
         addAndMakeVisible (surfaceComponent.openedName);
@@ -43,8 +44,9 @@ SampleBankComponent::SampleBankComponent ()
         surfaceComponent.closedName.onMouseUp = [this, surfaceIndex] (const juce::MouseEvent& mouseEvent)
         {
             // play sample
-                audioPlayerProperties.setSampleSource (surfaceIndex, AudioPlayerProperties::WhichHiHat::closed, false);
-                audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::play, false);
+            juce::String fileName { bankName.getText () + juce::File::getSeparatorString () + juce::String (surfaceIndex + 1).paddedLeft ('0', 2) + "CH.wav" };
+            audioPlayerProperties.setSampleSource (fileName, false);
+            audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::play, false);
         };
         addAndMakeVisible (surfaceComponent.closedName);
     }

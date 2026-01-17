@@ -15,7 +15,7 @@ public:
     enum class WhichHiHat { opened, closed };
     void setPlayState (PlayState playState, bool includeSelfCallback);
     void setPlayMode (PlayMode playMode, bool includeSelfCallback);
-    void setSampleSource (int surfaceIndex, WhichHiHat whichHiHat, bool includeSelfCallback);
+    void setSampleSource (juce::String sampleSource, bool includeSelfCallback);
     void showConfigDialog (bool includeSelfCallback);
 
     PlayState getPlayState ();

@@ -3,8 +3,6 @@
 #include <JuceHeader.h>
 #include "AudioPlayerProperties.h"
 #include "AudioSettingsProperties.h"
-//#include "../SquidBankProperties.h"
-//#include "../SquidChannelProperties.h"
 #include "../../AppProperties.h"
 
 class AudioPlayer : public juce::AudioSource,
@@ -19,8 +17,7 @@ private:
     AudioSettingsProperties audioSettingsProperties;
     AudioPlayerProperties audioPlayerProperties;
     AppProperties appProperties;
-    //SquidBankProperties bankProperties;
-    //SquidChannelProperties channelProperties;
+
     juce::AudioDeviceManager audioDeviceManager;
     juce::AudioSourcePlayer audioSourcePlayer;
     std::unique_ptr <juce::AudioBuffer<float>> sampleBuffer;
@@ -36,6 +33,8 @@ private:
     double sampleRate { 44100.0 };
     int blockSize { 128 };
     double sampleRateRatio { 0.0 };
+
+    juce::File sampleFile;
 
     class MonoToStereoAudioSource : public juce::AudioSource
     {
@@ -63,8 +62,7 @@ private:
     void configureAudioDevice (juce::String deviceName);
     void handlePlayMode (AudioPlayerProperties::PlayMode newPlayMode);
     void handlePlayState (AudioPlayerProperties::PlayState playState);
-    void initFromChannel (int channelIndex);
-    void initSamplePoints ();
+    void initFromFile (juce::String filename);
     void prepareSampleForPlayback ();
     void showConfigDialog ();
 
