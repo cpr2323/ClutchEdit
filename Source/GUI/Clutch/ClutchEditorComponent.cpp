@@ -8,10 +8,10 @@ extern HiHatData gHiHatData;
 
 ClutchEditorComponent::ClutchEditorComponent ()
 {
-    editorTabs.addTab ("GLOBAL", juce::Colours::darkgrey, &hiHatEditorComponent, false);
-    editorTabs.addTab ("PATTERNS", juce::Colours::darkgrey, &patternListEditorComponent, false);
-    editorTabs.addTab ("EFFECTS", juce::Colours::darkgrey, &effectEditorComponent, false);
     editorTabs.addTab ("SAMPLES", juce::Colours::darkgrey, &sampleManagerComponent, false);
+    editorTabs.addTab ("PATTERNS", juce::Colours::darkgrey, &patternListEditorComponent, false);
+    editorTabs.addTab ("SETTINGS", juce::Colours::darkgrey, &hiHatEditorComponent, false);
+    editorTabs.addTab ("EFFECTS", juce::Colours::darkgrey, &effectEditorComponent, false);
     addAndMakeVisible (editorTabs);
 
     // SETTINGS BUTTON
