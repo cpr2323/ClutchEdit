@@ -33,10 +33,10 @@
               file="Source/Clutch/PatternListProperties.cpp"/>
         <FILE id="almlvE" name="PatternListProperties.h" compile="0" resource="0"
               file="Source/Clutch/PatternListProperties.h"/>
-        <FILE id="sdbqsq" name="HiHatProperties.cpp" compile="1" resource="0"
-              file="Source/Clutch/HiHatProperties.cpp"/>
-        <FILE id="UMo0Ba" name="HiHatProperties.h" compile="0" resource="0"
-              file="Source/Clutch/HiHatProperties.h"/>
+        <FILE id="sdbqsq" name="SettingsProperties.cpp" compile="1" resource="0"
+              file="Source/Clutch/SettingsProperties.cpp"/>
+        <FILE id="UMo0Ba" name="SettingsProperties.h" compile="0" resource="0"
+              file="Source/Clutch/SettingsProperties.h"/>
         <FILE id="hSYzQn" name="HiHatIniData.cpp" compile="1" resource="0"
               file="Source/Clutch/HiHatIniData.cpp"/>
         <FILE id="KOf0aI" name="HiHatIniData.h" compile="0" resource="0" file="Source/Clutch/HiHatIniData.h"/>
@@ -51,10 +51,10 @@
                 file="Source/GUI/Clutch/EffectEditorComponent.cpp"/>
           <FILE id="SLTGHQ" name="EffectEditorComponent.h" compile="0" resource="0"
                 file="Source/GUI/Clutch/EffectEditorComponent.h"/>
-          <FILE id="e37rZ2" name="HiHatEditorComponent.cpp" compile="1" resource="0"
-                file="Source/GUI/Clutch/HiHatEditorComponent.cpp"/>
-          <FILE id="rMMGJW" name="HiHatEditorComponent.h" compile="0" resource="0"
-                file="Source/GUI/Clutch/HiHatEditorComponent.h"/>
+          <FILE id="e37rZ2" name="SettingsEditorComponent.cpp" compile="1" resource="0"
+                file="Source/GUI/Clutch/SettingsEditorComponent.cpp"/>
+          <FILE id="rMMGJW" name="SettingsEditorComponent.h" compile="0" resource="0"
+                file="Source/GUI/Clutch/SettingsEditorComponent.h"/>
           <FILE id="LZCrjd" name="PatternEditorComponent.cpp" compile="1" resource="0"
                 file="Source/GUI/Clutch/PatternEditorComponent.cpp"/>
           <FILE id="XAHcdW" name="PatternEditorComponent.h" compile="0" resource="0"

@@ -85,14 +85,14 @@ const HiHatSettings hiHatSettings []
     {"FX_GLITCH_STUTTER_WINDOW", "20", "20"},
 };
 
-class HiHatProperties : public ValueTreeWrapper<HiHatProperties>
+class SettingsProperties : public ValueTreeWrapper<SettingsProperties>
 {
 public:
-    HiHatProperties () noexcept : ValueTreeWrapper<HiHatProperties> (HiHatTypeId)
+    SettingsProperties () noexcept : ValueTreeWrapper<SettingsProperties> (SettingsTypeId)
     {
     }
-    HiHatProperties (juce::ValueTree vt, WrapperType wrapperType, EnableCallbacks shouldEnableCallbacks) noexcept
-        : ValueTreeWrapper<HiHatProperties> (HiHatTypeId, vt, wrapperType, shouldEnableCallbacks)
+    SettingsProperties (juce::ValueTree vt, WrapperType wrapperType, EnableCallbacks shouldEnableCallbacks) noexcept
+        : ValueTreeWrapper<SettingsProperties> (SettingsTypeId, vt, wrapperType, shouldEnableCallbacks)
     {
     }
 
@@ -387,7 +387,7 @@ public:
     //void copyFrom (juce::ValueTree sourceVT, bool settingsOnly);
     //static juce::ValueTree create (int id);
 
-    static inline const juce::Identifier HiHatTypeId { "HiHat" };
+    static inline const juce::Identifier SettingsTypeId { "HiHat" };
     static inline const juce::Identifier PitchLowPropertyId { "pitchLow" };
     static inline const juce::Identifier PitchHighPropertyId { "pitchHigh" };
     static inline const juce::Identifier EnvelopeMaxReleasePropertyId { "envelopeMaxRelease" };

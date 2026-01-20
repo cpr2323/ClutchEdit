@@ -1,6 +1,6 @@
-#include "HiHatProperties.h"
+#include "SettingsProperties.h"
 
-void HiHatProperties::initValueTree ()
+void SettingsProperties::initValueTree ()
 {
     // Core
     setPitchLow (0.125f, false);
@@ -102,717 +102,717 @@ void HiHatProperties::initValueTree ()
     setFxGlitchStutterWindow (20, false);
 }
 
-void HiHatProperties::setPitchLow (float value, bool includeSelfCallback)
+void SettingsProperties::setPitchLow (float value, bool includeSelfCallback)
 {
     setValue (value, PitchLowPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setPitchHigh (float value, bool includeSelfCallback)
+void SettingsProperties::setPitchHigh (float value, bool includeSelfCallback)
 {
     setValue (value, PitchHighPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setEnvelopeMaxRelease (float value, bool includeSelfCallback)
+void SettingsProperties::setEnvelopeMaxRelease (float value, bool includeSelfCallback)
 {
     setValue (value, EnvelopeMaxReleasePropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setChokeRelease (float value, bool includeSelfCallback)
+void SettingsProperties::setChokeRelease (float value, bool includeSelfCallback)
 {
     setValue (value, ChokeReleasePropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setClsdReleaseMode (int value, bool includeSelfCallback)
+void SettingsProperties::setClsdReleaseMode (int value, bool includeSelfCallback)
 {
     setValue (value, ClsdReleaseModePropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setClsdRelOfstScale (float value, bool includeSelfCallback)
+void SettingsProperties::setClsdRelOfstScale (float value, bool includeSelfCallback)
 {
     setValue (value, ClsdRelOfstScalePropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setClsdMaxRelease (float value, bool includeSelfCallback)
+void SettingsProperties::setClsdMaxRelease (float value, bool includeSelfCallback)
 {
     setValue (value, ClsdMaxReleasePropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setAccClRelMod (float value, bool includeSelfCallback)
+void SettingsProperties::setAccClRelMod (float value, bool includeSelfCallback)
 {
     setValue (value, AccClRelModPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setAccOpRelMod (float value, bool includeSelfCallback)
+void SettingsProperties::setAccOpRelMod (float value, bool includeSelfCallback)
 {
     setValue (value, AccOpRelModPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setAccClAmpMod (float value, bool includeSelfCallback)
+void SettingsProperties::setAccClAmpMod (float value, bool includeSelfCallback)
 {
     setValue (value, AccClAmpModPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setAccOpAmpMod (float value, bool includeSelfCallback)
+void SettingsProperties::setAccOpAmpMod (float value, bool includeSelfCallback)
 {
     setValue (value, AccOpAmpModPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxCvUnipolar (int value, bool includeSelfCallback)
+void SettingsProperties::setFxCvUnipolar (int value, bool includeSelfCallback)
 {
     setValue (value, FxCvUnipolarPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setVelocityUnipolar (int value, bool includeSelfCallback)
+void SettingsProperties::setVelocityUnipolar (int value, bool includeSelfCallback)
 {
     setValue (value, VelocityUnipolarPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setCvDisableVelocity (int value, bool includeSelfCallback)
+void SettingsProperties::setCvDisableVelocity (int value, bool includeSelfCallback)
 {
     setValue (value, CvDisableVelocityPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setCvDisableFx (int value, bool includeSelfCallback)
+void SettingsProperties::setCvDisableFx (int value, bool includeSelfCallback)
 {
     setValue (value, CvDisableFxPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setGateMode (int value, bool includeSelfCallback)
+void SettingsProperties::setGateMode (int value, bool includeSelfCallback)
 {
     setValue (value, GateModePropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFeelAttackMod (float value, bool includeSelfCallback)
+void SettingsProperties::setFeelAttackMod (float value, bool includeSelfCallback)
 {
     setValue (value, FeelAttackModPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFeelReleaseMod (float value, bool includeSelfCallback)
+void SettingsProperties::setFeelReleaseMod (float value, bool includeSelfCallback)
 {
     setValue (value, FeelReleaseModPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFeelAmpMod (float value, bool includeSelfCallback)
+void SettingsProperties::setFeelAmpMod (float value, bool includeSelfCallback)
 {
     setValue (value, FeelAmpModPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setKnobPosTakeup (int value, bool includeSelfCallback)
+void SettingsProperties::setKnobPosTakeup (int value, bool includeSelfCallback)
 {
     setValue (value, KnobPosTakeupPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFltrHpfMinFreq (int value, bool includeSelfCallback)
+void SettingsProperties::setFltrHpfMinFreq (int value, bool includeSelfCallback)
 {
     setValue (value, FltrHpfMinFreqPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFltrHpfMaxFreq (int value, bool includeSelfCallback)
+void SettingsProperties::setFltrHpfMaxFreq (int value, bool includeSelfCallback)
 {
     setValue (value, FltrHpfMaxFreqPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFltrLpfMinFreq (int value, bool includeSelfCallback)
+void SettingsProperties::setFltrLpfMinFreq (int value, bool includeSelfCallback)
 {
     setValue (value, FltrLpfMinFreqPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFltrLpfMaxFreq (int value, bool includeSelfCallback)
+void SettingsProperties::setFltrLpfMaxFreq (int value, bool includeSelfCallback)
 {
     setValue (value, FltrLpfMaxFreqPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFltrHpfQ (float value, bool includeSelfCallback)
+void SettingsProperties::setFltrHpfQ (float value, bool includeSelfCallback)
 {
     setValue (value, FltrHpfQPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFltrLpfQ (float value, bool includeSelfCallback)
+void SettingsProperties::setFltrLpfQ (float value, bool includeSelfCallback)
 {
     setValue (value, FltrLpfQPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxDjfilterHpfMin (int value, bool includeSelfCallback)
+void SettingsProperties::setFxDjfilterHpfMin (int value, bool includeSelfCallback)
 {
     setValue (value, FxDjfilterHpfMinPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxDjfilterHpfMax (int value, bool includeSelfCallback)
+void SettingsProperties::setFxDjfilterHpfMax (int value, bool includeSelfCallback)
 {
     setValue (value, FxDjfilterHpfMaxPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxDjfilterLpfMin (int value, bool includeSelfCallback)
+void SettingsProperties::setFxDjfilterLpfMin (int value, bool includeSelfCallback)
 {
     setValue (value, FxDjfilterLpfMinPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxDjfilterLpfMax (int value, bool includeSelfCallback)
+void SettingsProperties::setFxDjfilterLpfMax (int value, bool includeSelfCallback)
 {
     setValue (value, FxDjfilterLpfMaxPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxDjfilterQMin (float value, bool includeSelfCallback)
+void SettingsProperties::setFxDjfilterQMin (float value, bool includeSelfCallback)
 {
     setValue (value, FxDjfilterQMinPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxDjfilterQMax (float value, bool includeSelfCallback)
+void SettingsProperties::setFxDjfilterQMax (float value, bool includeSelfCallback)
 {
     setValue (value, FxDjfilterQMaxPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxDjfilterQGainReduction (float value, bool includeSelfCallback)
+void SettingsProperties::setFxDjfilterQGainReduction (float value, bool includeSelfCallback)
 {
     setValue (value, FxDjfilterQGainReductionPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxDubEchoTmin (int value, bool includeSelfCallback)
+void SettingsProperties::setFxDubEchoTmin (int value, bool includeSelfCallback)
 {
     setValue (value, FxDubEchoTminPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxDubEchoHpf (int value, bool includeSelfCallback)
+void SettingsProperties::setFxDubEchoHpf (int value, bool includeSelfCallback)
 {
     setValue (value, FxDubEchoHpfPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxDubEchoLpf (int value, bool includeSelfCallback)
+void SettingsProperties::setFxDubEchoLpf (int value, bool includeSelfCallback)
 {
     setValue (value, FxDubEchoLpfPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxDubEchoMix (float value, bool includeSelfCallback)
+void SettingsProperties::setFxDubEchoMix (float value, bool includeSelfCallback)
 {
     setValue (value, FxDubEchoMixPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxChorusCenter (float value, bool includeSelfCallback)
+void SettingsProperties::setFxChorusCenter (float value, bool includeSelfCallback)
 {
     setValue (value, FxChorusCenterPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxChorusDepth (float value, bool includeSelfCallback)
+void SettingsProperties::setFxChorusDepth (float value, bool includeSelfCallback)
 {
     setValue (value, FxChorusDepthPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxChorusMix (float value, bool includeSelfCallback)
+void SettingsProperties::setFxChorusMix (float value, bool includeSelfCallback)
 {
     setValue (value, FxChorusMixPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxChorusSpread (float value, bool includeSelfCallback)
+void SettingsProperties::setFxChorusSpread (float value, bool includeSelfCallback)
 {
     setValue (value, FxChorusSpreadPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxChorusTaps (int value, bool includeSelfCallback)
+void SettingsProperties::setFxChorusTaps (int value, bool includeSelfCallback)
 {
     setValue (value, FxChorusTapsPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxChorusLfoB (float value, bool includeSelfCallback)
+void SettingsProperties::setFxChorusLfoB (float value, bool includeSelfCallback)
 {
     setValue (value, FxChorusLfoBPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxChorusLfoT (int value, bool includeSelfCallback)
+void SettingsProperties::setFxChorusLfoT (int value, bool includeSelfCallback)
 {
     setValue (value, FxChorusLfoTPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxReverbLpf (int value, bool includeSelfCallback)
+void SettingsProperties::setFxReverbLpf (int value, bool includeSelfCallback)
 {
     setValue (value, FxReverbLpfPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxReverbHpf (int value, bool includeSelfCallback)
+void SettingsProperties::setFxReverbHpf (int value, bool includeSelfCallback)
 {
     setValue (value, FxReverbHpfPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxGlitchProbabilityMin (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchProbabilityMin (float value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchProbabilityMinPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxGlitchProbabilityMax (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchProbabilityMax (float value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchProbabilityMaxPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxGlitchWeightHoldLow (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchWeightHoldLow (float value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchWeightHoldLowPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxGlitchWeightStutterLow (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchWeightStutterLow (float value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchWeightStutterLowPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxGlitchWeightCrushLow (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchWeightCrushLow (float value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchWeightCrushLowPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxGlitchWeightDropLow (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchWeightDropLow (float value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchWeightDropLowPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxGlitchWeightHoldHigh (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchWeightHoldHigh (float value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchWeightHoldHighPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxGlitchWeightStutterHigh (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchWeightStutterHigh (float value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchWeightStutterHighPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxGlitchWeightCrushHigh (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchWeightCrushHigh (float value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchWeightCrushHighPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxGlitchWeightDropHigh (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchWeightDropHigh (float value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchWeightDropHighPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxGlitchDropKeepLevelMin (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchDropKeepLevelMin (float value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchDropKeepLevelMinPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxGlitchDropKeepLevelMax (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchDropKeepLevelMax (float value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchDropKeepLevelMaxPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxGlitchDropKeepTimeMin (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchDropKeepTimeMin (float value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchDropKeepTimeMinPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxGlitchDropKeepTimeMax (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchDropKeepTimeMax (float value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchDropKeepTimeMaxPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxGlitchCrushTimeMin (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchCrushTimeMin (float value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchCrushTimeMinPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxGlitchCrushTimeMax (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchCrushTimeMax (float value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchCrushTimeMaxPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxGlitchMicroloopSmplTMin (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchMicroloopSmplTMin (float value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchMicroloopSmplTMinPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxGlitchMicroloopSmplTMax (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchMicroloopSmplTMax (float value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchMicroloopSmplTMaxPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxGlitchMicroloopPlayTMin (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchMicroloopPlayTMin (float value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchMicroloopPlayTMinPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxGlitchMicroloopPlayTMax (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchMicroloopPlayTMax (float value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchMicroloopPlayTMaxPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxGlitchStutterSmplTMin (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchStutterSmplTMin (float value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchStutterSmplTMinPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxGlitchStutterSmplTMax (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchStutterSmplTMax (float value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchStutterSmplTMaxPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxGlitchStutterNumMin (int value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchStutterNumMin (int value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchStutterNumMinPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxGlitchStutterNumMax (int value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchStutterNumMax (int value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchStutterNumMaxPropertyId, includeSelfCallback);
 }
 
-void HiHatProperties::setFxGlitchStutterWindow (int value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchStutterWindow (int value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchStutterWindowPropertyId, includeSelfCallback);
 }
 
-float HiHatProperties::getPitchLow ()
+float SettingsProperties::getPitchLow ()
 {
     return getValue<float> (PitchLowPropertyId);
 }
 
-float HiHatProperties::getPitchHigh ()
+float SettingsProperties::getPitchHigh ()
 {
     return getValue<float> (PitchHighPropertyId);
 }
 
-float HiHatProperties::getEnvelopeMaxRelease ()
+float SettingsProperties::getEnvelopeMaxRelease ()
 {
     return getValue<float> (EnvelopeMaxReleasePropertyId);
 }
 
-float HiHatProperties::getChokeRelease ()
+float SettingsProperties::getChokeRelease ()
 {
     return getValue<float> (ChokeReleasePropertyId);
 }
 
-int HiHatProperties::getClsdReleaseMode ()
+int SettingsProperties::getClsdReleaseMode ()
 {
     return getValue<int> (ClsdReleaseModePropertyId);
 }
 
-float HiHatProperties::getClsdRelOfstScale ()
+float SettingsProperties::getClsdRelOfstScale ()
 {
     return getValue<float> (ClsdRelOfstScalePropertyId);
 }
 
-float HiHatProperties::getClsdMaxRelease ()
+float SettingsProperties::getClsdMaxRelease ()
 {
     return getValue<float> (ClsdMaxReleasePropertyId);
 }
 
-float HiHatProperties::getAccClRelMod ()
+float SettingsProperties::getAccClRelMod ()
 {
     return getValue<float> (AccClRelModPropertyId);
 }
 
-float HiHatProperties::getAccOpRelMod ()
+float SettingsProperties::getAccOpRelMod ()
 {
     return getValue<float> (AccOpRelModPropertyId);
 }
 
-float HiHatProperties::getAccClAmpMod ()
+float SettingsProperties::getAccClAmpMod ()
 {
     return getValue<float> (AccClAmpModPropertyId);
 }
 
-float HiHatProperties::getAccOpAmpMod ()
+float SettingsProperties::getAccOpAmpMod ()
 {
     return getValue<float> (AccOpAmpModPropertyId);
 }
 
-int HiHatProperties::getFxCvUnipolar ()
+int SettingsProperties::getFxCvUnipolar ()
 {
     return getValue<int> (FxCvUnipolarPropertyId);
 }
 
-int HiHatProperties::getVelocityUnipolar ()
+int SettingsProperties::getVelocityUnipolar ()
 {
     return getValue<int> (VelocityUnipolarPropertyId);
 }
 
-int HiHatProperties::getCvDisableVelocity ()
+int SettingsProperties::getCvDisableVelocity ()
 {
     return getValue<int> (CvDisableVelocityPropertyId);
 }
 
-int HiHatProperties::getCvDisableFx ()
+int SettingsProperties::getCvDisableFx ()
 {
     return getValue<int> (CvDisableFxPropertyId);
 }
 
-int HiHatProperties::getGateMode ()
+int SettingsProperties::getGateMode ()
 {
     return getValue<int> (GateModePropertyId);
 }
 
-float HiHatProperties::getFeelAttackMod ()
+float SettingsProperties::getFeelAttackMod ()
 {
     return getValue<float> (FeelAttackModPropertyId);
 }
 
-float HiHatProperties::getFeelReleaseMod ()
+float SettingsProperties::getFeelReleaseMod ()
 {
     return getValue<float> (FeelReleaseModPropertyId);
 }
 
-float HiHatProperties::getFeelAmpMod ()
+float SettingsProperties::getFeelAmpMod ()
 {
     return getValue<float> (FeelAmpModPropertyId);
 }
 
-int HiHatProperties::getKnobPosTakeup ()
+int SettingsProperties::getKnobPosTakeup ()
 {
     return getValue<int> (KnobPosTakeupPropertyId);
 }
 
-int HiHatProperties::getFltrHpfMinFreq ()
+int SettingsProperties::getFltrHpfMinFreq ()
 {
     return getValue<int> (FltrHpfMinFreqPropertyId);
 }
 
-int HiHatProperties::getFltrHpfMaxFreq ()
+int SettingsProperties::getFltrHpfMaxFreq ()
 {
     return getValue<int> (FltrHpfMaxFreqPropertyId);
 }
 
-int HiHatProperties::getFltrLpfMinFreq ()
+int SettingsProperties::getFltrLpfMinFreq ()
 {
     return getValue<int> (FltrLpfMinFreqPropertyId);
 }
 
-int HiHatProperties::getFltrLpfMaxFreq ()
+int SettingsProperties::getFltrLpfMaxFreq ()
 {
     return getValue<int> (FltrLpfMaxFreqPropertyId);
 }
 
-float HiHatProperties::getFltrHpfQ ()
+float SettingsProperties::getFltrHpfQ ()
 {
     return getValue<float> (FltrHpfQPropertyId);
 }
 
-float HiHatProperties::getFltrLpfQ ()
+float SettingsProperties::getFltrLpfQ ()
 {
     return getValue<float> (FltrLpfQPropertyId);
 }
 
-int HiHatProperties::getFxDjfilterHpfMin ()
+int SettingsProperties::getFxDjfilterHpfMin ()
 {
     return getValue<int> (FxDjfilterHpfMinPropertyId);
 }
 
-int HiHatProperties::getFxDjfilterHpfMax ()
+int SettingsProperties::getFxDjfilterHpfMax ()
 {
     return getValue<int> (FxDjfilterHpfMaxPropertyId);
 }
 
-int HiHatProperties::getFxDjfilterLpfMin ()
+int SettingsProperties::getFxDjfilterLpfMin ()
 {
     return getValue<int> (FxDjfilterLpfMinPropertyId);
 }
 
-int HiHatProperties::getFxDjfilterLpfMax ()
+int SettingsProperties::getFxDjfilterLpfMax ()
 {
     return getValue<int> (FxDjfilterLpfMaxPropertyId);
 }
 
-float HiHatProperties::getFxDjfilterQMin ()
+float SettingsProperties::getFxDjfilterQMin ()
 {
     return getValue<float> (FxDjfilterQMinPropertyId);
 }
 
-float HiHatProperties::getFxDjfilterQMax ()
+float SettingsProperties::getFxDjfilterQMax ()
 {
     return getValue<float> (FxDjfilterQMaxPropertyId);
 }
 
-float HiHatProperties::getFxDjfilterQGainReduction ()
+float SettingsProperties::getFxDjfilterQGainReduction ()
 {
     return getValue<float> (FxDjfilterQGainReductionPropertyId);
 }
 
-int HiHatProperties::getFxDubEchoTmin ()
+int SettingsProperties::getFxDubEchoTmin ()
 {
     return getValue<int> (FxDubEchoTminPropertyId);
 }
 
-int HiHatProperties::getFxDubEchoHpf ()
+int SettingsProperties::getFxDubEchoHpf ()
 {
     return getValue<int> (FxDubEchoHpfPropertyId);
 }
 
-int HiHatProperties::getFxDubEchoLpf ()
+int SettingsProperties::getFxDubEchoLpf ()
 {
     return getValue<int> (FxDubEchoLpfPropertyId);
 }
 
-float HiHatProperties::getFxDubEchoMix ()
+float SettingsProperties::getFxDubEchoMix ()
 {
     return getValue<float> (FxDubEchoMixPropertyId);
 }
 
-float HiHatProperties::getFxChorusCenter ()
+float SettingsProperties::getFxChorusCenter ()
 {
     return getValue<float> (FxChorusCenterPropertyId);
 }
 
-float HiHatProperties::getFxChorusDepth ()
+float SettingsProperties::getFxChorusDepth ()
 {
     return getValue<float> (FxChorusDepthPropertyId);
 }
 
-float HiHatProperties::getFxChorusMix ()
+float SettingsProperties::getFxChorusMix ()
 {
     return getValue<float> (FxChorusMixPropertyId);
 }
 
-float HiHatProperties::getFxChorusSpread ()
+float SettingsProperties::getFxChorusSpread ()
 {
     return getValue<float> (FxChorusSpreadPropertyId);
 }
 
-int HiHatProperties::getFxChorusTaps ()
+int SettingsProperties::getFxChorusTaps ()
 {
     return getValue<int> (FxChorusTapsPropertyId);
 }
 
-float HiHatProperties::getFxChorusLfoB ()
+float SettingsProperties::getFxChorusLfoB ()
 {
     return getValue<float> (FxChorusLfoBPropertyId);
 }
 
-int HiHatProperties::getFxChorusLfoT ()
+int SettingsProperties::getFxChorusLfoT ()
 {
     return getValue<int> (FxChorusLfoTPropertyId);
 }
 
-int HiHatProperties::getFxReverbLpf ()
+int SettingsProperties::getFxReverbLpf ()
 {
     return getValue<int> (FxReverbLpfPropertyId);
 }
 
-int HiHatProperties::getFxReverbHpf ()
+int SettingsProperties::getFxReverbHpf ()
 {
     return getValue<int> (FxReverbHpfPropertyId);
 }
 
-float HiHatProperties::getFxGlitchProbabilityMin ()
+float SettingsProperties::getFxGlitchProbabilityMin ()
 {
     return getValue<float> (FxGlitchProbabilityMinPropertyId);
 }
 
-float HiHatProperties::getFxGlitchProbabilityMax ()
+float SettingsProperties::getFxGlitchProbabilityMax ()
 {
     return getValue<float> (FxGlitchProbabilityMaxPropertyId);
 }
 
-float HiHatProperties::getFxGlitchWeightHoldLow ()
+float SettingsProperties::getFxGlitchWeightHoldLow ()
 {
     return getValue<float> (FxGlitchWeightHoldLowPropertyId);
 }
 
-float HiHatProperties::getFxGlitchWeightStutterLow ()
+float SettingsProperties::getFxGlitchWeightStutterLow ()
 {
     return getValue<float> (FxGlitchWeightStutterLowPropertyId);
 }
 
-float HiHatProperties::getFxGlitchWeightCrushLow ()
+float SettingsProperties::getFxGlitchWeightCrushLow ()
 {
     return getValue<float> (FxGlitchWeightCrushLowPropertyId);
 }
 
-float HiHatProperties::getFxGlitchWeightDropLow ()
+float SettingsProperties::getFxGlitchWeightDropLow ()
 {
     return getValue<float> (FxGlitchWeightDropLowPropertyId);
 }
 
-float HiHatProperties::getFxGlitchWeightHoldHigh ()
+float SettingsProperties::getFxGlitchWeightHoldHigh ()
 {
     return getValue<float> (FxGlitchWeightHoldHighPropertyId);
 }
 
-float HiHatProperties::getFxGlitchWeightStutterHigh ()
+float SettingsProperties::getFxGlitchWeightStutterHigh ()
 {
     return getValue<float> (FxGlitchWeightStutterHighPropertyId);
 }
 
-float HiHatProperties::getFxGlitchWeightCrushHigh ()
+float SettingsProperties::getFxGlitchWeightCrushHigh ()
 {
     return getValue<float> (FxGlitchWeightCrushHighPropertyId);
 }
 
-float HiHatProperties::getFxGlitchWeightDropHigh ()
+float SettingsProperties::getFxGlitchWeightDropHigh ()
 {
     return getValue<float> (FxGlitchWeightDropHighPropertyId);
 }
 
-float HiHatProperties::getFxGlitchDropKeepLevelMin ()
+float SettingsProperties::getFxGlitchDropKeepLevelMin ()
 {
     return getValue<float> (FxGlitchDropKeepLevelMinPropertyId);
 }
 
-float HiHatProperties::getFxGlitchDropKeepLevelMax ()
+float SettingsProperties::getFxGlitchDropKeepLevelMax ()
 {
     return getValue<float> (FxGlitchDropKeepLevelMaxPropertyId);
 }
 
-float HiHatProperties::getFxGlitchDropKeepTimeMin ()
+float SettingsProperties::getFxGlitchDropKeepTimeMin ()
 {
     return getValue<float> (FxGlitchDropKeepTimeMinPropertyId);
 }
 
-float HiHatProperties::getFxGlitchDropKeepTimeMax ()
+float SettingsProperties::getFxGlitchDropKeepTimeMax ()
 {
     return getValue<float> (FxGlitchDropKeepTimeMaxPropertyId);
 }
 
-float HiHatProperties::getFxGlitchCrushTimeMin ()
+float SettingsProperties::getFxGlitchCrushTimeMin ()
 {
     return getValue<float> (FxGlitchCrushTimeMinPropertyId);
 }
 
-float HiHatProperties::getFxGlitchCrushTimeMax ()
+float SettingsProperties::getFxGlitchCrushTimeMax ()
 {
     return getValue<float> (FxGlitchCrushTimeMaxPropertyId);
 }
 
-float HiHatProperties::getFxGlitchMicroloopSmplTMin ()
+float SettingsProperties::getFxGlitchMicroloopSmplTMin ()
 {
     return getValue<float> (FxGlitchMicroloopSmplTMinPropertyId);
 }
 
-float HiHatProperties::getFxGlitchMicroloopSmplTMax ()
+float SettingsProperties::getFxGlitchMicroloopSmplTMax ()
 {
     return getValue<float> (FxGlitchMicroloopSmplTMaxPropertyId);
 }
 
-float HiHatProperties::getFxGlitchMicroloopPlayTMin ()
+float SettingsProperties::getFxGlitchMicroloopPlayTMin ()
 {
     return getValue<float> (FxGlitchMicroloopPlayTMinPropertyId);
 }
 
-float HiHatProperties::getFxGlitchMicroloopPlayTMax ()
+float SettingsProperties::getFxGlitchMicroloopPlayTMax ()
 {
     return getValue<float> (FxGlitchMicroloopPlayTMaxPropertyId);
 }
 
-float HiHatProperties::getFxGlitchStutterSmplTMin ()
+float SettingsProperties::getFxGlitchStutterSmplTMin ()
 {
     return getValue<float> (FxGlitchStutterSmplTMinPropertyId);
 }
 
-float HiHatProperties::getFxGlitchStutterSmplTMax ()
+float SettingsProperties::getFxGlitchStutterSmplTMax ()
 {
     return getValue<float> (FxGlitchStutterSmplTMaxPropertyId);
 }
 
-int HiHatProperties::getFxGlitchStutterNumMin ()
+int SettingsProperties::getFxGlitchStutterNumMin ()
 {
     return getValue<int> (FxGlitchStutterNumMinPropertyId);
 }
 
-int HiHatProperties::getFxGlitchStutterNumMax ()
+int SettingsProperties::getFxGlitchStutterNumMax ()
 {
     return getValue<int> (FxGlitchStutterNumMaxPropertyId);
 }
 
-int HiHatProperties::getFxGlitchStutterWindow ()
+int SettingsProperties::getFxGlitchStutterWindow ()
 {
     return getValue<int> (FxGlitchStutterWindowPropertyId);
 }
 
-void HiHatProperties::valueTreePropertyChanged (juce::ValueTree& vt, const juce::Identifier& property)
+void SettingsProperties::valueTreePropertyChanged (juce::ValueTree& vt, const juce::Identifier& property)
 {
     if (data == vt)
     {
@@ -1174,357 +1174,357 @@ void HiHatProperties::valueTreePropertyChanged (juce::ValueTree& vt, const juce:
     }
 }
 
-juce::String HiHatProperties::getPitchLowKey ()
+juce::String SettingsProperties::getPitchLowKey ()
 {
     return "PITCH_LOW";
 }
 
-juce::String HiHatProperties::getPitchHighKey ()
+juce::String SettingsProperties::getPitchHighKey ()
 {
     return "PITCH_HIGH";
 }
 
-juce::String HiHatProperties::getEnvelopeMaxReleaseKey ()
+juce::String SettingsProperties::getEnvelopeMaxReleaseKey ()
 {
     return "ENVELOPE_MAX_RELEASE";
 }
 
-juce::String HiHatProperties::getChokeReleaseKey ()
+juce::String SettingsProperties::getChokeReleaseKey ()
 {
     return "CHOKE_RELEASE";
 }
 
-juce::String HiHatProperties::getClsdReleaseModeKey ()
+juce::String SettingsProperties::getClsdReleaseModeKey ()
 {
     return "CLSD_RELEASE_MODE";
 }
 
-juce::String HiHatProperties::getClsdRelOfstScaleKey ()
+juce::String SettingsProperties::getClsdRelOfstScaleKey ()
 {
     return "CLSD_REL_OFST_SCALE";
 }
 
-juce::String HiHatProperties::getClsdMaxReleaseKey ()
+juce::String SettingsProperties::getClsdMaxReleaseKey ()
 {
     return "CLSD_MAX_RELEASE";
 }
 
-juce::String HiHatProperties::getAccClRelModKey ()
+juce::String SettingsProperties::getAccClRelModKey ()
 {
     return "ACC_CL_REL_MOD";
 }
 
-juce::String HiHatProperties::getAccOpRelModKey ()
+juce::String SettingsProperties::getAccOpRelModKey ()
 {
     return "ACC_OP_REL_MOD";
 }
 
-juce::String HiHatProperties::getAccClAmpModKey ()
+juce::String SettingsProperties::getAccClAmpModKey ()
 {
     return "ACC_CL_AMP_MOD";
 }
 
-juce::String HiHatProperties::getAccOpAmpModKey ()
+juce::String SettingsProperties::getAccOpAmpModKey ()
 {
     return "ACC_OP_AMP_MOD";
 }
 
-juce::String HiHatProperties::getFxCvUnipolarKey ()
+juce::String SettingsProperties::getFxCvUnipolarKey ()
 {
     return "FX_CV_UNIPOLAR";
 }
 
-juce::String HiHatProperties::getVelocityUnipolarKey ()
+juce::String SettingsProperties::getVelocityUnipolarKey ()
 {
     return "VELOCITY_UNIPOLAR";
 }
 
-juce::String HiHatProperties::getCvDisableVelocityKey ()
+juce::String SettingsProperties::getCvDisableVelocityKey ()
 {
     return "CV_DISABLE_VELOCITY";
 }
 
-juce::String HiHatProperties::getCvDisableFxKey ()
+juce::String SettingsProperties::getCvDisableFxKey ()
 {
     return "CV_DISABLE_FX";
 }
 
-juce::String HiHatProperties::getGateModeKey ()
+juce::String SettingsProperties::getGateModeKey ()
 {
     return "GATE_MODE";
 }
 
-juce::String HiHatProperties::getFeelAttackModKey ()
+juce::String SettingsProperties::getFeelAttackModKey ()
 {
     return "FEEL_ATTACK_MOD";
 }
 
-juce::String HiHatProperties::getFeelReleaseModKey ()
+juce::String SettingsProperties::getFeelReleaseModKey ()
 {
     return "FEEL_RELEASE_MOD";
 }
 
-juce::String HiHatProperties::getFeelAmpModKey ()
+juce::String SettingsProperties::getFeelAmpModKey ()
 {
     return "FEEL_AMP_MOD";
 }
 
-juce::String HiHatProperties::getKnobPosTakeupKey ()
+juce::String SettingsProperties::getKnobPosTakeupKey ()
 {
     return "KNOB_POS_TAKEUP";
 }
 
-juce::String HiHatProperties::getFltrHpfMinFreqKey ()
+juce::String SettingsProperties::getFltrHpfMinFreqKey ()
 {
     return "FLTR_HPF_MIN_FREQ";
 }
 
-juce::String HiHatProperties::getFltrHpfMaxFreqKey ()
+juce::String SettingsProperties::getFltrHpfMaxFreqKey ()
 {
     return "FLTR_HPF_MAX_FREQ";
 }
 
-juce::String HiHatProperties::getFltrLpfMinFreqKey ()
+juce::String SettingsProperties::getFltrLpfMinFreqKey ()
 {
     return "FLTR_LPF_MIN_FREQ";
 }
 
-juce::String HiHatProperties::getFltrLpfMaxFreqKey ()
+juce::String SettingsProperties::getFltrLpfMaxFreqKey ()
 {
     return "FLTR_LPF_MAX_FREQ";
 }
 
-juce::String HiHatProperties::getFltrHpfQKey ()
+juce::String SettingsProperties::getFltrHpfQKey ()
 {
     return "FLTR_HPF_Q";
 }
 
-juce::String HiHatProperties::getFltrLpfQKey ()
+juce::String SettingsProperties::getFltrLpfQKey ()
 {
     return "FLTR_LPF_Q";
 }
 
-juce::String HiHatProperties::getFxDjfilterHpfMinKey ()
+juce::String SettingsProperties::getFxDjfilterHpfMinKey ()
 {
     return "FX_DJFILTER_HPF_MIN";
 }
 
-juce::String HiHatProperties::getFxDjfilterHpfMaxKey ()
+juce::String SettingsProperties::getFxDjfilterHpfMaxKey ()
 {
     return "FX_DJFILTER_HPF_MAX";
 }
 
-juce::String HiHatProperties::getFxDjfilterLpfMinKey ()
+juce::String SettingsProperties::getFxDjfilterLpfMinKey ()
 {
     return "FX_DJFILTER_LPF_MIN";
 }
 
-juce::String HiHatProperties::getFxDjfilterLpfMaxKey ()
+juce::String SettingsProperties::getFxDjfilterLpfMaxKey ()
 {
     return "FX_DJFILTER_LPF_MAX";
 }
 
-juce::String HiHatProperties::getFxDjfilterQMinKey ()
+juce::String SettingsProperties::getFxDjfilterQMinKey ()
 {
     return "FX_DJFILTER_Q_MIN";
 }
 
-juce::String HiHatProperties::getFxDjfilterQMaxKey ()
+juce::String SettingsProperties::getFxDjfilterQMaxKey ()
 {
     return "FX_DJFILTER_Q_MAX";
 }
 
-juce::String HiHatProperties::getFxDjfilterQGainReductionKey ()
+juce::String SettingsProperties::getFxDjfilterQGainReductionKey ()
 {
     return "FX_DJFILTER_Q_GAIN_REDUCTION";
 }
 
-juce::String HiHatProperties::getFxDubEchoTminKey ()
+juce::String SettingsProperties::getFxDubEchoTminKey ()
 {
     return "FX_DUB_ECHO_TMIN";
 }
 
-juce::String HiHatProperties::getFxDubEchoHpfKey ()
+juce::String SettingsProperties::getFxDubEchoHpfKey ()
 {
     return "FX_DUB_ECHO_HPF";
 }
 
-juce::String HiHatProperties::getFxDubEchoLpfKey ()
+juce::String SettingsProperties::getFxDubEchoLpfKey ()
 {
     return "FX_DUB_ECHO_LPF";
 }
 
-juce::String HiHatProperties::getFxDubEchoMixKey ()
+juce::String SettingsProperties::getFxDubEchoMixKey ()
 {
     return "FX_DUB_ECHO_MIX";
 }
 
-juce::String HiHatProperties::getFxChorusCenterKey ()
+juce::String SettingsProperties::getFxChorusCenterKey ()
 {
     return "FX_CHORUS_CENTER";
 }
 
-juce::String HiHatProperties::getFxChorusDepthKey ()
+juce::String SettingsProperties::getFxChorusDepthKey ()
 {
     return "FX_CHORUS_DEPTH";
 }
 
-juce::String HiHatProperties::getFxChorusMixKey ()
+juce::String SettingsProperties::getFxChorusMixKey ()
 {
     return "FX_CHORUS_MIX";
 }
 
-juce::String HiHatProperties::getFxChorusSpreadKey ()
+juce::String SettingsProperties::getFxChorusSpreadKey ()
 {
     return "FX_CHORUS_SPREAD";
 }
 
-juce::String HiHatProperties::getFxChorusTapsKey ()
+juce::String SettingsProperties::getFxChorusTapsKey ()
 {
     return "FX_CHORUS_TAPS";
 }
 
-juce::String HiHatProperties::getFxChorusLfoBKey ()
+juce::String SettingsProperties::getFxChorusLfoBKey ()
 {
     return "FX_CHORUS_LFO_B";
 }
 
-juce::String HiHatProperties::getFxChorusLfoTKey ()
+juce::String SettingsProperties::getFxChorusLfoTKey ()
 {
     return "FX_CHORUS_LFO_T";
 }
 
-juce::String HiHatProperties::getFxReverbLpfKey ()
+juce::String SettingsProperties::getFxReverbLpfKey ()
 {
     return "FX_REVERB_LPF";
 }
 
-juce::String HiHatProperties::getFxReverbHpfKey ()
+juce::String SettingsProperties::getFxReverbHpfKey ()
 {
     return "FX_REVERB_HPF";
 }
 
-juce::String HiHatProperties::getFxGlitchProbabilityMinKey ()
+juce::String SettingsProperties::getFxGlitchProbabilityMinKey ()
 {
     return "FX_GLITCH_PROBABILITY_MIN";
 }
 
-juce::String HiHatProperties::getFxGlitchProbabilityMaxKey ()
+juce::String SettingsProperties::getFxGlitchProbabilityMaxKey ()
 {
     return "FX_GLITCH_PROBABILITY_MAX";
 }
 
-juce::String HiHatProperties::getFxGlitchWeightHoldLowKey ()
+juce::String SettingsProperties::getFxGlitchWeightHoldLowKey ()
 {
     return "FX_GLITCH_WEIGHT_HOLD_LOW";
 }
 
-juce::String HiHatProperties::getFxGlitchWeightStutterLowKey ()
+juce::String SettingsProperties::getFxGlitchWeightStutterLowKey ()
 {
     return "FX_GLITCH_WEIGHT_STUTTER_LOW";
 }
 
-juce::String HiHatProperties::getFxGlitchWeightCrushLowKey ()
+juce::String SettingsProperties::getFxGlitchWeightCrushLowKey ()
 {
     return "FX_GLITCH_WEIGHT_CRUSH_LOW";
 }
 
-juce::String HiHatProperties::getFxGlitchWeightDropLowKey ()
+juce::String SettingsProperties::getFxGlitchWeightDropLowKey ()
 {
     return "FX_GLITCH_WEIGHT_DROP_LOW";
 }
 
-juce::String HiHatProperties::getFxGlitchWeightHoldHighKey ()
+juce::String SettingsProperties::getFxGlitchWeightHoldHighKey ()
 {
     return "FX_GLITCH_WEIGHT_HOLD_HIGH";
 }
 
-juce::String HiHatProperties::getFxGlitchWeightStutterHighKey ()
+juce::String SettingsProperties::getFxGlitchWeightStutterHighKey ()
 {
     return "FX_GLITCH_WEIGHT_STUTTER_HIGH";
 }
 
-juce::String HiHatProperties::getFxGlitchWeightCrushHighKey ()
+juce::String SettingsProperties::getFxGlitchWeightCrushHighKey ()
 {
     return "FX_GLITCH_WEIGHT_CRUSH_HIGH";
 }
 
-juce::String HiHatProperties::getFxGlitchWeightDropHighKey ()
+juce::String SettingsProperties::getFxGlitchWeightDropHighKey ()
 {
     return "FX_GLITCH_WEIGHT_DROP_HIGH";
 }
 
-juce::String HiHatProperties::getFxGlitchDropKeepLevelMinKey ()
+juce::String SettingsProperties::getFxGlitchDropKeepLevelMinKey ()
 {
     return "FX_GLITCH_DROP_KEEP_LEVEL_MIN";
 }
 
-juce::String HiHatProperties::getFxGlitchDropKeepLevelMaxKey ()
+juce::String SettingsProperties::getFxGlitchDropKeepLevelMaxKey ()
 {
     return "FX_GLITCH_DROP_KEEP_LEVEL_MAX";
 }
 
-juce::String HiHatProperties::getFxGlitchDropKeepTimeMinKey ()
+juce::String SettingsProperties::getFxGlitchDropKeepTimeMinKey ()
 {
     return "FX_GLITCH_DROP_KEEP_TIME_MIN";
 }
 
-juce::String HiHatProperties::getFxGlitchDropKeepTimeMaxKey ()
+juce::String SettingsProperties::getFxGlitchDropKeepTimeMaxKey ()
 {
     return "FX_GLITCH_DROP_KEEP_TIME_MAX";
 }
 
-juce::String HiHatProperties::getFxGlitchCrushTimeMinKey ()
+juce::String SettingsProperties::getFxGlitchCrushTimeMinKey ()
 {
     return "FX_GLITCH_CRUSH_TIME_MIN";
 }
 
-juce::String HiHatProperties::getFxGlitchCrushTimeMaxKey ()
+juce::String SettingsProperties::getFxGlitchCrushTimeMaxKey ()
 {
     return "FX_GLITCH_CRUSH_TIME_MAX";
 }
 
-juce::String HiHatProperties::getFxGlitchMicroloopSmplTMinKey ()
+juce::String SettingsProperties::getFxGlitchMicroloopSmplTMinKey ()
 {
     return "FX_GLITCH_MICROLOOP_SMPL_T_MIN";
 }
 
-juce::String HiHatProperties::getFxGlitchMicroloopSmplTMaxKey ()
+juce::String SettingsProperties::getFxGlitchMicroloopSmplTMaxKey ()
 {
     return "FX_GLITCH_MICROLOOP_SMPL_T_MAX";
 }
 
-juce::String HiHatProperties::getFxGlitchMicroloopPlayTMinKey ()
+juce::String SettingsProperties::getFxGlitchMicroloopPlayTMinKey ()
 {
     return "FX_GLITCH_MICROLOOP_PLAY_T_MIN";
 }
 
-juce::String HiHatProperties::getFxGlitchMicroloopPlayTMaxKey ()
+juce::String SettingsProperties::getFxGlitchMicroloopPlayTMaxKey ()
 {
     return "FX_GLITCH_MICROLOOP_PLAY_T_MAX";
 }
 
-juce::String HiHatProperties::getFxGlitchStutterSmplTMinKey ()
+juce::String SettingsProperties::getFxGlitchStutterSmplTMinKey ()
 {
     return "FX_GLITCH_STUTTER_SMPL_T_MIN";
 }
 
-juce::String HiHatProperties::getFxGlitchStutterSmplTMaxKey ()
+juce::String SettingsProperties::getFxGlitchStutterSmplTMaxKey ()
 {
     return "FX_GLITCH_STUTTER_SMPL_T_MAX";
 }
 
-juce::String HiHatProperties::getFxGlitchStutterNumMinKey ()
+juce::String SettingsProperties::getFxGlitchStutterNumMinKey ()
 {
     return "FX_GLITCH_STUTTER_NUM_MIN";
 }
 
-juce::String HiHatProperties::getFxGlitchStutterNumMaxKey ()
+juce::String SettingsProperties::getFxGlitchStutterNumMaxKey ()
 {
     return "FX_GLITCH_STUTTER_NUM_MAX";
 }
 
-juce::String HiHatProperties::getFxGlitchStutterWindowKey ()
+juce::String SettingsProperties::getFxGlitchStutterWindowKey ()
 {
     return "FX_GLITCH_STUTTER_WINDOW";
 }

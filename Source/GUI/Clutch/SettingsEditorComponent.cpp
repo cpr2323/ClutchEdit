@@ -1,8 +1,8 @@
-#include "HiHatEditorComponent.h"
+#include "SettingsEditorComponent.h"
 #include "../../Clutch/ClutchProperties.h"
 #include "../../Utility/RuntimeRootProperties.h"
 
-HiHatEditorComponent::HiHatEditorComponent ()
+SettingsEditorComponent::SettingsEditorComponent ()
 {
     auto setupDoubleEditor = [this] (CustomTextEditorDouble& editor,
                                      juce::Label& label,
@@ -50,7 +50,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
             else
                 return 1.0f;
         } ();
-        const auto newValue { hiHatProperties.getAccClAmpMod () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getAccClAmpMod () + (multiplier * direction) };
         accClAmpModEditor.setValue (newValue);
     };
     accClAmpModEditor.onPopupMenuCallback = [this] ()
@@ -69,7 +69,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
     accClRelModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
-        accClRelModEditor.setValue (hiHatProperties.getAccClRelMod () + (multiplier * direction));
+        accClRelModEditor.setValue (settingsProperties.getAccClRelMod () + (multiplier * direction));
     };
     accClRelModEditor.onPopupMenuCallback = [this] ()
     {
@@ -87,7 +87,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
     accOpAmpModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
-        accOpAmpModEditor.setValue (hiHatProperties.getAccOpAmpMod () + (multiplier * direction));
+        accOpAmpModEditor.setValue (settingsProperties.getAccOpAmpMod () + (multiplier * direction));
     };
     accOpAmpModEditor.onPopupMenuCallback = [this] ()
     {
@@ -105,7 +105,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
     accOpRelModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
-        accOpRelModEditor.setValue (hiHatProperties.getAccOpRelMod () + (multiplier * direction));
+        accOpRelModEditor.setValue (settingsProperties.getAccOpRelMod () + (multiplier * direction));
     };
     accOpRelModEditor.onPopupMenuCallback = [this] ()
     {
@@ -123,7 +123,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
     chokeReleaseEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
-        chokeReleaseEditor.setValue (hiHatProperties.getChokeRelease () + (multiplier * direction));
+        chokeReleaseEditor.setValue (settingsProperties.getChokeRelease () + (multiplier * direction));
     };
     chokeReleaseEditor.onPopupMenuCallback = [this] ()
     {
@@ -141,7 +141,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
     clsdMaxReleaseEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
-        chokeReleaseEditor.setValue (hiHatProperties.getClsdMaxRelease () + (multiplier * direction));
+        chokeReleaseEditor.setValue (settingsProperties.getClsdMaxRelease () + (multiplier * direction));
     };
     clsdMaxReleaseEditor.onPopupMenuCallback = [this] ()
     {
@@ -159,7 +159,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
     clsdRelOfstScaleEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
-        clsdRelOfstScaleEditor.setValue (hiHatProperties.getClsdRelOfstScale () + (multiplier * direction));
+        clsdRelOfstScaleEditor.setValue (settingsProperties.getClsdRelOfstScale () + (multiplier * direction));
     };
     clsdRelOfstScaleEditor.onPopupMenuCallback = [this] ()
     {
@@ -179,7 +179,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
     {
         const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
         const auto clsdReleaseMode { clsdReleaseModeEditor.getSelectedId () - 1 };
-        hiHatProperties.setClsdReleaseMode (std::clamp (clsdReleaseMode + scrollAmount, 0, 1), true);
+        settingsProperties.setClsdReleaseMode (std::clamp (clsdReleaseMode + scrollAmount, 0, 1), true);
     };
     clsdReleaseModeEditor.onPopupMenuCallback = [this] ()
     {
@@ -198,7 +198,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
     {
         const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
         const auto cvDisableFx { cvDisableFxEditor.getSelectedId () - 1 };
-        hiHatProperties.setCvDisableFx (std::clamp (cvDisableFx + scrollAmount, 0, 1), true);
+        settingsProperties.setCvDisableFx (std::clamp (cvDisableFx + scrollAmount, 0, 1), true);
     };
     cvDisableFxEditor.onPopupMenuCallback = [this] ()
     {
@@ -217,7 +217,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
     {
         const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
         const auto cvDisableVelocity { cvDisableVelocityEditor.getSelectedId () - 1 };
-        hiHatProperties.setCvDisableVelocity (std::clamp (cvDisableVelocity + scrollAmount, 0, 1), true);
+        settingsProperties.setCvDisableVelocity (std::clamp (cvDisableVelocity + scrollAmount, 0, 1), true);
     };
     cvDisableVelocityEditor.onPopupMenuCallback = [this] ()
     {
@@ -234,7 +234,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
     envelopeMaxReleaseEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
-        envelopeMaxReleaseEditor.setValue (hiHatProperties.getEnvelopeMaxRelease () + (multiplier * direction));
+        envelopeMaxReleaseEditor.setValue (settingsProperties.getEnvelopeMaxRelease () + (multiplier * direction));
     };
     envelopeMaxReleaseEditor.onPopupMenuCallback = [this] ()
     {
@@ -252,7 +252,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
     feelAmpModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
-        feelAmpModEditor.setValue (hiHatProperties.getFeelAmpMod () + (multiplier * direction));
+        feelAmpModEditor.setValue (settingsProperties.getFeelAmpMod () + (multiplier * direction));
     };
     feelAmpModEditor.onPopupMenuCallback = [this] ()
     {
@@ -276,7 +276,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFeelAttackMod () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFeelAttackMod () + (multiplier * direction) };
         feelAttackModEditor.setValue (newValue);
     }; 
     feelAttackModEditor.onPopupMenuCallback = [this] ()
@@ -301,7 +301,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFeelReleaseMod () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFeelReleaseMod () + (multiplier * direction) };
         feelReleaseModEditor.setValue (newValue);
     };
     feelReleaseModEditor.onPopupMenuCallback = [this] ()
@@ -326,7 +326,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFltrHpfMaxFreq () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFltrHpfMaxFreq () + (multiplier * direction) };
         fltrHpfMaxFreqEditor.setValue (newValue);
     };
     fltrHpfMaxFreqEditor.onPopupMenuCallback = [this] ()
@@ -351,7 +351,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFltrHpfMinFreq () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFltrHpfMinFreq () + (multiplier * direction) };
         fltrHpfMinFreqEditor.setValue (newValue);
     };
     fltrHpfMinFreqEditor.onPopupMenuCallback = [this] ()
@@ -376,7 +376,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFltrHpfQ () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFltrHpfQ () + (multiplier * direction) };
         fltrHpfQEditor.setValue (newValue);
     };
     fltrHpfQEditor.onPopupMenuCallback = [this] ()
@@ -401,7 +401,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFltrLpfMaxFreq () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFltrLpfMaxFreq () + (multiplier * direction) };
         fltrLpfMaxFreqEditor.setValue (newValue);
     };
     fltrLpfMaxFreqEditor.onPopupMenuCallback = [this] ()
@@ -426,7 +426,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFltrLpfMinFreq () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFltrLpfMinFreq () + (multiplier * direction) };
         fltrLpfMinFreqEditor.setValue (newValue);
     };
     fltrLpfMinFreqEditor.onPopupMenuCallback = [this] ()
@@ -451,7 +451,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFltrLpfQ () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFltrLpfQ () + (multiplier * direction) };
         fltrLpfQEditor.setValue (newValue);
     };
     fltrLpfQEditor.onPopupMenuCallback = [this] ()
@@ -476,7 +476,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxChorusCenter () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxChorusCenter () + (multiplier * direction) };
         fxChorusCenterEditor.setValue (newValue);
     };
     fxChorusCenterEditor.onPopupMenuCallback = [this] ()
@@ -501,7 +501,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxChorusDepth () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxChorusDepth () + (multiplier * direction) };
         fxChorusDepthEditor.setValue (newValue);
     };
     fxChorusDepthEditor.onPopupMenuCallback = [this] ()
@@ -526,7 +526,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxChorusLfoB () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxChorusLfoB () + (multiplier * direction) };
         fxChorusLfoBEditor.setValue (newValue);
     };
     fxChorusLfoBEditor.onPopupMenuCallback = [this] ()
@@ -551,7 +551,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxChorusLfoT () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxChorusLfoT () + (multiplier * direction) };
         fxChorusLfoTEditor.setValue (newValue);
     };
     fxChorusLfoTEditor.onPopupMenuCallback = [this] ()
@@ -576,7 +576,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxChorusMix () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxChorusMix () + (multiplier * direction) };
         fxChorusMixEditor.setValue (newValue);
     };
     fxChorusMixEditor.onPopupMenuCallback = [this] ()
@@ -601,7 +601,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxChorusSpread () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxChorusSpread () + (multiplier * direction) };
         fxChorusSpreadEditor.setValue (newValue);
     };
     fxChorusSpreadEditor.onPopupMenuCallback = [this] ()
@@ -623,7 +623,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
     {
         const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
         const auto fxChorusTaps { fxChorusTapsEditor.getSelectedId () };
-        hiHatProperties.setFxChorusTaps (std::clamp (fxChorusTaps + scrollAmount, 1, 4), true);
+        settingsProperties.setFxChorusTaps (std::clamp (fxChorusTaps + scrollAmount, 1, 4), true);
     };
     fxChorusTapsEditor.onPopupMenuCallback = [this] ()
     {
@@ -641,7 +641,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
     {
         const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
         const auto fxCvUnipolar { fxCvUnipolarEditor.getSelectedId () - 1 };
-        hiHatProperties.setFxCvUnipolar (std::clamp (fxCvUnipolar + scrollAmount, 0, 1), true);
+        settingsProperties.setFxCvUnipolar (std::clamp (fxCvUnipolar + scrollAmount, 0, 1), true);
     };
     fxCvUnipolarEditor.onPopupMenuCallback = [this] ()
     {
@@ -664,7 +664,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxDjfilterHpfMax () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxDjfilterHpfMax () + (multiplier * direction) };
         fxDjfilterHpfMaxEditor.setValue (newValue);
     };
     fxDjfilterHpfMaxEditor.onPopupMenuCallback = [this] ()
@@ -689,7 +689,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxDjfilterHpfMin () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxDjfilterHpfMin () + (multiplier * direction) };
         fxDjfilterHpfMinEditor.setValue (newValue);
     };
     fxDjfilterHpfMinEditor.onPopupMenuCallback = [this] ()
@@ -714,7 +714,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxDjfilterLpfMax () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxDjfilterLpfMax () + (multiplier * direction) };
         fxDjfilterLpfMaxEditor.setValue (newValue);
     };
     fxDjfilterLpfMaxEditor.onPopupMenuCallback = [this] ()
@@ -739,7 +739,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxDjfilterLpfMin () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxDjfilterLpfMin () + (multiplier * direction) };
         fxDjfilterLpfMinEditor.setValue (newValue);
     };
     fxDjfilterLpfMinEditor.onPopupMenuCallback = [this] ()
@@ -764,7 +764,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxDjfilterQGainReduction () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxDjfilterQGainReduction () + (multiplier * direction) };
         fxDjfilterQGainReductionEditor.setValue (newValue);
     };
     fxDjfilterQGainReductionEditor.onPopupMenuCallback = [this] ()
@@ -789,7 +789,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxDjfilterQMax () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxDjfilterQMax () + (multiplier * direction) };
         fxDjfilterQMaxEditor.setValue (newValue);
     };
     fxDjfilterQMaxEditor.onPopupMenuCallback = [this] ()
@@ -814,7 +814,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxDjfilterQMin () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxDjfilterQMin () + (multiplier * direction) };
         fxDjfilterQMinEditor.setValue (newValue);
     };
     fxDjfilterQMinEditor.onPopupMenuCallback = [this] ()
@@ -839,7 +839,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxDubEchoHpf () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxDubEchoHpf () + (multiplier * direction) };
         fxDubEchoHpfEditor.setValue (newValue);
     };
     fxDubEchoHpfEditor.onPopupMenuCallback = [this] ()
@@ -864,7 +864,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxDubEchoLpf () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxDubEchoLpf () + (multiplier * direction) };
         fxDubEchoLpfEditor.setValue (newValue);
     };
     fxDubEchoLpfEditor.onPopupMenuCallback = [this] ()
@@ -889,7 +889,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxDubEchoMix () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxDubEchoMix () + (multiplier * direction) };
         fxDubEchoMixEditor.setValue (newValue);
     };
     fxDubEchoMixEditor.onPopupMenuCallback = [this] ()
@@ -914,7 +914,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxDubEchoTmin () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxDubEchoTmin () + (multiplier * direction) };
         fxDubEchoTminEditor.setValue (newValue);
     };
     fxDubEchoTminEditor.onPopupMenuCallback = [this] ()
@@ -939,7 +939,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxGlitchCrushTimeMax () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxGlitchCrushTimeMax () + (multiplier * direction) };
         fxGlitchCrushTimeMaxEditor.setValue (newValue);
     };
     fxGlitchCrushTimeMaxEditor.onPopupMenuCallback = [this] ()
@@ -964,7 +964,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxGlitchCrushTimeMin () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxGlitchCrushTimeMin () + (multiplier * direction) };
         fxGlitchCrushTimeMinEditor.setValue (newValue);
     };
     fxGlitchCrushTimeMinEditor.onPopupMenuCallback = [this] ()
@@ -989,7 +989,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxGlitchDropKeepLevelMax () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxGlitchDropKeepLevelMax () + (multiplier * direction) };
         fxGlitchDropKeepLevelMaxEditor.setValue (newValue);
     };
     fxGlitchDropKeepLevelMaxEditor.onPopupMenuCallback = [this] ()
@@ -1014,7 +1014,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxGlitchDropKeepLevelMin () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxGlitchDropKeepLevelMin () + (multiplier * direction) };
         fxGlitchDropKeepLevelMinEditor.setValue (newValue);
     };
     fxGlitchDropKeepLevelMinEditor.onPopupMenuCallback = [this] ()
@@ -1039,7 +1039,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxGlitchDropKeepTimeMax () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxGlitchDropKeepTimeMax () + (multiplier * direction) };
         fxGlitchDropKeepTimeMaxEditor.setValue (newValue);
     };
     fxGlitchDropKeepTimeMaxEditor.onPopupMenuCallback = [this] ()
@@ -1064,7 +1064,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxGlitchDropKeepTimeMin () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxGlitchDropKeepTimeMin () + (multiplier * direction) };
         fxGlitchDropKeepTimeMinEditor.setValue (newValue);
     };
     fxGlitchDropKeepTimeMinEditor.onPopupMenuCallback = [this] ()
@@ -1089,7 +1089,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxGlitchMicroloopPlayTMax () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxGlitchMicroloopPlayTMax () + (multiplier * direction) };
         fxGlitchMicroloopPlayTMaxEditor.setValue (newValue);
     };
     fxGlitchMicroloopPlayTMaxEditor.onPopupMenuCallback = [this] ()
@@ -1114,7 +1114,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxGlitchMicroloopPlayTMin () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxGlitchMicroloopPlayTMin () + (multiplier * direction) };
         fxGlitchMicroloopPlayTMinEditor.setValue (newValue);
     };
     fxGlitchMicroloopPlayTMinEditor.onPopupMenuCallback = [this] ()
@@ -1139,7 +1139,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxGlitchMicroloopSmplTMax () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxGlitchMicroloopSmplTMax () + (multiplier * direction) };
         fxGlitchMicroloopSmplTMaxEditor.setValue (newValue);
     };
     fxGlitchMicroloopSmplTMaxEditor.onPopupMenuCallback = [this] ()
@@ -1164,7 +1164,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxGlitchMicroloopSmplTMin () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxGlitchMicroloopSmplTMin () + (multiplier * direction) };
         fxGlitchMicroloopSmplTMinEditor.setValue (newValue);
     };
     fxGlitchMicroloopSmplTMinEditor.onPopupMenuCallback = [this] ()
@@ -1189,7 +1189,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxGlitchProbabilityMax () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxGlitchProbabilityMax () + (multiplier * direction) };
         fxGlitchProbabilityMaxEditor.setValue (newValue);
     };
     fxGlitchProbabilityMaxEditor.onPopupMenuCallback = [this] ()
@@ -1214,7 +1214,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxGlitchProbabilityMin () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxGlitchProbabilityMin () + (multiplier * direction) };
         fxGlitchProbabilityMinEditor.setValue (newValue);
     };
     fxGlitchProbabilityMinEditor.onPopupMenuCallback = [this] ()
@@ -1239,7 +1239,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxGlitchStutterNumMax () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxGlitchStutterNumMax () + (multiplier * direction) };
         fxGlitchStutterNumMaxEditor.setValue (newValue);
     };
     fxGlitchStutterNumMaxEditor.onPopupMenuCallback = [this] ()
@@ -1264,7 +1264,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxGlitchStutterNumMin () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxGlitchStutterNumMin () + (multiplier * direction) };
         fxGlitchStutterNumMinEditor.setValue (newValue);
     };
     fxGlitchStutterNumMinEditor.onPopupMenuCallback = [this] ()
@@ -1289,7 +1289,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxGlitchStutterSmplTMax () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxGlitchStutterSmplTMax () + (multiplier * direction) };
         fxGlitchStutterSmplTMaxEditor.setValue (newValue);
     };
     fxGlitchStutterSmplTMaxEditor.onPopupMenuCallback = [this] ()
@@ -1314,7 +1314,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxGlitchStutterSmplTMin () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxGlitchStutterSmplTMin () + (multiplier * direction) };
         fxGlitchStutterSmplTMinEditor.setValue (newValue);
     };
     fxGlitchStutterSmplTMinEditor.onPopupMenuCallback = [this] ()
@@ -1339,7 +1339,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxGlitchStutterWindow () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxGlitchStutterWindow () + (multiplier * direction) };
         fxGlitchStutterWindowEditor.setValue (newValue);
     };
     fxGlitchStutterWindowEditor.onPopupMenuCallback = [this] ()
@@ -1364,7 +1364,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxGlitchWeightCrushLow () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxGlitchWeightCrushLow () + (multiplier * direction) };
         fxGlitchWeightCrushLowEditor.setValue (newValue);
     };
     fxGlitchWeightCrushLowEditor.onPopupMenuCallback = [this] ()
@@ -1389,7 +1389,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxGlitchWeightDropHigh () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxGlitchWeightDropHigh () + (multiplier * direction) };
         fxGlitchWeightDropHighEditor.setValue (newValue);
     };
     fxGlitchWeightDropHighEditor.onPopupMenuCallback = [this] ()
@@ -1414,7 +1414,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxGlitchWeightDropLow () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxGlitchWeightDropLow () + (multiplier * direction) };
         fxGlitchWeightDropLowEditor.setValue (newValue);
     };
     fxGlitchWeightDropLowEditor.onPopupMenuCallback = [this] ()
@@ -1439,7 +1439,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxGlitchWeightHoldHigh () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxGlitchWeightHoldHigh () + (multiplier * direction) };
         fxGlitchWeightHoldHighEditor.setValue (newValue);
     };
     fxGlitchWeightHoldHighEditor.onPopupMenuCallback = [this] ()
@@ -1464,7 +1464,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxGlitchWeightHoldLow () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxGlitchWeightHoldLow () + (multiplier * direction) };
         fxGlitchWeightHoldLowEditor.setValue (newValue);
     };
     fxGlitchWeightHoldLowEditor.onPopupMenuCallback = [this] ()
@@ -1489,7 +1489,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxGlitchWeightStutterHigh () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxGlitchWeightStutterHigh () + (multiplier * direction) };
         fxGlitchWeightStutterHighEditor.setValue (newValue);
     };
     fxGlitchWeightStutterHighEditor.onPopupMenuCallback = [this] ()
@@ -1514,7 +1514,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxGlitchWeightStutterLow () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxGlitchWeightStutterLow () + (multiplier * direction) };
         fxGlitchWeightStutterLowEditor.setValue (newValue);
     };
     fxGlitchWeightStutterLowEditor.onPopupMenuCallback = [this] ()
@@ -1539,7 +1539,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxReverbHpf () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxReverbHpf () + (multiplier * direction) };
         fxReverbHpfEditor.setValue (newValue);
     };
     fxReverbHpfEditor.onPopupMenuCallback = [this] ()
@@ -1564,7 +1564,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getFxReverbLpf () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getFxReverbLpf () + (multiplier * direction) };
         fxReverbLpfEditor.setValue (newValue);
     };
     fxReverbLpfEditor.onPopupMenuCallback = [this] ()
@@ -1585,7 +1585,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
     {
         const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
         const auto gateMode { gateModeEditor.getSelectedId () - 1 };
-        hiHatProperties.setGateMode (std::clamp (gateMode + scrollAmount, 0, 1), true);
+        settingsProperties.setGateMode (std::clamp (gateMode + scrollAmount, 0, 1), true);
     };
     gateModeEditor.onPopupMenuCallback = [this] ()
     {
@@ -1604,7 +1604,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
     {
         const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
         const auto fxCvUnipolar { knobPosTakeupEditor.getSelectedId () - 1 };
-        hiHatProperties.setKnobPosTakeup (std::clamp (fxCvUnipolar + scrollAmount, 0, 1), true);
+        settingsProperties.setKnobPosTakeup (std::clamp (fxCvUnipolar + scrollAmount, 0, 1), true);
     };
     knobPosTakeupEditor.onPopupMenuCallback = [this] ()
     {
@@ -1627,7 +1627,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getPitchHigh () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getPitchHigh () + (multiplier * direction) };
         pitchHighEditor.setValue (newValue);
     };
     pitchHighEditor.onPopupMenuCallback = [this] ()
@@ -1652,7 +1652,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
                 return 25;
             } ();
 
-        const auto newValue { hiHatProperties.getPitchLow () + (multiplier * direction) };
+        const auto newValue { settingsProperties.getPitchLow () + (multiplier * direction) };
         pitchLowEditor.setValue (newValue);
     };
     pitchLowEditor.onPopupMenuCallback = [this] ()
@@ -1673,7 +1673,7 @@ HiHatEditorComponent::HiHatEditorComponent ()
     {
         const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
         const auto velocityUnipolar { velocityUnipolarEditor.getSelectedId () - 1 };
-        hiHatProperties.setVelocityUnipolar (std::clamp (velocityUnipolar + scrollAmount, 0, 1), true);
+        settingsProperties.setVelocityUnipolar (std::clamp (velocityUnipolar + scrollAmount, 0, 1), true);
     };
     velocityUnipolarEditor.onPopupMenuCallback = [this] ()
     {
@@ -1683,884 +1683,884 @@ HiHatEditorComponent::HiHatEditorComponent ()
     setupComboBox (velocityUnipolarEditor, velocityUnipolarLabel, "Velocity Unipolar");
 }
 
-HiHatEditorComponent::~HiHatEditorComponent ()
+SettingsEditorComponent::~SettingsEditorComponent ()
 {
 }
 
-void HiHatEditorComponent::init (juce::ValueTree rootPropertiesVT)
+void SettingsEditorComponent::init (juce::ValueTree rootPropertiesVT)
 {
     RuntimeRootProperties runtimeRootProperties (rootPropertiesVT, ValueTreeWrapper<RuntimeRootProperties>::WrapperType::client, ValueTreeWrapper<RuntimeRootProperties>::EnableCallbacks::no);
     ClutchProperties clutchProperties (runtimeRootProperties.getValueTree (), ValueTreeWrapper<ClutchProperties>::WrapperType::client, ValueTreeWrapper<ClutchProperties>::EnableCallbacks::no);
-    hiHatProperties.wrap (clutchProperties.getValueTree ().getChildWithName ("HiHat"), ValueTreeWrapper<HiHatProperties>::WrapperType::client, ValueTreeWrapper<HiHatProperties>::EnableCallbacks::yes);
+    settingsProperties.wrap (clutchProperties.getValueTree ().getChildWithName ("HiHat"), ValueTreeWrapper<SettingsProperties>::WrapperType::client, ValueTreeWrapper<SettingsProperties>::EnableCallbacks::yes);
 
     // initialize fields when data first attached
-    pitchLowDataChanged (hiHatProperties.getPitchLow ());
-    pitchHighDataChanged (hiHatProperties.getPitchHigh ());
-    envelopeMaxReleaseDataChanged (hiHatProperties.getEnvelopeMaxRelease ());
-    chokeReleaseDataChanged (hiHatProperties.getChokeRelease ());
-    clsdReleaseModeDataChanged (hiHatProperties.getClsdReleaseMode ());
-    clsdRelOfstScaleDataChanged (hiHatProperties.getClsdRelOfstScale ());
-    clsdMaxReleaseDataChanged (hiHatProperties.getClsdMaxRelease ());
-    accClRelModDataChanged (hiHatProperties.getAccClRelMod ());
-    accOpRelModDataChanged (hiHatProperties.getAccOpRelMod ());
-    accClAmpModDataChanged (hiHatProperties.getAccClAmpMod ());
-    accOpAmpModDataChanged (hiHatProperties.getAccOpAmpMod ());
-    fxCvUnipolarDataChanged (hiHatProperties.getFxCvUnipolar ());
-    velocityUnipolarDataChanged (hiHatProperties.getVelocityUnipolar ());
-    cvDisableVelocityDataChanged (hiHatProperties.getCvDisableVelocity ());
-    cvDisableFxDataChanged (hiHatProperties.getCvDisableFx ());
-    gateModeDataChanged (hiHatProperties.getGateMode ());
-    feelAttackModDataChanged (hiHatProperties.getFeelAttackMod ());
-    feelReleaseModDataChanged (hiHatProperties.getFeelReleaseMod ());
-    feelAmpModDataChanged (hiHatProperties.getFeelAmpMod ());
-    knobPosTakeupDataChanged (hiHatProperties.getKnobPosTakeup ());
-    fltrHpfMinFreqDataChanged (hiHatProperties.getFltrHpfMinFreq ());
-    fltrHpfMaxFreqDataChanged (hiHatProperties.getFltrHpfMaxFreq ());
-    fltrLpfMinFreqDataChanged (hiHatProperties.getFltrLpfMinFreq ());
-    fltrLpfMaxFreqDataChanged (hiHatProperties.getFltrLpfMaxFreq ());
-    fltrHpfQDataChanged (hiHatProperties.getFltrHpfQ ());
-    fltrLpfQDataChanged (hiHatProperties.getFltrLpfQ ());
-    fxDjfilterHpfMinDataChanged (hiHatProperties.getFxDjfilterHpfMin ());
-    fxDjfilterHpfMaxDataChanged (hiHatProperties.getFxDjfilterHpfMax ());
-    fxDjfilterLpfMinDataChanged (hiHatProperties.getFxDjfilterLpfMin ());
-    fxDjfilterLpfMaxDataChanged (hiHatProperties.getFxDjfilterLpfMax ());
-    fxDjfilterQMinDataChanged (hiHatProperties.getFxDjfilterQMin ());
-    fxDjfilterQMaxDataChanged (hiHatProperties.getFxDjfilterQMax ());
-    fxDjfilterQGainReductionDataChanged (hiHatProperties.getFxDjfilterQGainReduction ());
-    fxDubEchoTminDataChanged (hiHatProperties.getFxDubEchoTmin ());
-    fxDubEchoHpfDataChanged (hiHatProperties.getFxDubEchoHpf ());
-    fxDubEchoLpfDataChanged (hiHatProperties.getFxDubEchoLpf ());
-    fxDubEchoMixDataChanged (hiHatProperties.getFxDubEchoMix ());
-    fxChorusCenterDataChanged (hiHatProperties.getFxChorusCenter ());
-    fxChorusDepthDataChanged (hiHatProperties.getFxChorusDepth ());
-    fxChorusMixDataChanged (hiHatProperties.getFxChorusMix ());
-    fxChorusSpreadDataChanged (hiHatProperties.getFxChorusSpread ());
-    fxChorusTapsDataChanged (hiHatProperties.getFxChorusTaps ());
-    fxChorusLfoBDataChanged (hiHatProperties.getFxChorusLfoB ());
-    fxChorusLfoTDataChanged (hiHatProperties.getFxChorusLfoT ());
-    fxReverbLpfDataChanged (hiHatProperties.getFxReverbLpf ());
-    fxReverbHpfDataChanged (hiHatProperties.getFxReverbHpf ());
-    fxGlitchProbabilityMinDataChanged (hiHatProperties.getFxGlitchProbabilityMin ());
-    fxGlitchProbabilityMaxDataChanged (hiHatProperties.getFxGlitchProbabilityMax ());
-    fxGlitchWeightHoldLowDataChanged (hiHatProperties.getFxGlitchWeightHoldLow ());
-    fxGlitchWeightStutterLowDataChanged (hiHatProperties.getFxGlitchWeightStutterLow ());
-    fxGlitchWeightCrushLowDataChanged (hiHatProperties.getFxGlitchWeightCrushLow ());
-    fxGlitchWeightDropLowDataChanged (hiHatProperties.getFxGlitchWeightDropLow ());
-    fxGlitchWeightHoldHighDataChanged (hiHatProperties.getFxGlitchWeightHoldHigh ());
-    fxGlitchWeightStutterHighDataChanged (hiHatProperties.getFxGlitchWeightStutterHigh ());
-    fxGlitchWeightCrushHighDataChanged (hiHatProperties.getFxGlitchWeightCrushHigh ());
-    fxGlitchWeightDropHighDataChanged (hiHatProperties.getFxGlitchWeightDropHigh ());
-    fxGlitchDropKeepLevelMinDataChanged (hiHatProperties.getFxGlitchDropKeepLevelMin ());
-    fxGlitchDropKeepLevelMaxDataChanged (hiHatProperties.getFxGlitchDropKeepLevelMax ());
-    fxGlitchDropKeepTimeMinDataChanged (hiHatProperties.getFxGlitchDropKeepTimeMin ());
-    fxGlitchDropKeepTimeMaxDataChanged (hiHatProperties.getFxGlitchDropKeepTimeMax ());
-    fxGlitchCrushTimeMinDataChanged (hiHatProperties.getFxGlitchCrushTimeMin ());
-    fxGlitchCrushTimeMaxDataChanged (hiHatProperties.getFxGlitchCrushTimeMax ());
-    fxGlitchMicroloopSmplTMinDataChanged (hiHatProperties.getFxGlitchMicroloopSmplTMin ());
-    fxGlitchMicroloopSmplTMaxDataChanged (hiHatProperties.getFxGlitchMicroloopSmplTMax ());
-    fxGlitchMicroloopPlayTMinDataChanged (hiHatProperties.getFxGlitchMicroloopPlayTMin ());
-    fxGlitchMicroloopPlayTMaxDataChanged (hiHatProperties.getFxGlitchMicroloopPlayTMax ());
-    fxGlitchStutterSmplTMinDataChanged (hiHatProperties.getFxGlitchStutterSmplTMin ());
-    fxGlitchStutterSmplTMaxDataChanged (hiHatProperties.getFxGlitchStutterSmplTMax ());
-    fxGlitchStutterNumMinDataChanged (hiHatProperties.getFxGlitchStutterNumMin ());
-    fxGlitchStutterNumMaxDataChanged (hiHatProperties.getFxGlitchStutterNumMax ());
-    fxGlitchStutterWindowDataChanged (hiHatProperties.getFxGlitchStutterWindow ());
+    pitchLowDataChanged (settingsProperties.getPitchLow ());
+    pitchHighDataChanged (settingsProperties.getPitchHigh ());
+    envelopeMaxReleaseDataChanged (settingsProperties.getEnvelopeMaxRelease ());
+    chokeReleaseDataChanged (settingsProperties.getChokeRelease ());
+    clsdReleaseModeDataChanged (settingsProperties.getClsdReleaseMode ());
+    clsdRelOfstScaleDataChanged (settingsProperties.getClsdRelOfstScale ());
+    clsdMaxReleaseDataChanged (settingsProperties.getClsdMaxRelease ());
+    accClRelModDataChanged (settingsProperties.getAccClRelMod ());
+    accOpRelModDataChanged (settingsProperties.getAccOpRelMod ());
+    accClAmpModDataChanged (settingsProperties.getAccClAmpMod ());
+    accOpAmpModDataChanged (settingsProperties.getAccOpAmpMod ());
+    fxCvUnipolarDataChanged (settingsProperties.getFxCvUnipolar ());
+    velocityUnipolarDataChanged (settingsProperties.getVelocityUnipolar ());
+    cvDisableVelocityDataChanged (settingsProperties.getCvDisableVelocity ());
+    cvDisableFxDataChanged (settingsProperties.getCvDisableFx ());
+    gateModeDataChanged (settingsProperties.getGateMode ());
+    feelAttackModDataChanged (settingsProperties.getFeelAttackMod ());
+    feelReleaseModDataChanged (settingsProperties.getFeelReleaseMod ());
+    feelAmpModDataChanged (settingsProperties.getFeelAmpMod ());
+    knobPosTakeupDataChanged (settingsProperties.getKnobPosTakeup ());
+    fltrHpfMinFreqDataChanged (settingsProperties.getFltrHpfMinFreq ());
+    fltrHpfMaxFreqDataChanged (settingsProperties.getFltrHpfMaxFreq ());
+    fltrLpfMinFreqDataChanged (settingsProperties.getFltrLpfMinFreq ());
+    fltrLpfMaxFreqDataChanged (settingsProperties.getFltrLpfMaxFreq ());
+    fltrHpfQDataChanged (settingsProperties.getFltrHpfQ ());
+    fltrLpfQDataChanged (settingsProperties.getFltrLpfQ ());
+    fxDjfilterHpfMinDataChanged (settingsProperties.getFxDjfilterHpfMin ());
+    fxDjfilterHpfMaxDataChanged (settingsProperties.getFxDjfilterHpfMax ());
+    fxDjfilterLpfMinDataChanged (settingsProperties.getFxDjfilterLpfMin ());
+    fxDjfilterLpfMaxDataChanged (settingsProperties.getFxDjfilterLpfMax ());
+    fxDjfilterQMinDataChanged (settingsProperties.getFxDjfilterQMin ());
+    fxDjfilterQMaxDataChanged (settingsProperties.getFxDjfilterQMax ());
+    fxDjfilterQGainReductionDataChanged (settingsProperties.getFxDjfilterQGainReduction ());
+    fxDubEchoTminDataChanged (settingsProperties.getFxDubEchoTmin ());
+    fxDubEchoHpfDataChanged (settingsProperties.getFxDubEchoHpf ());
+    fxDubEchoLpfDataChanged (settingsProperties.getFxDubEchoLpf ());
+    fxDubEchoMixDataChanged (settingsProperties.getFxDubEchoMix ());
+    fxChorusCenterDataChanged (settingsProperties.getFxChorusCenter ());
+    fxChorusDepthDataChanged (settingsProperties.getFxChorusDepth ());
+    fxChorusMixDataChanged (settingsProperties.getFxChorusMix ());
+    fxChorusSpreadDataChanged (settingsProperties.getFxChorusSpread ());
+    fxChorusTapsDataChanged (settingsProperties.getFxChorusTaps ());
+    fxChorusLfoBDataChanged (settingsProperties.getFxChorusLfoB ());
+    fxChorusLfoTDataChanged (settingsProperties.getFxChorusLfoT ());
+    fxReverbLpfDataChanged (settingsProperties.getFxReverbLpf ());
+    fxReverbHpfDataChanged (settingsProperties.getFxReverbHpf ());
+    fxGlitchProbabilityMinDataChanged (settingsProperties.getFxGlitchProbabilityMin ());
+    fxGlitchProbabilityMaxDataChanged (settingsProperties.getFxGlitchProbabilityMax ());
+    fxGlitchWeightHoldLowDataChanged (settingsProperties.getFxGlitchWeightHoldLow ());
+    fxGlitchWeightStutterLowDataChanged (settingsProperties.getFxGlitchWeightStutterLow ());
+    fxGlitchWeightCrushLowDataChanged (settingsProperties.getFxGlitchWeightCrushLow ());
+    fxGlitchWeightDropLowDataChanged (settingsProperties.getFxGlitchWeightDropLow ());
+    fxGlitchWeightHoldHighDataChanged (settingsProperties.getFxGlitchWeightHoldHigh ());
+    fxGlitchWeightStutterHighDataChanged (settingsProperties.getFxGlitchWeightStutterHigh ());
+    fxGlitchWeightCrushHighDataChanged (settingsProperties.getFxGlitchWeightCrushHigh ());
+    fxGlitchWeightDropHighDataChanged (settingsProperties.getFxGlitchWeightDropHigh ());
+    fxGlitchDropKeepLevelMinDataChanged (settingsProperties.getFxGlitchDropKeepLevelMin ());
+    fxGlitchDropKeepLevelMaxDataChanged (settingsProperties.getFxGlitchDropKeepLevelMax ());
+    fxGlitchDropKeepTimeMinDataChanged (settingsProperties.getFxGlitchDropKeepTimeMin ());
+    fxGlitchDropKeepTimeMaxDataChanged (settingsProperties.getFxGlitchDropKeepTimeMax ());
+    fxGlitchCrushTimeMinDataChanged (settingsProperties.getFxGlitchCrushTimeMin ());
+    fxGlitchCrushTimeMaxDataChanged (settingsProperties.getFxGlitchCrushTimeMax ());
+    fxGlitchMicroloopSmplTMinDataChanged (settingsProperties.getFxGlitchMicroloopSmplTMin ());
+    fxGlitchMicroloopSmplTMaxDataChanged (settingsProperties.getFxGlitchMicroloopSmplTMax ());
+    fxGlitchMicroloopPlayTMinDataChanged (settingsProperties.getFxGlitchMicroloopPlayTMin ());
+    fxGlitchMicroloopPlayTMaxDataChanged (settingsProperties.getFxGlitchMicroloopPlayTMax ());
+    fxGlitchStutterSmplTMinDataChanged (settingsProperties.getFxGlitchStutterSmplTMin ());
+    fxGlitchStutterSmplTMaxDataChanged (settingsProperties.getFxGlitchStutterSmplTMax ());
+    fxGlitchStutterNumMinDataChanged (settingsProperties.getFxGlitchStutterNumMin ());
+    fxGlitchStutterNumMaxDataChanged (settingsProperties.getFxGlitchStutterNumMax ());
+    fxGlitchStutterWindowDataChanged (settingsProperties.getFxGlitchStutterWindow ());
 
     initializeCallbacks ();
 }
 
-void HiHatEditorComponent::initializeCallbacks ()
+void SettingsEditorComponent::initializeCallbacks ()
 {
-    jassert (hiHatProperties.isValid ());
-    hiHatProperties.onPitchLowChange = [this] (float value) { pitchLowDataChanged (value); };
-    hiHatProperties.onPitchHighChange = [this] (float value) { pitchHighDataChanged (value); };
-    hiHatProperties.onEnvelopeMaxReleaseChange = [this] (float value) { envelopeMaxReleaseDataChanged (value); };
-    hiHatProperties.onChokeReleaseChange = [this] (float value) { chokeReleaseDataChanged (value); };
-    hiHatProperties.onClsdReleaseModeChange = [this] (int value) { clsdReleaseModeDataChanged (value); };
-    hiHatProperties.onClsdRelOfstScaleChange = [this] (float value) { clsdRelOfstScaleDataChanged (value); };
-    hiHatProperties.onClsdMaxReleaseChange = [this] (float value) { clsdMaxReleaseDataChanged (value); };
-    hiHatProperties.onAccClRelModChange = [this] (float value) { accClRelModDataChanged (value); };
-    hiHatProperties.onAccOpRelModChange = [this] (float value) { accOpRelModDataChanged (value); };
-    hiHatProperties.onAccClAmpModChange = [this] (float value) { accClAmpModDataChanged (value); };
-    hiHatProperties.onAccOpAmpModChange = [this] (float value) { accOpAmpModDataChanged (value); };
-    hiHatProperties.onFeelAttackModChange = [this] (float value) { feelAttackModDataChanged (value); };
-    hiHatProperties.onFeelReleaseModChange = [this] (float value) { feelReleaseModDataChanged (value); };
-    hiHatProperties.onFeelAmpModChange = [this] (float value) { feelAmpModDataChanged (value); };
-    hiHatProperties.onFxCvUnipolarChange = [this] (int value) { fxCvUnipolarDataChanged (value); };
-    hiHatProperties.onVelocityUnipolarChange = [this] (int value) { velocityUnipolarDataChanged (value); };
-    hiHatProperties.onCvDisableVelocityChange = [this] (int value) { cvDisableVelocityDataChanged (value); };
-    hiHatProperties.onCvDisableFxChange = [this] (int value) { cvDisableFxDataChanged (value); };
-    hiHatProperties.onGateModeChange = [this] (int value) { gateModeDataChanged (value); };
-    hiHatProperties.onKnobPosTakeupChange = [this] (int value) { knobPosTakeupDataChanged (value); };
-    hiHatProperties.onFltrHpfMinFreqChange = [this] (int value) { fltrHpfMinFreqDataChanged (value); };
-    hiHatProperties.onFltrHpfMaxFreqChange = [this] (int value) { fltrHpfMaxFreqDataChanged (value); };
-    hiHatProperties.onFltrLpfMinFreqChange = [this] (int value) { fltrLpfMinFreqDataChanged (value); };
-    hiHatProperties.onFltrLpfMaxFreqChange = [this] (int value) { fltrLpfMaxFreqDataChanged (value); };
-    hiHatProperties.onFltrHpfQChange = [this] (float value) { fltrHpfQDataChanged (value); };
-    hiHatProperties.onFltrLpfQChange = [this] (float value) { fltrLpfQDataChanged (value); };
-    hiHatProperties.onFxDjfilterHpfMinChange = [this] (int value) { fxDjfilterHpfMinDataChanged (value); };
-    hiHatProperties.onFxDjfilterHpfMaxChange = [this] (int value) { fxDjfilterHpfMaxDataChanged (value); };
-    hiHatProperties.onFxDjfilterLpfMinChange = [this] (int value) { fxDjfilterLpfMinDataChanged (value); };
-    hiHatProperties.onFxDjfilterLpfMaxChange = [this] (int value) { fxDjfilterLpfMaxDataChanged (value); };
-    hiHatProperties.onFxDjfilterQMinChange = [this] (float value) { fxDjfilterQMinDataChanged (value); };
-    hiHatProperties.onFxDjfilterQMaxChange = [this] (float value) { fxDjfilterQMaxDataChanged (value); };
-    hiHatProperties.onFxDjfilterQGainReductionChange = [this] (float value) { fxDjfilterQGainReductionDataChanged (value); };
-    hiHatProperties.onFxDubEchoTminChange = [this] (int value) { fxDubEchoTminDataChanged (value); };
-    hiHatProperties.onFxDubEchoHpfChange = [this] (int value) { fxDubEchoHpfDataChanged (value); };
-    hiHatProperties.onFxDubEchoLpfChange = [this] (int value) { fxDubEchoLpfDataChanged (value); };
-    hiHatProperties.onFxDubEchoMixChange = [this] (float value) { fxDubEchoMixDataChanged (value); };
-    hiHatProperties.onFxChorusCenterChange = [this] (float value) { fxChorusCenterDataChanged (value); };
-    hiHatProperties.onFxChorusDepthChange = [this] (float value) { fxChorusDepthDataChanged (value); };
-    hiHatProperties.onFxChorusMixChange = [this] (float value) { fxChorusMixDataChanged (value); };
-    hiHatProperties.onFxChorusSpreadChange = [this] (float value) { fxChorusSpreadDataChanged (value); };
-    hiHatProperties.onFxChorusTapsChange = [this] (int value) { fxChorusTapsDataChanged (value); };
-    hiHatProperties.onFxChorusLfoBChange = [this] (float value) { fxChorusLfoBDataChanged (value); };
-    hiHatProperties.onFxChorusLfoTChange = [this] (int value) { fxChorusLfoTDataChanged (value); };
-    hiHatProperties.onFxReverbLpfChange = [this] (int value) { fxReverbLpfDataChanged (value); };
-    hiHatProperties.onFxReverbHpfChange = [this] (int value) { fxReverbHpfDataChanged (value); };
-    hiHatProperties.onFxGlitchProbabilityMinChange = [this] (float value) { fxGlitchProbabilityMinDataChanged (value); };
-    hiHatProperties.onFxGlitchProbabilityMaxChange = [this] (float value) { fxGlitchProbabilityMaxDataChanged (value); };
-    hiHatProperties.onFxGlitchWeightHoldLowChange = [this] (float value) { fxGlitchWeightHoldLowDataChanged (value); };
-    hiHatProperties.onFxGlitchWeightStutterLowChange = [this] (float value) { fxGlitchWeightStutterLowDataChanged (value); };
-    hiHatProperties.onFxGlitchWeightCrushLowChange = [this] (float value) { fxGlitchWeightCrushLowDataChanged (value); };
-    hiHatProperties.onFxGlitchWeightDropLowChange = [this] (float value) { fxGlitchWeightDropLowDataChanged (value); };
-    hiHatProperties.onFxGlitchWeightHoldHighChange = [this] (float value) { fxGlitchWeightHoldHighDataChanged (value); };
-    hiHatProperties.onFxGlitchWeightStutterHighChange = [this] (float value) { fxGlitchWeightStutterHighDataChanged (value); };
-    hiHatProperties.onFxGlitchWeightCrushHighChange = [this] (float value) { fxGlitchWeightCrushHighDataChanged (value); };
-    hiHatProperties.onFxGlitchWeightDropHighChange = [this] (float value) { fxGlitchWeightDropHighDataChanged (value); };
-    hiHatProperties.onFxGlitchDropKeepLevelMinChange = [this] (float value) { fxGlitchDropKeepLevelMinDataChanged (value); };
-    hiHatProperties.onFxGlitchDropKeepLevelMaxChange = [this] (float value) { fxGlitchDropKeepLevelMaxDataChanged (value); };
-    hiHatProperties.onFxGlitchDropKeepTimeMinChange = [this] (float value) { fxGlitchDropKeepTimeMinDataChanged (value); };
-    hiHatProperties.onFxGlitchDropKeepTimeMaxChange = [this] (float value) { fxGlitchDropKeepTimeMaxDataChanged (value); };
-    hiHatProperties.onFxGlitchCrushTimeMinChange = [this] (float value) { fxGlitchCrushTimeMinDataChanged (value); };
-    hiHatProperties.onFxGlitchCrushTimeMaxChange = [this] (float value) { fxGlitchCrushTimeMaxDataChanged (value); };
-    hiHatProperties.onFxGlitchMicroloopSmplTMinChange = [this] (float value) { fxGlitchMicroloopSmplTMinDataChanged (value); };
-    hiHatProperties.onFxGlitchMicroloopSmplTMaxChange = [this] (float value) { fxGlitchMicroloopSmplTMaxDataChanged (value); };
-    hiHatProperties.onFxGlitchMicroloopPlayTMinChange = [this] (float value) { fxGlitchMicroloopPlayTMinDataChanged (value); };
-    hiHatProperties.onFxGlitchMicroloopPlayTMaxChange = [this] (float value) { fxGlitchMicroloopPlayTMaxDataChanged (value); };
-    hiHatProperties.onFxGlitchStutterSmplTMinChange = [this] (float value) { fxGlitchStutterSmplTMinDataChanged (value); };
-    hiHatProperties.onFxGlitchStutterSmplTMaxChange = [this] (float value) { fxGlitchStutterSmplTMaxDataChanged (value); };
-    hiHatProperties.onFxGlitchStutterNumMinChange = [this] (int value) { fxGlitchStutterNumMinDataChanged (value); };
-    hiHatProperties.onFxGlitchStutterNumMaxChange = [this] (int value) { fxGlitchStutterNumMaxDataChanged (value); };
-    hiHatProperties.onFxGlitchStutterWindowChange = [this] (int value) { fxGlitchStutterWindowDataChanged (value); };
+    jassert (settingsProperties.isValid ());
+    settingsProperties.onPitchLowChange = [this] (float value) { pitchLowDataChanged (value); };
+    settingsProperties.onPitchHighChange = [this] (float value) { pitchHighDataChanged (value); };
+    settingsProperties.onEnvelopeMaxReleaseChange = [this] (float value) { envelopeMaxReleaseDataChanged (value); };
+    settingsProperties.onChokeReleaseChange = [this] (float value) { chokeReleaseDataChanged (value); };
+    settingsProperties.onClsdReleaseModeChange = [this] (int value) { clsdReleaseModeDataChanged (value); };
+    settingsProperties.onClsdRelOfstScaleChange = [this] (float value) { clsdRelOfstScaleDataChanged (value); };
+    settingsProperties.onClsdMaxReleaseChange = [this] (float value) { clsdMaxReleaseDataChanged (value); };
+    settingsProperties.onAccClRelModChange = [this] (float value) { accClRelModDataChanged (value); };
+    settingsProperties.onAccOpRelModChange = [this] (float value) { accOpRelModDataChanged (value); };
+    settingsProperties.onAccClAmpModChange = [this] (float value) { accClAmpModDataChanged (value); };
+    settingsProperties.onAccOpAmpModChange = [this] (float value) { accOpAmpModDataChanged (value); };
+    settingsProperties.onFeelAttackModChange = [this] (float value) { feelAttackModDataChanged (value); };
+    settingsProperties.onFeelReleaseModChange = [this] (float value) { feelReleaseModDataChanged (value); };
+    settingsProperties.onFeelAmpModChange = [this] (float value) { feelAmpModDataChanged (value); };
+    settingsProperties.onFxCvUnipolarChange = [this] (int value) { fxCvUnipolarDataChanged (value); };
+    settingsProperties.onVelocityUnipolarChange = [this] (int value) { velocityUnipolarDataChanged (value); };
+    settingsProperties.onCvDisableVelocityChange = [this] (int value) { cvDisableVelocityDataChanged (value); };
+    settingsProperties.onCvDisableFxChange = [this] (int value) { cvDisableFxDataChanged (value); };
+    settingsProperties.onGateModeChange = [this] (int value) { gateModeDataChanged (value); };
+    settingsProperties.onKnobPosTakeupChange = [this] (int value) { knobPosTakeupDataChanged (value); };
+    settingsProperties.onFltrHpfMinFreqChange = [this] (int value) { fltrHpfMinFreqDataChanged (value); };
+    settingsProperties.onFltrHpfMaxFreqChange = [this] (int value) { fltrHpfMaxFreqDataChanged (value); };
+    settingsProperties.onFltrLpfMinFreqChange = [this] (int value) { fltrLpfMinFreqDataChanged (value); };
+    settingsProperties.onFltrLpfMaxFreqChange = [this] (int value) { fltrLpfMaxFreqDataChanged (value); };
+    settingsProperties.onFltrHpfQChange = [this] (float value) { fltrHpfQDataChanged (value); };
+    settingsProperties.onFltrLpfQChange = [this] (float value) { fltrLpfQDataChanged (value); };
+    settingsProperties.onFxDjfilterHpfMinChange = [this] (int value) { fxDjfilterHpfMinDataChanged (value); };
+    settingsProperties.onFxDjfilterHpfMaxChange = [this] (int value) { fxDjfilterHpfMaxDataChanged (value); };
+    settingsProperties.onFxDjfilterLpfMinChange = [this] (int value) { fxDjfilterLpfMinDataChanged (value); };
+    settingsProperties.onFxDjfilterLpfMaxChange = [this] (int value) { fxDjfilterLpfMaxDataChanged (value); };
+    settingsProperties.onFxDjfilterQMinChange = [this] (float value) { fxDjfilterQMinDataChanged (value); };
+    settingsProperties.onFxDjfilterQMaxChange = [this] (float value) { fxDjfilterQMaxDataChanged (value); };
+    settingsProperties.onFxDjfilterQGainReductionChange = [this] (float value) { fxDjfilterQGainReductionDataChanged (value); };
+    settingsProperties.onFxDubEchoTminChange = [this] (int value) { fxDubEchoTminDataChanged (value); };
+    settingsProperties.onFxDubEchoHpfChange = [this] (int value) { fxDubEchoHpfDataChanged (value); };
+    settingsProperties.onFxDubEchoLpfChange = [this] (int value) { fxDubEchoLpfDataChanged (value); };
+    settingsProperties.onFxDubEchoMixChange = [this] (float value) { fxDubEchoMixDataChanged (value); };
+    settingsProperties.onFxChorusCenterChange = [this] (float value) { fxChorusCenterDataChanged (value); };
+    settingsProperties.onFxChorusDepthChange = [this] (float value) { fxChorusDepthDataChanged (value); };
+    settingsProperties.onFxChorusMixChange = [this] (float value) { fxChorusMixDataChanged (value); };
+    settingsProperties.onFxChorusSpreadChange = [this] (float value) { fxChorusSpreadDataChanged (value); };
+    settingsProperties.onFxChorusTapsChange = [this] (int value) { fxChorusTapsDataChanged (value); };
+    settingsProperties.onFxChorusLfoBChange = [this] (float value) { fxChorusLfoBDataChanged (value); };
+    settingsProperties.onFxChorusLfoTChange = [this] (int value) { fxChorusLfoTDataChanged (value); };
+    settingsProperties.onFxReverbLpfChange = [this] (int value) { fxReverbLpfDataChanged (value); };
+    settingsProperties.onFxReverbHpfChange = [this] (int value) { fxReverbHpfDataChanged (value); };
+    settingsProperties.onFxGlitchProbabilityMinChange = [this] (float value) { fxGlitchProbabilityMinDataChanged (value); };
+    settingsProperties.onFxGlitchProbabilityMaxChange = [this] (float value) { fxGlitchProbabilityMaxDataChanged (value); };
+    settingsProperties.onFxGlitchWeightHoldLowChange = [this] (float value) { fxGlitchWeightHoldLowDataChanged (value); };
+    settingsProperties.onFxGlitchWeightStutterLowChange = [this] (float value) { fxGlitchWeightStutterLowDataChanged (value); };
+    settingsProperties.onFxGlitchWeightCrushLowChange = [this] (float value) { fxGlitchWeightCrushLowDataChanged (value); };
+    settingsProperties.onFxGlitchWeightDropLowChange = [this] (float value) { fxGlitchWeightDropLowDataChanged (value); };
+    settingsProperties.onFxGlitchWeightHoldHighChange = [this] (float value) { fxGlitchWeightHoldHighDataChanged (value); };
+    settingsProperties.onFxGlitchWeightStutterHighChange = [this] (float value) { fxGlitchWeightStutterHighDataChanged (value); };
+    settingsProperties.onFxGlitchWeightCrushHighChange = [this] (float value) { fxGlitchWeightCrushHighDataChanged (value); };
+    settingsProperties.onFxGlitchWeightDropHighChange = [this] (float value) { fxGlitchWeightDropHighDataChanged (value); };
+    settingsProperties.onFxGlitchDropKeepLevelMinChange = [this] (float value) { fxGlitchDropKeepLevelMinDataChanged (value); };
+    settingsProperties.onFxGlitchDropKeepLevelMaxChange = [this] (float value) { fxGlitchDropKeepLevelMaxDataChanged (value); };
+    settingsProperties.onFxGlitchDropKeepTimeMinChange = [this] (float value) { fxGlitchDropKeepTimeMinDataChanged (value); };
+    settingsProperties.onFxGlitchDropKeepTimeMaxChange = [this] (float value) { fxGlitchDropKeepTimeMaxDataChanged (value); };
+    settingsProperties.onFxGlitchCrushTimeMinChange = [this] (float value) { fxGlitchCrushTimeMinDataChanged (value); };
+    settingsProperties.onFxGlitchCrushTimeMaxChange = [this] (float value) { fxGlitchCrushTimeMaxDataChanged (value); };
+    settingsProperties.onFxGlitchMicroloopSmplTMinChange = [this] (float value) { fxGlitchMicroloopSmplTMinDataChanged (value); };
+    settingsProperties.onFxGlitchMicroloopSmplTMaxChange = [this] (float value) { fxGlitchMicroloopSmplTMaxDataChanged (value); };
+    settingsProperties.onFxGlitchMicroloopPlayTMinChange = [this] (float value) { fxGlitchMicroloopPlayTMinDataChanged (value); };
+    settingsProperties.onFxGlitchMicroloopPlayTMaxChange = [this] (float value) { fxGlitchMicroloopPlayTMaxDataChanged (value); };
+    settingsProperties.onFxGlitchStutterSmplTMinChange = [this] (float value) { fxGlitchStutterSmplTMinDataChanged (value); };
+    settingsProperties.onFxGlitchStutterSmplTMaxChange = [this] (float value) { fxGlitchStutterSmplTMaxDataChanged (value); };
+    settingsProperties.onFxGlitchStutterNumMinChange = [this] (int value) { fxGlitchStutterNumMinDataChanged (value); };
+    settingsProperties.onFxGlitchStutterNumMaxChange = [this] (int value) { fxGlitchStutterNumMaxDataChanged (value); };
+    settingsProperties.onFxGlitchStutterWindowChange = [this] (int value) { fxGlitchStutterWindowDataChanged (value); };
 }
 
-void HiHatEditorComponent::pitchLowDataChanged (float value)
+void SettingsEditorComponent::pitchLowDataChanged (float value)
 {
     pitchLowEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::pitchLowUiChanged (float value)
+void SettingsEditorComponent::pitchLowUiChanged (float value)
 {
-    hiHatProperties.setPitchLow (value, false);
+    settingsProperties.setPitchLow (value, false);
 }
 
-void HiHatEditorComponent::pitchHighDataChanged (float value)
+void SettingsEditorComponent::pitchHighDataChanged (float value)
 {
     pitchHighEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::pitchHighUiChanged (float value)
+void SettingsEditorComponent::pitchHighUiChanged (float value)
 {
-    hiHatProperties.setPitchHigh (value, false);
+    settingsProperties.setPitchHigh (value, false);
 }
 
-void HiHatEditorComponent::envelopeMaxReleaseDataChanged (float value)
+void SettingsEditorComponent::envelopeMaxReleaseDataChanged (float value)
 {
     envelopeMaxReleaseEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::envelopeMaxReleaseUiChanged (float value)
+void SettingsEditorComponent::envelopeMaxReleaseUiChanged (float value)
 {
-    hiHatProperties.setEnvelopeMaxRelease (value, false);
+    settingsProperties.setEnvelopeMaxRelease (value, false);
 }
 
-void HiHatEditorComponent::chokeReleaseDataChanged (float value)
+void SettingsEditorComponent::chokeReleaseDataChanged (float value)
 {
     chokeReleaseEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::chokeReleaseUiChanged (float value)
+void SettingsEditorComponent::chokeReleaseUiChanged (float value)
 {
-    hiHatProperties.setChokeRelease (value, false);
+    settingsProperties.setChokeRelease (value, false);
 }
 
-void HiHatEditorComponent::clsdReleaseModeDataChanged (int value)
+void SettingsEditorComponent::clsdReleaseModeDataChanged (int value)
 {
     clsdReleaseModeEditor.setSelectedId (value + 1);
 }
 
-void HiHatEditorComponent::clsdReleaseModeUiChanged (int value)
+void SettingsEditorComponent::clsdReleaseModeUiChanged (int value)
 {
-    hiHatProperties.setClsdReleaseMode (value, false);
+    settingsProperties.setClsdReleaseMode (value, false);
 }
 
-void HiHatEditorComponent::clsdRelOfstScaleDataChanged (float value)
+void SettingsEditorComponent::clsdRelOfstScaleDataChanged (float value)
 {
     clsdRelOfstScaleEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::clsdRelOfstScaleUiChanged (float value)
+void SettingsEditorComponent::clsdRelOfstScaleUiChanged (float value)
 {
-    hiHatProperties.setClsdRelOfstScale (value, false);
+    settingsProperties.setClsdRelOfstScale (value, false);
 }
 
-void HiHatEditorComponent::clsdMaxReleaseDataChanged (float value)
+void SettingsEditorComponent::clsdMaxReleaseDataChanged (float value)
 {
     clsdMaxReleaseEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::clsdMaxReleaseUiChanged (float value)
+void SettingsEditorComponent::clsdMaxReleaseUiChanged (float value)
 {
-    hiHatProperties.setClsdMaxRelease (value, false);
+    settingsProperties.setClsdMaxRelease (value, false);
 }
 
-void HiHatEditorComponent::accClRelModDataChanged (float value)
+void SettingsEditorComponent::accClRelModDataChanged (float value)
 {
     accClRelModEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::accClRelModUiChanged (float value)
+void SettingsEditorComponent::accClRelModUiChanged (float value)
 {
-    hiHatProperties.setAccClRelMod (value, false);
+    settingsProperties.setAccClRelMod (value, false);
 }
 
-void HiHatEditorComponent::accOpRelModDataChanged (float value)
+void SettingsEditorComponent::accOpRelModDataChanged (float value)
 {
     accOpRelModEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::accOpRelModUiChanged (float value)
+void SettingsEditorComponent::accOpRelModUiChanged (float value)
 {
-    hiHatProperties.setAccOpRelMod (value, false);
+    settingsProperties.setAccOpRelMod (value, false);
 }
 
-void HiHatEditorComponent::accClAmpModDataChanged (float value)
+void SettingsEditorComponent::accClAmpModDataChanged (float value)
 {
     accClAmpModEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::accClAmpModUiChanged (float value)
+void SettingsEditorComponent::accClAmpModUiChanged (float value)
 {
-    hiHatProperties.setAccClAmpMod (value, false);
+    settingsProperties.setAccClAmpMod (value, false);
 }
 
-void HiHatEditorComponent::accOpAmpModDataChanged (float value)
+void SettingsEditorComponent::accOpAmpModDataChanged (float value)
 {
     accOpAmpModEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::accOpAmpModUiChanged (float value)
+void SettingsEditorComponent::accOpAmpModUiChanged (float value)
 {
-    hiHatProperties.setAccOpAmpMod (value, false);
+    settingsProperties.setAccOpAmpMod (value, false);
 }
 
-void HiHatEditorComponent::feelAttackModDataChanged (float value)
+void SettingsEditorComponent::feelAttackModDataChanged (float value)
 {
     feelAttackModEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::feelAttackModUiChanged (float value)
+void SettingsEditorComponent::feelAttackModUiChanged (float value)
 {
-    hiHatProperties.setFeelAttackMod (value, false);
+    settingsProperties.setFeelAttackMod (value, false);
 }
 
-void HiHatEditorComponent::feelReleaseModDataChanged (float value)
+void SettingsEditorComponent::feelReleaseModDataChanged (float value)
 {
     feelReleaseModEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::feelReleaseModUiChanged (float value)
+void SettingsEditorComponent::feelReleaseModUiChanged (float value)
 {
-    hiHatProperties.setFeelReleaseMod (value, false);
+    settingsProperties.setFeelReleaseMod (value, false);
 }
 
-void HiHatEditorComponent::feelAmpModDataChanged (float value)
+void SettingsEditorComponent::feelAmpModDataChanged (float value)
 {
     feelAmpModEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::feelAmpModUiChanged (float value)
+void SettingsEditorComponent::feelAmpModUiChanged (float value)
 {
-    hiHatProperties.setFeelAmpMod (value, false);
+    settingsProperties.setFeelAmpMod (value, false);
 }
 
-void HiHatEditorComponent::fxCvUnipolarDataChanged (int value)
+void SettingsEditorComponent::fxCvUnipolarDataChanged (int value)
 {
     fxCvUnipolarEditor.setSelectedId (value + 1);
 }
 
-void HiHatEditorComponent::fxCvUnipolarUiChanged (int value)
+void SettingsEditorComponent::fxCvUnipolarUiChanged (int value)
 {
-    hiHatProperties.setFxCvUnipolar (value, false);
+    settingsProperties.setFxCvUnipolar (value, false);
 }
 
-void HiHatEditorComponent::velocityUnipolarDataChanged (int value)
+void SettingsEditorComponent::velocityUnipolarDataChanged (int value)
 {
     velocityUnipolarEditor.setSelectedId (value + 1);
 }
 
-void HiHatEditorComponent::velocityUnipolarUiChanged (int value)
+void SettingsEditorComponent::velocityUnipolarUiChanged (int value)
 {
-    hiHatProperties.setVelocityUnipolar (value, false);
+    settingsProperties.setVelocityUnipolar (value, false);
 }
 
-void HiHatEditorComponent::cvDisableVelocityDataChanged (int value)
+void SettingsEditorComponent::cvDisableVelocityDataChanged (int value)
 {
     cvDisableVelocityEditor.setSelectedId (value + 1);
 }
 
-void HiHatEditorComponent::cvDisableVelocityUiChanged (int value)
+void SettingsEditorComponent::cvDisableVelocityUiChanged (int value)
 {
-    hiHatProperties.setCvDisableVelocity (value, false);
+    settingsProperties.setCvDisableVelocity (value, false);
 }
 
-void HiHatEditorComponent::cvDisableFxDataChanged (int value)
+void SettingsEditorComponent::cvDisableFxDataChanged (int value)
 {
     cvDisableFxEditor.setSelectedId (value + 1);
 }
 
-void HiHatEditorComponent::cvDisableFxUiChanged (int value)
+void SettingsEditorComponent::cvDisableFxUiChanged (int value)
 {
-    hiHatProperties.setCvDisableFx (value, false);
+    settingsProperties.setCvDisableFx (value, false);
 }
 
-void HiHatEditorComponent::gateModeDataChanged (int value)
+void SettingsEditorComponent::gateModeDataChanged (int value)
 {
     gateModeEditor.setSelectedId (value + 1);
 }
 
-void HiHatEditorComponent::gateModeUiChanged (int value)
+void SettingsEditorComponent::gateModeUiChanged (int value)
 {
-    hiHatProperties.setGateMode (value, false);
+    settingsProperties.setGateMode (value, false);
 }
 
-void HiHatEditorComponent::knobPosTakeupDataChanged (int value)
+void SettingsEditorComponent::knobPosTakeupDataChanged (int value)
 {
     knobPosTakeupEditor.setSelectedId (value + 1);
 }
 
-void HiHatEditorComponent::knobPosTakeupUiChanged (int value)
+void SettingsEditorComponent::knobPosTakeupUiChanged (int value)
 {
-    hiHatProperties.setKnobPosTakeup (value, false);
+    settingsProperties.setKnobPosTakeup (value, false);
 }
 
-void HiHatEditorComponent::fltrHpfMinFreqDataChanged (int value)
+void SettingsEditorComponent::fltrHpfMinFreqDataChanged (int value)
 {
     fltrHpfMinFreqEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fltrHpfMinFreqUiChanged (int value)
+void SettingsEditorComponent::fltrHpfMinFreqUiChanged (int value)
 {
-    hiHatProperties.setFltrHpfMinFreq (value, false);
+    settingsProperties.setFltrHpfMinFreq (value, false);
 }
 
-void HiHatEditorComponent::fltrHpfMaxFreqDataChanged (int value)
+void SettingsEditorComponent::fltrHpfMaxFreqDataChanged (int value)
 {
     fltrHpfMaxFreqEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fltrHpfMaxFreqUiChanged (int value)
+void SettingsEditorComponent::fltrHpfMaxFreqUiChanged (int value)
 {
-    hiHatProperties.setFltrHpfMaxFreq (value, false);
+    settingsProperties.setFltrHpfMaxFreq (value, false);
 }
 
-void HiHatEditorComponent::fltrLpfMinFreqDataChanged (int value)
+void SettingsEditorComponent::fltrLpfMinFreqDataChanged (int value)
 {
     fltrLpfMinFreqEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fltrLpfMinFreqUiChanged (int value)
+void SettingsEditorComponent::fltrLpfMinFreqUiChanged (int value)
 {
-    hiHatProperties.setFltrLpfMinFreq (value, false);
+    settingsProperties.setFltrLpfMinFreq (value, false);
 }
 
-void HiHatEditorComponent::fltrLpfMaxFreqDataChanged (int value)
+void SettingsEditorComponent::fltrLpfMaxFreqDataChanged (int value)
 {
     fltrLpfMaxFreqEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fltrLpfMaxFreqUiChanged (int value)
+void SettingsEditorComponent::fltrLpfMaxFreqUiChanged (int value)
 {
-    hiHatProperties.setFltrLpfMaxFreq (value, false);
+    settingsProperties.setFltrLpfMaxFreq (value, false);
 }
 
-void HiHatEditorComponent::fltrHpfQDataChanged (float value)
+void SettingsEditorComponent::fltrHpfQDataChanged (float value)
 {
     fltrHpfQEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fltrHpfQUiChanged (float value)
+void SettingsEditorComponent::fltrHpfQUiChanged (float value)
 {
-    hiHatProperties.setFltrHpfQ (value, false);
+    settingsProperties.setFltrHpfQ (value, false);
 }
 
-void HiHatEditorComponent::fltrLpfQDataChanged (float value)
+void SettingsEditorComponent::fltrLpfQDataChanged (float value)
 {
     fltrLpfQEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fltrLpfQUiChanged (float value)
+void SettingsEditorComponent::fltrLpfQUiChanged (float value)
 {
-    hiHatProperties.setFltrLpfQ (value, false);
+    settingsProperties.setFltrLpfQ (value, false);
 }
 
-void HiHatEditorComponent::fxDjfilterHpfMinDataChanged (int value)
+void SettingsEditorComponent::fxDjfilterHpfMinDataChanged (int value)
 {
     fxDjfilterHpfMinEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxDjfilterHpfMinUiChanged (int value)
+void SettingsEditorComponent::fxDjfilterHpfMinUiChanged (int value)
 {
-    hiHatProperties.setFxDjfilterHpfMin (value, false);
+    settingsProperties.setFxDjfilterHpfMin (value, false);
 }
 
-void HiHatEditorComponent::fxDjfilterHpfMaxDataChanged (int value)
+void SettingsEditorComponent::fxDjfilterHpfMaxDataChanged (int value)
 {
     fxDjfilterHpfMaxEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxDjfilterHpfMaxUiChanged (int value)
+void SettingsEditorComponent::fxDjfilterHpfMaxUiChanged (int value)
 {
-    hiHatProperties.setFxDjfilterHpfMax (value, false);
+    settingsProperties.setFxDjfilterHpfMax (value, false);
 }
 
-void HiHatEditorComponent::fxDjfilterLpfMinDataChanged (int value)
+void SettingsEditorComponent::fxDjfilterLpfMinDataChanged (int value)
 {
     fxDjfilterLpfMinEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxDjfilterLpfMinUiChanged (int value)
+void SettingsEditorComponent::fxDjfilterLpfMinUiChanged (int value)
 {
-    hiHatProperties.setFxDjfilterLpfMin (value, false);
+    settingsProperties.setFxDjfilterLpfMin (value, false);
 }
 
-void HiHatEditorComponent::fxDjfilterLpfMaxDataChanged (int value)
+void SettingsEditorComponent::fxDjfilterLpfMaxDataChanged (int value)
 {
     fxDjfilterLpfMaxEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxDjfilterLpfMaxUiChanged (int value)
+void SettingsEditorComponent::fxDjfilterLpfMaxUiChanged (int value)
 {
-    hiHatProperties.setFxDjfilterLpfMax (value, false);
+    settingsProperties.setFxDjfilterLpfMax (value, false);
 }
 
-void HiHatEditorComponent::fxDjfilterQMinDataChanged (float value)
+void SettingsEditorComponent::fxDjfilterQMinDataChanged (float value)
 {
     fxDjfilterQMinEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxDjfilterQMinUiChanged (float value)
+void SettingsEditorComponent::fxDjfilterQMinUiChanged (float value)
 {
-    hiHatProperties.setFxDjfilterQMin (value, false);
+    settingsProperties.setFxDjfilterQMin (value, false);
 }
 
-void HiHatEditorComponent::fxDjfilterQMaxDataChanged (float value)
+void SettingsEditorComponent::fxDjfilterQMaxDataChanged (float value)
 {
     fxDjfilterQMaxEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxDjfilterQMaxUiChanged (float value)
+void SettingsEditorComponent::fxDjfilterQMaxUiChanged (float value)
 {
-    hiHatProperties.setFxDjfilterQMax (value, false);
+    settingsProperties.setFxDjfilterQMax (value, false);
 }
 
-void HiHatEditorComponent::fxDjfilterQGainReductionDataChanged (float value)
+void SettingsEditorComponent::fxDjfilterQGainReductionDataChanged (float value)
 {
     fxDjfilterQGainReductionEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxDjfilterQGainReductionUiChanged (float value)
+void SettingsEditorComponent::fxDjfilterQGainReductionUiChanged (float value)
 {
-    hiHatProperties.setFxDjfilterQGainReduction (value, false);
+    settingsProperties.setFxDjfilterQGainReduction (value, false);
 }
 
-void HiHatEditorComponent::fxDubEchoTminDataChanged (int value)
+void SettingsEditorComponent::fxDubEchoTminDataChanged (int value)
 {
     fxDubEchoTminEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxDubEchoTminUiChanged (int value)
+void SettingsEditorComponent::fxDubEchoTminUiChanged (int value)
 {
-    hiHatProperties.setFxDubEchoTmin (value, false);
+    settingsProperties.setFxDubEchoTmin (value, false);
 }
 
-void HiHatEditorComponent::fxDubEchoHpfDataChanged (int value)
+void SettingsEditorComponent::fxDubEchoHpfDataChanged (int value)
 {
     fxDubEchoHpfEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxDubEchoHpfUiChanged (int value)
+void SettingsEditorComponent::fxDubEchoHpfUiChanged (int value)
 {
-    hiHatProperties.setFxDubEchoHpf (value, false);
+    settingsProperties.setFxDubEchoHpf (value, false);
 }
 
-void HiHatEditorComponent::fxDubEchoLpfDataChanged (int value)
+void SettingsEditorComponent::fxDubEchoLpfDataChanged (int value)
 {
     fxDubEchoLpfEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxDubEchoLpfUiChanged (int value)
+void SettingsEditorComponent::fxDubEchoLpfUiChanged (int value)
 {
-    hiHatProperties.setFxDubEchoLpf (value, false);
+    settingsProperties.setFxDubEchoLpf (value, false);
 }
 
-void HiHatEditorComponent::fxDubEchoMixDataChanged (float value)
+void SettingsEditorComponent::fxDubEchoMixDataChanged (float value)
 {
     fxDubEchoMixEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxDubEchoMixUiChanged (float value)
+void SettingsEditorComponent::fxDubEchoMixUiChanged (float value)
 {
-    hiHatProperties.setFxDubEchoMix (value, false);
+    settingsProperties.setFxDubEchoMix (value, false);
 }
 
-void HiHatEditorComponent::fxChorusCenterDataChanged (float value)
+void SettingsEditorComponent::fxChorusCenterDataChanged (float value)
 {
     fxChorusCenterEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxChorusCenterUiChanged (float value)
+void SettingsEditorComponent::fxChorusCenterUiChanged (float value)
 {
-    hiHatProperties.setFxChorusCenter (value, false);
+    settingsProperties.setFxChorusCenter (value, false);
 }
 
-void HiHatEditorComponent::fxChorusDepthDataChanged (float value)
+void SettingsEditorComponent::fxChorusDepthDataChanged (float value)
 {
     fxChorusDepthEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxChorusDepthUiChanged (float value)
+void SettingsEditorComponent::fxChorusDepthUiChanged (float value)
 {
-    hiHatProperties.setFxChorusDepth (value, false);
+    settingsProperties.setFxChorusDepth (value, false);
 }
 
-void HiHatEditorComponent::fxChorusMixDataChanged (float value)
+void SettingsEditorComponent::fxChorusMixDataChanged (float value)
 {
     fxChorusMixEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxChorusMixUiChanged (float value)
+void SettingsEditorComponent::fxChorusMixUiChanged (float value)
 {
-    hiHatProperties.setFxChorusMix (value, false);
+    settingsProperties.setFxChorusMix (value, false);
 }
 
-void HiHatEditorComponent::fxChorusSpreadDataChanged (float value)
+void SettingsEditorComponent::fxChorusSpreadDataChanged (float value)
 {
     fxChorusSpreadEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxChorusSpreadUiChanged (float value)
+void SettingsEditorComponent::fxChorusSpreadUiChanged (float value)
 {
-    hiHatProperties.setFxChorusSpread (value, false);
+    settingsProperties.setFxChorusSpread (value, false);
 }
 
-void HiHatEditorComponent::fxChorusTapsDataChanged (int value)
+void SettingsEditorComponent::fxChorusTapsDataChanged (int value)
 {
     fxChorusTapsEditor.setSelectedId (value);
 }
 
-void HiHatEditorComponent::fxChorusTapsUiChanged (int value)
+void SettingsEditorComponent::fxChorusTapsUiChanged (int value)
 {
-    hiHatProperties.setFxChorusTaps (value, false);
+    settingsProperties.setFxChorusTaps (value, false);
 }
 
-void HiHatEditorComponent::fxChorusLfoBDataChanged (float value)
+void SettingsEditorComponent::fxChorusLfoBDataChanged (float value)
 {
     fxChorusLfoBEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxChorusLfoBUiChanged (float value)
+void SettingsEditorComponent::fxChorusLfoBUiChanged (float value)
 {
-    hiHatProperties.setFxChorusLfoB (value, false);
+    settingsProperties.setFxChorusLfoB (value, false);
 }
 
-void HiHatEditorComponent::fxChorusLfoTDataChanged (int value)
+void SettingsEditorComponent::fxChorusLfoTDataChanged (int value)
 {
     fxChorusLfoTEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxChorusLfoTUiChanged (int value)
+void SettingsEditorComponent::fxChorusLfoTUiChanged (int value)
 {
-    hiHatProperties.setFxChorusLfoT (value, false);
+    settingsProperties.setFxChorusLfoT (value, false);
 }
 
-void HiHatEditorComponent::fxReverbLpfDataChanged (int value)
+void SettingsEditorComponent::fxReverbLpfDataChanged (int value)
 {
     fxReverbLpfEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxReverbLpfUiChanged (int value)
+void SettingsEditorComponent::fxReverbLpfUiChanged (int value)
 {
-    hiHatProperties.setFxReverbLpf (value, false);
+    settingsProperties.setFxReverbLpf (value, false);
 }
 
-void HiHatEditorComponent::fxReverbHpfDataChanged (int value)
+void SettingsEditorComponent::fxReverbHpfDataChanged (int value)
 {
     fxReverbHpfEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxReverbHpfUiChanged (int value)
+void SettingsEditorComponent::fxReverbHpfUiChanged (int value)
 {
-    hiHatProperties.setFxReverbHpf (value, false);
+    settingsProperties.setFxReverbHpf (value, false);
 }
 
-void HiHatEditorComponent::fxGlitchProbabilityMinDataChanged (float value)
+void SettingsEditorComponent::fxGlitchProbabilityMinDataChanged (float value)
 {
     fxGlitchProbabilityMinEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxGlitchProbabilityMinUiChanged (float value)
+void SettingsEditorComponent::fxGlitchProbabilityMinUiChanged (float value)
 {
-    hiHatProperties.setFxGlitchProbabilityMin (value, false);
+    settingsProperties.setFxGlitchProbabilityMin (value, false);
 }
 
-void HiHatEditorComponent::fxGlitchProbabilityMaxDataChanged (float value)
+void SettingsEditorComponent::fxGlitchProbabilityMaxDataChanged (float value)
 {
     fxGlitchProbabilityMaxEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxGlitchProbabilityMaxUiChanged (float value)
+void SettingsEditorComponent::fxGlitchProbabilityMaxUiChanged (float value)
 {
-    hiHatProperties.setFxGlitchProbabilityMax (value, false);
+    settingsProperties.setFxGlitchProbabilityMax (value, false);
 }
 
-void HiHatEditorComponent::fxGlitchWeightHoldLowDataChanged (float value)
+void SettingsEditorComponent::fxGlitchWeightHoldLowDataChanged (float value)
 {
     fxGlitchWeightHoldLowEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxGlitchWeightHoldLowUiChanged (float value)
+void SettingsEditorComponent::fxGlitchWeightHoldLowUiChanged (float value)
 {
-    hiHatProperties.setFxGlitchWeightHoldLow (value, false);
+    settingsProperties.setFxGlitchWeightHoldLow (value, false);
 }
 
-void HiHatEditorComponent::fxGlitchWeightStutterLowDataChanged (float value)
+void SettingsEditorComponent::fxGlitchWeightStutterLowDataChanged (float value)
 {
     fxGlitchWeightStutterLowEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxGlitchWeightStutterLowUiChanged (float value)
+void SettingsEditorComponent::fxGlitchWeightStutterLowUiChanged (float value)
 {
-    hiHatProperties.setFxGlitchWeightStutterLow (value, false);
+    settingsProperties.setFxGlitchWeightStutterLow (value, false);
 }
 
-void HiHatEditorComponent::fxGlitchWeightCrushLowDataChanged (float value)
+void SettingsEditorComponent::fxGlitchWeightCrushLowDataChanged (float value)
 {
     fxGlitchWeightCrushLowEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxGlitchWeightCrushLowUiChanged (float value)
+void SettingsEditorComponent::fxGlitchWeightCrushLowUiChanged (float value)
 {
-    hiHatProperties.setFxGlitchWeightCrushLow (value, false);
+    settingsProperties.setFxGlitchWeightCrushLow (value, false);
 }
 
-void HiHatEditorComponent::fxGlitchWeightDropLowDataChanged (float value)
+void SettingsEditorComponent::fxGlitchWeightDropLowDataChanged (float value)
 {
     fxGlitchWeightDropLowEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxGlitchWeightDropLowUiChanged (float value)
+void SettingsEditorComponent::fxGlitchWeightDropLowUiChanged (float value)
 {
-    hiHatProperties.setFxGlitchWeightDropLow (value, false);
+    settingsProperties.setFxGlitchWeightDropLow (value, false);
 }
 
-void HiHatEditorComponent::fxGlitchWeightHoldHighDataChanged (float value)
+void SettingsEditorComponent::fxGlitchWeightHoldHighDataChanged (float value)
 {
     fxGlitchWeightHoldHighEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxGlitchWeightHoldHighUiChanged (float value)
+void SettingsEditorComponent::fxGlitchWeightHoldHighUiChanged (float value)
 {
-    hiHatProperties.setFxGlitchWeightHoldHigh (value, false);
+    settingsProperties.setFxGlitchWeightHoldHigh (value, false);
 }
 
-void HiHatEditorComponent::fxGlitchWeightStutterHighDataChanged (float value)
+void SettingsEditorComponent::fxGlitchWeightStutterHighDataChanged (float value)
 {
     fxGlitchWeightStutterHighEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxGlitchWeightStutterHighUiChanged (float value)
+void SettingsEditorComponent::fxGlitchWeightStutterHighUiChanged (float value)
 {
-    hiHatProperties.setFxGlitchWeightStutterHigh (value, false);
+    settingsProperties.setFxGlitchWeightStutterHigh (value, false);
 }
 
-void HiHatEditorComponent::fxGlitchWeightCrushHighDataChanged (float value)
+void SettingsEditorComponent::fxGlitchWeightCrushHighDataChanged (float value)
 {
     fxGlitchWeightCrushHighEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxGlitchWeightCrushHighUiChanged (float value)
+void SettingsEditorComponent::fxGlitchWeightCrushHighUiChanged (float value)
 {
-    hiHatProperties.setFxGlitchWeightCrushHigh (value, false);
+    settingsProperties.setFxGlitchWeightCrushHigh (value, false);
 }
 
-void HiHatEditorComponent::fxGlitchWeightDropHighDataChanged (float value)
+void SettingsEditorComponent::fxGlitchWeightDropHighDataChanged (float value)
 {
     fxGlitchWeightDropHighEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxGlitchWeightDropHighUiChanged (float value)
+void SettingsEditorComponent::fxGlitchWeightDropHighUiChanged (float value)
 {
-    hiHatProperties.setFxGlitchWeightDropHigh (value, false);
+    settingsProperties.setFxGlitchWeightDropHigh (value, false);
 }
 
-void HiHatEditorComponent::fxGlitchDropKeepLevelMinDataChanged (float value)
+void SettingsEditorComponent::fxGlitchDropKeepLevelMinDataChanged (float value)
 {
     fxGlitchDropKeepLevelMinEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxGlitchDropKeepLevelMinUiChanged (float value)
+void SettingsEditorComponent::fxGlitchDropKeepLevelMinUiChanged (float value)
 {
-    hiHatProperties.setFxGlitchDropKeepLevelMin (value, false);
+    settingsProperties.setFxGlitchDropKeepLevelMin (value, false);
 }
 
-void HiHatEditorComponent::fxGlitchDropKeepLevelMaxDataChanged (float value)
+void SettingsEditorComponent::fxGlitchDropKeepLevelMaxDataChanged (float value)
 {
     fxGlitchDropKeepLevelMaxEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxGlitchDropKeepLevelMaxUiChanged (float value)
+void SettingsEditorComponent::fxGlitchDropKeepLevelMaxUiChanged (float value)
 {
-    hiHatProperties.setFxGlitchDropKeepLevelMax (value, false);
+    settingsProperties.setFxGlitchDropKeepLevelMax (value, false);
 }
 
-void HiHatEditorComponent::fxGlitchDropKeepTimeMinDataChanged (float value)
+void SettingsEditorComponent::fxGlitchDropKeepTimeMinDataChanged (float value)
 {
     fxGlitchDropKeepTimeMinEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxGlitchDropKeepTimeMinUiChanged (float value)
+void SettingsEditorComponent::fxGlitchDropKeepTimeMinUiChanged (float value)
 {
-    hiHatProperties.setFxGlitchDropKeepTimeMin (value, false);
+    settingsProperties.setFxGlitchDropKeepTimeMin (value, false);
 }
 
-void HiHatEditorComponent::fxGlitchDropKeepTimeMaxDataChanged (float value)
+void SettingsEditorComponent::fxGlitchDropKeepTimeMaxDataChanged (float value)
 {
     fxGlitchDropKeepTimeMaxEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxGlitchDropKeepTimeMaxUiChanged (float value)
+void SettingsEditorComponent::fxGlitchDropKeepTimeMaxUiChanged (float value)
 {
-    hiHatProperties.setFxGlitchDropKeepTimeMax (value, false);
+    settingsProperties.setFxGlitchDropKeepTimeMax (value, false);
 }
 
-void HiHatEditorComponent::fxGlitchCrushTimeMinDataChanged (float value)
+void SettingsEditorComponent::fxGlitchCrushTimeMinDataChanged (float value)
 {
     fxGlitchCrushTimeMinEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxGlitchCrushTimeMinUiChanged (float value)
+void SettingsEditorComponent::fxGlitchCrushTimeMinUiChanged (float value)
 {
-    hiHatProperties.setFxGlitchCrushTimeMin (value, false);
+    settingsProperties.setFxGlitchCrushTimeMin (value, false);
 }
 
-void HiHatEditorComponent::fxGlitchCrushTimeMaxDataChanged (float value)
+void SettingsEditorComponent::fxGlitchCrushTimeMaxDataChanged (float value)
 {
     fxGlitchCrushTimeMaxEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxGlitchCrushTimeMaxUiChanged (float value)
+void SettingsEditorComponent::fxGlitchCrushTimeMaxUiChanged (float value)
 {
-    hiHatProperties.setFxGlitchCrushTimeMax (value, false);
+    settingsProperties.setFxGlitchCrushTimeMax (value, false);
 }
 
-void HiHatEditorComponent::fxGlitchMicroloopSmplTMinDataChanged (float value)
+void SettingsEditorComponent::fxGlitchMicroloopSmplTMinDataChanged (float value)
 {
     fxGlitchMicroloopSmplTMinEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxGlitchMicroloopSmplTMinUiChanged (float value)
+void SettingsEditorComponent::fxGlitchMicroloopSmplTMinUiChanged (float value)
 {
-    hiHatProperties.setFxGlitchMicroloopSmplTMin (value, false);
+    settingsProperties.setFxGlitchMicroloopSmplTMin (value, false);
 }
 
-void HiHatEditorComponent::fxGlitchMicroloopSmplTMaxDataChanged (float value)
+void SettingsEditorComponent::fxGlitchMicroloopSmplTMaxDataChanged (float value)
 {
     fxGlitchMicroloopSmplTMaxEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxGlitchMicroloopSmplTMaxUiChanged (float value)
+void SettingsEditorComponent::fxGlitchMicroloopSmplTMaxUiChanged (float value)
 {
-    hiHatProperties.setFxGlitchMicroloopSmplTMax (value, false);
+    settingsProperties.setFxGlitchMicroloopSmplTMax (value, false);
 }
 
-void HiHatEditorComponent::fxGlitchMicroloopPlayTMinDataChanged (float value)
+void SettingsEditorComponent::fxGlitchMicroloopPlayTMinDataChanged (float value)
 {
     fxGlitchMicroloopPlayTMinEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxGlitchMicroloopPlayTMinUiChanged (float value)
+void SettingsEditorComponent::fxGlitchMicroloopPlayTMinUiChanged (float value)
 {
-    hiHatProperties.setFxGlitchMicroloopPlayTMin (value, false);
+    settingsProperties.setFxGlitchMicroloopPlayTMin (value, false);
 }
 
-void HiHatEditorComponent::fxGlitchMicroloopPlayTMaxDataChanged (float value)
+void SettingsEditorComponent::fxGlitchMicroloopPlayTMaxDataChanged (float value)
 {
     fxGlitchMicroloopPlayTMaxEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxGlitchMicroloopPlayTMaxUiChanged (float value)
+void SettingsEditorComponent::fxGlitchMicroloopPlayTMaxUiChanged (float value)
 {
-    hiHatProperties.setFxGlitchMicroloopPlayTMax (value, false);
+    settingsProperties.setFxGlitchMicroloopPlayTMax (value, false);
 }
 
-void HiHatEditorComponent::fxGlitchStutterSmplTMinDataChanged (float value)
+void SettingsEditorComponent::fxGlitchStutterSmplTMinDataChanged (float value)
 {
     fxGlitchStutterSmplTMinEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxGlitchStutterSmplTMinUiChanged (float value)
+void SettingsEditorComponent::fxGlitchStutterSmplTMinUiChanged (float value)
 {
-    hiHatProperties.setFxGlitchStutterSmplTMin (value, false);
+    settingsProperties.setFxGlitchStutterSmplTMin (value, false);
 }
 
-void HiHatEditorComponent::fxGlitchStutterSmplTMaxDataChanged (float value)
+void SettingsEditorComponent::fxGlitchStutterSmplTMaxDataChanged (float value)
 {
     fxGlitchStutterSmplTMaxEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxGlitchStutterSmplTMaxUiChanged (float value)
+void SettingsEditorComponent::fxGlitchStutterSmplTMaxUiChanged (float value)
 {
-    hiHatProperties.setFxGlitchStutterSmplTMax (value, false);
+    settingsProperties.setFxGlitchStutterSmplTMax (value, false);
 }
 
-void HiHatEditorComponent::fxGlitchStutterNumMinDataChanged (int value)
+void SettingsEditorComponent::fxGlitchStutterNumMinDataChanged (int value)
 {
     fxGlitchStutterNumMinEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxGlitchStutterNumMinUiChanged (int value)
+void SettingsEditorComponent::fxGlitchStutterNumMinUiChanged (int value)
 {
-    hiHatProperties.setFxGlitchStutterNumMin (value, false);
+    settingsProperties.setFxGlitchStutterNumMin (value, false);
 }
 
-void HiHatEditorComponent::fxGlitchStutterNumMaxDataChanged (int value)
+void SettingsEditorComponent::fxGlitchStutterNumMaxDataChanged (int value)
 {
     fxGlitchStutterNumMaxEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxGlitchStutterNumMaxUiChanged (int value)
+void SettingsEditorComponent::fxGlitchStutterNumMaxUiChanged (int value)
 {
-    hiHatProperties.setFxGlitchStutterNumMax (value, false);
+    settingsProperties.setFxGlitchStutterNumMax (value, false);
 }
 
-void HiHatEditorComponent::fxGlitchStutterWindowDataChanged (int value)
+void SettingsEditorComponent::fxGlitchStutterWindowDataChanged (int value)
 {
     fxGlitchStutterWindowEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void HiHatEditorComponent::fxGlitchStutterWindowUiChanged (int value)
+void SettingsEditorComponent::fxGlitchStutterWindowUiChanged (int value)
 {
-    hiHatProperties.setFxGlitchStutterWindow (value, false);
+    settingsProperties.setFxGlitchStutterWindow (value, false);
 }
 
-void HiHatEditorComponent::paint (juce::Graphics& g)
+void SettingsEditorComponent::paint (juce::Graphics& g)
 {
     g.fillAll (juce::Colours::darkgrey);
 }
 
-void HiHatEditorComponent::resized ()
+void SettingsEditorComponent::resized ()
 {
     struct CompLabelPair
     {

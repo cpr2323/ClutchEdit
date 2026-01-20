@@ -1,22 +1,22 @@
 #pragma once
 
-#include "../../Clutch/HiHatProperties.h"
+#include "../../Clutch/SettingsProperties.h"
 #include "../../Utility/CustomComboBox.h"
 #include "../../Utility/CustomTextEditor.h"
 #include "../../Utility/NoArrowComboBoxLnF.h"
 
-class HiHatEditorComponent : public juce::Component
+class SettingsEditorComponent : public juce::Component
 {
 public:
-    HiHatEditorComponent ();
-    ~HiHatEditorComponent ();
+    SettingsEditorComponent ();
+    ~SettingsEditorComponent ();
 
     void init (juce::ValueTree rootPropertiesVT);
 
     void initializeCallbacks ();
 
 private:
-    HiHatProperties hiHatProperties;
+    SettingsProperties settingsProperties;
 
     NoArrowComboBoxLnF noArrowComboBoxLnF;
 

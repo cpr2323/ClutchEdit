@@ -12,7 +12,7 @@ public:
 
     enum class PlayState { stop, play };
     enum class PlayMode { once, loop };
-    enum class WhichHiHat { opened, closed };
+    enum class HiHatState { opened, closed };
     void setPlayState (PlayState playState, bool includeSelfCallback);
     void setPlayMode (PlayMode playMode, bool includeSelfCallback);
     void setSampleSource (juce::String sampleSource, bool includeSelfCallback);

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "EffectEditorComponent.h"
-#include "HiHatEditorComponent.h"
+#include "SettingsEditorComponent.h"
 #include "PatternListEditorComponent.h"
 #include "SampleManagerComponent.h"
 #include "../../AppProperties.h"
@@ -23,7 +23,7 @@ private:
     ClutchProperties clutchProperties;
     RuntimeRootProperties runtimeRootProperties;
     EffectEditorComponent effectEditorComponent;
-    HiHatEditorComponent hiHatEditorComponent;
+    SettingsEditorComponent settingsEditorComponent;
     PatternListEditorComponent patternListEditorComponent;
     SampleManagerComponent sampleManagerComponent;
     juce::TextButton saveButton;

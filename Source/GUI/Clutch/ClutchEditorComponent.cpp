@@ -10,7 +10,7 @@ ClutchEditorComponent::ClutchEditorComponent ()
 {
     editorTabs.addTab ("SAMPLES", juce::Colours::darkgrey, &sampleManagerComponent, false);
     editorTabs.addTab ("PATTERNS", juce::Colours::darkgrey, &patternListEditorComponent, false);
-    editorTabs.addTab ("SETTINGS", juce::Colours::darkgrey, &hiHatEditorComponent, false);
+    editorTabs.addTab ("SETTINGS", juce::Colours::darkgrey, &settingsEditorComponent, false);
     editorTabs.addTab ("EFFECTS", juce::Colours::darkgrey, &effectEditorComponent, false);
     addAndMakeVisible (editorTabs);
 
@@ -68,7 +68,7 @@ void ClutchEditorComponent::init (juce::ValueTree rootPropertiesVT)
     audioPlayerProperties.wrap (runtimeRootProperties.getValueTree (), AudioPlayerProperties::WrapperType::client, AudioPlayerProperties::EnableCallbacks::no);
     clutchProperties.wrap (runtimeRootProperties.getValueTree (), ValueTreeWrapper<ClutchProperties>::WrapperType::client, ValueTreeWrapper<ClutchProperties>::EnableCallbacks::no);
     // TODO pass in the clutch VT directly instead of root VT
-    hiHatEditorComponent.init (rootPropertiesVT);
+    settingsEditorComponent.init (rootPropertiesVT);
     patternListEditorComponent.init (rootPropertiesVT);
     effectEditorComponent.init (rootPropertiesVT);
     sampleManagerComponent.init (rootPropertiesVT);

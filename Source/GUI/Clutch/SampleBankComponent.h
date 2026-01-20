@@ -55,7 +55,7 @@ class SampleBankComponent : public juce::Component,
                                    juce::Timer
 {
 public:
-    enum class WhichHiHat { opened, closed };
+    enum class HiHatState { opened, closed };
 
     SampleBankComponent ();
     ~SampleBankComponent ();
@@ -78,7 +78,7 @@ private:
     juce::File banksRootFolder;
     AudioPlayerProperties audioPlayerProperties;
 
-    void copySampleFile (juce::File sourceFile, int surfaceIndex, WhichHiHat whichHiHat);
+    void copySampleFile (juce::File sourceFile, int surfaceIndex, HiHatState hiHatState);
     void sampleConvert (juce::AudioFormatReader* reader, juce::AudioBuffer<float>& outputBuffer);
 
     void paint (juce::Graphics& g) override;

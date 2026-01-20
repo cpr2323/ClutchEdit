@@ -4,7 +4,7 @@
 #include "Clutch/ClutchProperties.h"
 #include "Clutch/EffectListProperties.h"
 #include "Clutch/HiHatIniData.h"
-#include "Clutch/HiHatProperties.h"
+#include "Clutch/SettingsProperties.h"
 #include "Clutch/PatternListProperties.h"
 #include "Clutch/Audio/AudioPlayer.h"
 #include "GUI/GuiControlProperties.h"
@@ -37,7 +37,7 @@ HiHatData gHiHatData;
 
 void FillInDataFromVt (HiHatData& data, const juce::ValueTree clutchVT)
 {
-    HiHatProperties hiHatProperties (clutchVT, ValueTreeWrapper<HiHatProperties>::WrapperType::client, ValueTreeWrapper<HiHatProperties>::EnableCallbacks::no);
+    SettingsProperties settingsProperties (clutchVT, ValueTreeWrapper<SettingsProperties>::WrapperType::client, ValueTreeWrapper<SettingsProperties>::EnableCallbacks::no);
     PatternListProperties patternListProperties (clutchVT, ValueTreeWrapper<PatternListProperties>::WrapperType::client, ValueTreeWrapper<PatternListProperties>::EnableCallbacks::no);
     EffectListProperties effectListProperties (clutchVT, ValueTreeWrapper<EffectListProperties>::WrapperType::client, ValueTreeWrapper<EffectListProperties>::EnableCallbacks::no);
 
@@ -51,103 +51,103 @@ void FillInDataFromVt (HiHatData& data, const juce::ValueTree clutchVT)
     };
 
     // Core
-    setFloatValue ("HIHAT", "PITCH_LOW", hiHatProperties.getPitchLow ());
-    setFloatValue ("HIHAT", "PITCH_HIGH", hiHatProperties.getPitchHigh ());
-    setFloatValue ("HIHAT", "ENVELOPE_MAX_RELEASE", hiHatProperties.getEnvelopeMaxRelease ());
-    setFloatValue ("HIHAT", "CHOKE_RELEASE", hiHatProperties.getChokeRelease ());
-    setIntValue ("HIHAT", "CLSD_RELEASE_MODE", hiHatProperties.getClsdReleaseMode ());
-    setFloatValue ("HIHAT", "CLSD_REL_OFST_SCALE", hiHatProperties.getClsdRelOfstScale ());
-    setFloatValue ("HIHAT", "CLSD_MAX_RELEASE", hiHatProperties.getClsdMaxRelease ());
-    setFloatValue ("HIHAT", "ACC_CL_REL_MOD", hiHatProperties.getAccClRelMod ());
-    setFloatValue ("HIHAT", "ACC_OP_REL_MOD", hiHatProperties.getAccOpRelMod ());
-    setFloatValue ("HIHAT", "ACC_CL_AMP_MOD", hiHatProperties.getAccClAmpMod ());
-    setFloatValue ("HIHAT", "ACC_OP_AMP_MOD", hiHatProperties.getAccOpAmpMod ());
+    setFloatValue ("HIHAT", "PITCH_LOW", settingsProperties.getPitchLow ());
+    setFloatValue ("HIHAT", "PITCH_HIGH", settingsProperties.getPitchHigh ());
+    setFloatValue ("HIHAT", "ENVELOPE_MAX_RELEASE", settingsProperties.getEnvelopeMaxRelease ());
+    setFloatValue ("HIHAT", "CHOKE_RELEASE", settingsProperties.getChokeRelease ());
+    setIntValue ("HIHAT", "CLSD_RELEASE_MODE", settingsProperties.getClsdReleaseMode ());
+    setFloatValue ("HIHAT", "CLSD_REL_OFST_SCALE", settingsProperties.getClsdRelOfstScale ());
+    setFloatValue ("HIHAT", "CLSD_MAX_RELEASE", settingsProperties.getClsdMaxRelease ());
+    setFloatValue ("HIHAT", "ACC_CL_REL_MOD", settingsProperties.getAccClRelMod ());
+    setFloatValue ("HIHAT", "ACC_OP_REL_MOD", settingsProperties.getAccOpRelMod ());
+    setFloatValue ("HIHAT", "ACC_CL_AMP_MOD", settingsProperties.getAccClAmpMod ());
+    setFloatValue ("HIHAT", "ACC_OP_AMP_MOD", settingsProperties.getAccOpAmpMod ());
 
     // CV / control
-    setIntValue ("HIHAT", "FX_CV_UNIPOLAR", hiHatProperties.getFxCvUnipolar ());
-    setIntValue ("HIHAT", "VELOCITY_UNIPOLAR", hiHatProperties.getVelocityUnipolar ());
-    setIntValue ("HIHAT", "CV_DISABLE_VELOCITY", hiHatProperties.getCvDisableVelocity ());
-    setIntValue ("HIHAT", "CV_DISABLE_FX", hiHatProperties.getCvDisableFx ());
-    setIntValue ("HIHAT", "GATE_MODE", hiHatProperties.getGateMode ());
-    setFloatValue ("HIHAT", "FEEL_ATTACK_MOD", hiHatProperties.getFeelAttackMod ());
-    setFloatValue ("HIHAT", "FEEL_RELEASE_MOD", hiHatProperties.getFeelReleaseMod ());
-    setFloatValue ("HIHAT", "FEEL_AMP_MOD", hiHatProperties.getFeelAmpMod ());
-    setIntValue ("HIHAT", "KNOB_POS_TAKEUP", hiHatProperties.getKnobPosTakeup ());
+    setIntValue ("HIHAT", "FX_CV_UNIPOLAR", settingsProperties.getFxCvUnipolar ());
+    setIntValue ("HIHAT", "VELOCITY_UNIPOLAR", settingsProperties.getVelocityUnipolar ());
+    setIntValue ("HIHAT", "CV_DISABLE_VELOCITY", settingsProperties.getCvDisableVelocity ());
+    setIntValue ("HIHAT", "CV_DISABLE_FX", settingsProperties.getCvDisableFx ());
+    setIntValue ("HIHAT", "GATE_MODE", settingsProperties.getGateMode ());
+    setFloatValue ("HIHAT", "FEEL_ATTACK_MOD", settingsProperties.getFeelAttackMod ());
+    setFloatValue ("HIHAT", "FEEL_RELEASE_MOD", settingsProperties.getFeelReleaseMod ());
+    setFloatValue ("HIHAT", "FEEL_AMP_MOD", settingsProperties.getFeelAmpMod ());
+    setIntValue ("HIHAT", "KNOB_POS_TAKEUP", settingsProperties.getKnobPosTakeup ());
 
     // Filters
-    setIntValue ("HIHAT", "FLTR_HPF_MIN_FREQ", hiHatProperties.getFltrHpfMinFreq ());
-    setIntValue ("HIHAT", "FLTR_HPF_MAX_FREQ", hiHatProperties.getFltrHpfMaxFreq ());
-    setIntValue ("HIHAT", "FLTR_LPF_MIN_FREQ", hiHatProperties.getFltrLpfMinFreq ());
-    setIntValue ("HIHAT", "FLTR_LPF_MAX_FREQ", hiHatProperties.getFltrLpfMaxFreq ());
-    setFloatValue ("HIHAT", "FLTR_HPF_Q", hiHatProperties.getFltrHpfQ ());
-    setFloatValue ("HIHAT", "FLTR_LPF_Q", hiHatProperties.getFltrLpfQ ());
+    setIntValue ("HIHAT", "FLTR_HPF_MIN_FREQ", settingsProperties.getFltrHpfMinFreq ());
+    setIntValue ("HIHAT", "FLTR_HPF_MAX_FREQ", settingsProperties.getFltrHpfMaxFreq ());
+    setIntValue ("HIHAT", "FLTR_LPF_MIN_FREQ", settingsProperties.getFltrLpfMinFreq ());
+    setIntValue ("HIHAT", "FLTR_LPF_MAX_FREQ", settingsProperties.getFltrLpfMaxFreq ());
+    setFloatValue ("HIHAT", "FLTR_HPF_Q", settingsProperties.getFltrHpfQ ());
+    setFloatValue ("HIHAT", "FLTR_LPF_Q", settingsProperties.getFltrLpfQ ());
 
     // DJ Filter
-    setIntValue ("HIHAT", "FX_DJFILTER_HPF_MIN", hiHatProperties.getFxDjfilterHpfMin ());
-    setIntValue ("HIHAT", "FX_DJFILTER_HPF_MAX", hiHatProperties.getFxDjfilterHpfMax ());
-    setIntValue ("HIHAT", "FX_DJFILTER_LPF_MIN", hiHatProperties.getFxDjfilterLpfMin ());
-    setIntValue ("HIHAT", "FX_DJFILTER_LPF_MAX", hiHatProperties.getFxDjfilterLpfMax ());
-    setFloatValue ("HIHAT", "FX_DJFILTER_Q_MIN", hiHatProperties.getFxDjfilterQMin ());
-    setFloatValue ("HIHAT", "FX_DJFILTER_Q_MAX", hiHatProperties.getFxDjfilterQMax ());
-    setFloatValue ("HIHAT", "FX_DJFILTER_Q_GAIN_REDUCTION", hiHatProperties.getFxDjfilterQGainReduction ());
+    setIntValue ("HIHAT", "FX_DJFILTER_HPF_MIN", settingsProperties.getFxDjfilterHpfMin ());
+    setIntValue ("HIHAT", "FX_DJFILTER_HPF_MAX", settingsProperties.getFxDjfilterHpfMax ());
+    setIntValue ("HIHAT", "FX_DJFILTER_LPF_MIN", settingsProperties.getFxDjfilterLpfMin ());
+    setIntValue ("HIHAT", "FX_DJFILTER_LPF_MAX", settingsProperties.getFxDjfilterLpfMax ());
+    setFloatValue ("HIHAT", "FX_DJFILTER_Q_MIN", settingsProperties.getFxDjfilterQMin ());
+    setFloatValue ("HIHAT", "FX_DJFILTER_Q_MAX", settingsProperties.getFxDjfilterQMax ());
+    setFloatValue ("HIHAT", "FX_DJFILTER_Q_GAIN_REDUCTION", settingsProperties.getFxDjfilterQGainReduction ());
 
     // Dub Echo
-    setIntValue ("HIHAT", "FX_DUB_ECHO_TMIN", hiHatProperties.getFxDubEchoTmin ());
-    setIntValue ("HIHAT", "FX_DUB_ECHO_HPF", hiHatProperties.getFxDubEchoHpf ());
-    setIntValue ("HIHAT", "FX_DUB_ECHO_LPF", hiHatProperties.getFxDubEchoLpf ());
-    setFloatValue ("HIHAT", "FX_DUB_ECHO_MIX", hiHatProperties.getFxDubEchoMix ());
+    setIntValue ("HIHAT", "FX_DUB_ECHO_TMIN", settingsProperties.getFxDubEchoTmin ());
+    setIntValue ("HIHAT", "FX_DUB_ECHO_HPF", settingsProperties.getFxDubEchoHpf ());
+    setIntValue ("HIHAT", "FX_DUB_ECHO_LPF", settingsProperties.getFxDubEchoLpf ());
+    setFloatValue ("HIHAT", "FX_DUB_ECHO_MIX", settingsProperties.getFxDubEchoMix ());
 
     // Chorus
-    setFloatValue ("HIHAT", "FX_CHORUS_CENTER", hiHatProperties.getFxChorusCenter ());
-    setFloatValue ("HIHAT", "FX_CHORUS_DEPTH", hiHatProperties.getFxChorusDepth ());
-    setFloatValue ("HIHAT", "FX_CHORUS_MIX", hiHatProperties.getFxChorusMix ());
-    setFloatValue ("HIHAT", "FX_CHORUS_SPREAD", hiHatProperties.getFxChorusSpread ());
-    setIntValue ("HIHAT", "FX_CHORUS_TAPS", hiHatProperties.getFxChorusTaps ());
-    setFloatValue ("HIHAT", "FX_CHORUS_LFO_B", hiHatProperties.getFxChorusLfoB ());
-    setIntValue ("HIHAT", "FX_CHORUS_LFO_T", hiHatProperties.getFxChorusLfoT ());
+    setFloatValue ("HIHAT", "FX_CHORUS_CENTER", settingsProperties.getFxChorusCenter ());
+    setFloatValue ("HIHAT", "FX_CHORUS_DEPTH", settingsProperties.getFxChorusDepth ());
+    setFloatValue ("HIHAT", "FX_CHORUS_MIX", settingsProperties.getFxChorusMix ());
+    setFloatValue ("HIHAT", "FX_CHORUS_SPREAD", settingsProperties.getFxChorusSpread ());
+    setIntValue ("HIHAT", "FX_CHORUS_TAPS", settingsProperties.getFxChorusTaps ());
+    setFloatValue ("HIHAT", "FX_CHORUS_LFO_B", settingsProperties.getFxChorusLfoB ());
+    setIntValue ("HIHAT", "FX_CHORUS_LFO_T", settingsProperties.getFxChorusLfoT ());
 
     // Reverb
-    setIntValue ("HIHAT", "FX_REVERB_LPF", hiHatProperties.getFxReverbLpf ());
-    setIntValue ("HIHAT", "FX_REVERB_HPF", hiHatProperties.getFxReverbHpf ());
+    setIntValue ("HIHAT", "FX_REVERB_LPF", settingsProperties.getFxReverbLpf ());
+    setIntValue ("HIHAT", "FX_REVERB_HPF", settingsProperties.getFxReverbHpf ());
 
     // Glitch – probability
-    setFloatValue ("HIHAT", "FX_GLITCH_PROBABILITY_MIN", hiHatProperties.getFxGlitchProbabilityMin ());
-    setFloatValue ("HIHAT", "FX_GLITCH_PROBABILITY_MAX", hiHatProperties.getFxGlitchProbabilityMax ());
+    setFloatValue ("HIHAT", "FX_GLITCH_PROBABILITY_MIN", settingsProperties.getFxGlitchProbabilityMin ());
+    setFloatValue ("HIHAT", "FX_GLITCH_PROBABILITY_MAX", settingsProperties.getFxGlitchProbabilityMax ());
 
     // Glitch – weights (low)
-    setFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_HOLD_LOW", hiHatProperties.getFxGlitchWeightHoldLow ());
-    setFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_STUTTER_LOW", hiHatProperties.getFxGlitchWeightStutterLow ());
-    setFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_CRUSH_LOW", hiHatProperties.getFxGlitchWeightCrushLow ());
-    setFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_DROP_LOW", hiHatProperties.getFxGlitchWeightDropLow ());
+    setFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_HOLD_LOW", settingsProperties.getFxGlitchWeightHoldLow ());
+    setFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_STUTTER_LOW", settingsProperties.getFxGlitchWeightStutterLow ());
+    setFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_CRUSH_LOW", settingsProperties.getFxGlitchWeightCrushLow ());
+    setFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_DROP_LOW", settingsProperties.getFxGlitchWeightDropLow ());
 
     // Glitch – weights (high)
-    setFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_HOLD_HIGH", hiHatProperties.getFxGlitchWeightHoldHigh ());
-    setFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_STUTTER_HIGH", hiHatProperties.getFxGlitchWeightStutterHigh ());
-    setFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_CRUSH_HIGH", hiHatProperties.getFxGlitchWeightCrushHigh ());
-    setFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_DROP_HIGH", hiHatProperties.getFxGlitchWeightDropHigh ());
+    setFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_HOLD_HIGH", settingsProperties.getFxGlitchWeightHoldHigh ());
+    setFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_STUTTER_HIGH", settingsProperties.getFxGlitchWeightStutterHigh ());
+    setFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_CRUSH_HIGH", settingsProperties.getFxGlitchWeightCrushHigh ());
+    setFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_DROP_HIGH", settingsProperties.getFxGlitchWeightDropHigh ());
 
     // Glitch – drop
-    setFloatValue ("HIHAT", "FX_GLITCH_DROP_KEEP_LEVEL_MIN", hiHatProperties.getFxGlitchDropKeepLevelMin ());
-    setFloatValue ("HIHAT", "FX_GLITCH_DROP_KEEP_LEVEL_MAX", hiHatProperties.getFxGlitchDropKeepLevelMax ());
-    setFloatValue ("HIHAT", "FX_GLITCH_DROP_KEEP_TIME_MIN", hiHatProperties.getFxGlitchDropKeepTimeMin ());
-    setFloatValue ("HIHAT", "FX_GLITCH_DROP_KEEP_TIME_MAX", hiHatProperties.getFxGlitchDropKeepTimeMax ());
+    setFloatValue ("HIHAT", "FX_GLITCH_DROP_KEEP_LEVEL_MIN", settingsProperties.getFxGlitchDropKeepLevelMin ());
+    setFloatValue ("HIHAT", "FX_GLITCH_DROP_KEEP_LEVEL_MAX", settingsProperties.getFxGlitchDropKeepLevelMax ());
+    setFloatValue ("HIHAT", "FX_GLITCH_DROP_KEEP_TIME_MIN", settingsProperties.getFxGlitchDropKeepTimeMin ());
+    setFloatValue ("HIHAT", "FX_GLITCH_DROP_KEEP_TIME_MAX", settingsProperties.getFxGlitchDropKeepTimeMax ());
 
     // Glitch – crush
-    setFloatValue ("HIHAT", "FX_GLITCH_CRUSH_TIME_MIN", hiHatProperties.getFxGlitchCrushTimeMin ());
-    setFloatValue ("HIHAT", "FX_GLITCH_CRUSH_TIME_MAX", hiHatProperties.getFxGlitchCrushTimeMax ());
+    setFloatValue ("HIHAT", "FX_GLITCH_CRUSH_TIME_MIN", settingsProperties.getFxGlitchCrushTimeMin ());
+    setFloatValue ("HIHAT", "FX_GLITCH_CRUSH_TIME_MAX", settingsProperties.getFxGlitchCrushTimeMax ());
 
     // Glitch – microloop
-    setFloatValue ("HIHAT", "FX_GLITCH_MICROLOOP_SMPL_T_MIN", hiHatProperties.getFxGlitchMicroloopSmplTMin ());
-    setFloatValue ("HIHAT", "FX_GLITCH_MICROLOOP_SMPL_T_MAX", hiHatProperties.getFxGlitchMicroloopSmplTMax ());
-    setFloatValue ("HIHAT", "FX_GLITCH_MICROLOOP_PLAY_T_MIN", hiHatProperties.getFxGlitchMicroloopPlayTMin ());
-    setFloatValue ("HIHAT", "FX_GLITCH_MICROLOOP_PLAY_T_MAX", hiHatProperties.getFxGlitchMicroloopPlayTMax ());
+    setFloatValue ("HIHAT", "FX_GLITCH_MICROLOOP_SMPL_T_MIN", settingsProperties.getFxGlitchMicroloopSmplTMin ());
+    setFloatValue ("HIHAT", "FX_GLITCH_MICROLOOP_SMPL_T_MAX", settingsProperties.getFxGlitchMicroloopSmplTMax ());
+    setFloatValue ("HIHAT", "FX_GLITCH_MICROLOOP_PLAY_T_MIN", settingsProperties.getFxGlitchMicroloopPlayTMin ());
+    setFloatValue ("HIHAT", "FX_GLITCH_MICROLOOP_PLAY_T_MAX", settingsProperties.getFxGlitchMicroloopPlayTMax ());
 
     // Glitch – stutter
-    setFloatValue ("HIHAT", "FX_GLITCH_STUTTER_SMPL_T_MIN", hiHatProperties.getFxGlitchStutterSmplTMin ());
-    setFloatValue ("HIHAT", "FX_GLITCH_STUTTER_SMPL_T_MAX", hiHatProperties.getFxGlitchStutterSmplTMax ());
-    setIntValue ("HIHAT", "FX_GLITCH_STUTTER_NUM_MIN", hiHatProperties.getFxGlitchStutterNumMin ());
-    setIntValue ("HIHAT", "FX_GLITCH_STUTTER_NUM_MAX", hiHatProperties.getFxGlitchStutterNumMax ());
-    setIntValue ("HIHAT", "FX_GLITCH_STUTTER_WINDOW", hiHatProperties.getFxGlitchStutterWindow ());
+    setFloatValue ("HIHAT", "FX_GLITCH_STUTTER_SMPL_T_MIN", settingsProperties.getFxGlitchStutterSmplTMin ());
+    setFloatValue ("HIHAT", "FX_GLITCH_STUTTER_SMPL_T_MAX", settingsProperties.getFxGlitchStutterSmplTMax ());
+    setIntValue ("HIHAT", "FX_GLITCH_STUTTER_NUM_MIN", settingsProperties.getFxGlitchStutterNumMin ());
+    setIntValue ("HIHAT", "FX_GLITCH_STUTTER_NUM_MAX", settingsProperties.getFxGlitchStutterNumMax ());
+    setIntValue ("HIHAT", "FX_GLITCH_STUTTER_WINDOW", settingsProperties.getFxGlitchStutterWindow ());
 
     patternListProperties.forEachPattern ([&data] (juce::ValueTree patternVT, int patternIndex)
     {
@@ -165,7 +165,7 @@ void FillInDataFromVt (HiHatData& data, const juce::ValueTree clutchVT)
 
 void FillInVtFromData (juce::ValueTree clutchVt, const HiHatData& data)
 {
-    HiHatProperties hiHatProperties (clutchVt, ValueTreeWrapper<HiHatProperties>::WrapperType::client, ValueTreeWrapper<HiHatProperties>::EnableCallbacks::no);
+    SettingsProperties settingsProperties (clutchVt, ValueTreeWrapper<SettingsProperties>::WrapperType::client, ValueTreeWrapper<SettingsProperties>::EnableCallbacks::no);
     PatternListProperties patternListProperties (clutchVt, ValueTreeWrapper<PatternListProperties>::WrapperType::client, ValueTreeWrapper<PatternListProperties>::EnableCallbacks::no);
     EffectListProperties effectListProperties (clutchVt, ValueTreeWrapper<EffectListProperties>::WrapperType::client, ValueTreeWrapper<EffectListProperties>::EnableCallbacks::no);
     const auto getFloatValue = [&data](const juce::String& section, const juce::String& key, float defaultValue) -> float
@@ -183,103 +183,103 @@ void FillInVtFromData (juce::ValueTree clutchVt, const HiHatData& data)
         return defaultValue;
     };
     // Core
-    hiHatProperties.setPitchLow (getFloatValue ("HIHAT", "PITCH_LOW", 0.125f), false);
-    hiHatProperties.setPitchHigh (getFloatValue ("HIHAT", "PITCH_HIGH", 2.5f), false);
-    hiHatProperties.setEnvelopeMaxRelease (getFloatValue ("HIHAT", "ENVELOPE_MAX_RELEASE", 4.0f), false);
-    hiHatProperties.setChokeRelease (getFloatValue ("HIHAT", "CHOKE_RELEASE", 0.08f), false);
-    hiHatProperties.setClsdReleaseMode (getIntValue ("HIHAT", "CLSD_RELEASE_MODE", 1), false);
-    hiHatProperties.setClsdRelOfstScale (getFloatValue ("HIHAT", "CLSD_REL_OFST_SCALE", 0.5f), false);
-    hiHatProperties.setClsdMaxRelease (getFloatValue ("HIHAT", "CLSD_MAX_RELEASE", 0.8f), false);
-    hiHatProperties.setAccClRelMod (getFloatValue ("HIHAT", "ACC_CL_REL_MOD", 1.18f), false);
-    hiHatProperties.setAccOpRelMod (getFloatValue ("HIHAT", "ACC_OP_REL_MOD", 1.25f), false);
-    hiHatProperties.setAccClAmpMod (getFloatValue ("HIHAT", "ACC_CL_AMP_MOD", 1.3f), false);
-    hiHatProperties.setAccOpAmpMod (getFloatValue ("HIHAT", "ACC_OP_AMP_MOD", 1.25f), false);
+    settingsProperties.setPitchLow (getFloatValue ("HIHAT", "PITCH_LOW", 0.125f), false);
+    settingsProperties.setPitchHigh (getFloatValue ("HIHAT", "PITCH_HIGH", 2.5f), false);
+    settingsProperties.setEnvelopeMaxRelease (getFloatValue ("HIHAT", "ENVELOPE_MAX_RELEASE", 4.0f), false);
+    settingsProperties.setChokeRelease (getFloatValue ("HIHAT", "CHOKE_RELEASE", 0.08f), false);
+    settingsProperties.setClsdReleaseMode (getIntValue ("HIHAT", "CLSD_RELEASE_MODE", 1), false);
+    settingsProperties.setClsdRelOfstScale (getFloatValue ("HIHAT", "CLSD_REL_OFST_SCALE", 0.5f), false);
+    settingsProperties.setClsdMaxRelease (getFloatValue ("HIHAT", "CLSD_MAX_RELEASE", 0.8f), false);
+    settingsProperties.setAccClRelMod (getFloatValue ("HIHAT", "ACC_CL_REL_MOD", 1.18f), false);
+    settingsProperties.setAccOpRelMod (getFloatValue ("HIHAT", "ACC_OP_REL_MOD", 1.25f), false);
+    settingsProperties.setAccClAmpMod (getFloatValue ("HIHAT", "ACC_CL_AMP_MOD", 1.3f), false);
+    settingsProperties.setAccOpAmpMod (getFloatValue ("HIHAT", "ACC_OP_AMP_MOD", 1.25f), false);
 
     // CV / control
-    hiHatProperties.setFxCvUnipolar (getIntValue ("HIHAT", "FX_CV_UNIPOLAR", 1), false);
-    hiHatProperties.setVelocityUnipolar (getIntValue ("HIHAT", "VELOCITY_UNIPOLAR", 0), false);
-    hiHatProperties.setCvDisableVelocity (getIntValue ("HIHAT", "CV_DISABLE_VELOCITY", 0), false);
-    hiHatProperties.setCvDisableFx (getIntValue ("HIHAT", "CV_DISABLE_FX", 0), false);
-    hiHatProperties.setGateMode (getIntValue ("HIHAT", "GATE_MODE", 0), false);
-    hiHatProperties.setFeelAttackMod (getFloatValue ("HIHAT", "FEEL_ATTACK_MOD", 1.0f), false);
-    hiHatProperties.setFeelReleaseMod (getFloatValue ("HIHAT", "FEEL_RELEASE_MOD", 1.0f), false);
-    hiHatProperties.setFeelAmpMod (getFloatValue ("HIHAT", "FEEL_AMP_MOD", 1.0f), false);
-    hiHatProperties.setKnobPosTakeup (getIntValue ("HIHAT", "KNOB_POS_TAKEUP", 1), false);
+    settingsProperties.setFxCvUnipolar (getIntValue ("HIHAT", "FX_CV_UNIPOLAR", 1), false);
+    settingsProperties.setVelocityUnipolar (getIntValue ("HIHAT", "VELOCITY_UNIPOLAR", 0), false);
+    settingsProperties.setCvDisableVelocity (getIntValue ("HIHAT", "CV_DISABLE_VELOCITY", 0), false);
+    settingsProperties.setCvDisableFx (getIntValue ("HIHAT", "CV_DISABLE_FX", 0), false);
+    settingsProperties.setGateMode (getIntValue ("HIHAT", "GATE_MODE", 0), false);
+    settingsProperties.setFeelAttackMod (getFloatValue ("HIHAT", "FEEL_ATTACK_MOD", 1.0f), false);
+    settingsProperties.setFeelReleaseMod (getFloatValue ("HIHAT", "FEEL_RELEASE_MOD", 1.0f), false);
+    settingsProperties.setFeelAmpMod (getFloatValue ("HIHAT", "FEEL_AMP_MOD", 1.0f), false);
+    settingsProperties.setKnobPosTakeup (getIntValue ("HIHAT", "KNOB_POS_TAKEUP", 1), false);
 
     // Filters
-    hiHatProperties.setFltrHpfMinFreq (getIntValue ("HIHAT", "FLTR_HPF_MIN_FREQ", 100), false);
-    hiHatProperties.setFltrHpfMaxFreq (getIntValue ("HIHAT", "FLTR_HPF_MAX_FREQ", 14000), false);
-    hiHatProperties.setFltrLpfMinFreq (getIntValue ("HIHAT", "FLTR_LPF_MIN_FREQ", 200), false);
-    hiHatProperties.setFltrLpfMaxFreq (getIntValue ("HIHAT", "FLTR_LPF_MAX_FREQ", 20000), false);
-    hiHatProperties.setFltrHpfQ (getFloatValue ("HIHAT", "FLTR_HPF_Q", 1.0f), false);
-    hiHatProperties.setFltrLpfQ (getFloatValue ("HIHAT", "FLTR_LPF_Q", 0.707f), false);
+    settingsProperties.setFltrHpfMinFreq (getIntValue ("HIHAT", "FLTR_HPF_MIN_FREQ", 100), false);
+    settingsProperties.setFltrHpfMaxFreq (getIntValue ("HIHAT", "FLTR_HPF_MAX_FREQ", 14000), false);
+    settingsProperties.setFltrLpfMinFreq (getIntValue ("HIHAT", "FLTR_LPF_MIN_FREQ", 200), false);
+    settingsProperties.setFltrLpfMaxFreq (getIntValue ("HIHAT", "FLTR_LPF_MAX_FREQ", 20000), false);
+    settingsProperties.setFltrHpfQ (getFloatValue ("HIHAT", "FLTR_HPF_Q", 1.0f), false);
+    settingsProperties.setFltrLpfQ (getFloatValue ("HIHAT", "FLTR_LPF_Q", 0.707f), false);
 
     // DJ Filter
-    hiHatProperties.setFxDjfilterHpfMin (getIntValue ("HIHAT", "FX_DJFILTER_HPF_MIN", 100), false);
-    hiHatProperties.setFxDjfilterHpfMax (getIntValue ("HIHAT", "FX_DJFILTER_HPF_MAX", 14000), false);
-    hiHatProperties.setFxDjfilterLpfMin (getIntValue ("HIHAT", "FX_DJFILTER_LPF_MIN", 200), false);
-    hiHatProperties.setFxDjfilterLpfMax (getIntValue ("HIHAT", "FX_DJFILTER_LPF_MAX", 20000), false);
-    hiHatProperties.setFxDjfilterQMin (getFloatValue ("HIHAT", "FX_DJFILTER_Q_MIN", 0.5f), false);
-    hiHatProperties.setFxDjfilterQMax (getFloatValue ("HIHAT", "FX_DJFILTER_Q_MAX", 4.0f), false);
-    hiHatProperties.setFxDjfilterQGainReduction (getFloatValue ("HIHAT", "FX_DJFILTER_Q_GAIN_REDUCTION", 0.12f), false);
+    settingsProperties.setFxDjfilterHpfMin (getIntValue ("HIHAT", "FX_DJFILTER_HPF_MIN", 100), false);
+    settingsProperties.setFxDjfilterHpfMax (getIntValue ("HIHAT", "FX_DJFILTER_HPF_MAX", 14000), false);
+    settingsProperties.setFxDjfilterLpfMin (getIntValue ("HIHAT", "FX_DJFILTER_LPF_MIN", 200), false);
+    settingsProperties.setFxDjfilterLpfMax (getIntValue ("HIHAT", "FX_DJFILTER_LPF_MAX", 20000), false);
+    settingsProperties.setFxDjfilterQMin (getFloatValue ("HIHAT", "FX_DJFILTER_Q_MIN", 0.5f), false);
+    settingsProperties.setFxDjfilterQMax (getFloatValue ("HIHAT", "FX_DJFILTER_Q_MAX", 4.0f), false);
+    settingsProperties.setFxDjfilterQGainReduction (getFloatValue ("HIHAT", "FX_DJFILTER_Q_GAIN_REDUCTION", 0.12f), false);
 
     // Dub Echo
-    hiHatProperties.setFxDubEchoTmin (getIntValue ("HIHAT", "FX_DUB_ECHO_TMIN", 30), false);
-    hiHatProperties.setFxDubEchoHpf (getIntValue ("HIHAT", "FX_DUB_ECHO_HPF", 400), false);
-    hiHatProperties.setFxDubEchoLpf (getIntValue ("HIHAT", "FX_DUB_ECHO_LPF", 8400), false);
-    hiHatProperties.setFxDubEchoMix (getFloatValue ("HIHAT", "FX_DUB_ECHO_MIX", 0.38f), false);
+    settingsProperties.setFxDubEchoTmin (getIntValue ("HIHAT", "FX_DUB_ECHO_TMIN", 30), false);
+    settingsProperties.setFxDubEchoHpf (getIntValue ("HIHAT", "FX_DUB_ECHO_HPF", 400), false);
+    settingsProperties.setFxDubEchoLpf (getIntValue ("HIHAT", "FX_DUB_ECHO_LPF", 8400), false);
+    settingsProperties.setFxDubEchoMix (getFloatValue ("HIHAT", "FX_DUB_ECHO_MIX", 0.38f), false);
 
     // Chorus
-    hiHatProperties.setFxChorusCenter (getFloatValue ("HIHAT", "FX_CHORUS_CENTER", 12.0f), false);
-    hiHatProperties.setFxChorusDepth (getFloatValue ("HIHAT", "FX_CHORUS_DEPTH", 5.0f), false);
-    hiHatProperties.setFxChorusMix (getFloatValue ("HIHAT", "FX_CHORUS_MIX", 1.0f), false);
-    hiHatProperties.setFxChorusSpread (getFloatValue ("HIHAT", "FX_CHORUS_SPREAD", 0.01f), false);
-    hiHatProperties.setFxChorusTaps (getIntValue ("HIHAT", "FX_CHORUS_TAPS", 4), false);
-    hiHatProperties.setFxChorusLfoB (getFloatValue ("HIHAT", "FX_CHORUS_LFO_B", 0.002f), false);
-    hiHatProperties.setFxChorusLfoT (getIntValue ("HIHAT", "FX_CHORUS_LFO_T", 3), false);
+    settingsProperties.setFxChorusCenter (getFloatValue ("HIHAT", "FX_CHORUS_CENTER", 12.0f), false);
+    settingsProperties.setFxChorusDepth (getFloatValue ("HIHAT", "FX_CHORUS_DEPTH", 5.0f), false);
+    settingsProperties.setFxChorusMix (getFloatValue ("HIHAT", "FX_CHORUS_MIX", 1.0f), false);
+    settingsProperties.setFxChorusSpread (getFloatValue ("HIHAT", "FX_CHORUS_SPREAD", 0.01f), false);
+    settingsProperties.setFxChorusTaps (getIntValue ("HIHAT", "FX_CHORUS_TAPS", 4), false);
+    settingsProperties.setFxChorusLfoB (getFloatValue ("HIHAT", "FX_CHORUS_LFO_B", 0.002f), false);
+    settingsProperties.setFxChorusLfoT (getIntValue ("HIHAT", "FX_CHORUS_LFO_T", 3), false);
 
     // Reverb
-    hiHatProperties.setFxReverbLpf (getIntValue ("HIHAT", "FX_REVERB_LPF", 9000), false);
-    hiHatProperties.setFxReverbHpf (getIntValue ("HIHAT", "FX_REVERB_HPF", 700), false);
+    settingsProperties.setFxReverbLpf (getIntValue ("HIHAT", "FX_REVERB_LPF", 9000), false);
+    settingsProperties.setFxReverbHpf (getIntValue ("HIHAT", "FX_REVERB_HPF", 700), false);
 
     // Glitch – probability
-    hiHatProperties.setFxGlitchProbabilityMin (getFloatValue ("HIHAT", "FX_GLITCH_PROBABILITY_MIN", 0.00005f), false);
-    hiHatProperties.setFxGlitchProbabilityMax (getFloatValue ("HIHAT", "FX_GLITCH_PROBABILITY_MAX", 0.003f), false);
+    settingsProperties.setFxGlitchProbabilityMin (getFloatValue ("HIHAT", "FX_GLITCH_PROBABILITY_MIN", 0.00005f), false);
+    settingsProperties.setFxGlitchProbabilityMax (getFloatValue ("HIHAT", "FX_GLITCH_PROBABILITY_MAX", 0.003f), false);
 
     // Glitch – weights (low)
-    hiHatProperties.setFxGlitchWeightHoldLow (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_HOLD_LOW", 0.15f), false);
-    hiHatProperties.setFxGlitchWeightStutterLow (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_STUTTER_LOW", 0.05f), false);
-    hiHatProperties.setFxGlitchWeightCrushLow (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_CRUSH_LOW", 0.30f), false);
-    hiHatProperties.setFxGlitchWeightDropLow (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_DROP_LOW", 0.02f), false);
+    settingsProperties.setFxGlitchWeightHoldLow (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_HOLD_LOW", 0.15f), false);
+    settingsProperties.setFxGlitchWeightStutterLow (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_STUTTER_LOW", 0.05f), false);
+    settingsProperties.setFxGlitchWeightCrushLow (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_CRUSH_LOW", 0.30f), false);
+    settingsProperties.setFxGlitchWeightDropLow (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_DROP_LOW", 0.02f), false);
 
     // Glitch – weights (high)
-    hiHatProperties.setFxGlitchWeightHoldHigh (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_HOLD_HIGH", 0.30f), false);
-    hiHatProperties.setFxGlitchWeightStutterHigh (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_STUTTER_HIGH", 0.20f), false);
-    hiHatProperties.setFxGlitchWeightCrushHigh (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_CRUSH_HIGH", 0.20f), false);
-    hiHatProperties.setFxGlitchWeightDropHigh (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_DROP_HIGH", 0.07f), false);
+    settingsProperties.setFxGlitchWeightHoldHigh (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_HOLD_HIGH", 0.30f), false);
+    settingsProperties.setFxGlitchWeightStutterHigh (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_STUTTER_HIGH", 0.20f), false);
+    settingsProperties.setFxGlitchWeightCrushHigh (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_CRUSH_HIGH", 0.20f), false);
+    settingsProperties.setFxGlitchWeightDropHigh (getFloatValue ("HIHAT", "FX_GLITCH_WEIGHT_DROP_HIGH", 0.07f), false);
 
     // Glitch – drop
-    hiHatProperties.setFxGlitchDropKeepLevelMin (getFloatValue ("HIHAT", "FX_GLITCH_DROP_KEEP_LEVEL_MIN", 0.0f), false);
-    hiHatProperties.setFxGlitchDropKeepLevelMax (getFloatValue ("HIHAT", "FX_GLITCH_DROP_KEEP_LEVEL_MAX", 0.75f), false);
-    hiHatProperties.setFxGlitchDropKeepTimeMin (getFloatValue ("HIHAT", "FX_GLITCH_DROP_KEEP_TIME_MIN", 4.0f), false);
-    hiHatProperties.setFxGlitchDropKeepTimeMax (getFloatValue ("HIHAT", "FX_GLITCH_DROP_KEEP_TIME_MAX", 40.0f), false);
+    settingsProperties.setFxGlitchDropKeepLevelMin (getFloatValue ("HIHAT", "FX_GLITCH_DROP_KEEP_LEVEL_MIN", 0.0f), false);
+    settingsProperties.setFxGlitchDropKeepLevelMax (getFloatValue ("HIHAT", "FX_GLITCH_DROP_KEEP_LEVEL_MAX", 0.75f), false);
+    settingsProperties.setFxGlitchDropKeepTimeMin (getFloatValue ("HIHAT", "FX_GLITCH_DROP_KEEP_TIME_MIN", 4.0f), false);
+    settingsProperties.setFxGlitchDropKeepTimeMax (getFloatValue ("HIHAT", "FX_GLITCH_DROP_KEEP_TIME_MAX", 40.0f), false);
 
     // Glitch – crush
-    hiHatProperties.setFxGlitchCrushTimeMin (getFloatValue ("HIHAT", "FX_GLITCH_CRUSH_TIME_MIN", 10.0f), false);
-    hiHatProperties.setFxGlitchCrushTimeMax (getFloatValue ("HIHAT", "FX_GLITCH_CRUSH_TIME_MAX", 50.0f), false);
+    settingsProperties.setFxGlitchCrushTimeMin (getFloatValue ("HIHAT", "FX_GLITCH_CRUSH_TIME_MIN", 10.0f), false);
+    settingsProperties.setFxGlitchCrushTimeMax (getFloatValue ("HIHAT", "FX_GLITCH_CRUSH_TIME_MAX", 50.0f), false);
 
     // Glitch – microloop
-    hiHatProperties.setFxGlitchMicroloopSmplTMin (getFloatValue ("HIHAT", "FX_GLITCH_MICROLOOP_SMPL_T_MIN", 0.2f), false);
-    hiHatProperties.setFxGlitchMicroloopSmplTMax (getFloatValue ("HIHAT", "FX_GLITCH_MICROLOOP_SMPL_T_MAX", 3.0f), false);
-    hiHatProperties.setFxGlitchMicroloopPlayTMin (getFloatValue ("HIHAT", "FX_GLITCH_MICROLOOP_PLAY_T_MIN", 5.0f), false);
-    hiHatProperties.setFxGlitchMicroloopPlayTMax (getFloatValue ("HIHAT", "FX_GLITCH_MICROLOOP_PLAY_T_MAX", 15.0f), false);
+    settingsProperties.setFxGlitchMicroloopSmplTMin (getFloatValue ("HIHAT", "FX_GLITCH_MICROLOOP_SMPL_T_MIN", 0.2f), false);
+    settingsProperties.setFxGlitchMicroloopSmplTMax (getFloatValue ("HIHAT", "FX_GLITCH_MICROLOOP_SMPL_T_MAX", 3.0f), false);
+    settingsProperties.setFxGlitchMicroloopPlayTMin (getFloatValue ("HIHAT", "FX_GLITCH_MICROLOOP_PLAY_T_MIN", 5.0f), false);
+    settingsProperties.setFxGlitchMicroloopPlayTMax (getFloatValue ("HIHAT", "FX_GLITCH_MICROLOOP_PLAY_T_MAX", 15.0f), false);
 
     // Glitch – stutter
-    hiHatProperties.setFxGlitchStutterSmplTMin (getFloatValue ("HIHAT", "FX_GLITCH_STUTTER_SMPL_T_MIN", 3.0f), false);
-    hiHatProperties.setFxGlitchStutterSmplTMax (getFloatValue ("HIHAT", "FX_GLITCH_STUTTER_SMPL_T_MAX", 10.0f), false);
-    hiHatProperties.setFxGlitchStutterNumMin (getIntValue ("HIHAT", "FX_GLITCH_STUTTER_NUM_MIN", 2), false);
-    hiHatProperties.setFxGlitchStutterNumMax (getIntValue ("HIHAT", "FX_GLITCH_STUTTER_NUM_MAX", 5), false);
-    hiHatProperties.setFxGlitchStutterWindow (getIntValue ("HIHAT", "FX_GLITCH_STUTTER_WINDOW", 20), false);
+    settingsProperties.setFxGlitchStutterSmplTMin (getFloatValue ("HIHAT", "FX_GLITCH_STUTTER_SMPL_T_MIN", 3.0f), false);
+    settingsProperties.setFxGlitchStutterSmplTMax (getFloatValue ("HIHAT", "FX_GLITCH_STUTTER_SMPL_T_MAX", 10.0f), false);
+    settingsProperties.setFxGlitchStutterNumMin (getIntValue ("HIHAT", "FX_GLITCH_STUTTER_NUM_MIN", 2), false);
+    settingsProperties.setFxGlitchStutterNumMax (getIntValue ("HIHAT", "FX_GLITCH_STUTTER_NUM_MAX", 5), false);
+    settingsProperties.setFxGlitchStutterWindow (getIntValue ("HIHAT", "FX_GLITCH_STUTTER_WINDOW", 20), false);
 
     patternListProperties.forEachPattern ([&data] (juce::ValueTree patternVT, int patternIndex)
     {
@@ -363,11 +363,11 @@ public:
 
     void initClutch ()
     {
-        HiHatProperties hiHatProperties;
+        SettingsProperties settingsProperties;
         PatternListProperties patternListProperties;
         EffectListProperties effectListProperties;
         ClutchProperties clutchProperties (runtimeRootProperties.getValueTree (), ClutchProperties::WrapperType::owner, ClutchProperties::EnableCallbacks::no);
-        clutchProperties.getValueTree ().addChild (hiHatProperties.getValueTree (), -1, nullptr);
+        clutchProperties.getValueTree ().addChild (settingsProperties.getValueTree (), -1, nullptr);
         clutchProperties.getValueTree ().addChild (patternListProperties.getValueTree (), -1, nullptr);
         clutchProperties.getValueTree ().addChild (effectListProperties.getValueTree (), -1, nullptr);
 

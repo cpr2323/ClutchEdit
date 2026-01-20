@@ -21,7 +21,7 @@ SampleBankComponent::SampleBankComponent ()
         {
             jassert (files.size () == 1);
             audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
-            copySampleFile (juce::File (files[0]), surfaceIndex, WhichHiHat::opened);
+            copySampleFile (juce::File (files[0]), surfaceIndex, HiHatState::opened);
         };
         surfaceComponent.openedName.onMouseUp = [this, surfaceIndex] (const juce::MouseEvent& mouseEvent)
         {
@@ -40,7 +40,7 @@ SampleBankComponent::SampleBankComponent ()
         {
             jassert (files.size () == 1);
             audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
-            copySampleFile (juce::File (files [0]), surfaceIndex, WhichHiHat::closed);
+            copySampleFile (juce::File (files [0]), surfaceIndex, HiHatState::closed);
         };
         surfaceComponent.closedName.onMouseUp = [this, surfaceIndex] (const juce::MouseEvent& mouseEvent)
         {
@@ -103,7 +103,7 @@ void SampleBankComponent::sampleConvert (juce::AudioFormatReader* reader, juce::
         jassertfalse;
     }
 }
-void SampleBankComponent::copySampleFile (juce::File sourceFile, int surfaceIndex, WhichHiHat whichHiHat)
+void SampleBankComponent::copySampleFile (juce::File sourceFile, int surfaceIndex, HiHatState hiHatState)
 {
     // TODO - move to centralized place
     juce::AudioFormatManager audioFormatManager;
@@ -116,7 +116,7 @@ void SampleBankComponent::copySampleFile (juce::File sourceFile, int surfaceInde
         return;
     }
 
-    juce::String destinationFileName { juce::String (surfaceIndex + 1).paddedLeft ('0', 2) + (whichHiHat == WhichHiHat::closed ? "C" : "O") + "H.wav" };
+    juce::String destinationFileName { juce::String (surfaceIndex + 1).paddedLeft ('0', 2) + (hiHatState == HiHatState::closed ? "C" : "O") + "H.wav" };
     juce::File bankFolder { banksRootFolder.getChildFile (bankName.getText ()) };
     if (! bankFolder.exists ())
     {
@@ -210,14 +210,14 @@ void SampleBankComponent::updateFileStatus ()
     {
         for (auto surfaceIndex { 0 }; surfaceIndex < surfaceComponents.size (); ++surfaceIndex)
         {
-            auto doesFileExist = [this] (int surfaceIndex, WhichHiHat whichHiHat)
+            auto doesFileExist = [this] (int surfaceIndex, HiHatState hiHatState)
             {
-                juce::String fileName { juce::String (surfaceIndex + 1).paddedLeft ('0', 2) + juce::String (whichHiHat == WhichHiHat::opened ? "OH" : "CH") };
+                juce::String fileName { juce::String (surfaceIndex + 1).paddedLeft ('0', 2) + juce::String (hiHatState == HiHatState::opened ? "OH" : "CH") };
                 auto file { banksRootFolder.getChildFile (bankName.getText ()).getChildFile (fileName).withFileExtension ("wav") };
                 return file.existsAsFile ();
             };
-            surfaceComponents [surfaceIndex].openedName.setFileExistState (doesFileExist (surfaceIndex, WhichHiHat::opened));
-            surfaceComponents [surfaceIndex].closedName.setFileExistState (doesFileExist (surfaceIndex, WhichHiHat::closed));
+            surfaceComponents [surfaceIndex].openedName.setFileExistState (doesFileExist (surfaceIndex, HiHatState::opened));
+            surfaceComponents [surfaceIndex].closedName.setFileExistState (doesFileExist (surfaceIndex, HiHatState::closed));
         }
     }
     repaint ();
