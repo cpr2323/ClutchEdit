@@ -7,6 +7,7 @@ EffectEditorComponent::EffectEditorComponent ()
     for (auto curStepIndex { 0 }; curStepIndex < 8; ++curStepIndex)
     {
         auto& effectEditor { effectEditors [curStepIndex] };
+        effectEditor.setTooltip ("");
         effectEditor.addItem ("NONE", 1);
         effectEditor.addItem ("BITCRUSH", 2);
         effectEditor.addItem ("CHORUS", 3);
@@ -20,6 +21,18 @@ EffectEditorComponent::EffectEditorComponent ()
         effectEditor.setColour (juce::ComboBox::backgroundColourId, juce::Colours::darkgrey.darker (0.7f));
         effectEditor.setSelectedId (1);
         effectEditor.setComponentID ("StepComboBox" + juce::String (curStepIndex));
+        effectEditor.onDragCallback = [this, &effectEditor, curStepIndex] (DragSpeed dragSpeed, int direction)
+        {
+            const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
+            const auto stepValue { effectEditor.getSelectedId () };
+            effectEditor.setSelectedId (std::clamp (stepValue + scrollAmount, 1, 9), true);
+            onEffectUiChanged (curStepIndex);
+        };
+        effectEditor.onPopupMenuCallback = [this] ()
+        {
+            juce::PopupMenu editMenu;
+            editMenu.showMenuAsync ({}, [this] (int) {});
+        };
         effectEditor.onChange = [this, curStepIndex] ()
         {
             onEffectUiChanged (curStepIndex);
