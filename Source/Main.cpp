@@ -33,9 +33,9 @@ void crashHandler (void* /*data*/)
     FlushDebugLog ();
 }
 
-HiHatData gHiHatData;
+HiHatIniData gHiHatIniData;
 
-void FillInDataFromVt (HiHatData& data, const juce::ValueTree clutchVT)
+void FillInDataFromVt (HiHatIniData& data, const juce::ValueTree clutchVT)
 {
     SettingsProperties settingsProperties (clutchVT, ValueTreeWrapper<SettingsProperties>::WrapperType::client, ValueTreeWrapper<SettingsProperties>::EnableCallbacks::no);
     PatternListProperties patternListProperties (clutchVT, ValueTreeWrapper<PatternListProperties>::WrapperType::client, ValueTreeWrapper<PatternListProperties>::EnableCallbacks::no);
@@ -163,7 +163,7 @@ void FillInDataFromVt (HiHatData& data, const juce::ValueTree clutchVT)
     });
 }
 
-void FillInVtFromData (juce::ValueTree clutchVt, const HiHatData& data)
+void FillInVtFromData (juce::ValueTree clutchVt, const HiHatIniData& data)
 {
     SettingsProperties settingsProperties (clutchVt, ValueTreeWrapper<SettingsProperties>::WrapperType::client, ValueTreeWrapper<SettingsProperties>::EnableCallbacks::no);
     PatternListProperties patternListProperties (clutchVt, ValueTreeWrapper<PatternListProperties>::WrapperType::client, ValueTreeWrapper<PatternListProperties>::EnableCallbacks::no);
@@ -374,8 +374,8 @@ public:
         auto hiHatIniFile { juce::File (appProperties.getRecentlyUsedFile (0))};
         if (hiHatIniFile.existsAsFile ())
         {
-            gHiHatData.readFromFile (hiHatIniFile);
-            FillInVtFromData (clutchProperties.getValueTree (), gHiHatData);
+            gHiHatIniData.readFromFile (hiHatIniFile);
+            FillInVtFromData (clutchProperties.getValueTree (), gHiHatIniData);
         }
     }
 

@@ -2,9 +2,9 @@
 #include "../../Clutch/HiHatIniData.h"
 #include "../../Utility/PersistentRootProperties.h"
 
-void FillInDataFromVt (HiHatData& data, const juce::ValueTree vt);
-void FillInVtFromData (juce::ValueTree clutchVt, const HiHatData& data);
-extern HiHatData gHiHatData;
+void FillInDataFromVt (HiHatIniData& data, const juce::ValueTree vt);
+void FillInVtFromData (juce::ValueTree clutchVt, const HiHatIniData& data);
+extern HiHatIniData gHiHatIniData;
 
 ClutchEditorComponent::ClutchEditorComponent ()
 {
@@ -35,9 +35,9 @@ ClutchEditorComponent::ClutchEditorComponent ()
                 juce::File fileToLoad (urlResult.getLocalFile ().getFullPathName ());
                 if (fileToLoad.isDirectory ())
                     return;
-                // TODO - need to reset gHiHatData to default state before reading from file
-                gHiHatData.readFromFile (fileToLoad);
-                FillInVtFromData (clutchProperties.getValueTree (), gHiHatData);
+                // TODO - need to reset gHiHatIniData to default state before reading from file
+                gHiHatIniData.readFromFile (fileToLoad);
+                FillInVtFromData (clutchProperties.getValueTree (), gHiHatIniData);
                 appProperties.setMostRecentFolder (fc.getURLResults () [0].getLocalFile ().getParentDirectory ().getFullPathName ());
                 appProperties.addRecentlyUsedFile(fc.getURLResults () [0].getLocalFile ().getFullPathName ());
             }
@@ -50,8 +50,8 @@ ClutchEditorComponent::ClutchEditorComponent ()
     //saveButton.setEnabled (false); // TODO: do this when the edit compare functionallity is working
     saveButton.onClick = [this] ()
     {
-        FillInDataFromVt (gHiHatData, clutchProperties.getValueTreeRef ());
-        gHiHatData.writeToFile (appProperties.getRecentlyUsedFile(0));
+        FillInDataFromVt (gHiHatIniData, clutchProperties.getValueTreeRef ());
+        gHiHatIniData.writeToFile (appProperties.getRecentlyUsedFile(0));
     };
     addAndMakeVisible (saveButton);
 }

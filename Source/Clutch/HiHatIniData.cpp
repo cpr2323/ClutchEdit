@@ -5,7 +5,7 @@ constexpr auto kValueColumn { 34 };
 constexpr auto kCommentColumn { 53 };
 constexpr auto kDefaultValueColumn { 111 };
 
-void HiHatData::readFromFile (const juce::File& file)
+void HiHatIniData::readFromFile (const juce::File& file)
 {
     juce::FileInputStream inputStream (file);
     if (inputStream.openedOk ())
@@ -68,7 +68,7 @@ void HiHatData::readFromFile (const juce::File& file)
         }
     }
 }
-void HiHatData::writeToFile (juce::File outputFile)
+void HiHatIniData::writeToFile (juce::File outputFile)
 {
     juce::FileOutputStream outputStream (outputFile);
     outputStream.setPosition (0);
@@ -115,7 +115,7 @@ void HiHatData::writeToFile (juce::File outputFile)
     }
 }
 
-juce::String HiHatData::getValue (const juce::String& section, const juce::String& key) const
+juce::String HiHatIniData::getValue (const juce::String& section, const juce::String& key) const
 {
     for (const auto& iniLine : iniLines)
     {
@@ -128,7 +128,7 @@ juce::String HiHatData::getValue (const juce::String& section, const juce::Strin
     return {};
 }
 
-void HiHatData::setValue (const juce::String& section, const juce::String& key, const juce::String& value)
+void HiHatIniData::setValue (const juce::String& section, const juce::String& key, const juce::String& value)
 {
     for (auto& iniLine : iniLines)
     {

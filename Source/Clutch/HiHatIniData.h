@@ -13,11 +13,11 @@
 //     |0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
 //     |PITCH_LOW                         = 0.125            ; Min pitch 0.001 to 0.5                                  d: 0.125
 
-class HiHatData
+class HiHatIniData
 {
 public:
-    HiHatData () = default;
-    ~HiHatData () = default;
+    HiHatIniData () = default;
+    ~HiHatIniData () = default;
 
     void readFromFile (const juce::File& file);
     void writeToFile (juce::File outputFile);
