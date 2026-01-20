@@ -73,8 +73,8 @@ private:
                 return  snapValueCallback (clampedValue);
         } ();
         //DebugLog ("CustomTextEditor", "final value: " + juce::String (newValue));
-        updateDataCallback (newValue);
         setText (toStringCallback (newValue));
+        updateDataCallback (newValue);
     }
 
     void focusLost (FocusChangeType fct) override

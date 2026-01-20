@@ -18,6 +18,44 @@ PatternEditorComponent::PatternEditorComponent ()
         addAndMakeVisible (stepNumber);
     }
 
+    numberOfStepsEditor.setTooltip ("The number of steps in this pattern. Min 0. Max 32");
+    numberOfStepsEditor.getMinValueCallback = [this] () { return 0; };
+    numberOfStepsEditor.getMaxValueCallback = [this] () { return 32; };
+    numberOfStepsEditor.toStringCallback = [this] (int value) { return juce::String (value); };
+    numberOfStepsEditor.updateDataCallback = [this] (int value) { onPatternUiChanged (); };
+    numberOfStepsEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
+    {
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 2;
+            else
+                return 3;
+        } ();
+        const auto patternString { patternProperties.getPattern () };
+        const auto stepValues { juce::StringArray::fromTokens (patternString, ",", "") };
+        const auto newValue { (stepValues.size () - 1) + (multiplier * direction)};
+        //DebugLog ("CustomTextEditor", "mult: " + juce::String (multiplier) + ", pattern: " + patternString + ", numStepValues: " + juce::String(stepValues.size ()) + ", newValue: " + juce::String (newValue));
+        numberOfStepsEditor.setValue (newValue);
+    };
+    numberOfStepsEditor.onPopupMenuCallback = [this] ()
+    {
+        juce::PopupMenu editMenu;
+        editMenu.addItem ("NEED TO IMPLEMENT FUNCTIONS", [this] () {});
+        editMenu.showMenuAsync ({}, [this] (int) {});
+    };
+
+    numberOfStepsEditor.setColour (juce::TextEditor::backgroundColourId, juce::Colours::darkgrey.darker (kEnabledStepColor));
+    numberOfStepsEditor.setJustification (juce::Justification::centred);
+    numberOfStepsEditor.setIndents (3, 0);
+    numberOfStepsEditor.setFont (numberOfStepsEditor.getFont ().withPointHeight (numberOfStepsEditor.getFont ().getHeightInPoints () + 3));
+    numberOfStepsEditor.onFocusLost = [this] () { updateUiFromLengthChange (numberOfStepsEditor.getText ().getIntValue ()); };
+    numberOfStepsEditor.onReturnKey = [this] () { updateUiFromLengthChange (numberOfStepsEditor.getText ().getIntValue ()); };
+    numberOfStepsEditor.onTextChange = [this] () { updateUiFromLengthChange (numberOfStepsEditor.getText ().getIntValue ()); };
+    addAndMakeVisible (numberOfStepsEditor);
+
     for (auto curStepIndex { 0 }; curStepIndex < 32; ++curStepIndex)
     {
         auto& stepComboBox { stepEditors [curStepIndex] };
@@ -40,15 +78,6 @@ PatternEditorComponent::PatternEditorComponent ()
         };
         addAndMakeVisible (stepComboBox);
     }
-
-    numberOfStepsEditor.setColour (juce::TextEditor::backgroundColourId, juce::Colours::darkgrey.darker (kEnabledStepColor));
-    numberOfStepsEditor.setJustification (juce::Justification::centred);
-    numberOfStepsEditor.setIndents (3, 0);
-    numberOfStepsEditor.setFont (numberOfStepsEditor.getFont ().withPointHeight (numberOfStepsEditor.getFont ().getHeightInPoints () + 3));
-    numberOfStepsEditor.onFocusLost = [this] () { updateUiFromLengthChange (numberOfStepsEditor.getText ().getIntValue ()); };
-    numberOfStepsEditor.onReturnKey = [this] () { updateUiFromLengthChange (numberOfStepsEditor.getText ().getIntValue ()); };
-    numberOfStepsEditor.onTextChange = [this] () { updateUiFromLengthChange (numberOfStepsEditor.getText ().getIntValue ()); };
-    addAndMakeVisible (numberOfStepsEditor);
 }
 
 PatternEditorComponent::~PatternEditorComponent ()
@@ -110,6 +139,7 @@ void PatternEditorComponent::resized ()
 void PatternEditorComponent::onPatternUiChanged ()
 {
     const auto patternLength { numberOfStepsEditor.getText ().getIntValue () };
+    //DebugLog ("PatternEditorComponent::onPatternUiChanged", "patternLength: " + juce::String(patternLength));
     juce::String patternString;
     for (auto stepIndex { 0 }; stepIndex < patternLength; ++stepIndex)
     {
@@ -119,6 +149,7 @@ void PatternEditorComponent::onPatternUiChanged ()
     }
     patternString += (patternString.isNotEmpty () ? "," : "") + juce::String ("0");
     patternProperties.setPattern (patternString, false);
+    //DebugLog ("PatternEditorComponent::onPatternUiChanged", "patternString: " + patternString);
 }
 
 void PatternEditorComponent::onPatternDataChanged ()
