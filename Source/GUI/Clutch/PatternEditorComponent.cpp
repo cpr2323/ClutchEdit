@@ -59,6 +59,8 @@ PatternEditorComponent::PatternEditorComponent ()
     for (auto curStepIndex { 0 }; curStepIndex < 32; ++curStepIndex)
     {
         auto& stepComboBox { stepEditors [curStepIndex] };
+
+        stepComboBox.setTooltip ("");
         stepComboBox.addItem ("10%", 1);
         stepComboBox.addItem ("30%", 2);
         stepComboBox.addItem ("60%", 3);
@@ -72,6 +74,18 @@ PatternEditorComponent::PatternEditorComponent ()
         stepComboBox.setColour (juce::ComboBox::backgroundColourId, juce::Colours::darkgrey.darker (curStepIndex == 0 ? kEnabledStepColor : kDisabledStepColor));
         stepComboBox.setSelectedId (1);
         stepComboBox.setComponentID ("StepComboBox" + juce::String (curStepIndex));
+        stepComboBox.onDragCallback = [this, &stepComboBox] (DragSpeed dragSpeed, int direction)
+        {
+            const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
+            const auto stepValue { stepComboBox.getSelectedId () };
+            stepComboBox.setSelectedId (std::clamp (stepValue + scrollAmount, 1, 9), true);
+            onPatternUiChanged ();
+        };
+        stepComboBox.onPopupMenuCallback = [this] ()
+        {
+            juce::PopupMenu editMenu;
+            editMenu.showMenuAsync ({}, [this] (int) {});
+        };
         stepComboBox.onChange = [this] ()
         {
             onPatternUiChanged ();
