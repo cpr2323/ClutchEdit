@@ -2,6 +2,11 @@
 #include "../../Clutch/ClutchProperties.h"
 #include "../../Utility/RuntimeRootProperties.h"
 
+juce::String getRoundedFloatString (float value, int decimalPlaces)
+{
+    return juce::String (value, decimalPlaces).trimCharactersAtEnd ("0").trimCharactersAtEnd (".");
+}
+
 SettingsEditorComponent::SettingsEditorComponent ()
 {
     auto setupDoubleEditor = [this] (CustomTextEditorDouble& editor,
@@ -37,7 +42,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     accClAmpModEditor.setTooltip ("Amp Mod CLOSED ACC hit");
     accClAmpModEditor.getMinValueCallback = [this] () { return 0.1; };
     accClAmpModEditor.getMaxValueCallback = [this] () { return 10.0; };
-    accClAmpModEditor.toStringCallback = [this] (double value) { return juce::String (value, 4).trimCharactersAtEnd ("0").trimCharactersAtEnd ("."); };
+    accClAmpModEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     accClAmpModEditor.updateDataCallback = [this] (double value) { accClAmpModUiChanged ( static_cast<float> (value)); };
     accClAmpModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
@@ -46,7 +51,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
             if (dragSpeed == DragSpeed::slow)
                 return 0.01f;
             else if (dragSpeed == DragSpeed::medium)
-                return 0.1f;
+                return 0.3f;
             else
                 return 1.0f;
         } ();
@@ -62,13 +67,21 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupDoubleEditor (accClAmpModEditor, accClAmpModLabel, "Acc Cl Amp Mod");
 
     accClRelModEditor.setTooltip ("Acc Cl Rel Mod");
-    accClRelModEditor.getMinValueCallback = [this] () { return 0.0; };
-    accClRelModEditor.getMaxValueCallback = [this] () { return 1.0; };
-    accClRelModEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    accClRelModEditor.getMinValueCallback = [this] () { return 0.1; };
+    accClRelModEditor.getMaxValueCallback = [this] () { return 10.0; };
+    accClRelModEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     accClRelModEditor.updateDataCallback = [this] (double value) { accClRelModUiChanged (static_cast<float> (value)); };
     accClRelModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.01f;
+            else if (dragSpeed == DragSpeed::medium)
+                return 0.3f;
+            else
+                return 1.0f;
+        } ();
         accClRelModEditor.setValue (settingsProperties.getAccClRelMod () + (multiplier * direction));
     };
     accClRelModEditor.onPopupMenuCallback = [this] ()
@@ -80,13 +93,21 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupDoubleEditor (accClRelModEditor, accClRelModLabel, "Acc Cl Rel Mod");
 
     accOpAmpModEditor.setTooltip ("Acc Op Amp Mod");
-    accOpAmpModEditor.getMinValueCallback = [this] () { return 0.0; };
-    accOpAmpModEditor.getMaxValueCallback = [this] () { return 1.0; };
-    accOpAmpModEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    accOpAmpModEditor.getMinValueCallback = [this] () { return 0.1; };
+    accOpAmpModEditor.getMaxValueCallback = [this] () { return 10.0; };
+    accOpAmpModEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     accOpAmpModEditor.updateDataCallback = [this] (double value) { accOpAmpModUiChanged (static_cast<float> (value)); };
     accOpAmpModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1f;
+            else if (dragSpeed == DragSpeed::medium)
+                return 0.5f;
+            else
+                return 1.0f;
+        } ();
         accOpAmpModEditor.setValue (settingsProperties.getAccOpAmpMod () + (multiplier * direction));
     };
     accOpAmpModEditor.onPopupMenuCallback = [this] ()
@@ -98,13 +119,21 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupDoubleEditor (accOpAmpModEditor, accOpAmpModLabel, "Acc Op Amp Mod");
 
     accOpRelModEditor.setTooltip ("Acc Op Rel Mod");
-    accOpRelModEditor.getMinValueCallback = [this] () { return 0.0; };
-    accOpRelModEditor.getMaxValueCallback = [this] () { return 1.0; };
-    accOpRelModEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    accOpRelModEditor.getMinValueCallback = [this] () { return 0.1; };
+    accOpRelModEditor.getMaxValueCallback = [this] () { return 10.0; };
+    accOpRelModEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     accOpRelModEditor.updateDataCallback = [this] (double value) { accOpRelModUiChanged (static_cast<float> (value)); };
     accOpRelModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1f;
+            else if (dragSpeed == DragSpeed::medium)
+                return 0.5f;
+            else
+                return 1.0f;
+        } ();
         accOpRelModEditor.setValue (settingsProperties.getAccOpRelMod () + (multiplier * direction));
     };
     accOpRelModEditor.onPopupMenuCallback = [this] ()
@@ -116,13 +145,21 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupDoubleEditor (accOpRelModEditor, accOpRelModLabel, "Acc Op Rel Mod");
 
     chokeReleaseEditor.setTooltip ("Choke Release");
-    chokeReleaseEditor.getMinValueCallback = [this] () { return 0.0; };
-    chokeReleaseEditor.getMaxValueCallback = [this] () { return 1.0; };
-    chokeReleaseEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    chokeReleaseEditor.getMinValueCallback = [this] () { return 0.001; };
+    chokeReleaseEditor.getMaxValueCallback = [this] () { return 10.0; };
+    chokeReleaseEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     chokeReleaseEditor.updateDataCallback = [this] (double value) { chokeReleaseUiChanged (static_cast<float> (value)); };
     chokeReleaseEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.001;
+            else if (dragSpeed == DragSpeed::medium)
+                return 0.5;
+            else
+                return 3.0;
+        } ();
         chokeReleaseEditor.setValue (settingsProperties.getChokeRelease () + (multiplier * direction));
     };
     chokeReleaseEditor.onPopupMenuCallback = [this] ()
@@ -134,14 +171,22 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupDoubleEditor (chokeReleaseEditor, chokeReleaseLabel, "Choke Release");
 
     clsdMaxReleaseEditor.setTooltip ("Choke Release");
-    clsdMaxReleaseEditor.getMinValueCallback = [this] () { return 0.0; };
-    clsdMaxReleaseEditor.getMaxValueCallback = [this] () { return 1.0; };
-    clsdMaxReleaseEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    clsdMaxReleaseEditor.getMinValueCallback = [this] () { return 0.3; };
+    clsdMaxReleaseEditor.getMaxValueCallback = [this] () { return 2.0; };
+    clsdMaxReleaseEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     clsdMaxReleaseEditor.updateDataCallback = [this] (double value) { clsdMaxReleaseUiChanged (static_cast<float> (value)); };
     clsdMaxReleaseEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
-        chokeReleaseEditor.setValue (settingsProperties.getClsdMaxRelease () + (multiplier * direction));
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1f;
+            else if (dragSpeed == DragSpeed::medium)
+                return 0.3f;
+            else
+                return 1.0f;
+        } ();
+        clsdMaxReleaseEditor.setValue (settingsProperties.getClsdMaxRelease () + (multiplier * direction));
     };
     clsdMaxReleaseEditor.onPopupMenuCallback = [this] ()
     {
@@ -152,13 +197,19 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupDoubleEditor (clsdMaxReleaseEditor, clsdMaxReleaseLabel, "Clsd Max Release");
 
     clsdRelOfstScaleEditor.setTooltip ("Choke Release");
-    clsdRelOfstScaleEditor.getMinValueCallback = [this] () { return 0.0; };
-    clsdRelOfstScaleEditor.getMaxValueCallback = [this] () { return 1.0; };
-    clsdRelOfstScaleEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    clsdRelOfstScaleEditor.getMinValueCallback = [this] () { return 0.1; };
+    clsdRelOfstScaleEditor.getMaxValueCallback = [this] () { return 0.9; };
+    clsdRelOfstScaleEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     clsdRelOfstScaleEditor.updateDataCallback = [this] (double value) { clsdRelOfstScaleUiChanged (static_cast<float> (value)); };
     clsdRelOfstScaleEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow || dragSpeed == DragSpeed::medium)
+                return 0.1f;
+            else
+                return 0.3f;
+        } ();
         clsdRelOfstScaleEditor.setValue (settingsProperties.getClsdRelOfstScale () + (multiplier * direction));
     };
     clsdRelOfstScaleEditor.onPopupMenuCallback = [this] ()
@@ -171,69 +222,77 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     // 0: Independent Release for Closed
     // 1: Release Offset mode
-    clsdReleaseModeEditor.setLookAndFeel (&noArrowComboBoxLnF);
-    clsdReleaseModeEditor.setTooltip ("");
-    clsdReleaseModeEditor.addItem ("Independent", 1);
-    clsdReleaseModeEditor.addItem ("Offset", 2);
-    clsdReleaseModeEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
+    clsdReleaseModeComboBox.setLookAndFeel (&noArrowComboBoxLnF);
+    clsdReleaseModeComboBox.setTooltip ("");
+    clsdReleaseModeComboBox.addItem ("Independent", 1);
+    clsdReleaseModeComboBox.addItem ("Offset", 2);
+    clsdReleaseModeComboBox.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
-        const auto clsdReleaseMode { clsdReleaseModeEditor.getSelectedId () - 1 };
+        const auto clsdReleaseMode { clsdReleaseModeComboBox.getSelectedId () - 1 };
         settingsProperties.setClsdReleaseMode (std::clamp (clsdReleaseMode + scrollAmount, 0, 1), true);
     };
-    clsdReleaseModeEditor.onPopupMenuCallback = [this] ()
+    clsdReleaseModeComboBox.onPopupMenuCallback = [this] ()
     {
         juce::PopupMenu editMenu;
         editMenu.showMenuAsync ({}, [this] (int) {});
     };
-    setupComboBox (clsdReleaseModeEditor, clsdReleaseModeLabel, "Clsd Release Mode");
+    setupComboBox (clsdReleaseModeComboBox, clsdReleaseModeLabel, "Clsd Release Mode");
 
     // 0: FX CV Always On
     // 1: CV Disable : Freeze FX CV
-    cvDisableFxEditor.setLookAndFeel (&noArrowComboBoxLnF);
-    cvDisableFxEditor.setTooltip ("");
-    cvDisableFxEditor.addItem ("FX CV On", 1);
-    cvDisableFxEditor.addItem ("FX CV Off", 2);
-    cvDisableFxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
+    cvDisableFxComboBox.setLookAndFeel (&noArrowComboBoxLnF);
+    cvDisableFxComboBox.setTooltip ("");
+    cvDisableFxComboBox.addItem ("FX CV On", 1);
+    cvDisableFxComboBox.addItem ("FX CV Off", 2);
+    cvDisableFxComboBox.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
-        const auto cvDisableFx { cvDisableFxEditor.getSelectedId () - 1 };
+        const auto cvDisableFx { cvDisableFxComboBox.getSelectedId () - 1 };
         settingsProperties.setCvDisableFx (std::clamp (cvDisableFx + scrollAmount, 0, 1), true);
     };
-    cvDisableFxEditor.onPopupMenuCallback = [this] ()
+    cvDisableFxComboBox.onPopupMenuCallback = [this] ()
     {
         juce::PopupMenu editMenu;
         editMenu.showMenuAsync ({}, [this] (int) {});
     };
-    setupComboBox (cvDisableFxEditor, cvDisableFxLabel, "CV Disable FX");
+    setupComboBox (cvDisableFxComboBox, cvDisableFxLabel, "CV Disable FX");
 
     // 0: Velocity always enabled
     // 1: CV Off SW affects velocity
-    cvDisableVelocityEditor.setLookAndFeel (&noArrowComboBoxLnF);
-    cvDisableVelocityEditor.setTooltip ("");
-    cvDisableVelocityEditor.addItem ("Always On", 1);
-    cvDisableVelocityEditor.addItem ("CV Off", 2);
-    cvDisableVelocityEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
+    cvDisableVelocityComboBox.setLookAndFeel (&noArrowComboBoxLnF);
+    cvDisableVelocityComboBox.setTooltip ("");
+    cvDisableVelocityComboBox.addItem ("Always On", 1);
+    cvDisableVelocityComboBox.addItem ("CV Off", 2);
+    cvDisableVelocityComboBox.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
-        const auto cvDisableVelocity { cvDisableVelocityEditor.getSelectedId () - 1 };
+        const auto cvDisableVelocity { cvDisableVelocityComboBox.getSelectedId () - 1 };
         settingsProperties.setCvDisableVelocity (std::clamp (cvDisableVelocity + scrollAmount, 0, 1), true);
     };
-    cvDisableVelocityEditor.onPopupMenuCallback = [this] ()
+    cvDisableVelocityComboBox.onPopupMenuCallback = [this] ()
     {
         juce::PopupMenu editMenu;
         editMenu.showMenuAsync ({}, [this] (int) {});
     };
-    setupComboBox (cvDisableVelocityEditor, cvDisableVelocityLabel, "CV Disable Velocity");
+    setupComboBox (cvDisableVelocityComboBox, cvDisableVelocityLabel, "CV Disable Velocity");
 
     envelopeMaxReleaseEditor.setTooltip ("Envelope Max Release");
-    envelopeMaxReleaseEditor.getMinValueCallback = [this] () { return 0.0; };
-    envelopeMaxReleaseEditor.getMaxValueCallback = [this] () { return 1.0; };
-    envelopeMaxReleaseEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    envelopeMaxReleaseEditor.getMinValueCallback = [this] () { return 0.6; };
+    envelopeMaxReleaseEditor.getMaxValueCallback = [this] () { return 20.0; };
+    envelopeMaxReleaseEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     envelopeMaxReleaseEditor.updateDataCallback = [this] (double value) { envelopeMaxReleaseUiChanged (static_cast<float> (value)); };
     envelopeMaxReleaseEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1f;
+            else if (dragSpeed == DragSpeed::medium)
+                return 0.5f;
+            else
+                return 1.0f;
+        } ();
         envelopeMaxReleaseEditor.setValue (settingsProperties.getEnvelopeMaxRelease () + (multiplier * direction));
     };
     envelopeMaxReleaseEditor.onPopupMenuCallback = [this] ()
@@ -246,12 +305,18 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     feelAmpModEditor.setTooltip ("Feel Amp Mod");
     feelAmpModEditor.getMinValueCallback = [this] () { return 0.0; };
-    feelAmpModEditor.getMaxValueCallback = [this] () { return 1.0; };
-    feelAmpModEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    feelAmpModEditor.getMaxValueCallback = [this] () { return 2.0; };
+    feelAmpModEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     feelAmpModEditor.updateDataCallback = [this] (double value) { feelAmpModUiChanged (static_cast<float> (value)); };
     feelAmpModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow || dragSpeed == DragSpeed::medium)
+                return 0.1f;
+            else
+                return 1.0f;
+        } ();
         feelAmpModEditor.setValue (settingsProperties.getFeelAmpMod () + (multiplier * direction));
     };
     feelAmpModEditor.onPopupMenuCallback = [this] ()
@@ -264,18 +329,18 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     feelAttackModEditor.setTooltip ("Feel Attack Mod");
     feelAttackModEditor.getMinValueCallback = [this] () { return 0.0; };
-    feelAttackModEditor.getMaxValueCallback = [this] () { return 1.0; };
-    feelAttackModEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    feelAttackModEditor.getMaxValueCallback = [this] () { return 5.0; };
+    feelAttackModEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     feelAttackModEditor.updateDataCallback = [this] (double value) { feelAttackModUiChanged (static_cast<float> (value)); };
     feelAttackModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow || dragSpeed == DragSpeed::medium)
+                return 0.1f;
+            else
+                return 1.0f;
+        } ();
         const auto newValue { settingsProperties.getFeelAttackMod () + (multiplier * direction) };
         feelAttackModEditor.setValue (newValue);
     }; 
@@ -289,18 +354,18 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     feelReleaseModEditor.setTooltip ("Feel Release Mod");
     feelReleaseModEditor.getMinValueCallback = [this] () { return 0.0; };
-    feelReleaseModEditor.getMaxValueCallback = [this] () { return 1.0; };
-    feelReleaseModEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    feelReleaseModEditor.getMaxValueCallback = [this] () { return 5.0; };
+    feelReleaseModEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     feelReleaseModEditor.updateDataCallback = [this] (double value) { feelReleaseModUiChanged (static_cast<float> (value)); };
     feelReleaseModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow || dragSpeed == DragSpeed::medium)
+                return 0.1f;
+            else
+                return 1.0f;
+        } ();
         const auto newValue { settingsProperties.getFeelReleaseMod () + (multiplier * direction) };
         feelReleaseModEditor.setValue (newValue);
     };
@@ -313,19 +378,21 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupDoubleEditor (feelReleaseModEditor, feelReleaseModLabel, "Feel Release Mod");
 
     fltrHpfMaxFreqEditor.setTooltip ("Fltr HPF Max Freq");
-    fltrHpfMaxFreqEditor.getMinValueCallback = [this] () { return 0; };
-    fltrHpfMaxFreqEditor.getMaxValueCallback = [this] () { return 1; };
-    fltrHpfMaxFreqEditor.toStringCallback = [this] (int value) { return juce::String (value); };
+    fltrHpfMaxFreqEditor.getMinValueCallback = [this] () { return 20; };
+    fltrHpfMaxFreqEditor.getMaxValueCallback = [this] () { return 20000; };
+    fltrHpfMaxFreqEditor.toStringCallback = [this] (int value) { return getRoundedFloatString (value, 4); };
     fltrHpfMaxFreqEditor.updateDataCallback = [this] (int value) { fltrHpfMaxFreqUiChanged (value); };
     fltrHpfMaxFreqEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 1;
+            else if (dragSpeed == DragSpeed::medium)
                 return 25;
-            } ();
-
+            else
+                return 100;
+        } ();
         const auto newValue { settingsProperties.getFltrHpfMaxFreq () + (multiplier * direction) };
         fltrHpfMaxFreqEditor.setValue (newValue);
     };
@@ -338,19 +405,21 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupIntEditor (fltrHpfMaxFreqEditor, fltrHpfMaxFreqLabel, "Fltr HPF Max Freq");
 
     fltrHpfMinFreqEditor.setTooltip ("Fltr HPF Min Freq");
-    fltrHpfMinFreqEditor.getMinValueCallback = [this] () { return 0; };
-    fltrHpfMinFreqEditor.getMaxValueCallback = [this] () { return 1; };
-    fltrHpfMinFreqEditor.toStringCallback = [this] (int value) { return juce::String (value); };
+    fltrHpfMinFreqEditor.getMinValueCallback = [this] () { return 20; };
+    fltrHpfMinFreqEditor.getMaxValueCallback = [this] () { return 20000; };
+    fltrHpfMinFreqEditor.toStringCallback = [this] (int value) { return getRoundedFloatString (value, 4); };
     fltrHpfMinFreqEditor.updateDataCallback = [this] (int value) { fltrHpfMinFreqUiChanged (value); };
     fltrHpfMinFreqEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 1;
+            else if (dragSpeed == DragSpeed::medium)
                 return 25;
-            } ();
-
+            else
+                return 100;
+        } ();
         const auto newValue { settingsProperties.getFltrHpfMinFreq () + (multiplier * direction) };
         fltrHpfMinFreqEditor.setValue (newValue);
     };
@@ -363,19 +432,21 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupIntEditor (fltrHpfMinFreqEditor, fltrHpfMinFreqLabel, "Fltr HPF Min Freq");
 
     fltrHpfQEditor.setTooltip ("Fltr HPF Q");
-    fltrHpfQEditor.getMinValueCallback = [this] () { return 0.0; };
-    fltrHpfQEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fltrHpfQEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fltrHpfQEditor.getMinValueCallback = [this] () { return 0.25; };
+    fltrHpfQEditor.getMaxValueCallback = [this] () { return 4.0; };
+    fltrHpfQEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fltrHpfQEditor.updateDataCallback = [this] (double value) { fltrHpfQUiChanged (static_cast<float> (value)); };
     fltrHpfQEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.001;
+            else if (dragSpeed == DragSpeed::medium)
+                return 0.1;
+            else
+                return 1.0;
+        } ();
         const auto newValue { settingsProperties.getFltrHpfQ () + (multiplier * direction) };
         fltrHpfQEditor.setValue (newValue);
     };
@@ -388,19 +459,21 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupDoubleEditor (fltrHpfQEditor, fltrHpfQLabel, "Fltr HPF Q");
 
     fltrLpfMaxFreqEditor.setTooltip ("Fltr LPF Max Freq");
-    fltrLpfMaxFreqEditor.getMinValueCallback = [this] () { return 0; };
-    fltrLpfMaxFreqEditor.getMaxValueCallback = [this] () { return 1; };
+    fltrLpfMaxFreqEditor.getMinValueCallback = [this] () { return 20; };
+    fltrLpfMaxFreqEditor.getMaxValueCallback = [this] () { return 20000; };
     fltrLpfMaxFreqEditor.toStringCallback = [this] (int value) { return juce::String (value); };
     fltrLpfMaxFreqEditor.updateDataCallback = [this] (int value) { fltrLpfMaxFreqUiChanged (value); };
     fltrLpfMaxFreqEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 1;
+            else if (dragSpeed == DragSpeed::medium)
                 return 25;
-            } ();
-
+            else
+                return 100;
+        } ();
         const auto newValue { settingsProperties.getFltrLpfMaxFreq () + (multiplier * direction) };
         fltrLpfMaxFreqEditor.setValue (newValue);
     };
@@ -413,19 +486,21 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupIntEditor (fltrLpfMaxFreqEditor, fltrLpfMaxFreqLabel, "Fltr LPF Max Freq");
 
     fltrLpfMinFreqEditor.setTooltip ("Fltr LPF Min Freq");
-    fltrLpfMinFreqEditor.getMinValueCallback = [this] () { return 0; };
-    fltrLpfMinFreqEditor.getMaxValueCallback = [this] () { return 1; };
+    fltrLpfMinFreqEditor.getMinValueCallback = [this] () { return 20; };
+    fltrLpfMinFreqEditor.getMaxValueCallback = [this] () { return 20000; };
     fltrLpfMinFreqEditor.toStringCallback = [this] (int value) { return juce::String (value); };
     fltrLpfMinFreqEditor.updateDataCallback = [this] (int value) { fltrLpfMinFreqUiChanged (value); };
     fltrLpfMinFreqEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 1;
+            else if (dragSpeed == DragSpeed::medium)
                 return 25;
-            } ();
-
+            else
+                return 100;
+        } ();
         const auto newValue { settingsProperties.getFltrLpfMinFreq () + (multiplier * direction) };
         fltrLpfMinFreqEditor.setValue (newValue);
     };
@@ -438,19 +513,21 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupIntEditor (fltrLpfMinFreqEditor, fltrLpfMinFreqLabel, "Fltr LPF Min Freq");
 
     fltrLpfQEditor.setTooltip ("Fltr LPF Q");
-    fltrLpfQEditor.getMinValueCallback = [this] () { return 0.0; };
-    fltrLpfQEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fltrLpfQEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fltrLpfQEditor.getMinValueCallback = [this] () { return 0.25; };
+    fltrLpfQEditor.getMaxValueCallback = [this] () { return 4.0; };
+    fltrLpfQEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fltrLpfQEditor.updateDataCallback = [this] (double value) { fltrLpfQUiChanged (static_cast<float> (value)); };
     fltrLpfQEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.001f;
+            else if (dragSpeed == DragSpeed::medium)
+                return 0.1f;
+            else
+                return 1.0f;
+        } ();
         const auto newValue { settingsProperties.getFltrLpfQ () + (multiplier * direction) };
         fltrLpfQEditor.setValue (newValue);
     };
@@ -463,19 +540,21 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupDoubleEditor (fltrLpfQEditor, fltrLpfQLabel, "Fltr LPF Q");
 
     fxChorusCenterEditor.setTooltip ("FX Chorus Center");
-    fxChorusCenterEditor.getMinValueCallback = [this] () { return 0.0; };
-    fxChorusCenterEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxChorusCenterEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxChorusCenterEditor.getMinValueCallback = [this] () { return 1.0; };
+    fxChorusCenterEditor.getMaxValueCallback = [this] () { return 20.0; };
+    fxChorusCenterEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxChorusCenterEditor.updateDataCallback = [this] (double value) { fxChorusCenterUiChanged (static_cast<float> (value)); };
     fxChorusCenterEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 1.0;
+            else if (dragSpeed == DragSpeed::medium)
+                return 3.0;
+            else
+                return 10.0;
+        } ();
         const auto newValue { settingsProperties.getFxChorusCenter () + (multiplier * direction) };
         fxChorusCenterEditor.setValue (newValue);
     };
@@ -488,19 +567,21 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupDoubleEditor (fxChorusCenterEditor, fxChorusCenterLabel, "FX Chorus Center");
 
     fxChorusDepthEditor.setTooltip ("FX Chorus Depth");
-    fxChorusDepthEditor.getMinValueCallback = [this] () { return 0.0; };
-    fxChorusDepthEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxChorusDepthEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxChorusDepthEditor.getMinValueCallback = [this] () { return 1.0; };
+    fxChorusDepthEditor.getMaxValueCallback = [this] () { return settingsProperties.getFxChorusCenter (); };
+    fxChorusDepthEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxChorusDepthEditor.updateDataCallback = [this] (double value) { fxChorusDepthUiChanged (static_cast<float> (value)); };
     fxChorusDepthEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 1.0;
+            else if (dragSpeed == DragSpeed::medium)
+                return 3.0;
+            else
+                return 10.0;
+        } ();
         const auto newValue { settingsProperties.getFxChorusDepth () + (multiplier * direction) };
         fxChorusDepthEditor.setValue (newValue);
     };
@@ -513,19 +594,21 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupDoubleEditor (fxChorusDepthEditor, fxChorusDepthLabel, "FX Chorus Depth");
 
     fxChorusLfoBEditor.setTooltip ("FX Chorus LFO B");
-    fxChorusLfoBEditor.getMinValueCallback = [this] () { return 0.0; };
-    fxChorusLfoBEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxChorusLfoBEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxChorusLfoBEditor.getMinValueCallback = [this] () { return 0.002; };
+    fxChorusLfoBEditor.getMaxValueCallback = [this] () { return 3.0; };
+    fxChorusLfoBEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxChorusLfoBEditor.updateDataCallback = [this] (double value) { fxChorusLfoBUiChanged (static_cast<float> (value)); };
     fxChorusLfoBEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.001f;
+            else if (dragSpeed == DragSpeed::medium)
+                return 0.1f;
+            else
+                return 0.5f;
+        } ();
         const auto newValue { settingsProperties.getFxChorusLfoB () + (multiplier * direction) };
         fxChorusLfoBEditor.setValue (newValue);
     };
@@ -538,19 +621,21 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupDoubleEditor (fxChorusLfoBEditor, fxChorusLfoBLabel, "FX Chorus LFO B");
 
     fxChorusLfoTEditor.setTooltip ("FX Chorus LFO T");
-    fxChorusLfoTEditor.getMinValueCallback = [this] () { return 0; };
-    fxChorusLfoTEditor.getMaxValueCallback = [this] () { return 1; };
-    fxChorusLfoTEditor.toStringCallback = [this] (int value) { return juce::String (value); };
-    fxChorusLfoTEditor.updateDataCallback = [this] (int value) { fxChorusLfoTUiChanged (value); };
+    fxChorusLfoTEditor.getMinValueCallback = [this] () { return 0.002; };
+    fxChorusLfoTEditor.getMaxValueCallback = [this] () { return 3.0; };
+    fxChorusLfoTEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
+    fxChorusLfoTEditor.updateDataCallback = [this] (double value) { fxChorusLfoTUiChanged (static_cast<float> (value)); };
     fxChorusLfoTEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.001f;
+            else if (dragSpeed == DragSpeed::medium)
+                return 0.1f;
+            else
+                return 0.5f;
+        } ();
         const auto newValue { settingsProperties.getFxChorusLfoT () + (multiplier * direction) };
         fxChorusLfoTEditor.setValue (newValue);
     };
@@ -560,22 +645,22 @@ SettingsEditorComponent::SettingsEditorComponent ()
         editMenu.addItem ("NEED TO IMPLEMENT FUNCTIONS", [this] () {});
         editMenu.showMenuAsync ({}, [this] (int) {});
     }; 
-    setupIntEditor (fxChorusLfoTEditor, fxChorusLfoTLabel, "FX Chorus LFO T");
+    setupDoubleEditor (fxChorusLfoTEditor, fxChorusLfoTLabel, "FX Chorus LFO T");
 
     fxChorusMixEditor.setTooltip ("FX Chorus Mix");
-    fxChorusMixEditor.getMinValueCallback = [this] () { return 0.0; };
+    fxChorusMixEditor.getMinValueCallback = [this] () { return 0.1; };
     fxChorusMixEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxChorusMixEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxChorusMixEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxChorusMixEditor.updateDataCallback = [this] (double value) { fxChorusMixUiChanged (static_cast<float> (value)); };
     fxChorusMixEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow || dragSpeed == DragSpeed::medium)
+                return 0.1f;
+            else
+                return 0.3f;
+        } ();
         const auto newValue { settingsProperties.getFxChorusMix () + (multiplier * direction) };
         fxChorusMixEditor.setValue (newValue);
     };
@@ -588,19 +673,21 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupDoubleEditor (fxChorusMixEditor, fxChorusMixLabel, "FX Chorus Mix");
 
     fxChorusSpreadEditor.setTooltip ("FX Chorus Spread");
-    fxChorusSpreadEditor.getMinValueCallback = [this] () { return 0.0; };
+    fxChorusSpreadEditor.getMinValueCallback = [this] () { return 0.01; };
     fxChorusSpreadEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxChorusSpreadEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxChorusSpreadEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxChorusSpreadEditor.updateDataCallback = [this] (double value) { fxChorusSpreadUiChanged (static_cast<float> (value)); };
     fxChorusSpreadEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.01f;
+            else if (dragSpeed == DragSpeed::medium)
+                return 0.1f;
+            else
+                return 0.3f;
+        } ();
         const auto newValue { settingsProperties.getFxChorusSpread () + (multiplier * direction) };
         fxChorusSpreadEditor.setValue (newValue);
     };
@@ -613,57 +700,59 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupDoubleEditor (fxChorusSpreadEditor, fxChorusSpreadLabel, "FX Chorus Spread");
 
     // Integer # of Taps (1–4)
-    fxChorusTapsEditor.setLookAndFeel (&noArrowComboBoxLnF);
-    fxChorusTapsEditor.setTooltip ("");
-    fxChorusTapsEditor.addItem ("1", 1);
-    fxChorusTapsEditor.addItem ("2", 2);
-    fxChorusTapsEditor.addItem ("3", 3);
-    fxChorusTapsEditor.addItem ("4", 4);
-    fxChorusTapsEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
+    fxChorusTapsComboBox.setLookAndFeel (&noArrowComboBoxLnF);
+    fxChorusTapsComboBox.setTooltip ("");
+    fxChorusTapsComboBox.addItem ("1", 1);
+    fxChorusTapsComboBox.addItem ("2", 2);
+    fxChorusTapsComboBox.addItem ("3", 3);
+    fxChorusTapsComboBox.addItem ("4", 4);
+    fxChorusTapsComboBox.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
-        const auto fxChorusTaps { fxChorusTapsEditor.getSelectedId () };
+        const auto fxChorusTaps { fxChorusTapsComboBox.getSelectedId () };
         settingsProperties.setFxChorusTaps (std::clamp (fxChorusTaps + scrollAmount, 1, 4), true);
     };
-    fxChorusTapsEditor.onPopupMenuCallback = [this] ()
+    fxChorusTapsComboBox.onPopupMenuCallback = [this] ()
     {
         juce::PopupMenu editMenu;
         editMenu.showMenuAsync ({}, [this] (int) {});
     };
-    setupComboBox (fxChorusTapsEditor, fxChorusTapsLabel, "FX Chorus Taps");
+    setupComboBox (fxChorusTapsComboBox, fxChorusTapsLabel, "FX Chorus Taps");
 
     // 0: -5 to 5V, 1: 0 to 5V 
-    fxCvUnipolarEditor.setLookAndFeel (&noArrowComboBoxLnF);
-    fxCvUnipolarEditor.setTooltip ("");
-    fxCvUnipolarEditor.addItem ("-5v to 5v", 1);
-    fxCvUnipolarEditor.addItem ("0v to 5v", 2);
-    fxCvUnipolarEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
+    fxCvUnipolarComboBox.setLookAndFeel (&noArrowComboBoxLnF);
+    fxCvUnipolarComboBox.setTooltip ("");
+    fxCvUnipolarComboBox.addItem ("-5v to 5v", 1);
+    fxCvUnipolarComboBox.addItem ("0v to 5v", 2);
+    fxCvUnipolarComboBox.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
-        const auto fxCvUnipolar { fxCvUnipolarEditor.getSelectedId () - 1 };
+        const auto fxCvUnipolar { fxCvUnipolarComboBox.getSelectedId () - 1 };
         settingsProperties.setFxCvUnipolar (std::clamp (fxCvUnipolar + scrollAmount, 0, 1), true);
     };
-    fxCvUnipolarEditor.onPopupMenuCallback = [this] ()
+    fxCvUnipolarComboBox.onPopupMenuCallback = [this] ()
     {
         juce::PopupMenu editMenu;
         editMenu.showMenuAsync ({}, [this] (int) {});
     };
-    setupComboBox (fxCvUnipolarEditor, fxCvUnipolarLabel, "FX CV Unipolar");
+    setupComboBox (fxCvUnipolarComboBox, fxCvUnipolarLabel, "FX CV Unipolar");
 
     fxDjfilterHpfMaxEditor.setTooltip ("FX DJ Filter HPF Max");
-    fxDjfilterHpfMaxEditor.getMinValueCallback = [this] () { return 0; };
-    fxDjfilterHpfMaxEditor.getMaxValueCallback = [this] () { return 1; };
+    fxDjfilterHpfMaxEditor.getMinValueCallback = [this] () { return 20; };
+    fxDjfilterHpfMaxEditor.getMaxValueCallback = [this] () { return 20000; };
     fxDjfilterHpfMaxEditor.toStringCallback = [this] (int value) { return juce::String (value); };
     fxDjfilterHpfMaxEditor.updateDataCallback = [this] (int value) { fxDjfilterHpfMaxUiChanged (value); };
     fxDjfilterHpfMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 1;
+            else if (dragSpeed == DragSpeed::medium)
                 return 25;
-            } ();
-
+            else
+                return 100;
+        } ();
         const auto newValue { settingsProperties.getFxDjfilterHpfMax () + (multiplier * direction) };
         fxDjfilterHpfMaxEditor.setValue (newValue);
     };
@@ -676,19 +765,21 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupIntEditor (fxDjfilterHpfMaxEditor, fxDjfilterHpfMaxLabel, "FX DJ Filter HPF Max");
 
     fxDjfilterHpfMinEditor.setTooltip ("FX DJ Filter HPF Min");
-    fxDjfilterHpfMinEditor.getMinValueCallback = [this] () { return 0; };
-    fxDjfilterHpfMinEditor.getMaxValueCallback = [this] () { return 1; };
+    fxDjfilterHpfMinEditor.getMinValueCallback = [this] () { return 20; };
+    fxDjfilterHpfMinEditor.getMaxValueCallback = [this] () { return 20000; };
     fxDjfilterHpfMinEditor.toStringCallback = [this] (int value) { return juce::String (value); };
     fxDjfilterHpfMinEditor.updateDataCallback = [this] (int value) { fxDjfilterHpfMinUiChanged (value); };
     fxDjfilterHpfMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 1;
+            else if (dragSpeed == DragSpeed::medium)
                 return 25;
-            } ();
-
+            else
+                return 100;
+        } ();
         const auto newValue { settingsProperties.getFxDjfilterHpfMin () + (multiplier * direction) };
         fxDjfilterHpfMinEditor.setValue (newValue);
     };
@@ -701,19 +792,21 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupIntEditor (fxDjfilterHpfMinEditor, fxDjfilterHpfMinLabel, "FX DJ Filter HPF Min");
 
     fxDjfilterLpfMaxEditor.setTooltip ("FX DJ Filter LPF Max");
-    fxDjfilterLpfMaxEditor.getMinValueCallback = [this] () { return 0; };
-    fxDjfilterLpfMaxEditor.getMaxValueCallback = [this] () { return 1; };
+    fxDjfilterLpfMaxEditor.getMinValueCallback = [this] () { return 20; };
+    fxDjfilterLpfMaxEditor.getMaxValueCallback = [this] () { return 20000; };
     fxDjfilterLpfMaxEditor.toStringCallback = [this] (int value) { return juce::String (value); };
     fxDjfilterLpfMaxEditor.updateDataCallback = [this] (int value) { fxDjfilterLpfMaxUiChanged (value); };
     fxDjfilterLpfMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 1;
+            else if (dragSpeed == DragSpeed::medium)
                 return 25;
-            } ();
-
+            else
+                return 100;
+        } ();
         const auto newValue { settingsProperties.getFxDjfilterLpfMax () + (multiplier * direction) };
         fxDjfilterLpfMaxEditor.setValue (newValue);
     };
@@ -726,19 +819,21 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupIntEditor (fxDjfilterLpfMaxEditor, fxDjfilterLpfMaxLabel, "FX DJ Filter LPF Max");
 
     fxDjfilterLpfMinEditor.setTooltip ("FX DJ Filter LPF Min");
-    fxDjfilterLpfMinEditor.getMinValueCallback = [this] () { return 0; };
-    fxDjfilterLpfMinEditor.getMaxValueCallback = [this] () { return 1; };
+    fxDjfilterLpfMinEditor.getMinValueCallback = [this] () { return 20; };
+    fxDjfilterLpfMinEditor.getMaxValueCallback = [this] () { return 20000; };
     fxDjfilterLpfMinEditor.toStringCallback = [this] (int value) { return juce::String (value); };
     fxDjfilterLpfMinEditor.updateDataCallback = [this] (int value) { fxDjfilterLpfMinUiChanged (value); };
     fxDjfilterLpfMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 1;
+            else if (dragSpeed == DragSpeed::medium)
                 return 25;
-            } ();
-
+            else
+                return 100;
+        } ();
         const auto newValue { settingsProperties.getFxDjfilterLpfMin () + (multiplier * direction) };
         fxDjfilterLpfMinEditor.setValue (newValue);
     };
@@ -751,19 +846,21 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupIntEditor (fxDjfilterLpfMinEditor, fxDjfilterLpfMinLabel, "FX DJ Filter LPF Min");
 
     fxDjfilterQGainReductionEditor.setTooltip ("FX DJ Filter Q Gain Reduction");
-    fxDjfilterQGainReductionEditor.getMinValueCallback = [this] () { return 0.0; };
+    fxDjfilterQGainReductionEditor.getMinValueCallback = [this] () { return 0.01; };
     fxDjfilterQGainReductionEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxDjfilterQGainReductionEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxDjfilterQGainReductionEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxDjfilterQGainReductionEditor.updateDataCallback = [this] (double value) { fxDjfilterQGainReductionUiChanged (static_cast<float> (value)); };
     fxDjfilterQGainReductionEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.01f;
+            else if (dragSpeed == DragSpeed::medium)
+                return 0.1f;
+            else
+                return 0.3f;
+        } ();
         const auto newValue { settingsProperties.getFxDjfilterQGainReduction () + (multiplier * direction) };
         fxDjfilterQGainReductionEditor.setValue (newValue);
     };
@@ -775,20 +872,22 @@ SettingsEditorComponent::SettingsEditorComponent ()
     }; 
     setupDoubleEditor (fxDjfilterQGainReductionEditor, fxDjfilterQGainReductionLabel, "FX DJ Filter Q Gain Reduction");
 
-    fxDjfilterQMaxEditor.setTooltip ("FX DJ Filter Q Gain Reduction");
+    fxDjfilterQMaxEditor.setTooltip ("FX DJ Filter Q Max");
     fxDjfilterQMaxEditor.getMinValueCallback = [this] () { return 0.0; };
-    fxDjfilterQMaxEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxDjfilterQMaxEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxDjfilterQMaxEditor.getMaxValueCallback = [this] () { return 20.0; };
+    fxDjfilterQMaxEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxDjfilterQMaxEditor.updateDataCallback = [this] (double value) { fxDjfilterQMaxUiChanged (static_cast<float> (value)); };
     fxDjfilterQMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1f;
+            else if (dragSpeed == DragSpeed::medium)
+                return 3.0f;
+            else
+                return 10.0f;
+        } ();
         const auto newValue { settingsProperties.getFxDjfilterQMax () + (multiplier * direction) };
         fxDjfilterQMaxEditor.setValue (newValue);
     };
@@ -802,18 +901,20 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     fxDjfilterQMinEditor.setTooltip ("FX DJ Filter Q Min");
     fxDjfilterQMinEditor.getMinValueCallback = [this] () { return 0.0; };
-    fxDjfilterQMinEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxDjfilterQMinEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxDjfilterQMinEditor.getMaxValueCallback = [this] () { return 20.0; };
+    fxDjfilterQMinEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxDjfilterQMinEditor.updateDataCallback = [this] (double value) { fxDjfilterQMinUiChanged (static_cast<float> (value)); };
     fxDjfilterQMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1f;
+            else if (dragSpeed == DragSpeed::medium)
+                return 3.0f;
+            else
+                return 10.0f;
+        } ();
         const auto newValue { settingsProperties.getFxDjfilterQMin () + (multiplier * direction) };
         fxDjfilterQMinEditor.setValue (newValue);
     };
@@ -826,19 +927,21 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupDoubleEditor (fxDjfilterQMinEditor, fxDjfilterQMinLabel, "FX DJ Filter Q Min");
 
     fxDubEchoHpfEditor.setTooltip ("FX Dub Echo HPF");
-    fxDubEchoHpfEditor.getMinValueCallback = [this] () { return 0; };
-    fxDubEchoHpfEditor.getMaxValueCallback = [this] () { return 1; };
+    fxDubEchoHpfEditor.getMinValueCallback = [this] () { return 20; };
+    fxDubEchoHpfEditor.getMaxValueCallback = [this] () { return 20000; };
     fxDubEchoHpfEditor.toStringCallback = [this] (int value) { return juce::String (value); };
     fxDubEchoHpfEditor.updateDataCallback = [this] (int value) { fxDubEchoHpfUiChanged (value); };
     fxDubEchoHpfEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 1;
+            else if (dragSpeed == DragSpeed::medium)
                 return 25;
-            } ();
-
+            else
+                return 100;
+        } ();
         const auto newValue { settingsProperties.getFxDubEchoHpf () + (multiplier * direction) };
         fxDubEchoHpfEditor.setValue (newValue);
     };
@@ -851,19 +954,21 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupIntEditor (fxDubEchoHpfEditor, fxDubEchoHpfLabel, "FX Dub Echo HPF");
 
     fxDubEchoLpfEditor.setTooltip ("FX Dub Echo LPF");
-    fxDubEchoLpfEditor.getMinValueCallback = [this] () { return 0; };
-    fxDubEchoLpfEditor.getMaxValueCallback = [this] () { return 1; };
+    fxDubEchoLpfEditor.getMinValueCallback = [this] () { return 20; };
+    fxDubEchoLpfEditor.getMaxValueCallback = [this] () { return 20000; };
     fxDubEchoLpfEditor.toStringCallback = [this] (int value) { return juce::String (value); };
     fxDubEchoLpfEditor.updateDataCallback = [this] (int value) { fxDubEchoLpfUiChanged (value); };
     fxDubEchoLpfEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 1;
+            else if (dragSpeed == DragSpeed::medium)
                 return 25;
-            } ();
-
+            else
+                return 100;
+        } ();
         const auto newValue { settingsProperties.getFxDubEchoLpf () + (multiplier * direction) };
         fxDubEchoLpfEditor.setValue (newValue);
     };
@@ -878,17 +983,19 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxDubEchoMixEditor.setTooltip ("FX Dub Echo Mix");
     fxDubEchoMixEditor.getMinValueCallback = [this] () { return 0.0; };
     fxDubEchoMixEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxDubEchoMixEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxDubEchoMixEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxDubEchoMixEditor.updateDataCallback = [this] (double value) { fxDubEchoMixUiChanged (static_cast<float> (value)); };
     fxDubEchoMixEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1f;
+            else if (dragSpeed == DragSpeed::medium)
+                return 0.3f;
+            else
+                return 0.5f;
+        } ();
         const auto newValue { settingsProperties.getFxDubEchoMix () + (multiplier * direction) };
         fxDubEchoMixEditor.setValue (newValue);
     };
@@ -902,18 +1009,20 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     fxDubEchoTminEditor.setTooltip ("FX Dub Echo Tmin");
     fxDubEchoTminEditor.getMinValueCallback = [this] () { return 0; };
-    fxDubEchoTminEditor.getMaxValueCallback = [this] () { return 1; };
+    fxDubEchoTminEditor.getMaxValueCallback = [this] () { return 100; };
     fxDubEchoTminEditor.toStringCallback = [this] (int value) { return juce::String (value); };
     fxDubEchoTminEditor.updateDataCallback = [this] (int value) { fxDubEchoTminUiChanged (value); };
     fxDubEchoTminEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 10;
+            else
                 return 25;
-            } ();
-
+        } ();
         const auto newValue { settingsProperties.getFxDubEchoTmin () + (multiplier * direction) };
         fxDubEchoTminEditor.setValue (newValue);
     };
@@ -927,18 +1036,20 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     fxGlitchCrushTimeMaxEditor.setTooltip ("FX Glitch Crush Time Max");
     fxGlitchCrushTimeMaxEditor.getMinValueCallback = [this] () { return 0.0; };
-    fxGlitchCrushTimeMaxEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxGlitchCrushTimeMaxEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxGlitchCrushTimeMaxEditor.getMaxValueCallback = [this] () { return 100.0; };
+    fxGlitchCrushTimeMaxEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxGlitchCrushTimeMaxEditor.updateDataCallback = [this] (double value) { fxGlitchCrushTimeMaxUiChanged (static_cast<float> (value)); };
     fxGlitchCrushTimeMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 5.0;
+            else
+                return 25.0;
+        } ();
         const auto newValue { settingsProperties.getFxGlitchCrushTimeMax () + (multiplier * direction) };
         fxGlitchCrushTimeMaxEditor.setValue (newValue);
     };
@@ -952,18 +1063,20 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     fxGlitchCrushTimeMinEditor.setTooltip ("FX Glitch Crush Time Min");
     fxGlitchCrushTimeMinEditor.getMinValueCallback = [this] () { return 0.0; };
-    fxGlitchCrushTimeMinEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxGlitchCrushTimeMinEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxGlitchCrushTimeMinEditor.getMaxValueCallback = [this] () { return 100.0; };
+    fxGlitchCrushTimeMinEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxGlitchCrushTimeMinEditor.updateDataCallback = [this] (double value) { fxGlitchCrushTimeMinUiChanged (static_cast<float> (value)); };
     fxGlitchCrushTimeMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 5.0;
+            else
+                return 25.0;
+        } ();
         const auto newValue { settingsProperties.getFxGlitchCrushTimeMin () + (multiplier * direction) };
         fxGlitchCrushTimeMinEditor.setValue (newValue);
     };
@@ -978,17 +1091,19 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchDropKeepLevelMaxEditor.setTooltip ("FX Glitch Drop Keep Level Max");
     fxGlitchDropKeepLevelMaxEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchDropKeepLevelMaxEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxGlitchDropKeepLevelMaxEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxGlitchDropKeepLevelMaxEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxGlitchDropKeepLevelMaxEditor.updateDataCallback = [this] (double value) { fxGlitchDropKeepLevelMaxUiChanged (static_cast<float> (value)); };
     fxGlitchDropKeepLevelMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 0.3;
+            else
+                return 0.5;
+        } ();
         const auto newValue { settingsProperties.getFxGlitchDropKeepLevelMax () + (multiplier * direction) };
         fxGlitchDropKeepLevelMaxEditor.setValue (newValue);
     };
@@ -1003,17 +1118,19 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchDropKeepLevelMinEditor.setTooltip ("FX Glitch Drop Keep Level Min");
     fxGlitchDropKeepLevelMinEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchDropKeepLevelMinEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxGlitchDropKeepLevelMinEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxGlitchDropKeepLevelMinEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxGlitchDropKeepLevelMinEditor.updateDataCallback = [this] (double value) { fxGlitchDropKeepLevelMinUiChanged (static_cast<float> (value)); };
     fxGlitchDropKeepLevelMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 0.3;
+            else
+                return 0.5;
+        } ();
         const auto newValue { settingsProperties.getFxGlitchDropKeepLevelMin () + (multiplier * direction) };
         fxGlitchDropKeepLevelMinEditor.setValue (newValue);
     };
@@ -1027,18 +1144,20 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     fxGlitchDropKeepTimeMaxEditor.setTooltip ("FX Glitch Drop Keep Time Max");
     fxGlitchDropKeepTimeMaxEditor.getMinValueCallback = [this] () { return 0.0; };
-    fxGlitchDropKeepTimeMaxEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxGlitchDropKeepTimeMaxEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxGlitchDropKeepTimeMaxEditor.getMaxValueCallback = [this] () { return 100.0; };
+    fxGlitchDropKeepTimeMaxEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxGlitchDropKeepTimeMaxEditor.updateDataCallback = [this] (double value) { fxGlitchDropKeepTimeMaxUiChanged (static_cast<float> (value)); };
     fxGlitchDropKeepTimeMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 10.0;
+            else
+                return 25.0;
+        } ();
         const auto newValue { settingsProperties.getFxGlitchDropKeepTimeMax () + (multiplier * direction) };
         fxGlitchDropKeepTimeMaxEditor.setValue (newValue);
     };
@@ -1052,18 +1171,20 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     fxGlitchDropKeepTimeMinEditor.setTooltip ("FX Glitch Drop Keep Time Min");
     fxGlitchDropKeepTimeMinEditor.getMinValueCallback = [this] () { return 0.0; };
-    fxGlitchDropKeepTimeMinEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxGlitchDropKeepTimeMinEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxGlitchDropKeepTimeMinEditor.getMaxValueCallback = [this] () { return 100.0; };
+    fxGlitchDropKeepTimeMinEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxGlitchDropKeepTimeMinEditor.updateDataCallback = [this] (double value) { fxGlitchDropKeepTimeMinUiChanged (static_cast<float> (value)); };
     fxGlitchDropKeepTimeMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 10.0;
+            else
+                return 25.0;
+        } ();
         const auto newValue { settingsProperties.getFxGlitchDropKeepTimeMin () + (multiplier * direction) };
         fxGlitchDropKeepTimeMinEditor.setValue (newValue);
     };
@@ -1077,18 +1198,20 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     fxGlitchMicroloopPlayTMaxEditor.setTooltip ("FX Glitch Microloop Play T Max");
     fxGlitchMicroloopPlayTMaxEditor.getMinValueCallback = [this] () { return 0.0; };
-    fxGlitchMicroloopPlayTMaxEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxGlitchMicroloopPlayTMaxEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxGlitchMicroloopPlayTMaxEditor.getMaxValueCallback = [this] () { return 100.0; };
+    fxGlitchMicroloopPlayTMaxEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxGlitchMicroloopPlayTMaxEditor.updateDataCallback = [this] (double value) { fxGlitchMicroloopPlayTMaxUiChanged (static_cast<float> (value)); };
     fxGlitchMicroloopPlayTMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 10.0;
+            else
+                return 25.0;
+        } ();
         const auto newValue { settingsProperties.getFxGlitchMicroloopPlayTMax () + (multiplier * direction) };
         fxGlitchMicroloopPlayTMaxEditor.setValue (newValue);
     };
@@ -1102,18 +1225,20 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     fxGlitchMicroloopPlayTMinEditor.setTooltip ("FX Glitch Microloop Play T Min");
     fxGlitchMicroloopPlayTMinEditor.getMinValueCallback = [this] () { return 0.0; };
-    fxGlitchMicroloopPlayTMinEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxGlitchMicroloopPlayTMinEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxGlitchMicroloopPlayTMinEditor.getMaxValueCallback = [this] () { return 100.0; };
+    fxGlitchMicroloopPlayTMinEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxGlitchMicroloopPlayTMinEditor.updateDataCallback = [this] (double value) { fxGlitchMicroloopPlayTMinUiChanged (static_cast<float> (value)); };
     fxGlitchMicroloopPlayTMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 10.0;
+            else
+                return 25.0;
+        } ();
         const auto newValue { settingsProperties.getFxGlitchMicroloopPlayTMin () + (multiplier * direction) };
         fxGlitchMicroloopPlayTMinEditor.setValue (newValue);
     };
@@ -1127,18 +1252,20 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     fxGlitchMicroloopSmplTMaxEditor.setTooltip ("FX Glitch Microloop Smpl T Max");
     fxGlitchMicroloopSmplTMaxEditor.getMinValueCallback = [this] () { return 0.0; };
-    fxGlitchMicroloopSmplTMaxEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxGlitchMicroloopSmplTMaxEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxGlitchMicroloopSmplTMaxEditor.getMaxValueCallback = [this] () { return 100.0; };
+    fxGlitchMicroloopSmplTMaxEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxGlitchMicroloopSmplTMaxEditor.updateDataCallback = [this] (double value) { fxGlitchMicroloopSmplTMaxUiChanged (static_cast<float> (value)); };
     fxGlitchMicroloopSmplTMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 10.0;
+            else
+                return 25.0;
+        } ();
         const auto newValue { settingsProperties.getFxGlitchMicroloopSmplTMax () + (multiplier * direction) };
         fxGlitchMicroloopSmplTMaxEditor.setValue (newValue);
     };
@@ -1152,18 +1279,20 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     fxGlitchMicroloopSmplTMinEditor.setTooltip ("FX Glitch Microloop Smpl T Min");
     fxGlitchMicroloopSmplTMinEditor.getMinValueCallback = [this] () { return 0.0; };
-    fxGlitchMicroloopSmplTMinEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxGlitchMicroloopSmplTMinEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxGlitchMicroloopSmplTMinEditor.getMaxValueCallback = [this] () { return 100.0; };
+    fxGlitchMicroloopSmplTMinEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxGlitchMicroloopSmplTMinEditor.updateDataCallback = [this] (double value) { fxGlitchMicroloopSmplTMinUiChanged (static_cast<float> (value)); };
     fxGlitchMicroloopSmplTMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 10.0;
+            else
+                return 25.0;
+        } ();
         const auto newValue { settingsProperties.getFxGlitchMicroloopSmplTMin () + (multiplier * direction) };
         fxGlitchMicroloopSmplTMinEditor.setValue (newValue);
     };
@@ -1178,17 +1307,19 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchProbabilityMaxEditor.setTooltip ("FX Glitch Probability Max");
     fxGlitchProbabilityMaxEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchProbabilityMaxEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxGlitchProbabilityMaxEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxGlitchProbabilityMaxEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxGlitchProbabilityMaxEditor.updateDataCallback = [this] (double value) { fxGlitchProbabilityMaxUiChanged (static_cast<float> (value)); };
     fxGlitchProbabilityMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 0.3;
+            else
+                return 0.5;
+        } ();
         const auto newValue { settingsProperties.getFxGlitchProbabilityMax () + (multiplier * direction) };
         fxGlitchProbabilityMaxEditor.setValue (newValue);
     };
@@ -1203,17 +1334,19 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchProbabilityMinEditor.setTooltip ("FX Glitch Probability Min");
     fxGlitchProbabilityMinEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchProbabilityMinEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxGlitchProbabilityMinEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxGlitchProbabilityMinEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxGlitchProbabilityMinEditor.updateDataCallback = [this] (double value) { fxGlitchProbabilityMinUiChanged (static_cast<float> (value)); };
     fxGlitchProbabilityMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 0.3;
+            else
+                return 0.5;
+        } ();
         const auto newValue { settingsProperties.getFxGlitchProbabilityMin () + (multiplier * direction) };
         fxGlitchProbabilityMinEditor.setValue (newValue);
     };
@@ -1227,18 +1360,20 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     fxGlitchStutterNumMaxEditor.setTooltip ("FX Glitch Stutter Num Max");
     fxGlitchStutterNumMaxEditor.getMinValueCallback = [this] () { return 0; };
-    fxGlitchStutterNumMaxEditor.getMaxValueCallback = [this] () { return 1; };
+    fxGlitchStutterNumMaxEditor.getMaxValueCallback = [this] () { return 100; };
     fxGlitchStutterNumMaxEditor.toStringCallback = [this] (int value) { return juce::String (value); };
     fxGlitchStutterNumMaxEditor.updateDataCallback = [this] (int value) { fxGlitchStutterNumMaxUiChanged (value); };
     fxGlitchStutterNumMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 10;
+            else
                 return 25;
-            } ();
-
+        } ();
         const auto newValue { settingsProperties.getFxGlitchStutterNumMax () + (multiplier * direction) };
         fxGlitchStutterNumMaxEditor.setValue (newValue);
     };
@@ -1252,18 +1387,20 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     fxGlitchStutterNumMinEditor.setTooltip ("FX Glitch Stutter Num Min");
     fxGlitchStutterNumMinEditor.getMinValueCallback = [this] () { return 0; };
-    fxGlitchStutterNumMinEditor.getMaxValueCallback = [this] () { return 1; };
+    fxGlitchStutterNumMinEditor.getMaxValueCallback = [this] () { return 100; };
     fxGlitchStutterNumMinEditor.toStringCallback = [this] (int value) { return juce::String (value); };
     fxGlitchStutterNumMinEditor.updateDataCallback = [this] (int value) { fxGlitchStutterNumMinUiChanged (value); };
     fxGlitchStutterNumMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 10;
+            else
                 return 25;
-            } ();
-
+        } ();
         const auto newValue { settingsProperties.getFxGlitchStutterNumMin () + (multiplier * direction) };
         fxGlitchStutterNumMinEditor.setValue (newValue);
     };
@@ -1277,18 +1414,20 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     fxGlitchStutterSmplTMaxEditor.setTooltip ("FX Glitch Stutter Smpl T Max");
     fxGlitchStutterSmplTMaxEditor.getMinValueCallback = [this] () { return 0.0; };
-    fxGlitchStutterSmplTMaxEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxGlitchStutterSmplTMaxEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxGlitchStutterSmplTMaxEditor.getMaxValueCallback = [this] () { return 100.0; };
+    fxGlitchStutterSmplTMaxEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxGlitchStutterSmplTMaxEditor.updateDataCallback = [this] (double value) { fxGlitchStutterSmplTMaxUiChanged (static_cast<float> (value)); };
     fxGlitchStutterSmplTMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 10.0;
+            else
+                return 25.0;
+        } ();
         const auto newValue { settingsProperties.getFxGlitchStutterSmplTMax () + (multiplier * direction) };
         fxGlitchStutterSmplTMaxEditor.setValue (newValue);
     };
@@ -1302,18 +1441,20 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     fxGlitchStutterSmplTMinEditor.setTooltip ("FX Glitch Stutter Smpl T Min");
     fxGlitchStutterSmplTMinEditor.getMinValueCallback = [this] () { return 0.0; };
-    fxGlitchStutterSmplTMinEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxGlitchStutterSmplTMinEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxGlitchStutterSmplTMinEditor.getMaxValueCallback = [this] () { return 100.0; };
+    fxGlitchStutterSmplTMinEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxGlitchStutterSmplTMinEditor.updateDataCallback = [this] (double value) { fxGlitchStutterSmplTMinUiChanged (static_cast<float> (value)); };
     fxGlitchStutterSmplTMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 10.0;
+            else
+                return 25.0;
+        } ();
         const auto newValue { settingsProperties.getFxGlitchStutterSmplTMin () + (multiplier * direction) };
         fxGlitchStutterSmplTMinEditor.setValue (newValue);
     };
@@ -1327,18 +1468,20 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     fxGlitchStutterWindowEditor.setTooltip ("FX Glitch Stutter Window");
     fxGlitchStutterWindowEditor.getMinValueCallback = [this] () { return 0; };
-    fxGlitchStutterWindowEditor.getMaxValueCallback = [this] () { return 1; };
+    fxGlitchStutterWindowEditor.getMaxValueCallback = [this] () { return 100; };
     fxGlitchStutterWindowEditor.toStringCallback = [this] (int value) { return juce::String (value); };
     fxGlitchStutterWindowEditor.updateDataCallback = [this] (int value) { fxGlitchStutterWindowUiChanged (value); };
     fxGlitchStutterWindowEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 10;
+            else
                 return 25;
-            } ();
-
+        } ();
         const auto newValue { settingsProperties.getFxGlitchStutterWindow () + (multiplier * direction) };
         fxGlitchStutterWindowEditor.setValue (newValue);
     };
@@ -1353,17 +1496,19 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchWeightCrushLowEditor.setTooltip ("FX Glitch Weight Crush Low");
     fxGlitchWeightCrushLowEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchWeightCrushLowEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxGlitchWeightCrushLowEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxGlitchWeightCrushLowEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxGlitchWeightCrushLowEditor.updateDataCallback = [this] (double value) { fxGlitchWeightCrushLowUiChanged (static_cast<float> (value)); };
     fxGlitchWeightCrushLowEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 0.3;
+            else
+                return 0.5;
+        } ();
         const auto newValue { settingsProperties.getFxGlitchWeightCrushLow () + (multiplier * direction) };
         fxGlitchWeightCrushLowEditor.setValue (newValue);
     };
@@ -1378,17 +1523,19 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchWeightDropHighEditor.setTooltip ("FX Glitch Weight Drop High");
     fxGlitchWeightDropHighEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchWeightDropHighEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxGlitchWeightDropHighEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxGlitchWeightDropHighEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxGlitchWeightDropHighEditor.updateDataCallback = [this] (double value) { fxGlitchWeightDropHighUiChanged (static_cast<float> (value)); };
     fxGlitchWeightDropHighEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 0.3;
+            else
+                return 0.5;
+        } ();
         const auto newValue { settingsProperties.getFxGlitchWeightDropHigh () + (multiplier * direction) };
         fxGlitchWeightDropHighEditor.setValue (newValue);
     };
@@ -1403,17 +1550,19 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchWeightDropLowEditor.setTooltip ("FX Glitch Weight Drop Low");
     fxGlitchWeightDropLowEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchWeightDropLowEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxGlitchWeightDropLowEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxGlitchWeightDropLowEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxGlitchWeightDropLowEditor.updateDataCallback = [this] (double value) { fxGlitchWeightDropLowUiChanged (static_cast<float> (value)); };
     fxGlitchWeightDropLowEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 0.3;
+            else
+                return 0.5;
+        } ();
         const auto newValue { settingsProperties.getFxGlitchWeightDropLow () + (multiplier * direction) };
         fxGlitchWeightDropLowEditor.setValue (newValue);
     };
@@ -1428,17 +1577,19 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchWeightHoldHighEditor.setTooltip ("FX Glitch Weight Hold High");
     fxGlitchWeightHoldHighEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchWeightHoldHighEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxGlitchWeightHoldHighEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxGlitchWeightHoldHighEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxGlitchWeightHoldHighEditor.updateDataCallback = [this] (double value) { fxGlitchWeightHoldHighUiChanged (static_cast<float> (value)); };
     fxGlitchWeightHoldHighEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 0.3;
+            else
+                return 0.5;
+        } ();
         const auto newValue { settingsProperties.getFxGlitchWeightHoldHigh () + (multiplier * direction) };
         fxGlitchWeightHoldHighEditor.setValue (newValue);
     };
@@ -1453,17 +1604,19 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchWeightHoldLowEditor.setTooltip ("FX Glitch Weight Hold Low");
     fxGlitchWeightHoldLowEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchWeightHoldLowEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxGlitchWeightHoldLowEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxGlitchWeightHoldLowEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxGlitchWeightHoldLowEditor.updateDataCallback = [this] (double value) { fxGlitchWeightHoldLowUiChanged (static_cast<float> (value)); };
     fxGlitchWeightHoldLowEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 0.3;
+            else
+                return 0.5;
+        } ();
         const auto newValue { settingsProperties.getFxGlitchWeightHoldLow () + (multiplier * direction) };
         fxGlitchWeightHoldLowEditor.setValue (newValue);
     };
@@ -1478,17 +1631,19 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchWeightStutterHighEditor.setTooltip ("FX Glitch Weight Stutter High");
     fxGlitchWeightStutterHighEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchWeightStutterHighEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxGlitchWeightStutterHighEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxGlitchWeightStutterHighEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxGlitchWeightStutterHighEditor.updateDataCallback = [this] (double value) { fxGlitchWeightStutterHighUiChanged (static_cast<float> (value)); };
     fxGlitchWeightStutterHighEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 0.3;
+            else
+                return 0.5;
+        } ();
         const auto newValue { settingsProperties.getFxGlitchWeightStutterHigh () + (multiplier * direction) };
         fxGlitchWeightStutterHighEditor.setValue (newValue);
     };
@@ -1503,17 +1658,19 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchWeightStutterLowEditor.setTooltip ("FX Glitch Weight Stutter Low");
     fxGlitchWeightStutterLowEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchWeightStutterLowEditor.getMaxValueCallback = [this] () { return 1.0; };
-    fxGlitchWeightStutterLowEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    fxGlitchWeightStutterLowEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     fxGlitchWeightStutterLowEditor.updateDataCallback = [this] (double value) { fxGlitchWeightStutterLowUiChanged (static_cast<float> (value)); };
     fxGlitchWeightStutterLowEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 0.3;
+            else
+                return 0.5;
+        } ();
         const auto newValue { settingsProperties.getFxGlitchWeightStutterLow () + (multiplier * direction) };
         fxGlitchWeightStutterLowEditor.setValue (newValue);
     };
@@ -1526,19 +1683,21 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupDoubleEditor (fxGlitchWeightStutterLowEditor, fxGlitchWeightStutterLowLabel, "FX Glitch Weight Stutter Low");
 
     fxReverbHpfEditor.setTooltip ("FX Reverb HPF");
-    fxReverbHpfEditor.getMinValueCallback = [this] () { return 0; };
-    fxReverbHpfEditor.getMaxValueCallback = [this] () { return 1; };
+    fxReverbHpfEditor.getMinValueCallback = [this] () { return 20; };
+    fxReverbHpfEditor.getMaxValueCallback = [this] () { return 20000; };
     fxReverbHpfEditor.toStringCallback = [this] (int value) { return juce::String (value); };
     fxReverbHpfEditor.updateDataCallback = [this] (int value) { fxReverbHpfUiChanged (value); };
     fxReverbHpfEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 10;
+            else
                 return 25;
-            } ();
-
+        } ();
         const auto newValue { settingsProperties.getFxReverbHpf () + (multiplier * direction) };
         fxReverbHpfEditor.setValue (newValue);
     };
@@ -1551,19 +1710,21 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupIntEditor (fxReverbHpfEditor, fxReverbHpfLabel, "FX Reverb HPF");
 
     fxReverbLpfEditor.setTooltip ("FX Reverb LPF");
-    fxReverbLpfEditor.getMinValueCallback = [this] () { return 0; };
-    fxReverbLpfEditor.getMaxValueCallback = [this] () { return 1; };
+    fxReverbLpfEditor.getMinValueCallback = [this] () { return 20; };
+    fxReverbLpfEditor.getMaxValueCallback = [this] () { return 20000; };
     fxReverbLpfEditor.toStringCallback = [this] (int value) { return juce::String (value); };
     fxReverbLpfEditor.updateDataCallback = [this] (int value) { fxReverbLpfUiChanged (value); };
     fxReverbLpfEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 10;
+            else
                 return 25;
-            } ();
-
+        } ();
         const auto newValue { settingsProperties.getFxReverbLpf () + (multiplier * direction) };
         fxReverbLpfEditor.setValue (newValue);
     };
@@ -1577,56 +1738,58 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     // 0: 0V = 100 % -5 = 0 % +5 = 200 %
     // 1: 0V = 10 % +5 = 100 %
-    gateModeEditor.setLookAndFeel (&noArrowComboBoxLnF);
-    gateModeEditor.setTooltip ("");
-    gateModeEditor.addItem ("Immediate", 1);
-    gateModeEditor.addItem ("After Gate Falls", 2);
-    gateModeEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
+    gateModeComboBox.setLookAndFeel (&noArrowComboBoxLnF);
+    gateModeComboBox.setTooltip ("");
+    gateModeComboBox.addItem ("Immediate", 1);
+    gateModeComboBox.addItem ("After Gate Falls", 2);
+    gateModeComboBox.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
-        const auto gateMode { gateModeEditor.getSelectedId () - 1 };
+        const auto gateMode { gateModeComboBox.getSelectedId () - 1 };
         settingsProperties.setGateMode (std::clamp (gateMode + scrollAmount, 0, 1), true);
     };
-    gateModeEditor.onPopupMenuCallback = [this] ()
+    gateModeComboBox.onPopupMenuCallback = [this] ()
     {
         juce::PopupMenu editMenu;
         editMenu.showMenuAsync ({}, [this] (int) {});
     };
-    setupComboBox (gateModeEditor, gateModeLabel, "Gate Mode");
+    setupComboBox (gateModeComboBox, gateModeLabel, "Gate Mode");
 
     // 0 to sense small movement (wiggle)
     // 1 to require passing old value
-    knobPosTakeupEditor.setLookAndFeel (&noArrowComboBoxLnF);
-    knobPosTakeupEditor.setTooltip ("");
-    knobPosTakeupEditor.addItem ("Small Movement", 1);
-    knobPosTakeupEditor.addItem ("Pass Old Value", 2);
-    knobPosTakeupEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
+    knobPosTakeupComboBox.setLookAndFeel (&noArrowComboBoxLnF);
+    knobPosTakeupComboBox.setTooltip ("");
+    knobPosTakeupComboBox.addItem ("Small Movement", 1);
+    knobPosTakeupComboBox.addItem ("Pass Old Value", 2);
+    knobPosTakeupComboBox.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
-        const auto fxCvUnipolar { knobPosTakeupEditor.getSelectedId () - 1 };
+        const auto fxCvUnipolar { knobPosTakeupComboBox.getSelectedId () - 1 };
         settingsProperties.setKnobPosTakeup (std::clamp (fxCvUnipolar + scrollAmount, 0, 1), true);
     };
-    knobPosTakeupEditor.onPopupMenuCallback = [this] ()
+    knobPosTakeupComboBox.onPopupMenuCallback = [this] ()
     {
         juce::PopupMenu editMenu;
         editMenu.showMenuAsync ({}, [this] (int) {});
     };
-    setupComboBox (knobPosTakeupEditor, knobPosTakeupLabel, "Knob Pos Takeup");
+    setupComboBox (knobPosTakeupComboBox, knobPosTakeupLabel, "Knob Pos Takeup");
 
     pitchHighEditor.setTooltip ("Pitch High");
-    pitchHighEditor.getMinValueCallback = [this] () { return 0.0; };
-    pitchHighEditor.getMaxValueCallback = [this] () { return 1.0; };
-    pitchHighEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    pitchHighEditor.getMinValueCallback = [this] () { return 1.5; };
+    pitchHighEditor.getMaxValueCallback = [this] () { return 3.7; };
+    pitchHighEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     pitchHighEditor.updateDataCallback = [this] (double value) { pitchHighUiChanged (static_cast<float> (value)); };
     pitchHighEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.1;
+            else if (dragSpeed == DragSpeed::medium)
+                return 0.3;
+            else
+                return 0.5;
+        } ();
         const auto newValue { settingsProperties.getPitchHigh () + (multiplier * direction) };
         pitchHighEditor.setValue (newValue);
     };
@@ -1639,19 +1802,21 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupDoubleEditor (pitchHighEditor, pitchHighLabel, "Pitch High");
 
     pitchLowEditor.setTooltip ("Pitch Low");
-    pitchLowEditor.getMinValueCallback = [this] () { return 0.0; };
-    pitchLowEditor.getMaxValueCallback = [this] () { return 1.0; };
-    pitchLowEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
+    pitchLowEditor.getMinValueCallback = [this] () { return 0.001; };
+    pitchLowEditor.getMaxValueCallback = [this] () { return 0.5; };
+    pitchLowEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
     pitchLowEditor.updateDataCallback = [this] (double value) { pitchLowUiChanged (static_cast<float> (value)); };
     pitchLowEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
-        const auto multiplier = [dragSpeed] ()
-            {
-                if (dragSpeed == DragSpeed::slow)   return 1;
-                if (dragSpeed == DragSpeed::medium) return 10;
-                return 25;
-            } ();
-
+        const auto multiplier = [this, dragSpeed] ()
+        {
+            if (dragSpeed == DragSpeed::slow)
+                return 0.001;
+            else if (dragSpeed == DragSpeed::medium)
+                return 0.01;
+            else
+                return 0.1;
+        } ();
         const auto newValue { settingsProperties.getPitchLow () + (multiplier * direction) };
         pitchLowEditor.setValue (newValue);
     };
@@ -1665,22 +1830,22 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     // 0: 0V = 100 % -5 = 0 % +5 = 200 %
     // 1: 0V = 10 % +5 = 100 %
-    velocityUnipolarEditor.setLookAndFeel (&noArrowComboBoxLnF);
-    velocityUnipolarEditor.setTooltip ("");
-    velocityUnipolarEditor.addItem ("0%-100%-200%", 1);
-    velocityUnipolarEditor.addItem ("0%-100%", 2);
-    velocityUnipolarEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
+    velocityUnipolarComboBox.setLookAndFeel (&noArrowComboBoxLnF);
+    velocityUnipolarComboBox.setTooltip ("");
+    velocityUnipolarComboBox.addItem ("0%-100%-200%", 1);
+    velocityUnipolarComboBox.addItem ("0%-100%", 2);
+    velocityUnipolarComboBox.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
-        const auto velocityUnipolar { velocityUnipolarEditor.getSelectedId () - 1 };
+        const auto velocityUnipolar { velocityUnipolarComboBox.getSelectedId () - 1 };
         settingsProperties.setVelocityUnipolar (std::clamp (velocityUnipolar + scrollAmount, 0, 1), true);
     };
-    velocityUnipolarEditor.onPopupMenuCallback = [this] ()
+    velocityUnipolarComboBox.onPopupMenuCallback = [this] ()
     {
         juce::PopupMenu editMenu;
         editMenu.showMenuAsync ({}, [this] (int) {});
     };
-    setupComboBox (velocityUnipolarEditor, velocityUnipolarLabel, "Velocity Unipolar");
+    setupComboBox (velocityUnipolarComboBox, velocityUnipolarLabel, "Velocity Unipolar");
 }
 
 SettingsEditorComponent::~SettingsEditorComponent ()
@@ -1815,7 +1980,7 @@ void SettingsEditorComponent::initializeCallbacks ()
     settingsProperties.onFxChorusSpreadChange = [this] (float value) { fxChorusSpreadDataChanged (value); };
     settingsProperties.onFxChorusTapsChange = [this] (int value) { fxChorusTapsDataChanged (value); };
     settingsProperties.onFxChorusLfoBChange = [this] (float value) { fxChorusLfoBDataChanged (value); };
-    settingsProperties.onFxChorusLfoTChange = [this] (int value) { fxChorusLfoTDataChanged (value); };
+    settingsProperties.onFxChorusLfoTChange = [this] (float value) { fxChorusLfoTDataChanged (value); };
     settingsProperties.onFxReverbLpfChange = [this] (int value) { fxReverbLpfDataChanged (value); };
     settingsProperties.onFxReverbHpfChange = [this] (int value) { fxReverbHpfDataChanged (value); };
     settingsProperties.onFxGlitchProbabilityMinChange = [this] (float value) { fxGlitchProbabilityMinDataChanged (value); };
@@ -1887,7 +2052,7 @@ void SettingsEditorComponent::chokeReleaseUiChanged (float value)
 
 void SettingsEditorComponent::clsdReleaseModeDataChanged (int value)
 {
-    clsdReleaseModeEditor.setSelectedId (value + 1);
+    clsdReleaseModeComboBox.setSelectedId (value + 1);
 }
 
 void SettingsEditorComponent::clsdReleaseModeUiChanged (int value)
@@ -1987,7 +2152,7 @@ void SettingsEditorComponent::feelAmpModUiChanged (float value)
 
 void SettingsEditorComponent::fxCvUnipolarDataChanged (int value)
 {
-    fxCvUnipolarEditor.setSelectedId (value + 1);
+    fxCvUnipolarComboBox.setSelectedId (value + 1);
 }
 
 void SettingsEditorComponent::fxCvUnipolarUiChanged (int value)
@@ -1997,7 +2162,7 @@ void SettingsEditorComponent::fxCvUnipolarUiChanged (int value)
 
 void SettingsEditorComponent::velocityUnipolarDataChanged (int value)
 {
-    velocityUnipolarEditor.setSelectedId (value + 1);
+    velocityUnipolarComboBox.setSelectedId (value + 1);
 }
 
 void SettingsEditorComponent::velocityUnipolarUiChanged (int value)
@@ -2007,7 +2172,7 @@ void SettingsEditorComponent::velocityUnipolarUiChanged (int value)
 
 void SettingsEditorComponent::cvDisableVelocityDataChanged (int value)
 {
-    cvDisableVelocityEditor.setSelectedId (value + 1);
+    cvDisableVelocityComboBox.setSelectedId (value + 1);
 }
 
 void SettingsEditorComponent::cvDisableVelocityUiChanged (int value)
@@ -2017,7 +2182,7 @@ void SettingsEditorComponent::cvDisableVelocityUiChanged (int value)
 
 void SettingsEditorComponent::cvDisableFxDataChanged (int value)
 {
-    cvDisableFxEditor.setSelectedId (value + 1);
+    cvDisableFxComboBox.setSelectedId (value + 1);
 }
 
 void SettingsEditorComponent::cvDisableFxUiChanged (int value)
@@ -2027,7 +2192,7 @@ void SettingsEditorComponent::cvDisableFxUiChanged (int value)
 
 void SettingsEditorComponent::gateModeDataChanged (int value)
 {
-    gateModeEditor.setSelectedId (value + 1);
+    gateModeComboBox.setSelectedId (value + 1);
 }
 
 void SettingsEditorComponent::gateModeUiChanged (int value)
@@ -2037,7 +2202,7 @@ void SettingsEditorComponent::gateModeUiChanged (int value)
 
 void SettingsEditorComponent::knobPosTakeupDataChanged (int value)
 {
-    knobPosTakeupEditor.setSelectedId (value + 1);
+    knobPosTakeupComboBox.setSelectedId (value + 1);
 }
 
 void SettingsEditorComponent::knobPosTakeupUiChanged (int value)
@@ -2257,7 +2422,7 @@ void SettingsEditorComponent::fxChorusSpreadUiChanged (float value)
 
 void SettingsEditorComponent::fxChorusTapsDataChanged (int value)
 {
-    fxChorusTapsEditor.setSelectedId (value);
+    fxChorusTapsComboBox.setSelectedId (value);
 }
 
 void SettingsEditorComponent::fxChorusTapsUiChanged (int value)
@@ -2275,12 +2440,12 @@ void SettingsEditorComponent::fxChorusLfoBUiChanged (float value)
     settingsProperties.setFxChorusLfoB (value, false);
 }
 
-void SettingsEditorComponent::fxChorusLfoTDataChanged (int value)
+void SettingsEditorComponent::fxChorusLfoTDataChanged (float value)
 {
     fxChorusLfoTEditor.setText (juce::String (value), juce::dontSendNotification);
 }
 
-void SettingsEditorComponent::fxChorusLfoTUiChanged (int value)
+void SettingsEditorComponent::fxChorusLfoTUiChanged (float value)
 {
     settingsProperties.setFxChorusLfoT (value, false);
 }
@@ -2577,9 +2742,9 @@ void SettingsEditorComponent::resized ()
         { &chokeReleaseEditor, &chokeReleaseLabel },
         { &clsdMaxReleaseEditor, &clsdMaxReleaseLabel },
         { &clsdRelOfstScaleEditor, &clsdRelOfstScaleLabel },
-        { &clsdReleaseModeEditor, &clsdReleaseModeLabel },
-        { &cvDisableFxEditor, &cvDisableFxLabel },
-        { &cvDisableVelocityEditor, &cvDisableVelocityLabel },
+        { &clsdReleaseModeComboBox, &clsdReleaseModeLabel },
+        { &cvDisableFxComboBox, &cvDisableFxLabel },
+        { &cvDisableVelocityComboBox, &cvDisableVelocityLabel },
         { &envelopeMaxReleaseEditor, &envelopeMaxReleaseLabel },
         { &feelAmpModEditor, &feelAmpModLabel },
         { &feelAttackModEditor, &feelAttackModLabel },
@@ -2596,8 +2761,8 @@ void SettingsEditorComponent::resized ()
         { &fxChorusLfoTEditor, &fxChorusLfoTLabel },
         { &fxChorusMixEditor, &fxChorusMixLabel },
         { &fxChorusSpreadEditor, &fxChorusSpreadLabel },
-        { &fxChorusTapsEditor, &fxChorusTapsLabel },
-        { &fxCvUnipolarEditor, &fxCvUnipolarLabel },
+        { &fxChorusTapsComboBox, &fxChorusTapsLabel },
+        { &fxCvUnipolarComboBox, &fxCvUnipolarLabel },
         { &fxDjfilterHpfMaxEditor, &fxDjfilterHpfMaxLabel },
         { &fxDjfilterHpfMinEditor, &fxDjfilterHpfMinLabel },
         { &fxDjfilterLpfMaxEditor, &fxDjfilterLpfMaxLabel },
@@ -2635,11 +2800,11 @@ void SettingsEditorComponent::resized ()
         { &fxGlitchWeightStutterLowEditor, &fxGlitchWeightStutterLowLabel },
         { &fxReverbHpfEditor, &fxReverbHpfLabel },
         { &fxReverbLpfEditor, &fxReverbLpfLabel },
-        { &gateModeEditor, &gateModeLabel },
-        { &knobPosTakeupEditor, &knobPosTakeupLabel },
+        { &gateModeComboBox, &gateModeLabel },
+        { &knobPosTakeupComboBox, &knobPosTakeupLabel },
         { &pitchHighEditor, &pitchHighLabel },
         { &pitchLowEditor, &pitchLowLabel },
-        { &velocityUnipolarEditor, &velocityUnipolarLabel }
+        { &velocityUnipolarComboBox, &velocityUnipolarLabel }
     };
 
 

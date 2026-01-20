@@ -104,7 +104,7 @@ void FillInDataFromVt (HiHatIniData& data, const juce::ValueTree clutchVT)
     setFloatValue ("HIHAT", "FX_CHORUS_SPREAD", settingsProperties.getFxChorusSpread ());
     setIntValue ("HIHAT", "FX_CHORUS_TAPS", settingsProperties.getFxChorusTaps ());
     setFloatValue ("HIHAT", "FX_CHORUS_LFO_B", settingsProperties.getFxChorusLfoB ());
-    setIntValue ("HIHAT", "FX_CHORUS_LFO_T", settingsProperties.getFxChorusLfoT ());
+    setFloatValue ("HIHAT", "FX_CHORUS_LFO_T", settingsProperties.getFxChorusLfoT ());
 
     // Reverb
     setIntValue ("HIHAT", "FX_REVERB_LPF", settingsProperties.getFxReverbLpf ());
@@ -236,7 +236,7 @@ void FillInVtFromData (juce::ValueTree clutchVt, const HiHatIniData& data)
     settingsProperties.setFxChorusSpread (getFloatValue ("HIHAT", "FX_CHORUS_SPREAD", 0.01f), false);
     settingsProperties.setFxChorusTaps (getIntValue ("HIHAT", "FX_CHORUS_TAPS", 4), false);
     settingsProperties.setFxChorusLfoB (getFloatValue ("HIHAT", "FX_CHORUS_LFO_B", 0.002f), false);
-    settingsProperties.setFxChorusLfoT (getIntValue ("HIHAT", "FX_CHORUS_LFO_T", 3), false);
+    settingsProperties.setFxChorusLfoT (getFloatValue ("HIHAT", "FX_CHORUS_LFO_T", 3.0f), false);
 
     // Reverb
     settingsProperties.setFxReverbLpf (getIntValue ("HIHAT", "FX_REVERB_LPF", 9000), false);

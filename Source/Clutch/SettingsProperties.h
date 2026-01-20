@@ -139,7 +139,7 @@ public:
     void setFxChorusSpread (float value, bool includeSelfCallback);
     void setFxChorusTaps (int value, bool includeSelfCallback);
     void setFxChorusLfoB (float value, bool includeSelfCallback);
-    void setFxChorusLfoT (int value, bool includeSelfCallback);
+    void setFxChorusLfoT (float value, bool includeSelfCallback);
     void setFxReverbLpf (int value, bool includeSelfCallback);
     void setFxReverbHpf (int value, bool includeSelfCallback);
     void setFxGlitchProbabilityMin (float value, bool includeSelfCallback);
@@ -211,7 +211,7 @@ public:
     float getFxChorusSpread ();
     int getFxChorusTaps ();
     float getFxChorusLfoB ();
-    int getFxChorusLfoT ();
+    float getFxChorusLfoT ();
     int getFxReverbLpf ();
     int getFxReverbHpf ();
     float getFxGlitchProbabilityMin ();
@@ -355,7 +355,7 @@ public:
     std::function<void (float value)> onFxChorusSpreadChange;
     std::function<void (int value)> onFxChorusTapsChange;
     std::function<void (float value)> onFxChorusLfoBChange;
-    std::function<void (int value)> onFxChorusLfoTChange;
+    std::function<void (float value)> onFxChorusLfoTChange;
     std::function<void (int value)> onFxReverbLpfChange;
     std::function<void (int value)> onFxReverbHpfChange;
     std::function<void (float value)> onFxGlitchProbabilityMinChange;

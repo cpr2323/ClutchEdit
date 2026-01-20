@@ -56,7 +56,7 @@ void SettingsProperties::initValueTree ()
     setFxChorusSpread (0.01f, false);
     setFxChorusTaps (4, false);
     setFxChorusLfoB (0.002f, false);
-    setFxChorusLfoT (3, false);
+    setFxChorusLfoT (3.0f, false);
 
     // Reverb
     setFxReverbLpf (9000, false);
@@ -317,7 +317,7 @@ void SettingsProperties::setFxChorusLfoB (float value, bool includeSelfCallback)
     setValue (value, FxChorusLfoBPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxChorusLfoT (int value, bool includeSelfCallback)
+void SettingsProperties::setFxChorusLfoT (float value, bool includeSelfCallback)
 {
     setValue (value, FxChorusLfoTPropertyId, includeSelfCallback);
 }
@@ -672,9 +672,9 @@ float SettingsProperties::getFxChorusLfoB ()
     return getValue<float> (FxChorusLfoBPropertyId);
 }
 
-int SettingsProperties::getFxChorusLfoT ()
+float SettingsProperties::getFxChorusLfoT ()
 {
-    return getValue<int> (FxChorusLfoTPropertyId);
+    return getValue<float> (FxChorusLfoTPropertyId);
 }
 
 int SettingsProperties::getFxReverbLpf ()
