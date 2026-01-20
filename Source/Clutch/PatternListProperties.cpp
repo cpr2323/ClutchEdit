@@ -87,7 +87,3 @@ juce::ValueTree PatternListProperties::getPatternVT (int patternIndex)
     jassert (requestedPatternPropertiesVT.isValid ());
     return requestedPatternPropertiesVT;
 }
-
-void PatternListProperties::valueTreePropertyChanged (juce::ValueTree & vt, const juce::Identifier & property)
-{
-}

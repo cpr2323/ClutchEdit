@@ -49,15 +49,16 @@ void PatternListEditorComponent::init (juce::ValueTree rootPropertiesVT)
 void PatternListEditorComponent::paintOverChildren (juce::Graphics& g)
 {
     g.setColour (juce::Colours::black);
-    g.drawLine (patternLabels [0].getX (), patternEditors [0].getY () - 5,
-                patternEditors [0].getRight (), patternEditors [0].getY () - 5, 1.0f);
+    // TODO juce docs recommend using drawRect for horizontal and vertical lines
+    g.drawLine (juce::Line { patternLabels [0].getX (), patternEditors [0].getY () - 5,
+                             patternEditors [0].getRight (), patternEditors [0].getY () - 5 }.toFloat (), 1.0f);
     for (auto patternIndex { 0 }; patternIndex < patternEditors.size (); ++patternIndex)
     {
         g.drawRect (patternLabels [patternIndex].getX (), patternEditors[patternIndex].getY () - 5,
                     patternEditors[patternIndex].getRight () - patternLabels[patternIndex].getX (), patternEditors[patternIndex].getHeight());
     }
-    g.drawLine (patternLabels [7].getX (), patternEditors [7].getBottom () - 5,
-                patternEditors [7].getRight (), patternEditors [7].getBottom () -5, 1.0f);
+    g.drawLine (juce::Line { patternLabels [7].getX (), patternEditors [7].getBottom () - 5,
+                             patternEditors [7].getRight (), patternEditors [7].getBottom () - 5 }.toFloat (), 1.0f);
 }
 
 void PatternListEditorComponent::resized ()

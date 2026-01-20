@@ -22,7 +22,7 @@ PatternEditorComponent::PatternEditorComponent ()
     numberOfStepsEditor.getMinValueCallback = [this] () { return 0; };
     numberOfStepsEditor.getMaxValueCallback = [this] () { return 32; };
     numberOfStepsEditor.toStringCallback = [this] (int value) { return juce::String (value); };
-    numberOfStepsEditor.updateDataCallback = [this] (int value) { onPatternUiChanged (); };
+    numberOfStepsEditor.updateDataCallback = [this] ([[maybe_unused]] int value) { onPatternUiChanged (); };
     numberOfStepsEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [this, dragSpeed] ()
@@ -78,7 +78,7 @@ PatternEditorComponent::PatternEditorComponent ()
         {
             const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
             const auto stepValue { stepComboBox.getSelectedId () };
-            stepComboBox.setSelectedId (std::clamp (stepValue + scrollAmount, 1, 9), true);
+            stepComboBox.setSelectedId (std::clamp (stepValue + scrollAmount, 1, 9), juce::NotificationType::dontSendNotification);
             onPatternUiChanged ();
         };
         stepComboBox.onPopupMenuCallback = [this] ()
@@ -114,13 +114,9 @@ void PatternEditorComponent::updateUiFromLengthChange (int length)
         stepEditors [stepIndex].setColour (juce::ComboBox::backgroundColourId, juce::Colours::darkgrey.darker (stepIndex < length ? kEnabledStepColor : kDisabledStepColor));
 }
 
-void PatternEditorComponent::paint (juce::Graphics& g)
-{
-}
-
 void PatternEditorComponent::resized ()
 {
-    const auto numberOfStepsWidth { (getHeight () / 2.0f) * 0.75f };
+    const auto numberOfStepsWidth { static_cast<int>((getHeight () / 2.0f) * 0.75f) };
     numberOfStepsEditor.setBounds (0, 21, numberOfStepsWidth, getHeight () / 2);
 
     const auto initialStepsOffset { numberOfStepsEditor.getRight () };

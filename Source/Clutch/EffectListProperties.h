@@ -78,8 +78,6 @@ public:
     void processValueTree () {}
 
 private:
-
-    void valueTreePropertyChanged (juce::ValueTree& vt, const juce::Identifier& property) override;
 };
 
 /*

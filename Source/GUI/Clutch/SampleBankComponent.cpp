@@ -23,7 +23,7 @@ SampleBankComponent::SampleBankComponent ()
             audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
             copySampleFile (juce::File (files[0]), surfaceIndex, HiHatState::opened);
         };
-        surfaceComponent.openedName.onMouseUp = [this, surfaceIndex] (const juce::MouseEvent& mouseEvent)
+        surfaceComponent.openedName.onMouseUp = [this, surfaceIndex] ([[maybe_unused]] const juce::MouseEvent& mouseEvent)
         {
             // play sample
             juce::String fileName { bankName.getText () + juce::File::getSeparatorString() + juce::String (surfaceIndex + 1).paddedLeft ('0', 2) + "OH.wav"};
@@ -42,7 +42,7 @@ SampleBankComponent::SampleBankComponent ()
             audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
             copySampleFile (juce::File (files [0]), surfaceIndex, HiHatState::closed);
         };
-        surfaceComponent.closedName.onMouseUp = [this, surfaceIndex] (const juce::MouseEvent& mouseEvent)
+        surfaceComponent.closedName.onMouseUp = [this, surfaceIndex] ([[maybe_unused]] const juce::MouseEvent& mouseEvent)
         {
             // play sample
             juce::String fileName { bankName.getText () + juce::File::getSeparatorString () + juce::String (surfaceIndex + 1).paddedLeft ('0', 2) + "CH.wav" };
@@ -231,15 +231,16 @@ void SampleBankComponent::setBankFolder (const juce::File& newBankFolder)
 void SampleBankComponent::paint (juce::Graphics& g)
 {
     g.setColour (juce::Colours::black);
+    // TODO juce docs recommend using drawRect for vertical and horizontal lines
     // draw horizontal lines
     for (auto lineIndex { 0 }; lineIndex < 15; ++lineIndex)
     {
-        g.drawLine (surfaceComponents [lineIndex].openedName.getX (), surfaceComponents [lineIndex].openedName.getBottom () + 1,
-                    surfaceComponents [lineIndex].closedName.getRight (), surfaceComponents [lineIndex].openedName.getBottom () + 1, 1.0f);
+        g.drawLine (juce::Line { surfaceComponents [lineIndex].openedName.getX (), surfaceComponents [lineIndex].openedName.getBottom () + 1,
+                                 surfaceComponents [lineIndex].closedName.getRight (), surfaceComponents [lineIndex].openedName.getBottom () + 1 }.toFloat(), 1.0f);
     }
     // draw vertical center line
-    g.drawLine (surfaceComponents [0].openedName.getRight () + 2, surfaceComponents [0].openedName.getY (),
-                surfaceComponents [0].openedName.getRight () + 2, surfaceComponents [15].openedName.getBottom () + 2, 1.0f);
+    g.drawLine (juce::Line { surfaceComponents [0].openedName.getRight () + 2, surfaceComponents [0].openedName.getY (),
+                             surfaceComponents [0].openedName.getRight () + 2, surfaceComponents [15].openedName.getBottom () + 2 }.toFloat (), 1.0f);
 
     // draw box outline
     g.drawRect (surfaceComponents [0].openedName.getX (), surfaceComponents [0].openedName.getY (),

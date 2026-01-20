@@ -25,7 +25,7 @@ EffectEditorComponent::EffectEditorComponent ()
         {
             const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
             const auto stepValue { effectEditor.getSelectedId () };
-            effectEditor.setSelectedId (std::clamp (stepValue + scrollAmount, 1, 9), true);
+            effectEditor.setSelectedId (std::clamp (stepValue + scrollAmount, 1, 9), juce::NotificationType::dontSendNotification);
             onEffectUiChanged (curStepIndex);
         };
         effectEditor.onPopupMenuCallback = [this] ()

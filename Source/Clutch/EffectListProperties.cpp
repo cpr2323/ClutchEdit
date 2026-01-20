@@ -88,8 +88,3 @@ juce::ValueTree EffectListProperties::getEffectVT (int effectIndex)
     jassert (requestedEffectPropertiesVT.isValid ());
     return requestedEffectPropertiesVT;
 }
-
-
-void EffectListProperties::valueTreePropertyChanged (juce::ValueTree& vt, const juce::Identifier& property)
-{
-}

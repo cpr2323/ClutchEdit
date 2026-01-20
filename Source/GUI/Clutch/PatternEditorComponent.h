@@ -9,7 +9,7 @@
 class ToggleButtonLnF : public juce::LookAndFeel_V4
 {
 public:
-    void drawToggleButton (juce::Graphics& g, juce::ToggleButton& button, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
+    void drawToggleButton (juce::Graphics& g, juce::ToggleButton& button, [[maybe_unused]] bool shouldDrawButtonAsHighlighted, [[maybe_unused]] bool shouldDrawButtonAsDown)
     {
         juce::Rectangle<float> tickBounds (button.getLocalBounds ().toFloat ());
 
@@ -44,6 +44,5 @@ private:
     void onPatternUiChanged ();
     void onPatternDataChanged ();
 
-    void paint (juce::Graphics& g) override;
     void resized () override;
 };

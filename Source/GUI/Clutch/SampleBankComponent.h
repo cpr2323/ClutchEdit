@@ -29,18 +29,18 @@ private:
         return files.size () == 1;
     }
 
-    void filesDropped (const juce::StringArray& files, int x, int y) override
+    void filesDropped (const juce::StringArray& files, [[maybe_unused]] int x, [[maybe_unused]] int y) override
     {
         if (onFilesSelected != nullptr)
             onFilesSelected (files);
     }
 
-    void fileDragEnter (const juce::StringArray& files, int x, int y) override
+    void fileDragEnter ([[maybe_unused]] const juce::StringArray& files, [[maybe_unused]] int x, [[maybe_unused]] int y) override
     {
         setColour (juce::Label::ColourIds::textColourId, hoverColor);
     }
 
-    void fileDragMove (const juce::StringArray& files, int, int) override
+    void fileDragMove ([[maybe_unused]] const juce::StringArray& files, int, int) override
     {
         setColour (juce::Label::ColourIds::textColourId, hoverColor);
     }

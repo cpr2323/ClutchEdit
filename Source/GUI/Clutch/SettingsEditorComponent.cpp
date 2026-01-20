@@ -38,7 +38,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     accClAmpModEditor.getMinValueCallback = [this] () { return 0.1; };
     accClAmpModEditor.getMaxValueCallback = [this] () { return 10.0; };
     accClAmpModEditor.toStringCallback = [this] (double value) { return juce::String (value, 4).trimCharactersAtEnd ("0").trimCharactersAtEnd ("."); };
-    accClAmpModEditor.updateDataCallback = [this] (double value) { accClAmpModUiChanged (value); };
+    accClAmpModEditor.updateDataCallback = [this] (double value) { accClAmpModUiChanged ( static_cast<float> (value)); };
     accClAmpModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [this, dragSpeed] ()
@@ -65,7 +65,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     accClRelModEditor.getMinValueCallback = [this] () { return 0.0; };
     accClRelModEditor.getMaxValueCallback = [this] () { return 1.0; };
     accClRelModEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    accClRelModEditor.updateDataCallback = [this] (double value) { accClRelModUiChanged (value); };
+    accClRelModEditor.updateDataCallback = [this] (double value) { accClRelModUiChanged (static_cast<float> (value)); };
     accClRelModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
@@ -83,7 +83,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     accOpAmpModEditor.getMinValueCallback = [this] () { return 0.0; };
     accOpAmpModEditor.getMaxValueCallback = [this] () { return 1.0; };
     accOpAmpModEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    accOpAmpModEditor.updateDataCallback = [this] (double value) { accOpAmpModUiChanged (value); };
+    accOpAmpModEditor.updateDataCallback = [this] (double value) { accOpAmpModUiChanged (static_cast<float> (value)); };
     accOpAmpModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
@@ -101,7 +101,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     accOpRelModEditor.getMinValueCallback = [this] () { return 0.0; };
     accOpRelModEditor.getMaxValueCallback = [this] () { return 1.0; };
     accOpRelModEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    accOpRelModEditor.updateDataCallback = [this] (double value) { accOpRelModUiChanged (value); };
+    accOpRelModEditor.updateDataCallback = [this] (double value) { accOpRelModUiChanged (static_cast<float> (value)); };
     accOpRelModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
@@ -119,7 +119,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     chokeReleaseEditor.getMinValueCallback = [this] () { return 0.0; };
     chokeReleaseEditor.getMaxValueCallback = [this] () { return 1.0; };
     chokeReleaseEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    chokeReleaseEditor.updateDataCallback = [this] (double value) { chokeReleaseUiChanged (value); };
+    chokeReleaseEditor.updateDataCallback = [this] (double value) { chokeReleaseUiChanged (static_cast<float> (value)); };
     chokeReleaseEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
@@ -137,7 +137,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     clsdMaxReleaseEditor.getMinValueCallback = [this] () { return 0.0; };
     clsdMaxReleaseEditor.getMaxValueCallback = [this] () { return 1.0; };
     clsdMaxReleaseEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    clsdMaxReleaseEditor.updateDataCallback = [this] (double value) { clsdMaxReleaseUiChanged (value); };
+    clsdMaxReleaseEditor.updateDataCallback = [this] (double value) { clsdMaxReleaseUiChanged (static_cast<float> (value)); };
     clsdMaxReleaseEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
@@ -155,7 +155,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     clsdRelOfstScaleEditor.getMinValueCallback = [this] () { return 0.0; };
     clsdRelOfstScaleEditor.getMaxValueCallback = [this] () { return 1.0; };
     clsdRelOfstScaleEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    clsdRelOfstScaleEditor.updateDataCallback = [this] (double value) { clsdRelOfstScaleUiChanged (value); };
+    clsdRelOfstScaleEditor.updateDataCallback = [this] (double value) { clsdRelOfstScaleUiChanged (static_cast<float> (value)); };
     clsdRelOfstScaleEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
@@ -230,7 +230,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     envelopeMaxReleaseEditor.getMinValueCallback = [this] () { return 0.0; };
     envelopeMaxReleaseEditor.getMaxValueCallback = [this] () { return 1.0; };
     envelopeMaxReleaseEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    envelopeMaxReleaseEditor.updateDataCallback = [this] (double value) { envelopeMaxReleaseUiChanged (value); };
+    envelopeMaxReleaseEditor.updateDataCallback = [this] (double value) { envelopeMaxReleaseUiChanged (static_cast<float> (value)); };
     envelopeMaxReleaseEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
@@ -248,7 +248,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     feelAmpModEditor.getMinValueCallback = [this] () { return 0.0; };
     feelAmpModEditor.getMaxValueCallback = [this] () { return 1.0; };
     feelAmpModEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    feelAmpModEditor.updateDataCallback = [this] (double value) { feelAmpModUiChanged (value); };
+    feelAmpModEditor.updateDataCallback = [this] (double value) { feelAmpModUiChanged (static_cast<float> (value)); };
     feelAmpModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = (dragSpeed == DragSpeed::slow ? 1 : dragSpeed == DragSpeed::medium ? 10 : 25);
@@ -266,7 +266,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     feelAttackModEditor.getMinValueCallback = [this] () { return 0.0; };
     feelAttackModEditor.getMaxValueCallback = [this] () { return 1.0; };
     feelAttackModEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    feelAttackModEditor.updateDataCallback = [this] (double value) { feelAttackModUiChanged (value); };
+    feelAttackModEditor.updateDataCallback = [this] (double value) { feelAttackModUiChanged (static_cast<float> (value)); };
     feelAttackModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -291,7 +291,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     feelReleaseModEditor.getMinValueCallback = [this] () { return 0.0; };
     feelReleaseModEditor.getMaxValueCallback = [this] () { return 1.0; };
     feelReleaseModEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    feelReleaseModEditor.updateDataCallback = [this] (double value) { feelReleaseModUiChanged (value); };
+    feelReleaseModEditor.updateDataCallback = [this] (double value) { feelReleaseModUiChanged (static_cast<float> (value)); };
     feelReleaseModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -366,7 +366,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fltrHpfQEditor.getMinValueCallback = [this] () { return 0.0; };
     fltrHpfQEditor.getMaxValueCallback = [this] () { return 1.0; };
     fltrHpfQEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fltrHpfQEditor.updateDataCallback = [this] (double value) { fltrHpfQUiChanged (value); };
+    fltrHpfQEditor.updateDataCallback = [this] (double value) { fltrHpfQUiChanged (static_cast<float> (value)); };
     fltrHpfQEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -441,7 +441,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fltrLpfQEditor.getMinValueCallback = [this] () { return 0.0; };
     fltrLpfQEditor.getMaxValueCallback = [this] () { return 1.0; };
     fltrLpfQEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fltrLpfQEditor.updateDataCallback = [this] (double value) { fltrLpfQUiChanged (value); };
+    fltrLpfQEditor.updateDataCallback = [this] (double value) { fltrLpfQUiChanged (static_cast<float> (value)); };
     fltrLpfQEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -466,7 +466,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxChorusCenterEditor.getMinValueCallback = [this] () { return 0.0; };
     fxChorusCenterEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxChorusCenterEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxChorusCenterEditor.updateDataCallback = [this] (double value) { fxChorusCenterUiChanged (value); };
+    fxChorusCenterEditor.updateDataCallback = [this] (double value) { fxChorusCenterUiChanged (static_cast<float> (value)); };
     fxChorusCenterEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -491,7 +491,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxChorusDepthEditor.getMinValueCallback = [this] () { return 0.0; };
     fxChorusDepthEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxChorusDepthEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxChorusDepthEditor.updateDataCallback = [this] (double value) { fxChorusDepthUiChanged (value); };
+    fxChorusDepthEditor.updateDataCallback = [this] (double value) { fxChorusDepthUiChanged (static_cast<float> (value)); };
     fxChorusDepthEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -516,7 +516,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxChorusLfoBEditor.getMinValueCallback = [this] () { return 0.0; };
     fxChorusLfoBEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxChorusLfoBEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxChorusLfoBEditor.updateDataCallback = [this] (double value) { fxChorusLfoBUiChanged (value); };
+    fxChorusLfoBEditor.updateDataCallback = [this] (double value) { fxChorusLfoBUiChanged (static_cast<float> (value)); };
     fxChorusLfoBEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -566,7 +566,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxChorusMixEditor.getMinValueCallback = [this] () { return 0.0; };
     fxChorusMixEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxChorusMixEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxChorusMixEditor.updateDataCallback = [this] (double value) { fxChorusMixUiChanged (value); };
+    fxChorusMixEditor.updateDataCallback = [this] (double value) { fxChorusMixUiChanged (static_cast<float> (value)); };
     fxChorusMixEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -591,7 +591,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxChorusSpreadEditor.getMinValueCallback = [this] () { return 0.0; };
     fxChorusSpreadEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxChorusSpreadEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxChorusSpreadEditor.updateDataCallback = [this] (double value) { fxChorusSpreadUiChanged (value); };
+    fxChorusSpreadEditor.updateDataCallback = [this] (double value) { fxChorusSpreadUiChanged (static_cast<float> (value)); };
     fxChorusSpreadEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -754,7 +754,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxDjfilterQGainReductionEditor.getMinValueCallback = [this] () { return 0.0; };
     fxDjfilterQGainReductionEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxDjfilterQGainReductionEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxDjfilterQGainReductionEditor.updateDataCallback = [this] (double value) { fxDjfilterQGainReductionUiChanged (value); };
+    fxDjfilterQGainReductionEditor.updateDataCallback = [this] (double value) { fxDjfilterQGainReductionUiChanged (static_cast<float> (value)); };
     fxDjfilterQGainReductionEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -779,7 +779,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxDjfilterQMaxEditor.getMinValueCallback = [this] () { return 0.0; };
     fxDjfilterQMaxEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxDjfilterQMaxEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxDjfilterQMaxEditor.updateDataCallback = [this] (double value) { fxDjfilterQMaxUiChanged (value); };
+    fxDjfilterQMaxEditor.updateDataCallback = [this] (double value) { fxDjfilterQMaxUiChanged (static_cast<float> (value)); };
     fxDjfilterQMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -804,7 +804,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxDjfilterQMinEditor.getMinValueCallback = [this] () { return 0.0; };
     fxDjfilterQMinEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxDjfilterQMinEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxDjfilterQMinEditor.updateDataCallback = [this] (double value) { fxDjfilterQMinUiChanged (value); };
+    fxDjfilterQMinEditor.updateDataCallback = [this] (double value) { fxDjfilterQMinUiChanged (static_cast<float> (value)); };
     fxDjfilterQMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -879,7 +879,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxDubEchoMixEditor.getMinValueCallback = [this] () { return 0.0; };
     fxDubEchoMixEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxDubEchoMixEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxDubEchoMixEditor.updateDataCallback = [this] (double value) { fxDubEchoMixUiChanged (value); };
+    fxDubEchoMixEditor.updateDataCallback = [this] (double value) { fxDubEchoMixUiChanged (static_cast<float> (value)); };
     fxDubEchoMixEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -929,7 +929,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchCrushTimeMaxEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchCrushTimeMaxEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxGlitchCrushTimeMaxEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxGlitchCrushTimeMaxEditor.updateDataCallback = [this] (double value) { fxGlitchCrushTimeMaxUiChanged (value); };
+    fxGlitchCrushTimeMaxEditor.updateDataCallback = [this] (double value) { fxGlitchCrushTimeMaxUiChanged (static_cast<float> (value)); };
     fxGlitchCrushTimeMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -954,7 +954,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchCrushTimeMinEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchCrushTimeMinEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxGlitchCrushTimeMinEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxGlitchCrushTimeMinEditor.updateDataCallback = [this] (double value) { fxGlitchCrushTimeMinUiChanged (value); };
+    fxGlitchCrushTimeMinEditor.updateDataCallback = [this] (double value) { fxGlitchCrushTimeMinUiChanged (static_cast<float> (value)); };
     fxGlitchCrushTimeMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -979,7 +979,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchDropKeepLevelMaxEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchDropKeepLevelMaxEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxGlitchDropKeepLevelMaxEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxGlitchDropKeepLevelMaxEditor.updateDataCallback = [this] (double value) { fxGlitchDropKeepLevelMaxUiChanged (value); };
+    fxGlitchDropKeepLevelMaxEditor.updateDataCallback = [this] (double value) { fxGlitchDropKeepLevelMaxUiChanged (static_cast<float> (value)); };
     fxGlitchDropKeepLevelMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -1004,7 +1004,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchDropKeepLevelMinEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchDropKeepLevelMinEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxGlitchDropKeepLevelMinEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxGlitchDropKeepLevelMinEditor.updateDataCallback = [this] (double value) { fxGlitchDropKeepLevelMinUiChanged (value); };
+    fxGlitchDropKeepLevelMinEditor.updateDataCallback = [this] (double value) { fxGlitchDropKeepLevelMinUiChanged (static_cast<float> (value)); };
     fxGlitchDropKeepLevelMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -1029,7 +1029,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchDropKeepTimeMaxEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchDropKeepTimeMaxEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxGlitchDropKeepTimeMaxEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxGlitchDropKeepTimeMaxEditor.updateDataCallback = [this] (double value) { fxGlitchDropKeepTimeMaxUiChanged (value); };
+    fxGlitchDropKeepTimeMaxEditor.updateDataCallback = [this] (double value) { fxGlitchDropKeepTimeMaxUiChanged (static_cast<float> (value)); };
     fxGlitchDropKeepTimeMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -1054,7 +1054,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchDropKeepTimeMinEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchDropKeepTimeMinEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxGlitchDropKeepTimeMinEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxGlitchDropKeepTimeMinEditor.updateDataCallback = [this] (double value) { fxGlitchDropKeepTimeMinUiChanged (value); };
+    fxGlitchDropKeepTimeMinEditor.updateDataCallback = [this] (double value) { fxGlitchDropKeepTimeMinUiChanged (static_cast<float> (value)); };
     fxGlitchDropKeepTimeMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -1079,7 +1079,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchMicroloopPlayTMaxEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchMicroloopPlayTMaxEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxGlitchMicroloopPlayTMaxEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxGlitchMicroloopPlayTMaxEditor.updateDataCallback = [this] (double value) { fxGlitchMicroloopPlayTMaxUiChanged (value); };
+    fxGlitchMicroloopPlayTMaxEditor.updateDataCallback = [this] (double value) { fxGlitchMicroloopPlayTMaxUiChanged (static_cast<float> (value)); };
     fxGlitchMicroloopPlayTMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -1104,7 +1104,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchMicroloopPlayTMinEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchMicroloopPlayTMinEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxGlitchMicroloopPlayTMinEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxGlitchMicroloopPlayTMinEditor.updateDataCallback = [this] (double value) { fxGlitchMicroloopPlayTMinUiChanged (value); };
+    fxGlitchMicroloopPlayTMinEditor.updateDataCallback = [this] (double value) { fxGlitchMicroloopPlayTMinUiChanged (static_cast<float> (value)); };
     fxGlitchMicroloopPlayTMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -1129,7 +1129,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchMicroloopSmplTMaxEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchMicroloopSmplTMaxEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxGlitchMicroloopSmplTMaxEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxGlitchMicroloopSmplTMaxEditor.updateDataCallback = [this] (double value) { fxGlitchMicroloopSmplTMaxUiChanged (value); };
+    fxGlitchMicroloopSmplTMaxEditor.updateDataCallback = [this] (double value) { fxGlitchMicroloopSmplTMaxUiChanged (static_cast<float> (value)); };
     fxGlitchMicroloopSmplTMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -1154,7 +1154,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchMicroloopSmplTMinEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchMicroloopSmplTMinEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxGlitchMicroloopSmplTMinEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxGlitchMicroloopSmplTMinEditor.updateDataCallback = [this] (double value) { fxGlitchMicroloopSmplTMinUiChanged (value); };
+    fxGlitchMicroloopSmplTMinEditor.updateDataCallback = [this] (double value) { fxGlitchMicroloopSmplTMinUiChanged (static_cast<float> (value)); };
     fxGlitchMicroloopSmplTMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -1179,7 +1179,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchProbabilityMaxEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchProbabilityMaxEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxGlitchProbabilityMaxEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxGlitchProbabilityMaxEditor.updateDataCallback = [this] (double value) { fxGlitchProbabilityMaxUiChanged (value); };
+    fxGlitchProbabilityMaxEditor.updateDataCallback = [this] (double value) { fxGlitchProbabilityMaxUiChanged (static_cast<float> (value)); };
     fxGlitchProbabilityMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -1204,7 +1204,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchProbabilityMinEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchProbabilityMinEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxGlitchProbabilityMinEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxGlitchProbabilityMinEditor.updateDataCallback = [this] (double value) { fxGlitchProbabilityMinUiChanged (value); };
+    fxGlitchProbabilityMinEditor.updateDataCallback = [this] (double value) { fxGlitchProbabilityMinUiChanged (static_cast<float> (value)); };
     fxGlitchProbabilityMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -1279,7 +1279,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchStutterSmplTMaxEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchStutterSmplTMaxEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxGlitchStutterSmplTMaxEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxGlitchStutterSmplTMaxEditor.updateDataCallback = [this] (double value) { fxGlitchStutterSmplTMaxUiChanged (value); };
+    fxGlitchStutterSmplTMaxEditor.updateDataCallback = [this] (double value) { fxGlitchStutterSmplTMaxUiChanged (static_cast<float> (value)); };
     fxGlitchStutterSmplTMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -1304,7 +1304,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchStutterSmplTMinEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchStutterSmplTMinEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxGlitchStutterSmplTMinEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxGlitchStutterSmplTMinEditor.updateDataCallback = [this] (double value) { fxGlitchStutterSmplTMinUiChanged (value); };
+    fxGlitchStutterSmplTMinEditor.updateDataCallback = [this] (double value) { fxGlitchStutterSmplTMinUiChanged (static_cast<float> (value)); };
     fxGlitchStutterSmplTMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -1354,7 +1354,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchWeightCrushLowEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchWeightCrushLowEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxGlitchWeightCrushLowEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxGlitchWeightCrushLowEditor.updateDataCallback = [this] (double value) { fxGlitchWeightCrushLowUiChanged (value); };
+    fxGlitchWeightCrushLowEditor.updateDataCallback = [this] (double value) { fxGlitchWeightCrushLowUiChanged (static_cast<float> (value)); };
     fxGlitchWeightCrushLowEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -1379,7 +1379,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchWeightDropHighEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchWeightDropHighEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxGlitchWeightDropHighEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxGlitchWeightDropHighEditor.updateDataCallback = [this] (double value) { fxGlitchWeightDropHighUiChanged (value); };
+    fxGlitchWeightDropHighEditor.updateDataCallback = [this] (double value) { fxGlitchWeightDropHighUiChanged (static_cast<float> (value)); };
     fxGlitchWeightDropHighEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -1404,7 +1404,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchWeightDropLowEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchWeightDropLowEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxGlitchWeightDropLowEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxGlitchWeightDropLowEditor.updateDataCallback = [this] (double value) { fxGlitchWeightDropLowUiChanged (value); };
+    fxGlitchWeightDropLowEditor.updateDataCallback = [this] (double value) { fxGlitchWeightDropLowUiChanged (static_cast<float> (value)); };
     fxGlitchWeightDropLowEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -1429,7 +1429,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchWeightHoldHighEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchWeightHoldHighEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxGlitchWeightHoldHighEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxGlitchWeightHoldHighEditor.updateDataCallback = [this] (double value) { fxGlitchWeightHoldHighUiChanged (value); };
+    fxGlitchWeightHoldHighEditor.updateDataCallback = [this] (double value) { fxGlitchWeightHoldHighUiChanged (static_cast<float> (value)); };
     fxGlitchWeightHoldHighEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -1454,7 +1454,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchWeightHoldLowEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchWeightHoldLowEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxGlitchWeightHoldLowEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxGlitchWeightHoldLowEditor.updateDataCallback = [this] (double value) { fxGlitchWeightHoldLowUiChanged (value); };
+    fxGlitchWeightHoldLowEditor.updateDataCallback = [this] (double value) { fxGlitchWeightHoldLowUiChanged (static_cast<float> (value)); };
     fxGlitchWeightHoldLowEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -1479,7 +1479,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchWeightStutterHighEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchWeightStutterHighEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxGlitchWeightStutterHighEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxGlitchWeightStutterHighEditor.updateDataCallback = [this] (double value) { fxGlitchWeightStutterHighUiChanged (value); };
+    fxGlitchWeightStutterHighEditor.updateDataCallback = [this] (double value) { fxGlitchWeightStutterHighUiChanged (static_cast<float> (value)); };
     fxGlitchWeightStutterHighEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -1504,7 +1504,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     fxGlitchWeightStutterLowEditor.getMinValueCallback = [this] () { return 0.0; };
     fxGlitchWeightStutterLowEditor.getMaxValueCallback = [this] () { return 1.0; };
     fxGlitchWeightStutterLowEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    fxGlitchWeightStutterLowEditor.updateDataCallback = [this] (double value) { fxGlitchWeightStutterLowUiChanged (value); };
+    fxGlitchWeightStutterLowEditor.updateDataCallback = [this] (double value) { fxGlitchWeightStutterLowUiChanged (static_cast<float> (value)); };
     fxGlitchWeightStutterLowEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -1617,7 +1617,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     pitchHighEditor.getMinValueCallback = [this] () { return 0.0; };
     pitchHighEditor.getMaxValueCallback = [this] () { return 1.0; };
     pitchHighEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    pitchHighEditor.updateDataCallback = [this] (double value) { pitchHighUiChanged (value); };
+    pitchHighEditor.updateDataCallback = [this] (double value) { pitchHighUiChanged (static_cast<float> (value)); };
     pitchHighEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()
@@ -1642,7 +1642,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     pitchLowEditor.getMinValueCallback = [this] () { return 0.0; };
     pitchLowEditor.getMaxValueCallback = [this] () { return 1.0; };
     pitchLowEditor.toStringCallback = [this] (double value) { return juce::String (value, 4); };
-    pitchLowEditor.updateDataCallback = [this] (double value) { pitchLowUiChanged (value); };
+    pitchLowEditor.updateDataCallback = [this] (double value) { pitchLowUiChanged (static_cast<float> (value)); };
     pitchLowEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
     {
         const auto multiplier = [dragSpeed] ()

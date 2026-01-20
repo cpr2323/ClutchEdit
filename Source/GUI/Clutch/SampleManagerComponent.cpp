@@ -32,7 +32,7 @@ void SampleManagerComponent::init (juce::ValueTree rootPropertiesVT)
 {
     PersistentRootProperties persistentRootProperties (rootPropertiesVT, PersistentRootProperties::WrapperType::owner, PersistentRootProperties::EnableCallbacks::no);
     appProperties.wrap (persistentRootProperties.getValueTree (), AppProperties::WrapperType::owner, AppProperties::EnableCallbacks::yes);
-    appProperties.onMostRecentFileChange = [this] (juce::String folderName)
+    appProperties.onMostRecentFileChange = [this] ([[maybe_unused]] juce::String folderName)
     {
         updateBanks ();
     };

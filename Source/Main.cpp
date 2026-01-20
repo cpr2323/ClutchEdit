@@ -149,13 +149,13 @@ void FillInDataFromVt (HiHatIniData& data, const juce::ValueTree clutchVT)
     setIntValue ("HIHAT", "FX_GLITCH_STUTTER_NUM_MAX", settingsProperties.getFxGlitchStutterNumMax ());
     setIntValue ("HIHAT", "FX_GLITCH_STUTTER_WINDOW", settingsProperties.getFxGlitchStutterWindow ());
 
-    patternListProperties.forEachPattern ([&data] (juce::ValueTree patternVT, int patternIndex)
+    patternListProperties.forEachPattern ([&data] (juce::ValueTree patternVT, [[maybe_unused]] int patternIndex)
     {
         PatternProperties patternProperties (patternVT, ValueTreeWrapper<PatternProperties>::WrapperType::client, ValueTreeWrapper<PatternProperties>::EnableCallbacks::no);
         data.setValue ("PATTERNS", patternProperties.getId (), patternProperties.getPattern ());
         return true;
     });
-    effectListProperties.forEachEffect ([&data] (juce::ValueTree effectVT, int effectIndex)
+    effectListProperties.forEachEffect ([&data] (juce::ValueTree effectVT, [[maybe_unused]] int effectIndex)
     {
         EffectProperties effectProperties (effectVT, ValueTreeWrapper<EffectProperties>::WrapperType::client, ValueTreeWrapper<EffectProperties>::EnableCallbacks::no);
         data.setValue ("EFFECTS", effectProperties.getId (), effectProperties.getEffect ());
@@ -281,13 +281,13 @@ void FillInVtFromData (juce::ValueTree clutchVt, const HiHatIniData& data)
     settingsProperties.setFxGlitchStutterNumMax (getIntValue ("HIHAT", "FX_GLITCH_STUTTER_NUM_MAX", 5), false);
     settingsProperties.setFxGlitchStutterWindow (getIntValue ("HIHAT", "FX_GLITCH_STUTTER_WINDOW", 20), false);
 
-    patternListProperties.forEachPattern ([&data] (juce::ValueTree patternVT, int patternIndex)
+    patternListProperties.forEachPattern ([&data] (juce::ValueTree patternVT, [[maybe_unused]] int patternIndex)
     {
         PatternProperties patternProperties (patternVT, ValueTreeWrapper<PatternProperties>::WrapperType::client, ValueTreeWrapper<PatternProperties>::EnableCallbacks::no);
         patternProperties.setPattern (data.getValue ("PATTERNS", patternProperties.getId ()), false);
         return true;
     });
-    effectListProperties.forEachEffect ([&data] (juce::ValueTree effectVT, int effectIndex)
+    effectListProperties.forEachEffect ([&data] (juce::ValueTree effectVT, [[maybe_unused]] int effectIndex)
     {
         EffectProperties effectProperties (effectVT, ValueTreeWrapper<EffectProperties>::WrapperType::client, ValueTreeWrapper<EffectProperties>::EnableCallbacks::no);
         effectProperties.setEffect (data.getValue ("EFFECTS", effectProperties.getId ()), false);
