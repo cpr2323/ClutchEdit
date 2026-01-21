@@ -19,12 +19,39 @@ public:
         fileExists = doesFileExist;
         setColour (juce::Label::ColourIds::textColourId, fileExists ? juce::Colours::white : juce::Colours::grey);
     }
+
+    void enablePlayBlink (bool enable)
+    {
+        playBlinkEnabled = enable;
+        if (playBlinkEnabled)
+        {
+            if (fileExists)
+            {
+                colorCrossfadePosition = 0.0;
+                colorCrossfadeIncrement = kDefaultCrossfadeIncrement;
+                startTimer (kAnimationTimer);
+            }
+            else
+            {
+                playBlinkEnabled = false;
+            }
+        }
+        else
+        {
+            stopTimer ();
+            setColour (juce::Label::ColourIds::textColourId, fileExists ? juce::Colours::white : juce::Colours::grey);
+        }
+    }
+
 private:
+    static inline constexpr float kDefaultCrossfadeIncrement { 0.03f };
+    static inline constexpr int kAnimationTimer { 16 };
     bool fileExists { false };
     juce::Colour hoverColor { juce::Colours::lightseagreen };
-    static inline constexpr int kAnimationTimer { 16 };
     float colorCrossfadePosition { 0.0 };
-    float colorCrossfadeIncrement { 0.03 };
+    float colorCrossfadeIncrement { kDefaultCrossfadeIncrement };
+
+    bool playBlinkEnabled { false };
 
     void mouseUp (const juce::MouseEvent& mouseEvent) override
     {
@@ -39,8 +66,10 @@ private:
 
     void filesDropped (const juce::StringArray& files, [[maybe_unused]] int x, [[maybe_unused]] int y) override
     {
+        playBlinkEnabled = false;
+        colorCrossfadeIncrement = kDefaultCrossfadeIncrement;
+        colorCrossfadePosition = 0.0;
         startTimer (kAnimationTimer);
-        colorCrossfadePosition = 0;
         if (onFilesSelected != nullptr)
             onFilesSelected (files);
         fileExists = true;
@@ -64,14 +93,33 @@ private:
 
     void timerCallback () override
     {
-        if (colorCrossfadePosition > 1.0)
+        if (! playBlinkEnabled)
         {
-            setColour (juce::Label::ColourIds::textColourId, fileExists ? juce::Colours::white : juce::Colours::grey);
-            stopTimer ();
+            if (colorCrossfadePosition > 1.0)
+            {
+                setColour (juce::Label::ColourIds::textColourId, fileExists ? juce::Colours::white : juce::Colours::grey);
+                stopTimer ();
+            }
+            else
+            {
+                setColour (juce::Label::ColourIds::textColourId, hoverColor.interpolatedWith (juce::Colours::white, colorCrossfadePosition));
+                colorCrossfadePosition += colorCrossfadeIncrement;
+            }
         }
         else
         {
-            setColour (juce::Label::ColourIds::textColourId, hoverColor.interpolatedWith (juce::Colours::white, colorCrossfadePosition));
+            if (colorCrossfadePosition < 0.0f)
+            {
+                colorCrossfadePosition = 0.0f;
+                colorCrossfadeIncrement = kDefaultCrossfadeIncrement;
+            }
+            else if (colorCrossfadePosition > 1.0f)
+            {
+                colorCrossfadePosition = 1.0f;
+                colorCrossfadeIncrement = -kDefaultCrossfadeIncrement;
+            }
+
+            setColour (juce::Label::ColourIds::textColourId, juce::Colours::orange.interpolatedWith (juce::Colours::white, colorCrossfadePosition));
             colorCrossfadePosition += colorCrossfadeIncrement;
         }
         repaint ();
@@ -79,7 +127,7 @@ private:
 };
 
 class SampleBankComponent : public juce::Component,
-                                   juce::Timer
+                                   juce::MultiTimer
 {
 public:
     enum class HiHatState { opened, closed };
@@ -104,11 +152,12 @@ private:
     std::array<SurfaceInfo, 16> surfaceComponents;
     juce::File banksRootFolder;
     AudioPlayerProperties audioPlayerProperties;
+    FileDropLabel* auditioningSurfaceComponent { nullptr };
 
     void copySampleFile (juce::File sourceFile, int surfaceIndex, HiHatState hiHatState);
     void sampleConvert (juce::AudioFormatReader* reader, juce::AudioBuffer<float>& outputBuffer);
 
     void paint (juce::Graphics& g) override;
     void resized () override;
-    void timerCallback () override;
+    void timerCallback (int timerId) override;
 };
