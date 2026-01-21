@@ -4,6 +4,15 @@
 
 SampleBankComponent::SampleBankComponent ()
 {
+    auto setupAuditioningForSurface = [this] (FileDropLabel* surfaceLabel, juce::String bankAndFileName)
+    {
+        auditioningSurfaceComponent = surfaceLabel;
+        surfaceLabel->enablePlayBlink (true);
+        startTimer (1, 16);
+        audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
+        audioPlayerProperties.setSampleSource (bankAndFileName, false);
+        audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::play, false);
+    };
     addAndMakeVisible(bankName);
     for (auto surfaceIndex { 0 }; surfaceIndex < surfaceComponents.size (); ++surfaceIndex)
     {
@@ -23,16 +32,9 @@ SampleBankComponent::SampleBankComponent ()
             audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
             copySampleFile (juce::File (files[0]), surfaceIndex, HiHatState::opened);
         };
-        surfaceComponent.openedName.onMouseUp = [this, surfaceLabel = &surfaceComponent.openedName, surfaceIndex] ([[maybe_unused]] const juce::MouseEvent& mouseEvent)
+        surfaceComponent.openedName.onMouseUp = [this, surfaceLabel = &surfaceComponent.openedName, surfaceIndex, setupAuditioningForSurface] ([[maybe_unused]] const juce::MouseEvent& mouseEvent)
         {
-            // play sample
-            auditioningSurfaceComponent = surfaceLabel;
-            surfaceLabel->enablePlayBlink (true);
-            startTimer (1, 16);
-            juce::String fileName { bankName.getText () + juce::File::getSeparatorString() + juce::String (surfaceIndex + 1).paddedLeft ('0', 2) + "OH.wav"};
-            audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
-            audioPlayerProperties.setSampleSource (fileName, false);
-            audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::play, false);
+            setupAuditioningForSurface (surfaceLabel, bankName.getText () + juce::File::getSeparatorString () + juce::String (surfaceIndex + 1).paddedLeft ('0', 2) + "OH.wav");
         };
         addAndMakeVisible (surfaceComponent.openedName);
 
@@ -45,16 +47,9 @@ SampleBankComponent::SampleBankComponent ()
             audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
             copySampleFile (juce::File (files [0]), surfaceIndex, HiHatState::closed);
         };
-        surfaceComponent.closedName.onMouseUp = [this, surfaceLabel = &surfaceComponent.closedName, surfaceIndex] ([[maybe_unused]] const juce::MouseEvent& mouseEvent)
+        surfaceComponent.closedName.onMouseUp = [this, surfaceLabel = &surfaceComponent.closedName, surfaceIndex, setupAuditioningForSurface] ([[maybe_unused]] const juce::MouseEvent& mouseEvent)
         {
-            // play sample
-            auditioningSurfaceComponent = surfaceLabel;
-            surfaceLabel->enablePlayBlink (true);
-            startTimer (1, 16);
-            juce::String fileName { bankName.getText () + juce::File::getSeparatorString () + juce::String (surfaceIndex + 1).paddedLeft ('0', 2) + "CH.wav" };
-            audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
-            audioPlayerProperties.setSampleSource (fileName, false);
-            audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::play, false);
+            setupAuditioningForSurface (surfaceLabel, bankName.getText () + juce::File::getSeparatorString () + juce::String (surfaceIndex + 1).paddedLeft ('0', 2) + "CH.wav");
         };
         addAndMakeVisible (surfaceComponent.closedName);
     }
