@@ -9,7 +9,6 @@ class FileDropLabel : public juce::Label,
 public:
     FileDropLabel ()
     {
-        startTimer (2);
     }
 
     std::function<void (juce::StringArray)> onFilesSelected;
@@ -23,8 +22,9 @@ public:
 private:
     bool fileExists { false };
     juce::Colour hoverColor { juce::Colours::lightseagreen };
-    int dropIndicatorTime { 0 };
-    juce::Colour fadingColor { juce::Colours::green };
+    static inline constexpr int kAnimationTimer { 16 };
+    float colorCrossfadePosition { 0.0 };
+    float colorCrossfadeIncrement { 0.03 };
 
     void mouseUp (const juce::MouseEvent& mouseEvent) override
     {
@@ -39,9 +39,8 @@ private:
 
     void filesDropped (const juce::StringArray& files, [[maybe_unused]] int x, [[maybe_unused]] int y) override
     {
-        dropIndicatorTime = 300;
-        fadingColor = juce::Colours::green;
-        setColour (juce::Label::ColourIds::textColourId, fadingColor);
+        startTimer (kAnimationTimer);
+        colorCrossfadePosition = 0;
         if (onFilesSelected != nullptr)
             onFilesSelected (files);
         fileExists = true;
@@ -65,17 +64,17 @@ private:
 
     void timerCallback () override
     {
-        if (dropIndicatorTime > 0)
+        if (colorCrossfadePosition > 1.0)
         {
-            dropIndicatorTime -= 1;
-            setColour (juce::Label::ColourIds::textColourId, fadingColor);
-            if (dropIndicatorTime < 0)
-            {
-                setColour (juce::Label::ColourIds::textColourId, fileExists ? juce::Colours::white : juce::Colours::grey);
-            }
-            fadingColor = fadingColor.brighter (0.006);
-            repaint ();
+            setColour (juce::Label::ColourIds::textColourId, fileExists ? juce::Colours::white : juce::Colours::grey);
+            stopTimer ();
         }
+        else
+        {
+            setColour (juce::Label::ColourIds::textColourId, hoverColor.interpolatedWith (juce::Colours::white, colorCrossfadePosition));
+            colorCrossfadePosition += colorCrossfadeIncrement;
+        }
+        repaint ();
     }
 };
 
