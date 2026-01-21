@@ -54,8 +54,8 @@ private:
     bool playBlinkEnabled { false };
 
     void mouseUp (const juce::MouseEvent& mouseEvent) override
-    {
-        if (onMouseUp != nullptr)
+    {    
+        if (! mouseEvent.mods.isPopupMenu () && onMouseUp != nullptr)
             onMouseUp (mouseEvent);
     }
 
