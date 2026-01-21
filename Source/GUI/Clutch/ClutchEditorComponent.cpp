@@ -9,8 +9,8 @@ extern HiHatIniData gHiHatIniData;
 ClutchEditorComponent::ClutchEditorComponent ()
 {
     editorTabs.addTab ("SAMPLES", juce::Colours::darkgrey, &sampleManagerComponent, false);
-    editorTabs.addTab ("PATTERNS", juce::Colours::darkgrey, &patternListEditorComponent, false);
     editorTabs.addTab ("SETTINGS", juce::Colours::darkgrey, &settingsEditorComponent, false);
+    editorTabs.addTab ("PATTERNS", juce::Colours::darkgrey, &patternListEditorComponent, false);
     editorTabs.addTab ("EFFECTS", juce::Colours::darkgrey, &effectEditorComponent, false);
     addAndMakeVisible (editorTabs);
 
