@@ -3,9 +3,15 @@
 #include "../../Clutch/Audio/AudioPlayerProperties.h"
 
 class FileDropLabel : public juce::Label,
-                      public juce::FileDragAndDropTarget
+                      public juce::FileDragAndDropTarget,
+                      public juce::Timer
 {
 public:
+    FileDropLabel ()
+    {
+        startTimer (2);
+    }
+
     std::function<void (juce::StringArray)> onFilesSelected;
     std::function<void (const juce::MouseEvent& mouseEvent)> onMouseUp;
 
@@ -17,6 +23,8 @@ public:
 private:
     bool fileExists { false };
     juce::Colour hoverColor { juce::Colours::lightseagreen };
+    int dropIndicatorTime { 0 };
+    juce::Colour fadingColor { juce::Colours::green };
 
     void mouseUp (const juce::MouseEvent& mouseEvent) override
     {
@@ -31,8 +39,13 @@ private:
 
     void filesDropped (const juce::StringArray& files, [[maybe_unused]] int x, [[maybe_unused]] int y) override
     {
+        dropIndicatorTime = 300;
+        fadingColor = juce::Colours::green;
+        setColour (juce::Label::ColourIds::textColourId, fadingColor);
         if (onFilesSelected != nullptr)
             onFilesSelected (files);
+        fileExists = true;
+        repaint ();
     }
 
     void fileDragEnter ([[maybe_unused]] const juce::StringArray& files, [[maybe_unused]] int x, [[maybe_unused]] int y) override
@@ -48,6 +61,21 @@ private:
     void fileDragExit (const juce::StringArray&) override
     {
         setColour (juce::Label::ColourIds::textColourId, fileExists ? juce::Colours::white : juce::Colours::grey);
+    }
+
+    void timerCallback () override
+    {
+        if (dropIndicatorTime > 0)
+        {
+            dropIndicatorTime -= 1;
+            setColour (juce::Label::ColourIds::textColourId, fadingColor);
+            if (dropIndicatorTime < 0)
+            {
+                setColour (juce::Label::ColourIds::textColourId, fileExists ? juce::Colours::white : juce::Colours::grey);
+            }
+            fadingColor = fadingColor.brighter (0.006);
+            repaint ();
+        }
     }
 };
 
