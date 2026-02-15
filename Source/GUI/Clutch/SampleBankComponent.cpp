@@ -6,6 +6,8 @@ SampleBankComponent::SampleBankComponent ()
 {
     auto setupAuditioningForSurface = [this] (FileDropLabel* surfaceLabel, juce::String bankAndFileName)
     {
+        if (auditioningSurfaceComponent != nullptr)
+            auditioningSurfaceComponent->enablePlayBlink (false);
         auditioningSurfaceComponent = surfaceLabel;
         surfaceLabel->enablePlayBlink (true);
         startTimer (1, 16);
