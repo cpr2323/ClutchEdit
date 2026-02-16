@@ -143,18 +143,18 @@ public:
 
 private:
     juce::Label bankName;
-    struct SurfaceInfo
+    struct HiHatSampleInfo
     {
         juce::Label name;
         FileDropLabel openedName;
         FileDropLabel closedName;
     };
-    std::array<SurfaceInfo, 16> surfaceComponents;
+    std::array<HiHatSampleInfo, 16> hiHatSampleInfoList;
     juce::File banksRootFolder;
     AudioPlayerProperties audioPlayerProperties;
-    FileDropLabel* auditioningSurfaceComponent { nullptr };
+    FileDropLabel* auditioningSampleLabelComponent { nullptr };
 
-    void copySampleFile (juce::File sourceFile, int surfaceIndex, HiHatState hiHatState);
+    void copySampleFile (juce::File sourceFile, int hiHatSampleIndex, HiHatState hiHatState);
     void sampleConvert (juce::AudioFormatReader* reader, juce::AudioBuffer<float>& outputBuffer);
 
     void paint (juce::Graphics& g) override;

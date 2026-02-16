@@ -387,6 +387,24 @@ public:
             FillInVtFromData (unEditedClutchProperties.getValueTree (), gHiHatIniData);
             FillInVtFromData (editedClutchProperties.getValueTree (), gHiHatIniData);
         }
+
+        class SampleProperties
+        {
+            // info about the sample
+        };
+        class SamplePairProperties
+        {
+            // 2 SampleProperties
+        };
+        class BankProperties
+        {
+            // 16 SamplePairProperties
+        };
+        class BankListProperties
+        {
+            // 8 BankProperties
+        };
+        SampleProperties sampleProperties;
     }
 
     void initUi ()

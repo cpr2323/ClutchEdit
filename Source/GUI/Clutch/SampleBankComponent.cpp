@@ -4,56 +4,56 @@
 
 SampleBankComponent::SampleBankComponent ()
 {
-    auto setupAuditioningForSurface = [this] (FileDropLabel* surfaceLabel, juce::String bankAndFileName)
+    auto setupAuditioningForSample = [this] (FileDropLabel* sampleLabel, juce::String bankAndFileName)
     {
-        if (auditioningSurfaceComponent != nullptr)
-            auditioningSurfaceComponent->enablePlayBlink (false);
-        auditioningSurfaceComponent = surfaceLabel;
-        surfaceLabel->enablePlayBlink (true);
+        if (auditioningSampleLabelComponent != nullptr)
+            auditioningSampleLabelComponent->enablePlayBlink (false);
+        auditioningSampleLabelComponent = sampleLabel;
+        sampleLabel->enablePlayBlink (true);
         startTimer (1, 16);
         audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
         audioPlayerProperties.setSampleSource (bankAndFileName, false);
         audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::play, false);
     };
     addAndMakeVisible(bankName);
-    for (auto surfaceIndex { 0 }; surfaceIndex < surfaceComponents.size (); ++surfaceIndex)
+    for (auto hiHatSampleIndex { 0 }; hiHatSampleIndex < hiHatSampleInfoList.size (); ++hiHatSampleIndex)
     {
-        auto& surfaceComponent { surfaceComponents [surfaceIndex] };
+        auto& hiHatSampleInfo { hiHatSampleInfoList [hiHatSampleIndex] };
 
         // add bank name (ake WHITE, RED, etc) label
-        surfaceComponent.name.setJustificationType (juce::Justification::centredRight);
-        surfaceComponent.name.setText (juce::String (surfaceIndex + 1), juce::NotificationType::dontSendNotification);
-        addAndMakeVisible (surfaceComponent.name);
+        hiHatSampleInfo.name.setJustificationType (juce::Justification::centredRight);
+        hiHatSampleInfo.name.setText (juce::String (hiHatSampleIndex + 1), juce::NotificationType::dontSendNotification);
+        addAndMakeVisible (hiHatSampleInfo.name);
 
         // add opened sample label
-        surfaceComponent.openedName.setJustificationType (juce::Justification::centred);
-        surfaceComponent.openedName.setText ("Opened", juce::NotificationType::dontSendNotification);
-        surfaceComponent.openedName.onFilesSelected = [this, surfaceIndex] (juce::StringArray files)
+        hiHatSampleInfo.openedName.setJustificationType (juce::Justification::centred);
+        hiHatSampleInfo.openedName.setText ("Opened", juce::NotificationType::dontSendNotification);
+        hiHatSampleInfo.openedName.onFilesSelected = [this, hiHatSampleIndex] (juce::StringArray files)
         {
             jassert (files.size () == 1);
             audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
-            copySampleFile (juce::File (files[0]), surfaceIndex, HiHatState::opened);
+            copySampleFile (juce::File (files[0]), hiHatSampleIndex, HiHatState::opened);
         };
-        surfaceComponent.openedName.onMouseUp = [this, surfaceLabel = &surfaceComponent.openedName, surfaceIndex, setupAuditioningForSurface] ([[maybe_unused]] const juce::MouseEvent& mouseEvent)
+        hiHatSampleInfo.openedName.onMouseUp = [this, sampleLabel = &hiHatSampleInfo.openedName, hiHatSampleIndex, setupAuditioningForSample] ([[maybe_unused]] const juce::MouseEvent& mouseEvent)
         {
-            setupAuditioningForSurface (surfaceLabel, bankName.getText () + juce::File::getSeparatorString () + juce::String (surfaceIndex + 1).paddedLeft ('0', 2) + "OH.wav");
+            setupAuditioningForSample (sampleLabel, bankName.getText () + juce::File::getSeparatorString () + juce::String (hiHatSampleIndex + 1).paddedLeft ('0', 2) + "OH.wav");
         };
-        addAndMakeVisible (surfaceComponent.openedName);
+        addAndMakeVisible (hiHatSampleInfo.openedName);
 
         // add closed sample label
-        surfaceComponent.closedName.setJustificationType (juce::Justification::centred);
-        surfaceComponent.closedName.setText ("Closed", juce::NotificationType::dontSendNotification);
-        surfaceComponent.closedName.onFilesSelected = [this, surfaceIndex] (juce::StringArray files)
+        hiHatSampleInfo.closedName.setJustificationType (juce::Justification::centred);
+        hiHatSampleInfo.closedName.setText ("Closed", juce::NotificationType::dontSendNotification);
+        hiHatSampleInfo.closedName.onFilesSelected = [this, hiHatSampleIndex] (juce::StringArray files)
         {
             jassert (files.size () == 1);
             audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
-            copySampleFile (juce::File (files [0]), surfaceIndex, HiHatState::closed);
+            copySampleFile (juce::File (files [0]), hiHatSampleIndex, HiHatState::closed);
         };
-        surfaceComponent.closedName.onMouseUp = [this, surfaceLabel = &surfaceComponent.closedName, surfaceIndex, setupAuditioningForSurface] ([[maybe_unused]] const juce::MouseEvent& mouseEvent)
+        hiHatSampleInfo.closedName.onMouseUp = [this, sampleLabel = &hiHatSampleInfo.closedName, hiHatSampleIndex, setupAuditioningForSample] ([[maybe_unused]] const juce::MouseEvent& mouseEvent)
         {
-            setupAuditioningForSurface (surfaceLabel, bankName.getText () + juce::File::getSeparatorString () + juce::String (surfaceIndex + 1).paddedLeft ('0', 2) + "CH.wav");
+            setupAuditioningForSample (sampleLabel, bankName.getText () + juce::File::getSeparatorString () + juce::String (hiHatSampleIndex + 1).paddedLeft ('0', 2) + "CH.wav");
         };
-        addAndMakeVisible (surfaceComponent.closedName);
+        addAndMakeVisible (hiHatSampleInfo.closedName);
     }
 
     updateFileStatus ();
@@ -106,7 +106,7 @@ void SampleBankComponent::sampleConvert (juce::AudioFormatReader* reader, juce::
         jassertfalse;
     }
 }
-void SampleBankComponent::copySampleFile (juce::File sourceFile, int surfaceIndex, HiHatState hiHatState)
+void SampleBankComponent::copySampleFile (juce::File sourceFile, int hiHatSampleIndex, HiHatState hiHatState)
 {
     // TODO - move to centralized place
     juce::AudioFormatManager audioFormatManager;
@@ -119,7 +119,7 @@ void SampleBankComponent::copySampleFile (juce::File sourceFile, int surfaceInde
         return;
     }
 
-    juce::String destinationFileName { juce::String (surfaceIndex + 1).paddedLeft ('0', 2) + (hiHatState == HiHatState::closed ? "C" : "O") + "H.wav" };
+    juce::String destinationFileName { juce::String (hiHatSampleIndex + 1).paddedLeft ('0', 2) + (hiHatState == HiHatState::closed ? "C" : "O") + "H.wav" };
     juce::File bankFolder { banksRootFolder.getChildFile (bankName.getText ()) };
     if (! bankFolder.exists ())
     {
@@ -211,16 +211,16 @@ void SampleBankComponent::updateFileStatus ()
 {
     if (banksRootFolder != juce::File ())
     {
-        for (auto surfaceIndex { 0 }; surfaceIndex < surfaceComponents.size (); ++surfaceIndex)
+        for (auto hiHatSampleInfoIndex { 0 }; hiHatSampleInfoIndex < hiHatSampleInfoList.size (); ++hiHatSampleInfoIndex)
         {
-            auto doesFileExist = [this] (int surfaceIndex, HiHatState hiHatState)
+            auto doesFileExist = [this] (int hiHatSampleInfoIndex, HiHatState hiHatState)
             {
-                juce::String fileName { juce::String (surfaceIndex + 1).paddedLeft ('0', 2) + juce::String (hiHatState == HiHatState::opened ? "OH" : "CH") };
+                juce::String fileName { juce::String (hiHatSampleInfoIndex + 1).paddedLeft ('0', 2) + juce::String (hiHatState == HiHatState::opened ? "OH" : "CH") };
                 auto file { banksRootFolder.getChildFile (bankName.getText ()).getChildFile (fileName).withFileExtension ("wav") };
                 return file.existsAsFile ();
             };
-            surfaceComponents [surfaceIndex].openedName.setFileExistState (doesFileExist (surfaceIndex, HiHatState::opened));
-            surfaceComponents [surfaceIndex].closedName.setFileExistState (doesFileExist (surfaceIndex, HiHatState::closed));
+            hiHatSampleInfoList [hiHatSampleInfoIndex].openedName.setFileExistState (doesFileExist (hiHatSampleInfoIndex, HiHatState::opened));
+            hiHatSampleInfoList [hiHatSampleInfoIndex].closedName.setFileExistState (doesFileExist (hiHatSampleInfoIndex, HiHatState::closed));
         }
     }
     repaint ();
@@ -238,31 +238,31 @@ void SampleBankComponent::paint (juce::Graphics& g)
     // draw horizontal lines
     for (auto lineIndex { 0 }; lineIndex < 15; ++lineIndex)
     {
-        g.drawLine (juce::Line { surfaceComponents [lineIndex].openedName.getX (), surfaceComponents [lineIndex].openedName.getBottom () + 1,
-                                 surfaceComponents [lineIndex].closedName.getRight (), surfaceComponents [lineIndex].openedName.getBottom () + 1 }.toFloat(), 1.0f);
+        g.drawLine (juce::Line { hiHatSampleInfoList [lineIndex].openedName.getX (), hiHatSampleInfoList [lineIndex].openedName.getBottom () + 1,
+                                 hiHatSampleInfoList [lineIndex].closedName.getRight (), hiHatSampleInfoList [lineIndex].openedName.getBottom () + 1 }.toFloat(), 1.0f);
     }
     // draw vertical center line
-    g.drawLine (juce::Line { surfaceComponents [0].openedName.getRight () + 2, surfaceComponents [0].openedName.getY (),
-                             surfaceComponents [0].openedName.getRight () + 2, surfaceComponents [15].openedName.getBottom () + 2 }.toFloat (), 1.0f);
+    g.drawLine (juce::Line { hiHatSampleInfoList [0].openedName.getRight () + 2, hiHatSampleInfoList [0].openedName.getY (),
+                             hiHatSampleInfoList [0].openedName.getRight () + 2, hiHatSampleInfoList [15].openedName.getBottom () + 2 }.toFloat (), 1.0f);
 
     // draw box outline
-    g.drawRect (surfaceComponents [0].openedName.getX (), surfaceComponents [0].openedName.getY (),
-                surfaceComponents [0].closedName.getRight () - surfaceComponents [0].openedName.getX (),
-                surfaceComponents [15].openedName.getBottom () - surfaceComponents [0].openedName.getY () + 2);
+    g.drawRect (hiHatSampleInfoList [0].openedName.getX (), hiHatSampleInfoList [0].openedName.getY (),
+                hiHatSampleInfoList [0].closedName.getRight () - hiHatSampleInfoList [0].openedName.getX (),
+                hiHatSampleInfoList [15].openedName.getBottom () - hiHatSampleInfoList [0].openedName.getY () + 2);
 }
 
 void SampleBankComponent::resized ()
 {
     auto bounds { getLocalBounds ().reduced (3) };
     bankName.setBounds (bounds.removeFromTop (20));
-    for (auto surfaceIndex { 0 }; surfaceIndex < surfaceComponents.size (); ++surfaceIndex)
+    for (auto hiHatSampleInfoIndex { 0 }; hiHatSampleInfoIndex < hiHatSampleInfoList.size (); ++hiHatSampleInfoIndex)
     {
-        auto& surfaceComponent { surfaceComponents [surfaceIndex] };
-        auto surfaceBounds { bounds.removeFromTop (20).withTrimmedLeft (1) };
-        surfaceComponent.name.setBounds (surfaceBounds.removeFromLeft (25));
+        auto& hiHatSampleInfo { hiHatSampleInfoList [hiHatSampleInfoIndex] };
+        auto hiHatSampleIndoBounds { bounds.removeFromTop (20).withTrimmedLeft (1) };
+        hiHatSampleInfo.name.setBounds (hiHatSampleIndoBounds.removeFromLeft (25));
 
-        surfaceComponent.openedName.setBounds (surfaceBounds.removeFromLeft (57));
-        surfaceComponent.closedName.setBounds (surfaceBounds.removeFromLeft (57));
+        hiHatSampleInfo.openedName.setBounds (hiHatSampleIndoBounds.removeFromLeft (57));
+        hiHatSampleInfo.closedName.setBounds (hiHatSampleIndoBounds.removeFromLeft (57));
     }
 }
 
@@ -276,12 +276,12 @@ void SampleBankComponent::timerCallback (int timerId)
     else if (timerId == 1)
     {
         // stop auditioning after some time
-        if (auditioningSurfaceComponent != nullptr)
+        if (auditioningSampleLabelComponent != nullptr)
         {
             if (audioPlayerProperties.getPlayState () != AudioPlayerProperties::PlayState::play)
             {
-                auditioningSurfaceComponent->enablePlayBlink (false);
-                auditioningSurfaceComponent = nullptr;
+                auditioningSampleLabelComponent->enablePlayBlink (false);
+                auditioningSampleLabelComponent = nullptr;
                 stopTimer (1);
             }
         }
