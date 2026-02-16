@@ -314,7 +314,7 @@ public:
         initAudio ();
         initUi ();
 
-        //ValueTreeHelpers::dumpValueTreeContent (runtimeRootProperties.getValueTree (), false, [this] (juce::String line) { DebugLog ("", line); });
+        //ValueTreeHelpers::dumpValueTreeContent (runtimeRootProperties.getValueTree (), true, [this] (juce::String line) { DebugLog ("", line); });
 
         // async quit timer
         startTimer (125);
@@ -363,19 +363,29 @@ public:
 
     void initClutch ()
     {
+        // Build default clutch data structures on the RuntimeRootProperties tree
         SettingsProperties settingsProperties;
         PatternListProperties patternListProperties;
         EffectListProperties effectListProperties;
-        ClutchProperties clutchProperties (runtimeRootProperties.getValueTree (), ClutchProperties::WrapperType::owner, ClutchProperties::EnableCallbacks::no);
+        ClutchProperties clutchProperties ({}, ClutchProperties::WrapperType::owner, ClutchProperties::EnableCallbacks::no);
         clutchProperties.getValueTree ().addChild (settingsProperties.getValueTree (), -1, nullptr);
         clutchProperties.getValueTree ().addChild (patternListProperties.getValueTree (), -1, nullptr);
         clutchProperties.getValueTree ().addChild (effectListProperties.getValueTree (), -1, nullptr);
+
+        auto unEditedClutchProperties { ClutchProperties (clutchProperties.getValueTree ().createCopy (), ClutchProperties::WrapperType::owner, ClutchProperties::EnableCallbacks::no) };
+        unEditedClutchProperties.setName ("unedited", false);
+        runtimeRootProperties.getValueTree ().addChild (unEditedClutchProperties.getValueTree ().createCopy (), -1, nullptr);
+
+        auto editedClutchProperties { ClutchProperties (clutchProperties.getValueTree ().createCopy (), ClutchProperties::WrapperType::owner, ClutchProperties::EnableCallbacks::no) };
+        editedClutchProperties.setName ("edited", false);
+        runtimeRootProperties.getValueTree ().addChild (editedClutchProperties.getValueTree ().createCopy (), -1, nullptr);
 
         auto hiHatIniFile { juce::File (appProperties.getRecentlyUsedFile (0))};
         if (hiHatIniFile.existsAsFile ())
         {
             gHiHatIniData.readFromFile (hiHatIniFile);
-            FillInVtFromData (clutchProperties.getValueTree (), gHiHatIniData);
+            FillInVtFromData (unEditedClutchProperties.getValueTree (), gHiHatIniData);
+            FillInVtFromData (editedClutchProperties.getValueTree (), gHiHatIniData);
         }
     }
 

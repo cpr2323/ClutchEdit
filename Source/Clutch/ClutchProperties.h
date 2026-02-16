@@ -14,9 +14,16 @@ public:
     {
     }
 
-    static inline const juce::Identifier ClutchTypeId { "Clutch" };
+    void setName (juce::String name, bool includeSelfCallback);
+    juce::String getName ();
+    std::function<void (juce::String)> onNameChange;
 
-    void initValueTree () {}
+    static inline const juce::Identifier ClutchTypeId { "Clutch" };
+    static inline const juce::Identifier NamePropertyId { "name" };
+
+    void initValueTree ();
     void processValueTree () {}
 private:
+
+    void valueTreePropertyChanged (juce::ValueTree& vt, const juce::Identifier& property) override;
 };
