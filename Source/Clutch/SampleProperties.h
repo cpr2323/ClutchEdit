@@ -1,7 +1,9 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "../Utility/ValueTreeWrapper.h"
 
+// TODO move these notes elsewhere
 // There are eight folders (banks) at the root level
 //      "WHITE", "RED", "ORANGE", "YELLOW", "GREEN", "BLUE", "CYAN", "VIOLET"
 // Each folder contains 32 samples, or 16 pairs of open/closed samples
@@ -36,3 +38,40 @@
 //         <SAMPLE surface=0 state="open"
 //     </BANK>
 // </SAMPLES>
+
+class SampleProperties : public ValueTreeWrapper<SampleProperties>
+{
+public:
+    enum class SampleType { open, closed };
+    SampleProperties () noexcept : ValueTreeWrapper<SampleProperties> (SampleTypeId)
+    {
+    }
+    SampleProperties (juce::ValueTree vt, WrapperType wrapperType, EnableCallbacks shouldEnableCallbacks) noexcept
+        : ValueTreeWrapper<SampleProperties> (SampleTypeId, vt, wrapperType, shouldEnableCallbacks)
+    {
+    }
+
+    void setExists (bool exists, bool includeSelfCallback);
+    void setFilename (const juce::String& filename, bool includeSelfCallback);
+    void setType (SampleType sampleType, bool includeSelfCallback);
+
+    bool getExists ();
+    juce::String getFilename ();
+    SampleType getType ();
+
+    std::function<void (bool exists)> onExistsChange;
+    std::function<void (const juce::String& filename)> onFilenameChange;
+    std::function<void (SampleType sampleType)> onTypeChange;
+
+    static inline const juce::Identifier SampleTypeId { "Sample" };
+    static inline const juce::Identifier FilenamePropertyId { "filename" };
+    static inline const juce::Identifier ExistsPropertyId   { "exists" };
+    static inline const juce::Identifier TypePropertyId     { "type" };
+
+    void initValueTree ();
+    void processValueTree () {}
+
+private:
+
+    void valueTreePropertyChanged (juce::ValueTree& vt, const juce::Identifier& property) override;
+};

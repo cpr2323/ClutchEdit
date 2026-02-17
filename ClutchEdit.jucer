@@ -17,10 +17,14 @@
           <FILE id="dMxHFQ" name="AudioSettingsProperties.h" compile="0" resource="0"
                 file="Source/Clutch/Audio/AudioSettingsProperties.h"/>
         </GROUP>
-        <FILE id="JNaYWa" name="SampleProperties.cpp" compile="1" resource="0"
-              file="Source/Clutch/SampleProperties.cpp"/>
-        <FILE id="PuM1rr" name="SampleProperties.h" compile="0" resource="0"
-              file="Source/Clutch/SampleProperties.h"/>
+        <FILE id="AUlW60" name="BankProperties.cpp" compile="1" resource="0"
+              file="Source/Clutch/BankProperties.cpp"/>
+        <FILE id="qX2Qmy" name="BankProperties.h" compile="0" resource="0"
+              file="Source/Clutch/BankProperties.h"/>
+        <FILE id="YsmVQA" name="BankListProperties.cpp" compile="1" resource="0"
+              file="Source/Clutch/BankListProperties.cpp"/>
+        <FILE id="BLCXLY" name="BankListProperties.h" compile="0" resource="0"
+              file="Source/Clutch/BankListProperties.h"/>
         <FILE id="U6khlc" name="ClutchProperties.cpp" compile="1" resource="0"
               file="Source/Clutch/ClutchProperties.cpp"/>
         <FILE id="gzLMf2" name="ClutchProperties.h" compile="0" resource="0"
@@ -33,6 +37,18 @@
               file="Source/Clutch/PatternListProperties.cpp"/>
         <FILE id="almlvE" name="PatternListProperties.h" compile="0" resource="0"
               file="Source/Clutch/PatternListProperties.h"/>
+        <FILE id="dwGU1j" name="ProjectManager.cpp" compile="1" resource="0"
+              file="Source/Clutch/ProjectManager.cpp"/>
+        <FILE id="FQR49l" name="ProjectManager.h" compile="0" resource="0"
+              file="Source/Clutch/ProjectManager.h"/>
+        <FILE id="ld6NRe" name="SamplePairProperties.cpp" compile="1" resource="0"
+              file="Source/Clutch/SamplePairProperties.cpp"/>
+        <FILE id="jhFidP" name="SamplePairProperties.h" compile="0" resource="0"
+              file="Source/Clutch/SamplePairProperties.h"/>
+        <FILE id="JNaYWa" name="SampleProperties.cpp" compile="1" resource="0"
+              file="Source/Clutch/SampleProperties.cpp"/>
+        <FILE id="PuM1rr" name="SampleProperties.h" compile="0" resource="0"
+              file="Source/Clutch/SampleProperties.h"/>
         <FILE id="sdbqsq" name="SettingsProperties.cpp" compile="1" resource="0"
               file="Source/Clutch/SettingsProperties.cpp"/>
         <FILE id="UMo0Ba" name="SettingsProperties.h" compile="0" resource="0"

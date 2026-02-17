@@ -27,11 +27,11 @@ const FxAssignments fxAssignments []
 class EffectProperties : public ValueTreeWrapper<EffectProperties>
 {
 public:
-    EffectProperties () noexcept : ValueTreeWrapper<EffectProperties> (EffectTypeId)
+    EffectProperties () noexcept : ValueTreeWrapper<EffectProperties> (BankTypeId)
     {
     }
     EffectProperties (juce::ValueTree vt, WrapperType wrapperType, EnableCallbacks shouldEnableCallbacks) noexcept
-        : ValueTreeWrapper<EffectProperties> (EffectTypeId, vt, wrapperType, shouldEnableCallbacks)
+        : ValueTreeWrapper<EffectProperties> (BankTypeId, vt, wrapperType, shouldEnableCallbacks)
     {
     }
 
@@ -42,7 +42,7 @@ public:
     std::function<void (juce::String id)> onIdChange;
     std::function<void (juce::String pattern)> onEffectChange;
 
-    static inline const juce::Identifier EffectTypeId { "Effect" };
+    static inline const juce::Identifier BankTypeId { "Effect" };
     static inline const juce::Identifier IdPropertyId { "id" };
     static inline const juce::Identifier EffectPropertyId { "effect" };
 
@@ -57,11 +57,11 @@ private:
 class EffectListProperties : public ValueTreeWrapper<EffectListProperties>
 {
 public:
-    EffectListProperties () noexcept : ValueTreeWrapper<EffectListProperties> (EffectListTypeId)
+    EffectListProperties () noexcept : ValueTreeWrapper<EffectListProperties> (BankListTypeId)
     {
     }
     EffectListProperties (juce::ValueTree vt, WrapperType wrapperType, EnableCallbacks shouldEnableCallbacks) noexcept
-        : ValueTreeWrapper<EffectListProperties> (EffectListTypeId, vt, wrapperType, shouldEnableCallbacks)
+        : ValueTreeWrapper<EffectListProperties> (BankListTypeId, vt, wrapperType, shouldEnableCallbacks)
     {
     }
 
@@ -72,7 +72,7 @@ public:
     void forEachEffect (std::function<bool (juce::ValueTree patternVT, int patternIndex)> patternVTCallback);
     juce::ValueTree getEffectVT (int patternIndex);
 
-    static inline const juce::Identifier EffectListTypeId { "EffectList" };
+    static inline const juce::Identifier BankListTypeId { "EffectList" };
 
     void initValueTree ();
     void processValueTree () {}

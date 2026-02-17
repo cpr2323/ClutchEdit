@@ -1,5 +1,6 @@
 #include "ClutchEditorComponent.h"
 #include "../../Clutch/HiHatIniData.h"
+#include "../../Clutch/ProjectManager.h"
 #include "../../Utility/PersistentRootProperties.h"
 
 void FillInDataFromVt (HiHatIniData& data, const juce::ValueTree vt);
@@ -35,11 +36,7 @@ ClutchEditorComponent::ClutchEditorComponent ()
                 juce::File fileToLoad (urlResult.getLocalFile ().getFullPathName ());
                 if (fileToLoad.isDirectory ())
                     return;
-                // TODO - need to reset gHiHatIniData to default state before reading from file
-                gHiHatIniData.readFromFile (fileToLoad);
-                FillInVtFromData (clutchProperties.getValueTree (), gHiHatIniData);
-                appProperties.setMostRecentFolder (fc.getURLResults () [0].getLocalFile ().getParentDirectory ().getFullPathName ());
-                appProperties.addRecentlyUsedFile(fc.getURLResults () [0].getLocalFile ().getFullPathName ());
+                openProject (fileToLoad, runtimeRootProperties.getValueTree ().getParent ());
             }
         }, nullptr);
     };
