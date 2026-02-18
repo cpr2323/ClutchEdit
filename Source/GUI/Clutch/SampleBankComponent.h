@@ -1,6 +1,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "../../Clutch/BankProperties.h"
+#include "../../Clutch/SampleProperties.h"
 #include "../../Clutch/Audio/AudioPlayerProperties.h"
 
 class FileDropLabel : public juce::Label,
@@ -148,8 +149,10 @@ private:
     struct HiHatSampleInfo
     {
         juce::Label name;
-        FileDropLabel openedName;
-        FileDropLabel closedName;
+        FileDropLabel openedNameLabel;
+        FileDropLabel closedNameLabel;
+        SampleProperties openSampleProperties;
+        SampleProperties closedSampleProperties;
     };
     std::array<HiHatSampleInfo, 16> hiHatSampleInfoList;
     juce::File banksRootFolder;

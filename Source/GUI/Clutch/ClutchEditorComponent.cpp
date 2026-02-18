@@ -4,7 +4,6 @@
 #include "../../Utility/PersistentRootProperties.h"
 
 void FillInDataFromVt (HiHatIniData& data, const juce::ValueTree vt);
-void FillInVtFromData (juce::ValueTree clutchVt, const HiHatIniData& data);
 extern HiHatIniData gHiHatIniData;
 
 ClutchEditorComponent::ClutchEditorComponent ()

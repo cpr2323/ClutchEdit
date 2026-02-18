@@ -1,7 +1,6 @@
 #include "SampleBankComponent.h"
 #include "../../Clutch/BankProperties.h"
 #include "../../Clutch/SamplePairProperties.h"
-#include "../../Clutch/SampleProperties.h"
 #include "../../SRC/libsamplerate-0.1.9/src/samplerate.h"
 #include "../../Utility/RuntimeRootProperties.h"
 
@@ -78,10 +77,22 @@ void SampleBankComponent::init (juce::ValueTree rootPropertiesVT, juce::ValueTre
     bankProperties.forEachSamplePair ([this] (juce::ValueTree samplePairVT, int samplePairIndex)
     {
         SamplePairProperties samplePairProperties { samplePairVT, SamplePairProperties::WrapperType::client, SamplePairProperties::EnableCallbacks::no };
-        SampleProperties openSampleProperties { samplePairProperties.getOpenSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
-        SampleProperties closedSampleProperties { samplePairProperties.getClosedSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
-        hiHatSampleInfoList [samplePairIndex].openedName.setFileExistState (openSampleProperties.getExists ());
-        hiHatSampleInfoList [samplePairIndex].closedName.setFileExistState (closedSampleProperties.getExists ());
+        HiHatSampleInfo& hiHatSampleInfo { hiHatSampleInfoList [samplePairIndex] };
+
+        hiHatSampleInfo.openSampleProperties.wrap (samplePairProperties.getOpenSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::yes);
+        hiHatSampleInfo.openSampleProperties.onExistsChange = [this, &hiHatSampleInfo] (bool exists)
+        {
+            hiHatSampleInfo.openedNameLabel.setFileExistState (exists);
+        };
+
+        hiHatSampleInfo.closedSampleProperties.wrap (samplePairProperties.getClosedSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::yes);
+        hiHatSampleInfo.closedSampleProperties.onExistsChange = [this, &hiHatSampleInfo] (bool exists)
+        {
+            hiHatSampleInfo.closedNameLabel.setFileExistState (exists);
+        };
+
+        hiHatSampleInfo.openedNameLabel.setFileExistState (hiHatSampleInfo.openSampleProperties.getExists ());
+        hiHatSampleInfo.closedNameLabel.setFileExistState (hiHatSampleInfo.closedSampleProperties.getExists ());
         return true;
     });
 }
@@ -253,17 +264,17 @@ void SampleBankComponent::paint (juce::Graphics& g)
     // draw horizontal lines
     for (auto lineIndex { 0 }; lineIndex < 15; ++lineIndex)
     {
-        g.drawLine (juce::Line { hiHatSampleInfoList [lineIndex].openedName.getX (), hiHatSampleInfoList [lineIndex].openedName.getBottom () + 1,
-                                 hiHatSampleInfoList [lineIndex].closedName.getRight (), hiHatSampleInfoList [lineIndex].openedName.getBottom () + 1 }.toFloat(), 1.0f);
+        g.drawLine (juce::Line { hiHatSampleInfoList [lineIndex].openedNameLabel.getX (), hiHatSampleInfoList [lineIndex].openedNameLabel.getBottom () + 1,
+                                 hiHatSampleInfoList [lineIndex].closedNameLabel.getRight (), hiHatSampleInfoList [lineIndex].openedNameLabel.getBottom () + 1 }.toFloat(), 1.0f);
     }
     // draw vertical center line
-    g.drawLine (juce::Line { hiHatSampleInfoList [0].openedName.getRight () + 2, hiHatSampleInfoList [0].openedName.getY (),
-                             hiHatSampleInfoList [0].openedName.getRight () + 2, hiHatSampleInfoList [15].openedName.getBottom () + 2 }.toFloat (), 1.0f);
+    g.drawLine (juce::Line { hiHatSampleInfoList [0].openedNameLabel.getRight () + 2, hiHatSampleInfoList [0].openedNameLabel.getY (),
+                             hiHatSampleInfoList [0].openedNameLabel.getRight () + 2, hiHatSampleInfoList [15].openedNameLabel.getBottom () + 2 }.toFloat (), 1.0f);
 
     // draw box outline
-    g.drawRect (hiHatSampleInfoList [0].openedName.getX (), hiHatSampleInfoList [0].openedName.getY (),
-                hiHatSampleInfoList [0].closedName.getRight () - hiHatSampleInfoList [0].openedName.getX (),
-                hiHatSampleInfoList [15].openedName.getBottom () - hiHatSampleInfoList [0].openedName.getY () + 2);
+    g.drawRect (hiHatSampleInfoList [0].openedNameLabel.getX (), hiHatSampleInfoList [0].openedNameLabel.getY (),
+                hiHatSampleInfoList [0].closedNameLabel.getRight () - hiHatSampleInfoList [0].openedNameLabel.getX (),
+                hiHatSampleInfoList [15].openedNameLabel.getBottom () - hiHatSampleInfoList [0].openedNameLabel.getY () + 2);
 }
 
 void SampleBankComponent::resized ()
@@ -276,8 +287,8 @@ void SampleBankComponent::resized ()
         auto hiHatSampleIndoBounds { bounds.removeFromTop (20).withTrimmedLeft (1) };
         hiHatSampleInfo.name.setBounds (hiHatSampleIndoBounds.removeFromLeft (25));
 
-        hiHatSampleInfo.openedName.setBounds (hiHatSampleIndoBounds.removeFromLeft (57));
-        hiHatSampleInfo.closedName.setBounds (hiHatSampleIndoBounds.removeFromLeft (57));
+        hiHatSampleInfo.openedNameLabel.setBounds (hiHatSampleIndoBounds.removeFromLeft (57));
+        hiHatSampleInfo.closedNameLabel.setBounds (hiHatSampleIndoBounds.removeFromLeft (57));
     }
 }
 

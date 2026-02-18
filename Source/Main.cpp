@@ -121,6 +121,7 @@ public:
         editedClutchProperties.setName ("edited", false);
         runtimeRootProperties.getValueTree ().addChild (editedClutchProperties.getValueTree ().createCopy (), -1, nullptr);
 
+        // open the most recent project
         auto hiHatIniFile { juce::File (appProperties.getRecentlyUsedFile (0)) };
         openProject (hiHatIniFile, rootProperties.getValueTree());
     }

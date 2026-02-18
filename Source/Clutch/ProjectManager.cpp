@@ -1,7 +1,6 @@
 #include "ProjectManager.h"
 #include "BankListProperties.h"
 #include "BankProperties.h"
-#include "ClutchProperties.h"
 #include "EffectListProperties.h"
 #include "HiHatIniData.h"
 #include "PatternListProperties.h"
@@ -274,12 +273,26 @@ void FillInVtFromData (juce::ValueTree clutchVt, const HiHatIniData& data)
     });
 }
 
-void openProject (const juce::File& hiHatIniFile, juce::ValueTree rootPropertiesVT)
-{
-    RuntimeRootProperties runtimeRootProperties (rootPropertiesVT, ValueTreeWrapper<RuntimeRootProperties>::WrapperType::client, ValueTreeWrapper<RuntimeRootProperties>::EnableCallbacks::no);
-    ClutchProperties unEditedClutchProperties (runtimeRootProperties.getValueTree ().getChildWithProperty (ClutchProperties::NamePropertyId, "unedited"), ValueTreeWrapper<ClutchProperties>::WrapperType::client, ValueTreeWrapper<ClutchProperties>::EnableCallbacks::no);
-    ClutchProperties editedClutchProperties (runtimeRootProperties.getValueTree ().getChildWithProperty (ClutchProperties::NamePropertyId, "edited"), ValueTreeWrapper<ClutchProperties>::WrapperType::client, ValueTreeWrapper<ClutchProperties>::EnableCallbacks::no);
 
+ProjectManager::ProjectManager (juce::ValueTree rootPropertiesVT)
+{
+    PersistentRootProperties persistentRootProperties (rootPropertiesVT, PersistentRootProperties::WrapperType::client, PersistentRootProperties::EnableCallbacks::no);
+    RuntimeRootProperties runtimeRootProperties (rootPropertiesVT, RuntimeRootProperties::WrapperType::client, RuntimeRootProperties::EnableCallbacks::no);
+    appProperties.wrap (persistentRootProperties.getValueTree (), AppProperties::WrapperType::client, AppProperties::EnableCallbacks::yes);
+    appProperties.onMostRecentFileChange = [this, rootPropertiesVT] (const juce::File& mostRecentFile)
+    {
+        //openProject (mostRecentFile, rootPropertiesVT);
+    };
+
+    RuntimeRootProperties runtimeRootProperties (rootPropertiesVT, ValueTreeWrapper<RuntimeRootProperties>::WrapperType::client, ValueTreeWrapper<RuntimeRootProperties>::EnableCallbacks::no);
+    unEditedClutchProperties.wrap (runtimeRootProperties.getValueTree ().getChildWithProperty (ClutchProperties::NamePropertyId, "unedited"), ValueTreeWrapper<ClutchProperties>::WrapperType::client, ValueTreeWrapper<ClutchProperties>::EnableCallbacks::no);
+    editedClutchProperties.wrap (runtimeRootProperties.getValueTree ().getChildWithProperty (ClutchProperties::NamePropertyId, "edited"), ValueTreeWrapper<ClutchProperties>::WrapperType::client, ValueTreeWrapper<ClutchProperties>::EnableCallbacks::no);
+
+    startTimer (2000);
+}
+
+void ProjectManager::openProject (const juce::File& hiHatIniFile, juce::ValueTree rootPropertiesVT)
+{
     if (hiHatIniFile.existsAsFile ())
     {
         gHiHatIniData.readFromFile (hiHatIniFile);
@@ -289,7 +302,22 @@ void openProject (const juce::File& hiHatIniFile, juce::ValueTree rootProperties
 
     auto bankParentFolder { hiHatIniFile.getParentDirectory () };
     // create bank list properties on the unedited branch, so we can track sample changes
-    BankListProperties bankListProperties { unEditedClutchProperties.getValueTree (), BankListProperties::WrapperType::client, BankListProperties::EnableCallbacks::no };
+    scanSamples (unEditedClutchProperties.getValueTree ());
+
+    // copy bank list properties to edited clutch properties so that they can be edited
+    BankListProperties editedBankListProperties { editedClutchProperties.getValueTree (), BankListProperties::WrapperType::client, BankListProperties::EnableCallbacks::no };
+    editedBankListProperties.getValueTree ().copyPropertiesAndChildrenFrom (bankListProperties.getValueTree (), nullptr);
+
+    PersistentRootProperties persistentRootProperties (rootPropertiesVT, PersistentRootProperties::WrapperType::client, PersistentRootProperties::EnableCallbacks::no);
+    AppProperties appProperties;
+    appProperties.wrap (persistentRootProperties.getValueTree (), AppProperties::WrapperType::client, AppProperties::EnableCallbacks::no);
+    appProperties.setMostRecentFolder (hiHatIniFile.getParentDirectory ().getFullPathName ());
+    appProperties.addRecentlyUsedFile (hiHatIniFile.getFullPathName ());
+}
+
+void ProjectManager::scanSamples (juce::ValueTree clutchPropertiesVT)
+{
+    BankListProperties bankListProperties { clutchPropertiesVT, BankListProperties::WrapperType::client, BankListProperties::EnableCallbacks::no };
     bankListProperties.forEachBank ([bankParentFolder] (juce::ValueTree bankPropertiesVT, int bankIndex)
     {
         BankProperties bankProperties { bankPropertiesVT, BankProperties::WrapperType::client, BankProperties::EnableCallbacks::no };
@@ -304,20 +332,13 @@ void openProject (const juce::File& hiHatIniFile, juce::ValueTree rootProperties
             };
             checkSampleExistence (samplePairProperties.getOpenSampleVT ());
             checkSampleExistence (samplePairProperties.getClosedSampleVT ());
-
             return true;
         });
         return true;
     });
-
-    // copy bank list properties to edited clutch properties so that they can be edited
-    BankListProperties editedBankListProperties { editedClutchProperties.getValueTree (), BankListProperties::WrapperType::client, BankListProperties::EnableCallbacks::no };
-    editedBankListProperties.getValueTree ().copyPropertiesAndChildrenFrom (bankListProperties.getValueTree (), nullptr);
-
-    PersistentRootProperties persistentRootProperties (rootPropertiesVT, PersistentRootProperties::WrapperType::client, PersistentRootProperties::EnableCallbacks::no);
-    AppProperties appProperties;
-    appProperties.wrap (persistentRootProperties.getValueTree (), AppProperties::WrapperType::client, AppProperties::EnableCallbacks::no);
-    appProperties.setMostRecentFolder (hiHatIniFile.getParentDirectory ().getFullPathName ());
-    appProperties.addRecentlyUsedFile (hiHatIniFile.getFullPathName ());
 }
 
+void ProjectManager::timerCallback ()
+{
+    scanSamples (editedClutchProperties.getValueTree ());
+}
