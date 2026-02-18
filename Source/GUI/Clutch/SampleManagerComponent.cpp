@@ -1,6 +1,7 @@
 #include "SampleManagerComponent.h"
 #include "../../Clutch/BankListProperties.h"
 #include "../../Clutch/BankProperties.h"
+#include "../../Clutch/ClutchProperties.h"
 #include "../../Utility/PersistentRootProperties.h"
 #include "../../Utility/RuntimeRootProperties.h"
 
@@ -20,19 +21,19 @@ SampleManagerComponent::~SampleManagerComponent ()
 
 void SampleManagerComponent::init (juce::ValueTree rootPropertiesVT)
 {
-    PersistentRootProperties persistentRootProperties (rootPropertiesVT, PersistentRootProperties::WrapperType::owner, PersistentRootProperties::EnableCallbacks::no);
-    appProperties.wrap (persistentRootProperties.getValueTree (), AppProperties::WrapperType::owner, AppProperties::EnableCallbacks::yes);
+    PersistentRootProperties persistentRootProperties (rootPropertiesVT, PersistentRootProperties::WrapperType::client, PersistentRootProperties::EnableCallbacks::no);
+    appProperties.wrap (persistentRootProperties.getValueTree (), AppProperties::WrapperType::client, AppProperties::EnableCallbacks::yes);
     appProperties.onMostRecentFileChange = [this] ([[maybe_unused]] juce::String folderName)
     {
         // TODO : this should be handled elsewhere
         updateBanks ();
     };
 
-    RuntimeRootProperties runtimeRootProperties (rootPropertiesVT, RuntimeRootProperties::WrapperType::owner, RuntimeRootProperties::EnableCallbacks::no);
-    BankListProperties bankListProperties { runtimeRootProperties.getValueTree (), BankListProperties::WrapperType::owner, BankListProperties::EnableCallbacks::no };
+    RuntimeRootProperties runtimeRootProperties (rootPropertiesVT, RuntimeRootProperties::WrapperType::client, RuntimeRootProperties::EnableCallbacks::no);
+    ClutchProperties editedClutchProperties (runtimeRootProperties.getValueTree ().getChildWithProperty (ClutchProperties::NamePropertyId, "edited"), ValueTreeWrapper<ClutchProperties>::WrapperType::client, ValueTreeWrapper<ClutchProperties>::EnableCallbacks::no);
+    BankListProperties bankListProperties { editedClutchProperties.getValueTree (), BankListProperties::WrapperType::client, BankListProperties::EnableCallbacks::no };
     bankListProperties.forEachBank ([this, rootPropertiesVT] (juce::ValueTree bankPropertiesVT, int bankIndex)
     {
-        BankProperties bankProperties (bankPropertiesVT, BankProperties::WrapperType::client, BankProperties::EnableCallbacks::no);
         auto* sampleBankComponent { dynamic_cast<SampleBankComponent*> (findChildWithID ("SBC" + juce::String (bankIndex))) };
         jassert (sampleBankComponent != nullptr);
         sampleBankComponent->init (rootPropertiesVT, bankPropertiesVT);

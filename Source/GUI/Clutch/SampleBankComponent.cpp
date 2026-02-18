@@ -1,4 +1,7 @@
 #include "SampleBankComponent.h"
+#include "../../Clutch/BankProperties.h"
+#include "../../Clutch/SamplePairProperties.h"
+#include "../../Clutch/SampleProperties.h"
 #include "../../SRC/libsamplerate-0.1.9/src/samplerate.h"
 #include "../../Utility/RuntimeRootProperties.h"
 
@@ -57,7 +60,7 @@ SampleBankComponent::SampleBankComponent ()
     }
 
     updateFileStatus ();
-    startTimer (0, 2000);
+    //startTimer (0, 2000);
 }
 
 SampleBankComponent::~SampleBankComponent ()
@@ -72,6 +75,15 @@ void SampleBankComponent::init (juce::ValueTree rootPropertiesVT, juce::ValueTre
     
     bankProperties.wrap (bankPropertiesVT, BankProperties::WrapperType::client, BankProperties::EnableCallbacks::yes);
     setBankName (bankProperties.getName ());
+    bankProperties.forEachSamplePair ([this] (juce::ValueTree samplePairVT, int samplePairIndex)
+    {
+        SamplePairProperties samplePairProperties { samplePairVT, SamplePairProperties::WrapperType::client, SamplePairProperties::EnableCallbacks::no };
+        SampleProperties openSampleProperties { samplePairProperties.getOpenSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
+        SampleProperties closedSampleProperties { samplePairProperties.getClosedSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
+        hiHatSampleInfoList [samplePairIndex].openedName.setFileExistState (openSampleProperties.getExists ());
+        hiHatSampleInfoList [samplePairIndex].closedName.setFileExistState (closedSampleProperties.getExists ());
+        return true;
+    });
 }
 
 void SampleBankComponent::sampleConvert (juce::AudioFormatReader* reader, juce::AudioBuffer<float>& outputBuffer)
@@ -212,21 +224,21 @@ void SampleBankComponent::copySampleFile (juce::File sourceFile, int hiHatSample
 // TODO : move this to a thread
 void SampleBankComponent::updateFileStatus ()
 {
-    if (banksRootFolder != juce::File ())
-    {
-        for (auto hiHatSampleInfoIndex { 0 }; hiHatSampleInfoIndex < hiHatSampleInfoList.size (); ++hiHatSampleInfoIndex)
-        {
-            auto doesFileExist = [this] (int hiHatSampleInfoIndex, HiHatState hiHatState)
-            {
-                juce::String fileName { juce::String (hiHatSampleInfoIndex + 1).paddedLeft ('0', 2) + juce::String (hiHatState == HiHatState::opened ? "OH" : "CH") };
-                auto file { banksRootFolder.getChildFile (bankName.getText ()).getChildFile (fileName).withFileExtension ("wav") };
-                return file.existsAsFile ();
-            };
-            hiHatSampleInfoList [hiHatSampleInfoIndex].openedName.setFileExistState (doesFileExist (hiHatSampleInfoIndex, HiHatState::opened));
-            hiHatSampleInfoList [hiHatSampleInfoIndex].closedName.setFileExistState (doesFileExist (hiHatSampleInfoIndex, HiHatState::closed));
-        }
-    }
-    repaint ();
+//     if (banksRootFolder != juce::File ())
+//     {
+//         for (auto hiHatSampleInfoIndex { 0 }; hiHatSampleInfoIndex < hiHatSampleInfoList.size (); ++hiHatSampleInfoIndex)
+//         {
+//             auto doesFileExist = [this] (int hiHatSampleInfoIndex, HiHatState hiHatState)
+//             {
+//                 juce::String fileName { juce::String (hiHatSampleInfoIndex + 1).paddedLeft ('0', 2) + juce::String (hiHatState == HiHatState::opened ? "OH" : "CH") };
+//                 auto file { banksRootFolder.getChildFile (bankName.getText ()).getChildFile (fileName).withFileExtension ("wav") };
+//                 return file.existsAsFile ();
+//             };
+//             hiHatSampleInfoList [hiHatSampleInfoIndex].openedName.setFileExistState (doesFileExist (hiHatSampleInfoIndex, HiHatState::opened));
+//             hiHatSampleInfoList [hiHatSampleInfoIndex].closedName.setFileExistState (doesFileExist (hiHatSampleInfoIndex, HiHatState::closed));
+//         }
+//     }
+     repaint ();
 }
 
 void SampleBankComponent::setBankFolder (const juce::File& newBankFolder)

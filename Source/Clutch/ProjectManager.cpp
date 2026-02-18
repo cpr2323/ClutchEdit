@@ -288,6 +288,7 @@ void openProject (const juce::File& hiHatIniFile, juce::ValueTree rootProperties
     }
 
     auto bankParentFolder { hiHatIniFile.getParentDirectory () };
+    // create bank list properties on the unedited branch, so we can track sample changes
     BankListProperties bankListProperties { unEditedClutchProperties.getValueTree (), BankListProperties::WrapperType::client, BankListProperties::EnableCallbacks::no };
     bankListProperties.forEachBank ([bankParentFolder] (juce::ValueTree bankPropertiesVT, int bankIndex)
     {
@@ -308,6 +309,10 @@ void openProject (const juce::File& hiHatIniFile, juce::ValueTree rootProperties
         });
         return true;
     });
+
+    // copy bank list properties to edited clutch properties so that they can be edited
+    BankListProperties editedBankListProperties { editedClutchProperties.getValueTree (), BankListProperties::WrapperType::client, BankListProperties::EnableCallbacks::no };
+    editedBankListProperties.getValueTree ().copyPropertiesAndChildrenFrom (bankListProperties.getValueTree (), nullptr);
 
     PersistentRootProperties persistentRootProperties (rootPropertiesVT, PersistentRootProperties::WrapperType::client, PersistentRootProperties::EnableCallbacks::no);
     AppProperties appProperties;
