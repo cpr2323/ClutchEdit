@@ -1,5 +1,6 @@
 #pragma once
 #include <JuceHeader.h>
+#include "../../Clutch/BankProperties.h"
 #include "../../Clutch/Audio/AudioPlayerProperties.h"
 
 class FileDropLabel : public juce::Label,
@@ -135,13 +136,14 @@ public:
     SampleBankComponent ();
     ~SampleBankComponent ();
 
-    void init (juce::ValueTree rootPropertiesVT);
+    void init (juce::ValueTree rootPropertiesVT, juce::ValueTree bankPropertiesVT);
 
     void setBankName (const juce::String& newBankName);
     void updateFileStatus ();
     void setBankFolder (const juce::File& newBankFolder);
 
 private:
+    BankProperties bankProperties;
     juce::Label bankName;
     struct HiHatSampleInfo
     {

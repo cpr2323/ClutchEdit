@@ -65,10 +65,13 @@ SampleBankComponent::~SampleBankComponent ()
 
 }
 
-void SampleBankComponent::init (juce::ValueTree rootPropertiesVT)
+void SampleBankComponent::init (juce::ValueTree rootPropertiesVT, juce::ValueTree bankPropertiesVT)
 {
     RuntimeRootProperties runtimeRootProperties { rootPropertiesVT, RuntimeRootProperties::WrapperType::client, RuntimeRootProperties::EnableCallbacks::no };
-    audioPlayerProperties.wrap (runtimeRootProperties.getValueTree (), AudioPlayerProperties::WrapperType::client, AudioPlayerProperties::EnableCallbacks::yes);
+    audioPlayerProperties.wrap (runtimeRootProperties.getValueTree (), AudioPlayerProperties::WrapperType::client, AudioPlayerProperties::EnableCallbacks::no);
+    
+    bankProperties.wrap (bankPropertiesVT, BankProperties::WrapperType::client, BankProperties::EnableCallbacks::yes);
+    setBankName (bankProperties.getName ());
 }
 
 void SampleBankComponent::sampleConvert (juce::AudioFormatReader* reader, juce::AudioBuffer<float>& outputBuffer)
