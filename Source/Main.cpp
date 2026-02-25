@@ -113,17 +113,17 @@ public:
         clutchProperties.getValueTree ().addChild (effectListProperties.getValueTree (), -1, nullptr);
         clutchProperties.getValueTree ().addChild (bankListProperties.getValueTree (), -1, nullptr);
 
+        // add default clutch properties for unedited properties
         auto unEditedClutchProperties { ClutchProperties (clutchProperties.getValueTree ().createCopy (), ClutchProperties::WrapperType::owner, ClutchProperties::EnableCallbacks::no) };
         unEditedClutchProperties.setName ("unedited", false);
         runtimeRootProperties.getValueTree ().addChild (unEditedClutchProperties.getValueTree ().createCopy (), -1, nullptr);
 
+        // add default clutch properties for edited properties
         auto editedClutchProperties { ClutchProperties (clutchProperties.getValueTree ().createCopy (), ClutchProperties::WrapperType::owner, ClutchProperties::EnableCallbacks::no) };
         editedClutchProperties.setName ("edited", false);
         runtimeRootProperties.getValueTree ().addChild (editedClutchProperties.getValueTree ().createCopy (), -1, nullptr);
 
-        // open the most recent project
-        auto hiHatIniFile { juce::File (appProperties.getRecentlyUsedFile (0)) };
-        openProject (hiHatIniFile, rootProperties.getValueTree());
+        projectManager.init (rootProperties.getValueTree ());
     }
 
     void initUi ()
@@ -298,17 +298,11 @@ private:
     GuiControlProperties guiControlProperties;
     GuiProperties guiProperties;
     RuntimeRootProperties runtimeRootProperties;
-    //SampleManager sampleManager;
-    //Assimil8orValidator assimil8orValidator;
-    //PresetProperties presetProperties;
-    //DirectoryValueTree directoryValueTree;
-    //DirectoryDataProperties directoryDataProperties;
+    ProjectManager projectManager;
     std::unique_ptr<juce::FileLogger> fileLogger;
     std::atomic<RuntimeRootProperties::QuitState> localQuitState { RuntimeRootProperties::QuitState::idle };
     std::unique_ptr<MainWindow> mainWindow;
     AudioPlayer audioPlayer;
-    //AudioManager audioManager;
-    //EditManager editManager;
 
     ValueTreeMonitor audioConfigPropertiesMonitor;
     ValueTreeMonitor directoryDataMonitor;

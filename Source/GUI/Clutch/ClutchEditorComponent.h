@@ -6,6 +6,7 @@
 #include "SampleManagerComponent.h"
 #include "../../AppProperties.h"
 #include "../../Clutch/ClutchProperties.h"
+#include "../../Clutch/ProjectManagerProperties.h"
 #include "../../Clutch/Audio/AudioPlayerProperties.h"
 #include "../../Utility/RuntimeRootProperties.h"
 
@@ -21,11 +22,12 @@ private:
     AppProperties appProperties;
     AudioPlayerProperties audioPlayerProperties;
     ClutchProperties clutchProperties;
-    RuntimeRootProperties runtimeRootProperties;
     EffectEditorComponent effectEditorComponent;
-    SettingsEditorComponent settingsEditorComponent;
     PatternListEditorComponent patternListEditorComponent;
+    ProjectManagerProperties projectManagerProperties;
+    RuntimeRootProperties runtimeRootProperties;
     SampleManagerComponent sampleManagerComponent;
+    SettingsEditorComponent settingsEditorComponent;
     juce::TextButton saveButton;
     juce::TextButton openButton;
     juce::TextButton settingsButton;

@@ -2,19 +2,26 @@
 
 #include <JuceHeader.h>
 #include "ClutchProperties.h"
+#include "ProjectManagerProperties.h"
 #include "../AppProperties.h"
+#include "../Clutch/HiHatIniData.h"
 
 class ProjectManager : public juce::Timer
 {
 public:
-    ProjectManager (juce::ValueTree rootPropertiesVT);
+    ProjectManager ();
+    void init (juce::ValueTree rootPropertiesVT);
 
 private:
+    juce::ValueTree rootPropertiesVT;
+    ProjectManagerProperties projectManagerProperties;
     AppProperties appProperties;
     ClutchProperties unEditedClutchProperties;
     ClutchProperties editedClutchProperties;
+    HiHatIniData hiHatIniData;
 
-    void openProject (const juce::File& hiHatIniFile, juce::ValueTree rootPropertiesVT);
+    void openProject (const juce::File& hiHatIniFile);
+    void saveProject ();
     void scanSamples (juce::ValueTree clutchPropertiesVT);
 
     void timerCallback () override;

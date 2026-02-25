@@ -28,34 +28,34 @@ SampleBankComponent::SampleBankComponent ()
         addAndMakeVisible (hiHatSampleInfo.name);
 
         // add opened sample label
-        hiHatSampleInfo.openedName.setJustificationType (juce::Justification::centred);
-        hiHatSampleInfo.openedName.setText ("Opened", juce::NotificationType::dontSendNotification);
-        hiHatSampleInfo.openedName.onFilesSelected = [this, hiHatSampleIndex] (juce::StringArray files)
+        hiHatSampleInfo.openedNameLabel.setJustificationType (juce::Justification::centred);
+        hiHatSampleInfo.openedNameLabel.setText ("Opened", juce::NotificationType::dontSendNotification);
+        hiHatSampleInfo.openedNameLabel.onFilesSelected = [this, hiHatSampleIndex] (juce::StringArray files)
         {
             jassert (files.size () == 1);
             audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
             copySampleFile (juce::File (files[0]), hiHatSampleIndex, HiHatState::opened);
         };
-        hiHatSampleInfo.openedName.onMouseUp = [this, sampleLabel = &hiHatSampleInfo.openedName, hiHatSampleIndex, setupAuditioningForSample] ([[maybe_unused]] const juce::MouseEvent& mouseEvent)
+        hiHatSampleInfo.openedNameLabel.onMouseUp = [this, sampleLabel = &hiHatSampleInfo.openedNameLabel, hiHatSampleIndex, setupAuditioningForSample] ([[maybe_unused]] const juce::MouseEvent& mouseEvent)
         {
             setupAuditioningForSample (sampleLabel, bankName.getText () + juce::File::getSeparatorString () + juce::String (hiHatSampleIndex + 1).paddedLeft ('0', 2) + "OH.wav");
         };
-        addAndMakeVisible (hiHatSampleInfo.openedName);
+        addAndMakeVisible (hiHatSampleInfo.openedNameLabel);
 
         // add closed sample label
-        hiHatSampleInfo.closedName.setJustificationType (juce::Justification::centred);
-        hiHatSampleInfo.closedName.setText ("Closed", juce::NotificationType::dontSendNotification);
-        hiHatSampleInfo.closedName.onFilesSelected = [this, hiHatSampleIndex] (juce::StringArray files)
+        hiHatSampleInfo.closedNameLabel.setJustificationType (juce::Justification::centred);
+        hiHatSampleInfo.closedNameLabel.setText ("Closed", juce::NotificationType::dontSendNotification);
+        hiHatSampleInfo.closedNameLabel.onFilesSelected = [this, hiHatSampleIndex] (juce::StringArray files)
         {
             jassert (files.size () == 1);
             audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
             copySampleFile (juce::File (files [0]), hiHatSampleIndex, HiHatState::closed);
         };
-        hiHatSampleInfo.closedName.onMouseUp = [this, sampleLabel = &hiHatSampleInfo.closedName, hiHatSampleIndex, setupAuditioningForSample] ([[maybe_unused]] const juce::MouseEvent& mouseEvent)
+        hiHatSampleInfo.closedNameLabel.onMouseUp = [this, sampleLabel = &hiHatSampleInfo.closedNameLabel, hiHatSampleIndex, setupAuditioningForSample] ([[maybe_unused]] const juce::MouseEvent& mouseEvent)
         {
             setupAuditioningForSample (sampleLabel, bankName.getText () + juce::File::getSeparatorString () + juce::String (hiHatSampleIndex + 1).paddedLeft ('0', 2) + "CH.wav");
         };
-        addAndMakeVisible (hiHatSampleInfo.closedName);
+        addAndMakeVisible (hiHatSampleInfo.closedNameLabel);
     }
 
     updateFileStatus ();

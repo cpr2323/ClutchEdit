@@ -21,6 +21,8 @@ public:
 
     void readFromFile (const juce::File& file);
     void writeToFile (juce::File outputFile);
+    void FillInDataFromProperties (const juce::ValueTree clutchVT);
+    void FillInPropertiesFromData (juce::ValueTree clutchVt);
 
     juce::String getValue (const juce::String& section, const juce::String& key) const;
     void setValue (const juce::String& section, const juce::String& key, const juce::String& value);

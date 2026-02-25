@@ -1,10 +1,6 @@
 #include "ClutchEditorComponent.h"
 #include "../../Clutch/HiHatIniData.h"
-#include "../../Clutch/ProjectManager.h"
 #include "../../Utility/PersistentRootProperties.h"
-
-void FillInDataFromVt (HiHatIniData& data, const juce::ValueTree vt);
-extern HiHatIniData gHiHatIniData;
 
 ClutchEditorComponent::ClutchEditorComponent ()
 {
@@ -35,7 +31,8 @@ ClutchEditorComponent::ClutchEditorComponent ()
                 juce::File fileToLoad (urlResult.getLocalFile ().getFullPathName ());
                 if (fileToLoad.isDirectory ())
                     return;
-                openProject (fileToLoad, runtimeRootProperties.getValueTree ().getParent ());
+                appProperties.setMostRecentFolder (fileToLoad.getParentDirectory().getFullPathName());
+                appProperties.addRecentlyUsedFile (fileToLoad.getFullPathName ());
             }
         }, nullptr);
     };
@@ -43,11 +40,10 @@ ClutchEditorComponent::ClutchEditorComponent ()
 
     // SAVE BUTTON
     saveButton.setButtonText ("SAVE");
-    //saveButton.setEnabled (false); // TODO: do this when the edit compare functionallity is working
+    //saveButton.setEnabled (false); // TODO: do this when the edit compare functionality is working
     saveButton.onClick = [this] ()
     {
-        FillInDataFromVt (gHiHatIniData, clutchProperties.getValueTreeRef ());
-        gHiHatIniData.writeToFile (appProperties.getRecentlyUsedFile(0));
+        projectManagerProperties.doSaveProject (false);
     };
     addAndMakeVisible (saveButton);
 }
@@ -60,7 +56,9 @@ void ClutchEditorComponent::init (juce::ValueTree rootPropertiesVT)
 {
     PersistentRootProperties persistentRootProperties (rootPropertiesVT, PersistentRootProperties::WrapperType::client, PersistentRootProperties::EnableCallbacks::no);
     appProperties.wrap (persistentRootProperties.getValueTree (), AppProperties::WrapperType::client, AppProperties::EnableCallbacks::yes);
+
     runtimeRootProperties.wrap (rootPropertiesVT, ValueTreeWrapper<RuntimeRootProperties>::WrapperType::client, ValueTreeWrapper<RuntimeRootProperties>::EnableCallbacks::no);
+    projectManagerProperties.wrap (runtimeRootProperties.getValueTree (), ProjectManagerProperties::WrapperType::owner, ProjectManagerProperties::EnableCallbacks::yes);
     audioPlayerProperties.wrap (runtimeRootProperties.getValueTree (), AudioPlayerProperties::WrapperType::client, AudioPlayerProperties::EnableCallbacks::no);
     clutchProperties.wrap (runtimeRootProperties.getValueTree ().getChildWithProperty(ClutchProperties::NamePropertyId, "edited"), ValueTreeWrapper<ClutchProperties>::WrapperType::client, ValueTreeWrapper<ClutchProperties>::EnableCallbacks::no);
     // TODO pass in the clutch VT directly instead of root VT
