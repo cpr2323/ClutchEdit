@@ -35,7 +35,12 @@ void BankProperties::forEachSamplePair (std::function<bool (juce::ValueTree samp
         ++curSamplePairIndex;
         return keepIterating;
     });
+}
 
+juce::ValueTree BankProperties::getSamplePairVT (int samplePairIndex)
+{
+    jassert (samplePairIndex >= 0 && samplePairIndex < data.getNumChildren ());
+    return data.getChild (samplePairIndex);
 }
 
 void BankProperties::valueTreePropertyChanged (juce::ValueTree& vt, const juce::Identifier& property)
