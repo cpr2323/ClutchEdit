@@ -49,7 +49,35 @@ void ProjectManager::openProject (const juce::File& hiHatIniFile)
     // copy unedited bank list properties to edited bank list properties so that they can be edited
     BankListProperties unEditedBankListProperties { unEditedClutchProperties.getValueTree (), BankListProperties::WrapperType::client, BankListProperties::EnableCallbacks::no };
     BankListProperties editedBankListProperties { editedClutchProperties.getValueTree (), BankListProperties::WrapperType::client, BankListProperties::EnableCallbacks::no };
-    editedBankListProperties.getValueTree ().copyPropertiesAndChildrenFrom (unEditedBankListProperties.getValueTree (), nullptr);
+
+    // copy the exist flag in the SampleProperties for each sample from the unEditedBankListProperties to sample sample in the editedBankListProperties
+    unEditedBankListProperties.forEachBank ([&] (juce::ValueTree unEditedBankVT, int bankIndex)
+    {
+        auto editedBankVT = editedBankListProperties.getBankVT (bankIndex);
+        BankProperties unEditedBank { unEditedBankVT, BankProperties::WrapperType::client, BankProperties::EnableCallbacks::no };
+        BankProperties editedBank { editedBankVT, BankProperties::WrapperType::client, BankProperties::EnableCallbacks::no };
+
+        unEditedBank.forEachSamplePair ([&] (juce::ValueTree unEditedSamplePairVT, int samplePairIndex)
+        {
+            auto editedSamplePairVT = editedBank.getSamplePairVT (samplePairIndex);
+            SamplePairProperties unEditedSamplePair { unEditedSamplePairVT, SamplePairProperties::WrapperType::client, SamplePairProperties::EnableCallbacks::no };
+            SamplePairProperties editedSamplePair { editedSamplePairVT, SamplePairProperties::WrapperType::client, SamplePairProperties::EnableCallbacks::no };
+
+            // open sample
+            SampleProperties unEditedOpen { unEditedSamplePair.getOpenSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
+            SampleProperties editedOpen { editedSamplePair.getOpenSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
+            editedOpen.setExists (unEditedOpen.getExists (), false);
+
+            // closed sample
+            SampleProperties unEditedClosed { unEditedSamplePair.getClosedSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
+            SampleProperties editedClosed { editedSamplePair.getClosedSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
+            editedClosed.setExists (unEditedClosed.getExists (), false);
+
+            return true;
+        });
+
+        return true;
+    });
 }
 
 void ProjectManager::saveProject ()
