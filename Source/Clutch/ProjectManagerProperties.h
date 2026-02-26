@@ -13,13 +13,17 @@ public:
     {
     }
 
+    void setProjectEdited (bool projectEdited, bool includeSelfCallback);
     void doSaveProject (bool includeSelfCallback);
 
+    bool getProjectEdited ();
 
+    std::function<void (bool projectEdited)> onProjectEditedChange;
     std::function<void ()> onSaveProject;
 
     static inline const juce::Identifier ProjectManagerTypeId { "ProjectManager" };
     static inline const juce::Identifier DoSaveProjectPropertyId { "doSaveProject" };
+    static inline const juce::Identifier ProjectEditedPropertyId { "projectEdited" };
 
     void initValueTree ();
     void processValueTree () {}

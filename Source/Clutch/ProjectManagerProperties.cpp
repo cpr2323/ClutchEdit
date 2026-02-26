@@ -2,12 +2,23 @@
 
 void ProjectManagerProperties::initValueTree ()
 {
+    setProjectEdited (false, false);
     doSaveProject (false);
+}
+
+void ProjectManagerProperties::setProjectEdited (bool projectEdited, bool includeSelfCallback)
+{
+    setValue (projectEdited, ProjectEditedPropertyId, includeSelfCallback);
 }
 
 void ProjectManagerProperties::doSaveProject (bool includeSelfCallback)
 {
     setValue (! getValue<bool>(DoSaveProjectPropertyId), DoSaveProjectPropertyId, includeSelfCallback);
+}
+
+bool ProjectManagerProperties::getProjectEdited ()
+{
+    return getValue<bool> (ProjectEditedPropertyId);
 }
 
 void ProjectManagerProperties::valueTreePropertyChanged (juce::ValueTree& vt, const juce::Identifier& property)
@@ -19,5 +30,10 @@ void ProjectManagerProperties::valueTreePropertyChanged (juce::ValueTree& vt, co
     {
         if (onSaveProject)
             onSaveProject();
+    }
+    else if (property == ProjectEditedPropertyId)
+    {
+        if (onProjectEditedChange)
+            onProjectEditedChange (getProjectEdited ());
     }
 }

@@ -40,7 +40,7 @@ ClutchEditorComponent::ClutchEditorComponent ()
 
     // SAVE BUTTON
     saveButton.setButtonText ("SAVE");
-    //saveButton.setEnabled (false); // TODO: do this when the edit compare functionality is working
+    saveButton.setEnabled (false); // TODO: do this when the edit compare functionality is working
     saveButton.onClick = [this] ()
     {
         projectManagerProperties.doSaveProject (false);
@@ -59,6 +59,10 @@ void ClutchEditorComponent::init (juce::ValueTree rootPropertiesVT)
 
     runtimeRootProperties.wrap (rootPropertiesVT, ValueTreeWrapper<RuntimeRootProperties>::WrapperType::client, ValueTreeWrapper<RuntimeRootProperties>::EnableCallbacks::no);
     projectManagerProperties.wrap (runtimeRootProperties.getValueTree (), ProjectManagerProperties::WrapperType::owner, ProjectManagerProperties::EnableCallbacks::yes);
+    projectManagerProperties.onProjectEditedChange = [this] (bool projectEdited)
+    {
+        saveButton.setEnabled (projectEdited);
+    };
     audioPlayerProperties.wrap (runtimeRootProperties.getValueTree (), AudioPlayerProperties::WrapperType::client, AudioPlayerProperties::EnableCallbacks::no);
     clutchProperties.wrap (runtimeRootProperties.getValueTree ().getChildWithProperty(ClutchProperties::NamePropertyId, "edited"), ValueTreeWrapper<ClutchProperties>::WrapperType::client, ValueTreeWrapper<ClutchProperties>::EnableCallbacks::no);
     // TODO pass in the clutch VT directly instead of root VT
@@ -66,6 +70,8 @@ void ClutchEditorComponent::init (juce::ValueTree rootPropertiesVT)
     patternListEditorComponent.init (rootPropertiesVT);
     effectEditorComponent.init (rootPropertiesVT);
     sampleManagerComponent.init (rootPropertiesVT);
+
+    saveButton.setEnabled (projectManagerProperties.getProjectEdited ());
 }
 
 void ClutchEditorComponent::resized()

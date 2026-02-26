@@ -20,8 +20,9 @@ private:
     ClutchProperties editedClutchProperties;
     HiHatIniData hiHatIniData;
 
-    void openProject (const juce::File& hiHatIniFile);
+    bool areEntireClutchPropertiesEqual (juce::ValueTree clutchPropertiesVT1, juce::ValueTree clutchPropertiesVT2);
     void copySamplePropertiesExistsFlags (juce::ValueTree sourceClutchPropertiesVT, juce::ValueTree destClutchPropertiesVT);
+    void openProject (const juce::File& hiHatIniFile);
     void saveProject ();
     void scanSamples (juce::ValueTree clutchPropertiesVT);
 
