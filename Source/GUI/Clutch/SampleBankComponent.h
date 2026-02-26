@@ -129,7 +129,7 @@ private:
 };
 
 class SampleBankComponent : public juce::Component,
-                                   juce::MultiTimer
+                                   juce::Timer
 {
 public:
     enum class HiHatState { opened, closed };
@@ -140,7 +140,6 @@ public:
     void init (juce::ValueTree rootPropertiesVT, juce::ValueTree bankPropertiesVT);
 
     void setBankName (const juce::String& newBankName);
-    void updateFileStatus ();
     void setBankFolder (const juce::File& newBankFolder);
 
 private:
@@ -164,5 +163,5 @@ private:
 
     void paint (juce::Graphics& g) override;
     void resized () override;
-    void timerCallback (int timerId) override;
+    void timerCallback () override;
 };

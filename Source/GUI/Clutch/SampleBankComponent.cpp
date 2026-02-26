@@ -12,7 +12,7 @@ SampleBankComponent::SampleBankComponent ()
             auditioningSampleLabelComponent->enablePlayBlink (false);
         auditioningSampleLabelComponent = sampleLabel;
         sampleLabel->enablePlayBlink (true);
-        startTimer (1, 16);
+        startTimer (16);
         audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
         audioPlayerProperties.setSampleSource (bankAndFileName, false);
         audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::play, false);
@@ -22,7 +22,7 @@ SampleBankComponent::SampleBankComponent ()
     {
         auto& hiHatSampleInfo { hiHatSampleInfoList [hiHatSampleIndex] };
 
-        // add bank name (ake WHITE, RED, etc) label
+        // add bank name (aka WHITE, RED, etc) label
         hiHatSampleInfo.name.setJustificationType (juce::Justification::centredRight);
         hiHatSampleInfo.name.setText (juce::String (hiHatSampleIndex + 1), juce::NotificationType::dontSendNotification);
         addAndMakeVisible (hiHatSampleInfo.name);
@@ -57,14 +57,10 @@ SampleBankComponent::SampleBankComponent ()
         };
         addAndMakeVisible (hiHatSampleInfo.closedNameLabel);
     }
-
-    updateFileStatus ();
-    //startTimer (0, 2000);
 }
 
 SampleBankComponent::~SampleBankComponent ()
 {
-
 }
 
 void SampleBankComponent::init (juce::ValueTree rootPropertiesVT, juce::ValueTree bankPropertiesVT)
@@ -145,7 +141,7 @@ void SampleBankComponent::copySampleFile (juce::File sourceFile, int hiHatSample
         return;
     }
 
-    juce::String destinationFileName { juce::String (hiHatSampleIndex + 1).paddedLeft ('0', 2) + (hiHatState == HiHatState::closed ? "C" : "O") + "H.wav" };
+    juce::String destinationFileName { juce::String (hiHatSampleIndex + 1).paddedLeft ('0', 2) + (hiHatState == HiHatState::closed ? "C" : "O") + "H._wav" };
     juce::File bankFolder { banksRootFolder.getChildFile (bankName.getText ()) };
     if (! bankFolder.exists ())
     {
@@ -163,8 +159,8 @@ void SampleBankComponent::copySampleFile (juce::File sourceFile, int hiHatSample
         jassertfalse;
         return;
     }
-    juce::File destFile { bankFolder.getChildFile (destinationFileName) };
 
+    juce::File destFile { bankFolder.getChildFile (destinationFileName) };
     if (reader->getFormatName () == "WAV file" && reader->numChannels == 1 && reader->bitsPerSample == 16 && (reader->sampleRate == 44100 || reader->sampleRate == 48000))
     {
         sourceFile.copyFileTo (destFile);
@@ -229,27 +225,6 @@ void SampleBankComponent::copySampleFile (juce::File sourceFile, int hiHatSample
         }
 
     }
-    updateFileStatus ();
-}
-
-// TODO : move this to a thread
-void SampleBankComponent::updateFileStatus ()
-{
-//     if (banksRootFolder != juce::File ())
-//     {
-//         for (auto hiHatSampleInfoIndex { 0 }; hiHatSampleInfoIndex < hiHatSampleInfoList.size (); ++hiHatSampleInfoIndex)
-//         {
-//             auto doesFileExist = [this] (int hiHatSampleInfoIndex, HiHatState hiHatState)
-//             {
-//                 juce::String fileName { juce::String (hiHatSampleInfoIndex + 1).paddedLeft ('0', 2) + juce::String (hiHatState == HiHatState::opened ? "OH" : "CH") };
-//                 auto file { banksRootFolder.getChildFile (bankName.getText ()).getChildFile (fileName).withFileExtension ("wav") };
-//                 return file.existsAsFile ();
-//             };
-//             hiHatSampleInfoList [hiHatSampleInfoIndex].openedName.setFileExistState (doesFileExist (hiHatSampleInfoIndex, HiHatState::opened));
-//             hiHatSampleInfoList [hiHatSampleInfoIndex].closedName.setFileExistState (doesFileExist (hiHatSampleInfoIndex, HiHatState::closed));
-//         }
-//     }
-     repaint ();
 }
 
 void SampleBankComponent::setBankFolder (const juce::File& newBankFolder)
@@ -292,24 +267,16 @@ void SampleBankComponent::resized ()
     }
 }
 
-void SampleBankComponent::timerCallback (int timerId)
+void SampleBankComponent::timerCallback ()
 {
-    // TODO : move to thread
-    if (timerId == 0)
+    // stop auditioning after some time
+    if (auditioningSampleLabelComponent != nullptr)
     {
-        updateFileStatus ();
-    }
-    else if (timerId == 1)
-    {
-        // stop auditioning after some time
-        if (auditioningSampleLabelComponent != nullptr)
+        if (audioPlayerProperties.getPlayState () != AudioPlayerProperties::PlayState::play)
         {
-            if (audioPlayerProperties.getPlayState () != AudioPlayerProperties::PlayState::play)
-            {
-                auditioningSampleLabelComponent->enablePlayBlink (false);
-                auditioningSampleLabelComponent = nullptr;
-                stopTimer (1);
-            }
+            auditioningSampleLabelComponent->enablePlayBlink (false);
+            auditioningSampleLabelComponent = nullptr;
+            stopTimer ();
         }
     }
 }
@@ -317,5 +284,4 @@ void SampleBankComponent::timerCallback (int timerId)
 void SampleBankComponent::setBankName (const juce::String& newBankName)
 {
     bankName.setText (newBankName, juce::NotificationType::dontSendNotification);
-    updateFileStatus ();
 }

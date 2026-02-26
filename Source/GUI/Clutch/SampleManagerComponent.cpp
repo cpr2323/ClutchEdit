@@ -47,19 +47,14 @@ void SampleManagerComponent::init (juce::ValueTree rootPropertiesVT)
 void SampleManagerComponent::updateBanks ()
 {
     for (auto& sampleBankComponent : sampleBankComponents)
-    {
         sampleBankComponent.setBankFolder (juce::File (appProperties.getRecentlyUsedFile (0)).getParentDirectory ().getFullPathName ());
-        sampleBankComponent.updateFileStatus ();
-    }
 }
 
 void SampleManagerComponent::paint (juce::Graphics& g)
 {
     g.setColour (juce::Colours::black);
     for (auto& sampleBankComponent : sampleBankComponents)
-    {
         g.drawRect (sampleBankComponent.getBounds ());
-    }
 }
 
 void SampleManagerComponent::resized ()
@@ -69,7 +64,5 @@ void SampleManagerComponent::resized ()
     constexpr auto kBankWidth { 150 };
     constexpr auto kSpaceBetweenBanks { 5 };
     for (auto bankIndex { 0 }; bankIndex < sampleBankComponents.size (); ++bankIndex)
-    {
         sampleBankComponents[bankIndex].setBounds (kXOffset + (bankIndex * (kBankWidth + kSpaceBetweenBanks)), kYOffset, kBankWidth, getHeight () - (kYOffset * 2));
-    }
 }
