@@ -263,7 +263,15 @@ void ProjectManager::scanSamples (juce::ValueTree clutchPropertiesVT)
             auto checkSampleExistence = [sampleBankFolder = bankParentFolder.getChildFile (bankName)] (juce::ValueTree samplePropertiesVT)
             {
                 SampleProperties sampleProperties { samplePropertiesVT, SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
-                sampleProperties.setExists (sampleBankFolder.getChildFile (sampleProperties.getFilename ()).withFileExtension ("wav").existsAsFile (), false);
+                auto fullPathWithExtension = [fileNameWithouExtension = sampleProperties.getFilename (), sampleBankFolder] ()
+                    {
+                        auto fullFileNameWithoutExtension { sampleBankFolder.getChildFile (fileNameWithouExtension) };
+                        if (fullFileNameWithoutExtension.withFileExtension ("._wav").existsAsFile ())
+                            return fullFileNameWithoutExtension.withFileExtension ("._wav");
+                        return fullFileNameWithoutExtension.withFileExtension (".wav");
+                    };
+
+                sampleProperties.setExists (juce::File (fullPathWithExtension ()).existsAsFile (), false);
             };
             checkSampleExistence (samplePairProperties.getOpenSampleVT ());
             checkSampleExistence (samplePairProperties.getClosedSampleVT ());

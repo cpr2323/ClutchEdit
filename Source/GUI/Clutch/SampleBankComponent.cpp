@@ -2,19 +2,28 @@
 #include "../../Clutch/BankProperties.h"
 #include "../../Clutch/SamplePairProperties.h"
 #include "../../SRC/libsamplerate-0.1.9/src/samplerate.h"
+#include "../../Utility/PersistentRootProperties.h"
 #include "../../Utility/RuntimeRootProperties.h"
 
 SampleBankComponent::SampleBankComponent ()
 {
-    auto setupAuditioningForSample = [this] (FileDropLabel* sampleLabel, juce::String bankAndFileName)
+    auto setupAuditioningForSample = [this] (FileDropLabel* sampleLabel, juce::String bankAndFileNameWithouExtension)
     {
         if (auditioningSampleLabelComponent != nullptr)
             auditioningSampleLabelComponent->enablePlayBlink (false);
         auditioningSampleLabelComponent = sampleLabel;
         sampleLabel->enablePlayBlink (true);
         startTimer (16);
+
+        auto bankAndFileName = [this, bankAndFileNameWithouExtension] ()
+        {
+            auto fullFileNameWithoutExtension { juce::File (appProperties.getMostRecentFolder ()).getChildFile (bankAndFileNameWithouExtension) };
+            if (fullFileNameWithoutExtension.withFileExtension ("._wav").existsAsFile ())
+                return bankAndFileNameWithouExtension + "._wav";
+            return bankAndFileNameWithouExtension + ".wav";
+        };
         audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
-        audioPlayerProperties.setSampleSource (bankAndFileName, false);
+        audioPlayerProperties.setSampleSource (bankAndFileName (), false);
         audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::play, false);
     };
     addAndMakeVisible(bankName);
@@ -38,7 +47,8 @@ SampleBankComponent::SampleBankComponent ()
         };
         hiHatSampleInfo.openedNameLabel.onMouseUp = [this, sampleLabel = &hiHatSampleInfo.openedNameLabel, hiHatSampleIndex, setupAuditioningForSample] ([[maybe_unused]] const juce::MouseEvent& mouseEvent)
         {
-            setupAuditioningForSample (sampleLabel, bankName.getText () + juce::File::getSeparatorString () + juce::String (hiHatSampleIndex + 1).paddedLeft ('0', 2) + "OH.wav");
+            const auto baseFileName { bankName.getText () + juce::File::getSeparatorString () + juce::String (hiHatSampleIndex + 1).paddedLeft ('0', 2) + "OH" };
+            setupAuditioningForSample (sampleLabel, baseFileName);
         };
         addAndMakeVisible (hiHatSampleInfo.openedNameLabel);
 
@@ -53,7 +63,8 @@ SampleBankComponent::SampleBankComponent ()
         };
         hiHatSampleInfo.closedNameLabel.onMouseUp = [this, sampleLabel = &hiHatSampleInfo.closedNameLabel, hiHatSampleIndex, setupAuditioningForSample] ([[maybe_unused]] const juce::MouseEvent& mouseEvent)
         {
-            setupAuditioningForSample (sampleLabel, bankName.getText () + juce::File::getSeparatorString () + juce::String (hiHatSampleIndex + 1).paddedLeft ('0', 2) + "CH.wav");
+            const auto baseFileName { bankName.getText () + juce::File::getSeparatorString () + juce::String (hiHatSampleIndex + 1).paddedLeft ('0', 2) + "CH" };
+            setupAuditioningForSample (sampleLabel, baseFileName);
         };
         addAndMakeVisible (hiHatSampleInfo.closedNameLabel);
     }
@@ -65,6 +76,9 @@ SampleBankComponent::~SampleBankComponent ()
 
 void SampleBankComponent::init (juce::ValueTree rootPropertiesVT, juce::ValueTree bankPropertiesVT)
 {
+    PersistentRootProperties persistentRootProperties (rootPropertiesVT, PersistentRootProperties::WrapperType::client, PersistentRootProperties::EnableCallbacks::no);
+    appProperties.wrap (persistentRootProperties.getValueTree (), AppProperties::WrapperType::client, AppProperties::EnableCallbacks::no);
+
     RuntimeRootProperties runtimeRootProperties { rootPropertiesVT, RuntimeRootProperties::WrapperType::client, RuntimeRootProperties::EnableCallbacks::no };
     audioPlayerProperties.wrap (runtimeRootProperties.getValueTree (), AudioPlayerProperties::WrapperType::client, AudioPlayerProperties::EnableCallbacks::no);
     
@@ -141,7 +155,7 @@ void SampleBankComponent::copySampleFile (juce::File sourceFile, int hiHatSample
         return;
     }
 
-    juce::String destinationFileName { juce::String (hiHatSampleIndex + 1).paddedLeft ('0', 2) + (hiHatState == HiHatState::closed ? "C" : "O") + "H.wav" };
+    juce::String destinationFileName { juce::String (hiHatSampleIndex + 1).paddedLeft ('0', 2) + (hiHatState == HiHatState::closed ? "C" : "O") + "H._wav" };
     juce::File bankFolder { banksRootFolder.getChildFile (bankName.getText ()) };
     if (! bankFolder.exists ())
     {

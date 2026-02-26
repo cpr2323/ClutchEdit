@@ -1,5 +1,6 @@
 #pragma once
 #include <JuceHeader.h>
+#include "../../AppProperties.h"
 #include "../../Clutch/BankProperties.h"
 #include "../../Clutch/SampleProperties.h"
 #include "../../Clutch/Audio/AudioPlayerProperties.h"
@@ -143,6 +144,7 @@ public:
     void setBankFolder (const juce::File& newBankFolder);
 
 private:
+    AppProperties appProperties;
     BankProperties bankProperties;
     juce::Label bankName;
     struct HiHatSampleInfo
