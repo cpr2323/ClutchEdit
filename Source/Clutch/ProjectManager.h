@@ -21,6 +21,7 @@ private:
     HiHatIniData hiHatIniData;
 
     void openProject (const juce::File& hiHatIniFile);
+    void copySamplePropertiesExistsFlags (juce::ValueTree sourceClutchPropertiesVT, juce::ValueTree destClutchPropertiesVT);
     void saveProject ();
     void scanSamples (juce::ValueTree clutchPropertiesVT);
 

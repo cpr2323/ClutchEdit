@@ -25,6 +25,10 @@ void ProjectManager::init (juce::ValueTree theRootPropertiesVT)
 
     RuntimeRootProperties runtimeRootProperties (rootPropertiesVT, ValueTreeWrapper<RuntimeRootProperties>::WrapperType::client, ValueTreeWrapper<RuntimeRootProperties>::EnableCallbacks::no);
     projectManagerProperties.wrap (runtimeRootProperties.getValueTree(), ProjectManagerProperties::WrapperType::owner, ProjectManagerProperties::EnableCallbacks::yes);
+    projectManagerProperties.onSaveProject = [this] ()
+    {
+        saveProject ();
+    };
     unEditedClutchProperties.wrap (runtimeRootProperties.getValueTree ().getChildWithProperty (ClutchProperties::NamePropertyId, "unedited"), ValueTreeWrapper<ClutchProperties>::WrapperType::client, ValueTreeWrapper<ClutchProperties>::EnableCallbacks::no);
     editedClutchProperties.wrap (runtimeRootProperties.getValueTree ().getChildWithProperty (ClutchProperties::NamePropertyId, "edited"), ValueTreeWrapper<ClutchProperties>::WrapperType::client, ValueTreeWrapper<ClutchProperties>::EnableCallbacks::no);
 
@@ -46,32 +50,37 @@ void ProjectManager::openProject (const juce::File& hiHatIniFile)
     // create bank list properties on the unedited branch, so we can track sample changes
     scanSamples (unEditedClutchProperties.getValueTree ());
 
-    // copy unedited bank list properties to edited bank list properties so that they can be edited
-    BankListProperties unEditedBankListProperties { unEditedClutchProperties.getValueTree (), BankListProperties::WrapperType::client, BankListProperties::EnableCallbacks::no };
-    BankListProperties editedBankListProperties { editedClutchProperties.getValueTree (), BankListProperties::WrapperType::client, BankListProperties::EnableCallbacks::no };
+    copySamplePropertiesExistsFlags (unEditedClutchProperties.getValueTree (), editedClutchProperties.getValueTree ());
+}
+
+void ProjectManager::copySamplePropertiesExistsFlags (juce::ValueTree sourceClutchPropertiesVT, juce::ValueTree destClutchPropertiesVT)
+{
+        // copy unedited bank list properties to edited bank list properties so that they can be edited
+    BankListProperties sourceBankListProperties { sourceClutchPropertiesVT, BankListProperties::WrapperType::client, BankListProperties::EnableCallbacks::no };
+    BankListProperties destBankListProperties { destClutchPropertiesVT, BankListProperties::WrapperType::client, BankListProperties::EnableCallbacks::no };
 
     // copy the exist flag in the SampleProperties for each sample from the unEditedBankListProperties to sample sample in the editedBankListProperties
-    unEditedBankListProperties.forEachBank ([&] (juce::ValueTree unEditedBankVT, int bankIndex)
+    sourceBankListProperties.forEachBank ([&] (juce::ValueTree sourceBankVT, int bankIndex)
     {
-        auto editedBankVT = editedBankListProperties.getBankVT (bankIndex);
-        BankProperties unEditedBank { unEditedBankVT, BankProperties::WrapperType::client, BankProperties::EnableCallbacks::no };
-        BankProperties editedBank { editedBankVT, BankProperties::WrapperType::client, BankProperties::EnableCallbacks::no };
+        auto destBankVT = destBankListProperties.getBankVT (bankIndex);
+        BankProperties sourceBank { sourceBankVT, BankProperties::WrapperType::client, BankProperties::EnableCallbacks::no };
+        BankProperties destBank { destBankVT, BankProperties::WrapperType::client, BankProperties::EnableCallbacks::no };
 
-        unEditedBank.forEachSamplePair ([&] (juce::ValueTree unEditedSamplePairVT, int samplePairIndex)
+        sourceBank.forEachSamplePair ([&destBank] (juce::ValueTree sourceSamplePairVT, int samplePairIndex)
         {
-            auto editedSamplePairVT = editedBank.getSamplePairVT (samplePairIndex);
-            SamplePairProperties unEditedSamplePair { unEditedSamplePairVT, SamplePairProperties::WrapperType::client, SamplePairProperties::EnableCallbacks::no };
-            SamplePairProperties editedSamplePair { editedSamplePairVT, SamplePairProperties::WrapperType::client, SamplePairProperties::EnableCallbacks::no };
+            auto destSamplePairVT { destBank.getSamplePairVT (samplePairIndex) };
+            SamplePairProperties sourceSamplePair { sourceSamplePairVT, SamplePairProperties::WrapperType::client, SamplePairProperties::EnableCallbacks::no };
+            SamplePairProperties destSamplePair { destSamplePairVT, SamplePairProperties::WrapperType::client, SamplePairProperties::EnableCallbacks::no };
 
             // open sample
-            SampleProperties unEditedOpen { unEditedSamplePair.getOpenSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
-            SampleProperties editedOpen { editedSamplePair.getOpenSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
-            editedOpen.setExists (unEditedOpen.getExists (), false);
+            SampleProperties sourceOpenProperties { sourceSamplePair.getOpenSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
+            SampleProperties destOpenProperties { destSamplePair.getOpenSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
+            destOpenProperties.setExists (sourceOpenProperties.getExists (), false);
 
             // closed sample
-            SampleProperties unEditedClosed { unEditedSamplePair.getClosedSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
-            SampleProperties editedClosed { editedSamplePair.getClosedSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
-            editedClosed.setExists (unEditedClosed.getExists (), false);
+            SampleProperties sourceClosedProperties { sourceSamplePair.getClosedSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
+            SampleProperties destClosedProperties { destSamplePair.getClosedSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
+            destClosedProperties.setExists (sourceClosedProperties.getExists (), false);
 
             return true;
         });
@@ -82,8 +91,15 @@ void ProjectManager::openProject (const juce::File& hiHatIniFile)
 
 void ProjectManager::saveProject ()
 {
+    // copy the data from the edited properties into the HiHatIniData object, and write it back out to the file
     hiHatIniData.FillInDataFromProperties (editedClutchProperties.getValueTreeRef ());
     hiHatIniData.writeToFile (appProperties.getRecentlyUsedFile (0));
+
+    // copy the edited data to the unedited properties, to get them back into sync
+    // NOTE: I am copying from the data, instead of the other properties, because this function is already doing the work
+    //       I would like to eventually change it to copy from the properties
+    hiHatIniData.FillInPropertiesFromData (unEditedClutchProperties.getValueTree ());
+    copySamplePropertiesExistsFlags (editedClutchProperties.getValueTree (), unEditedClutchProperties.getValueTree ());
 }
 
 void ProjectManager::scanSamples (juce::ValueTree clutchPropertiesVT)
