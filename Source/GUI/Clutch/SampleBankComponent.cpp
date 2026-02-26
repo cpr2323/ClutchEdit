@@ -141,7 +141,7 @@ void SampleBankComponent::copySampleFile (juce::File sourceFile, int hiHatSample
         return;
     }
 
-    juce::String destinationFileName { juce::String (hiHatSampleIndex + 1).paddedLeft ('0', 2) + (hiHatState == HiHatState::closed ? "C" : "O") + "H._wav" };
+    juce::String destinationFileName { juce::String (hiHatSampleIndex + 1).paddedLeft ('0', 2) + (hiHatState == HiHatState::closed ? "C" : "O") + "H.wav" };
     juce::File bankFolder { banksRootFolder.getChildFile (bankName.getText ()) };
     if (! bankFolder.exists ())
     {
