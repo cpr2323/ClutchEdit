@@ -4,10 +4,17 @@
 
 ClutchEditorComponent::ClutchEditorComponent ()
 {
-    editorTabs.addTab ("SAMPLES", juce::Colours::darkgrey, &sampleManagerComponent, false);
-    editorTabs.addTab ("SETTINGS", juce::Colours::darkgrey, &settingsEditorComponent, false);
-    editorTabs.addTab ("PATTERNS", juce::Colours::darkgrey, &patternListEditorComponent, false);
-    editorTabs.addTab ("EFFECTS", juce::Colours::darkgrey, &effectEditorComponent, false);
+    auto addComponentWithViewPort = [this] (juce::String title, juce::Component* component, int width, int height)
+    {
+        auto* viewPort { new juce::Viewport () };
+        component->setSize (width, height);
+        viewPort->setViewedComponent (component, false);
+        editorTabs.addTab (title, juce::Colours::darkgrey, viewPort, true);
+    };
+    addComponentWithViewPort ("SAMPLES", &sampleManagerComponent, 1254, 407);
+    addComponentWithViewPort ("SETTINGS", &settingsEditorComponent, 1086, 447);
+    addComponentWithViewPort ("PATTERNS", &patternListEditorComponent, 1060, 697);
+    addComponentWithViewPort ("EFFECTS", &effectEditorComponent, 223, 263);
     addAndMakeVisible (editorTabs);
 
     // SETTINGS BUTTON
