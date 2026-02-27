@@ -11,6 +11,11 @@ void ProjectManagerProperties::setProjectEdited (bool projectEdited, bool includ
     setValue (projectEdited, ProjectEditedPropertyId, includeSelfCallback);
 }
 
+void ProjectManagerProperties::doCleanUpTempFiles (bool includeSelfCallback)
+{
+    setValue (! getValue<bool> (DoCleanUpTempFilesPropertyId), DoCleanUpTempFilesPropertyId, includeSelfCallback);
+}
+
 void ProjectManagerProperties::doSaveProject (bool includeSelfCallback)
 {
     setValue (! getValue<bool>(DoSaveProjectPropertyId), DoSaveProjectPropertyId, includeSelfCallback);
@@ -31,6 +36,12 @@ void ProjectManagerProperties::valueTreePropertyChanged (juce::ValueTree& vt, co
         if (onSaveProject)
             onSaveProject();
     }
+    else if (property == DoCleanUpTempFilesPropertyId)
+    {
+        if (onCleanupTempFiles)
+            onCleanupTempFiles ();
+    }
+
     else if (property == ProjectEditedPropertyId)
     {
         if (onProjectEditedChange)

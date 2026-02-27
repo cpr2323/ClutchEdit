@@ -22,19 +22,42 @@ ClutchEditorComponent::ClutchEditorComponent ()
     openButton.setButtonText ("OPEN");
     openButton.onClick = [this] ()
     {
+    auto openFile = [this] ()
+    {
         fileChooser.reset (new juce::FileChooser ("Please select the Clutch HIHAT.INI file you want to edit...", {}, "*.INI;*.*"));
-        fileChooser->launchAsync (juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles , [this] (const juce::FileChooser& fc) mutable
+        fileChooser->launchAsync (juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles, [this] (const juce::FileChooser& fc) mutable
         {
             if (fc.getURLResults ().size () == 1 && fc.getURLResults () [0].isLocalFile ())
             {
+                projectManagerProperties.doCleanUpTempFiles (false);
                 auto urlResult { fc.getURLResults () [0] };
                 juce::File fileToLoad (urlResult.getLocalFile ().getFullPathName ());
                 if (fileToLoad.isDirectory ())
                     return;
-                appProperties.setMostRecentFolder (fileToLoad.getParentDirectory().getFullPathName());
+                audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
+                appProperties.setMostRecentFolder (fileToLoad.getParentDirectory ().getFullPathName ());
                 appProperties.addRecentlyUsedFile (fileToLoad.getFullPathName ());
             }
         }, nullptr);
+    };
+
+        if (! projectManagerProperties.getProjectEdited ())
+        {
+            openFile ();
+        }
+        else
+        {
+            juce::AlertWindow::showOkCancelBox (juce::AlertWindow::WarningIcon, "WARNING: Edits Have Been Made",
+                                                "You have not saved the project that you have edited.\n  Select Continue to lose your changes.\n  Select Cancel to go back and save.", "Continue (lose changes)", "Cancel", nullptr,
+                                                juce::ModalCallbackFunction::create ([this, openFile] (int option)
+                                                {
+                                                    juce::MessageManager::callAsync ([this, option, openFile] ()
+                                                    {
+                                                        if (option == 1) // Continue
+                                                            openFile ();
+                                                    });
+                                                }));
+        }
     };
     addAndMakeVisible (openButton);
 

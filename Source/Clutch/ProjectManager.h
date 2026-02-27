@@ -5,6 +5,7 @@
 #include "ProjectManagerProperties.h"
 #include "../AppProperties.h"
 #include "../Clutch/HiHatIniData.h"
+#include "../Utility/RuntimeRootProperties.h"
 
 class ProjectManager : public juce::Timer
 {
@@ -14,6 +15,7 @@ public:
 
 private:
     juce::ValueTree rootPropertiesVT;
+    RuntimeRootProperties runtimeRootProperties;
     ProjectManagerProperties projectManagerProperties;
     AppProperties appProperties;
     ClutchProperties unEditedClutchProperties;
@@ -23,10 +25,12 @@ private:
     TimerTask timerTask { TimerTask::scanSamples };
 
     bool areEntireClutchPropertiesEqual (juce::ValueTree clutchPropertiesVT1, juce::ValueTree clutchPropertiesVT2);
+    void cleanUpTempFiles ();
     void copySamplePropertiesExistsFlags (juce::ValueTree sourceClutchPropertiesVT, juce::ValueTree destClutchPropertiesVT);
     void openProject (const juce::File& hiHatIniFile);
     void saveProject ();
     void scanSamples (juce::ValueTree clutchPropertiesVT);
 
     void timerCallback () override;
+    void convertTempFilesToPerm ();
 };

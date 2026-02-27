@@ -7,6 +7,7 @@
 #include "SamplePairProperties.h"
 #include "SampleProperties.h"
 #include "SettingsProperties.h"
+#include "Audio/AudioPlayerProperties.h"
 #include "../AppProperties.h"
 #include "../Utility/RuntimeRootProperties.h"
 #include "../Utility/PersistentRootProperties.h"
@@ -26,11 +27,51 @@ void ProjectManager::init (juce::ValueTree theRootPropertiesVT)
         openProject (mostRecentFile);
     };
 
-    RuntimeRootProperties runtimeRootProperties (rootPropertiesVT, ValueTreeWrapper<RuntimeRootProperties>::WrapperType::client, ValueTreeWrapper<RuntimeRootProperties>::EnableCallbacks::no);
+    runtimeRootProperties.wrap (rootPropertiesVT, ValueTreeWrapper<RuntimeRootProperties>::WrapperType::client, ValueTreeWrapper<RuntimeRootProperties>::EnableCallbacks::yes);
+    runtimeRootProperties.onSystemRequestedQuit = [this] ()
+    {
+        AudioPlayerProperties audioPlayerProperties { runtimeRootProperties.getValueTree (), AudioPlayerProperties::WrapperType::client, AudioPlayerProperties::EnableCallbacks::no };
+        audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
+        runtimeRootProperties.setPreferredQuitState (RuntimeRootProperties::QuitState::idle, false);
+        auto doQuit = [this] ()
+        {
+            cleanUpTempFiles ();
+            // since this is an async operation, and we are quitting the app, let's be safe and make a copy of the ValueTree we need
+            juce::MessageManager::callAsync ([runtimeRootPropertiesVT = runtimeRootProperties.getValueTree ()] ()
+            {
+                RuntimeRootProperties runtimeRootProperties { runtimeRootPropertiesVT, RuntimeRootProperties::WrapperType::client, RuntimeRootProperties::EnableCallbacks::no };
+                runtimeRootProperties.setQuitState (RuntimeRootProperties::QuitState::now, false);
+            });
+        };
+
+        if (! projectManagerProperties.getProjectEdited ())
+        {
+            doQuit ();
+        }
+        else
+        {
+            juce::AlertWindow::showOkCancelBox (juce::AlertWindow::WarningIcon, "WARNING: Edits Have Been Made",
+                                                "You have not saved the project that you have edited.\n  Select Continue to lose your changes.\n  Select Cancel to go back and save.", "Continue (lose changes)", "Cancel", nullptr,
+                                                juce::ModalCallbackFunction::create ([this, doQuit] (int option)
+                                                {
+                                                    juce::MessageManager::callAsync ([this, option, doQuit] ()
+                                                    {
+                                                        if (option == 1) // Continue
+                                                            doQuit ();
+                                                    });
+                                                }));
+        }
+
+
+    };
     projectManagerProperties.wrap (runtimeRootProperties.getValueTree(), ProjectManagerProperties::WrapperType::owner, ProjectManagerProperties::EnableCallbacks::yes);
     projectManagerProperties.onSaveProject = [this] ()
     {
         saveProject ();
+    };
+    projectManagerProperties.onCleanupTempFiles = [this] ()
+    {
+        cleanUpTempFiles ();
     };
     unEditedClutchProperties.wrap (runtimeRootProperties.getValueTree ().getChildWithProperty (ClutchProperties::NamePropertyId, "unedited"), ValueTreeWrapper<ClutchProperties>::WrapperType::client, ValueTreeWrapper<ClutchProperties>::EnableCallbacks::no);
     editedClutchProperties.wrap (runtimeRootProperties.getValueTree ().getChildWithProperty (ClutchProperties::NamePropertyId, "edited"), ValueTreeWrapper<ClutchProperties>::WrapperType::client, ValueTreeWrapper<ClutchProperties>::EnableCallbacks::no);
@@ -238,6 +279,8 @@ void ProjectManager::copySamplePropertiesExistsFlags (juce::ValueTree sourceClut
 
 void ProjectManager::saveProject ()
 {
+    convertTempFilesToPerm ();
+
     // copy the data from the edited properties into the HiHatIniData object, and write it back out to the file
     hiHatIniData.FillInDataFromProperties (editedClutchProperties.getValueTreeRef ());
     hiHatIniData.writeToFile (appProperties.getRecentlyUsedFile (0));
@@ -301,4 +344,61 @@ void ProjectManager::timerCallback ()
             jassertfalse;
         break;
     }
+}
+
+void ProjectManager::convertTempFilesToPerm ()
+{
+    auto bankParentFolder { juce::File (appProperties.getMostRecentFolder ()) };
+    BankListProperties bankListProperties { editedClutchProperties.getValueTree (), BankListProperties::WrapperType::client, BankListProperties::EnableCallbacks::no };
+    bankListProperties.forEachBank ([bankParentFolder] (juce::ValueTree bankPropertiesVT, [[maybe_unused]] int bankIndex)
+    {
+        BankProperties bankProperties { bankPropertiesVT, BankProperties::WrapperType::client, BankProperties::EnableCallbacks::no };
+        bankProperties.forEachSamplePair ([bankParentFolder, bankName = bankProperties.getName ()] (juce::ValueTree samplePairVT, [[maybe_unused]] int samplePairIndex)
+        {
+            // check for file and update exists
+            SamplePairProperties samplePairProperties { samplePairVT, SamplePairProperties::WrapperType::client, SamplePairProperties::EnableCallbacks::no };
+            auto checkSampleExistence = [sampleBankFolder = bankParentFolder.getChildFile (bankName)] (juce::ValueTree samplePropertiesVT)
+            {
+                SampleProperties sampleProperties { samplePropertiesVT, SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
+                auto permFileName { sampleBankFolder.getChildFile (sampleProperties.getFilename ()).withFileExtension (".wav") };
+                auto tempFileName { sampleBankFolder.getChildFile (sampleProperties.getFilename ()).withFileExtension ("._wav") };
+                if (tempFileName.existsAsFile ())
+                {
+                    if (permFileName.existsAsFile ())
+                        permFileName.deleteFile ();
+                    tempFileName.moveFileTo (permFileName);
+                }
+            };
+            checkSampleExistence (samplePairProperties.getOpenSampleVT ());
+            checkSampleExistence (samplePairProperties.getClosedSampleVT ());
+            return true;
+        });
+        return true;
+    });
+}
+
+void ProjectManager::cleanUpTempFiles ()
+{
+    auto bankParentFolder { juce::File (appProperties.getMostRecentFolder ()) };
+    BankListProperties bankListProperties { editedClutchProperties.getValueTree (), BankListProperties::WrapperType::client, BankListProperties::EnableCallbacks::no };
+    bankListProperties.forEachBank ([bankParentFolder] (juce::ValueTree bankPropertiesVT, [[maybe_unused]] int bankIndex)
+    {
+        BankProperties bankProperties { bankPropertiesVT, BankProperties::WrapperType::client, BankProperties::EnableCallbacks::no };
+        bankProperties.forEachSamplePair ([bankParentFolder, bankName = bankProperties.getName ()] (juce::ValueTree samplePairVT, [[maybe_unused]] int samplePairIndex)
+        {
+            // check for file and update exists
+            SamplePairProperties samplePairProperties { samplePairVT, SamplePairProperties::WrapperType::client, SamplePairProperties::EnableCallbacks::no };
+            auto checkSampleExistence = [sampleBankFolder = bankParentFolder.getChildFile (bankName)] (juce::ValueTree samplePropertiesVT)
+            {
+                SampleProperties sampleProperties { samplePropertiesVT, SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
+                auto tempFileName { sampleBankFolder.getChildFile (sampleProperties.getFilename ()).withFileExtension ("._wav") };
+                if (tempFileName.existsAsFile ())
+                    tempFileName.deleteFile ();
+            };
+            checkSampleExistence (samplePairProperties.getOpenSampleVT ());
+            checkSampleExistence (samplePairProperties.getClosedSampleVT ());
+            return true;
+        });
+        return true;
+    });
 }

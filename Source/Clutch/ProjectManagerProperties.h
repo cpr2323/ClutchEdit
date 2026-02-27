@@ -14,14 +14,17 @@ public:
     }
 
     void setProjectEdited (bool projectEdited, bool includeSelfCallback);
+    void doCleanUpTempFiles (bool includeSelfCallback);
     void doSaveProject (bool includeSelfCallback);
 
     bool getProjectEdited ();
 
     std::function<void (bool projectEdited)> onProjectEditedChange;
+    std::function<void ()> onCleanupTempFiles;
     std::function<void ()> onSaveProject;
 
     static inline const juce::Identifier ProjectManagerTypeId { "ProjectManager" };
+    static inline const juce::Identifier DoCleanUpTempFilesPropertyId { "cleanUpTempFiles" };
     static inline const juce::Identifier DoSaveProjectPropertyId { "doSaveProject" };
     static inline const juce::Identifier ProjectEditedPropertyId { "projectEdited" };
 
