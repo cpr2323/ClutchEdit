@@ -37,7 +37,8 @@ void ProjectManager::init (juce::ValueTree theRootPropertiesVT)
 
     openProject (appProperties.getRecentlyUsedFile (0));
 
-    startTimer (2000);
+    // scan sample folders and check for edits every second
+    startTimer (1000);
 }
 
 void ProjectManager::openProject (const juce::File& hiHatIniFile)
@@ -49,10 +50,9 @@ void ProjectManager::openProject (const juce::File& hiHatIniFile)
         hiHatIniData.FillInPropertiesFromData (editedClutchProperties.getValueTree ());
     }
 
-    auto bankParentFolder { hiHatIniFile.getParentDirectory () };
     // create bank list properties on the unedited branch, so we can track sample changes
     scanSamples (unEditedClutchProperties.getValueTree ());
-
+    // initialize the edited sample properties by copying from the unedited sample properties
     copySamplePropertiesExistsFlags (unEditedClutchProperties.getValueTree (), editedClutchProperties.getValueTree ());
 }
 
@@ -283,6 +283,22 @@ void ProjectManager::scanSamples (juce::ValueTree clutchPropertiesVT)
 
 void ProjectManager::timerCallback ()
 {
-    scanSamples (editedClutchProperties.getValueTree ());
-    projectManagerProperties.setProjectEdited (! areEntireClutchPropertiesEqual (unEditedClutchProperties.getValueTree (), editedClutchProperties.getValueTree ()), false);
+    switch (timerTask)
+    {   
+        case ProjectManager::TimerTask::scanSamples:
+        {
+            scanSamples (editedClutchProperties.getValueTree ());
+            timerTask = TimerTask::checkForEdits;
+        }
+        break;
+        case ProjectManager::TimerTask::checkForEdits:
+        {
+            projectManagerProperties.setProjectEdited (!areEntireClutchPropertiesEqual (unEditedClutchProperties.getValueTree (), editedClutchProperties.getValueTree ()), false);
+            timerTask = TimerTask::scanSamples;
+        }
+        break;
+        default:
+            jassertfalse;
+        break;
+    }
 }

@@ -19,6 +19,8 @@ private:
     ClutchProperties unEditedClutchProperties;
     ClutchProperties editedClutchProperties;
     HiHatIniData hiHatIniData;
+    enum class TimerTask { scanSamples, checkForEdits };
+    TimerTask timerTask { TimerTask::scanSamples };
 
     bool areEntireClutchPropertiesEqual (juce::ValueTree clutchPropertiesVT1, juce::ValueTree clutchPropertiesVT2);
     void copySamplePropertiesExistsFlags (juce::ValueTree sourceClutchPropertiesVT, juce::ValueTree destClutchPropertiesVT);
