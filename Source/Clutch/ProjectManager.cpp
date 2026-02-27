@@ -360,10 +360,10 @@ void ProjectManager::convertTempFilesToPerm ()
             auto checkSampleExistence = [sampleBankFolder = bankParentFolder.getChildFile (bankName)] (juce::ValueTree samplePropertiesVT)
             {
                 SampleProperties sampleProperties { samplePropertiesVT, SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
-                auto permFileName { sampleBankFolder.getChildFile (sampleProperties.getFilename ()).withFileExtension (".wav") };
                 auto tempFileName { sampleBankFolder.getChildFile (sampleProperties.getFilename ()).withFileExtension ("._wav") };
                 if (tempFileName.existsAsFile ())
                 {
+                    auto permFileName { sampleBankFolder.getChildFile (sampleProperties.getFilename ()).withFileExtension (".wav") };
                     if (permFileName.existsAsFile ())
                         permFileName.deleteFile ();
                     tempFileName.moveFileTo (permFileName);
