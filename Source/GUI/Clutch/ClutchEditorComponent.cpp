@@ -9,6 +9,9 @@ ClutchEditorComponent::ClutchEditorComponent ()
         auto* viewPort { new juce::Viewport () };
         component->setSize (width, height);
         viewPort->setViewedComponent (component, false);
+        const auto thumbColor { juce::Colours::darkgrey.brighter (0.4f) };
+        viewPort->getHorizontalScrollBar ().setColour (juce::ScrollBar::ColourIds::thumbColourId, thumbColor);
+        viewPort->getVerticalScrollBar ().setColour (juce::ScrollBar::ColourIds::thumbColourId, thumbColor);
         editorTabs.addTab (title, juce::Colours::darkgrey, viewPort, true);
     };
     addComponentWithViewPort ("SAMPLES", &sampleManagerComponent, 1254, 407);
