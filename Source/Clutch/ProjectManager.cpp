@@ -61,8 +61,6 @@ void ProjectManager::init (juce::ValueTree theRootPropertiesVT)
                                                     });
                                                 }));
         }
-
-
     };
     projectManagerProperties.wrap (runtimeRootProperties.getValueTree(), ProjectManagerProperties::WrapperType::owner, ProjectManagerProperties::EnableCallbacks::yes);
     projectManagerProperties.onSaveProject = [this] ()
@@ -84,12 +82,14 @@ void ProjectManager::init (juce::ValueTree theRootPropertiesVT)
 
 void ProjectManager::openProject (const juce::File& hiHatIniFile)
 {
-    if (hiHatIniFile.existsAsFile ())
-    {
-        hiHatIniData.readFromFile (hiHatIniFile);
-        hiHatIniData.FillInPropertiesFromData (unEditedClutchProperties.getValueTree ());
-        hiHatIniData.FillInPropertiesFromData (editedClutchProperties.getValueTree ());
-    }
+    // ensure there are no temp files left over from a program crash or something
+    cleanUpTempFiles ();
+
+    // verification that the file exists is done in the caller, so we can assume it exists here
+    jassert (hiHatIniFile.existsAsFile ());
+    hiHatIniData.readFromFile (hiHatIniFile);
+    hiHatIniData.FillInPropertiesFromData (unEditedClutchProperties.getValueTree ());
+    hiHatIniData.FillInPropertiesFromData (editedClutchProperties.getValueTree ());
 
     // create bank list properties on the unedited branch, so we can track sample changes
     scanSamples (unEditedClutchProperties.getValueTree ());
