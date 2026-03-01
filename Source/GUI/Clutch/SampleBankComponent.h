@@ -162,6 +162,7 @@ private:
 
     void copySampleFile (juce::File sourceFile, int hiHatSampleIndex, HiHatState hiHatState);
     juce::String getBankAndFileNameWithoutExtension (int hiHatSampleIndex, SampleProperties::SampleType sampleType);
+    juce::String getBankAndFileName (int hiHatSampleIndex, SampleProperties::SampleType sampleType);
     void sampleConvert (juce::AudioFormatReader* reader, juce::AudioBuffer<float>& outputBuffer);
 
     void paint (juce::Graphics& g) override;

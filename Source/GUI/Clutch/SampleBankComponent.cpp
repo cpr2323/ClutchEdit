@@ -43,16 +43,8 @@ SampleBankComponent::SampleBankComponent ()
                 sampleLabel->enablePlayBlink (true);
                 startTimer (16);
 
-                const auto bankAndFileName = [this, hiHatSampleIndex, sampleType] ()
-                {
-                    const auto bankAndFileNameWithouExtension { getBankAndFileNameWithoutExtension (hiHatSampleIndex, sampleType) };
-                    auto fullFileNameWithoutExtension { juce::File (appProperties.getMostRecentFolder ()).getChildFile (bankAndFileNameWithouExtension) };
-                    if (fullFileNameWithoutExtension.withFileExtension ("._wav").existsAsFile ())
-                        return bankAndFileNameWithouExtension + "._wav";
-                    return bankAndFileNameWithouExtension + ".wav";
-                } ();
                 audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
-                audioPlayerProperties.setSampleSource (bankAndFileName, false);
+                audioPlayerProperties.setSampleSource (getBankAndFileName (hiHatSampleIndex, sampleType), false);
                 audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::play, false);
             }
         };
@@ -137,6 +129,15 @@ void SampleBankComponent::init (juce::ValueTree rootPropertiesVT, juce::ValueTre
 juce::String SampleBankComponent::getBankAndFileNameWithoutExtension (int hiHatSampleIndex, SampleProperties::SampleType sampleType)
 {
     return bankName.getText () + juce::File::getSeparatorString () + juce::String (hiHatSampleIndex + 1).paddedLeft ('0', 2) + (sampleType == SampleProperties::SampleType::open ? "OH" : "CH");
+}
+
+juce::String SampleBankComponent::getBankAndFileName (int hiHatSampleIndex, SampleProperties::SampleType sampleType)
+{
+    const auto bankAndFileNameWithouExtension { getBankAndFileNameWithoutExtension (hiHatSampleIndex, sampleType) };
+    auto fullFileNameWithoutExtension { juce::File (appProperties.getMostRecentFolder ()).getChildFile (bankAndFileNameWithouExtension) };
+    if (fullFileNameWithoutExtension.withFileExtension ("._wav").existsAsFile ())
+        return bankAndFileNameWithouExtension + "._wav";
+    return bankAndFileNameWithouExtension + ".wav";
 }
 
 void SampleBankComponent::sampleConvert (juce::AudioFormatReader* reader, juce::AudioBuffer<float>& outputBuffer)
