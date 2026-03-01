@@ -7,35 +7,63 @@
 
 SampleBankComponent::SampleBankComponent ()
 {
-    auto setupAuditioningForSample = [this] (FileDropLabel* sampleLabel, juce::String bankAndFileNameWithouExtension)
-    {
-        if (auditioningSampleLabelComponent != nullptr)
-            auditioningSampleLabelComponent->enablePlayBlink (false);
-        auditioningSampleLabelComponent = sampleLabel;
-        sampleLabel->enablePlayBlink (true);
-        startTimer (16);
-
-        auto bankAndFileName = [this, bankAndFileNameWithouExtension] ()
-        {
-            auto fullFileNameWithoutExtension { juce::File (appProperties.getMostRecentFolder ()).getChildFile (bankAndFileNameWithouExtension) };
-            if (fullFileNameWithoutExtension.withFileExtension ("._wav").existsAsFile ())
-                return bankAndFileNameWithouExtension + "._wav";
-            return bankAndFileNameWithouExtension + ".wav";
-        };
-        audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
-        audioPlayerProperties.setSampleSource (bankAndFileName (), false);
-        audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::play, false);
-    };
     addAndMakeVisible(bankName);
     for (auto hiHatSampleIndex { 0 }; hiHatSampleIndex < hiHatSampleInfoList.size (); ++hiHatSampleIndex)
     {
         auto& hiHatSampleInfo { hiHatSampleInfoList [hiHatSampleIndex] };
 
+        auto handleMouseClickOnSample = [this, hiHatSampleIndex, &hiHatSampleInfo] (SampleProperties::SampleType sampleType, bool isPopupMenu)
+        {
+            const auto sampleLabel { sampleType == SampleProperties::SampleType::open ? &hiHatSampleInfo.openedNameLabel : &hiHatSampleInfo.closedNameLabel };
+            const auto sampleIndexString { juce::String (hiHatSampleIndex + 1).paddedLeft ('0', 2) };
+            if (isPopupMenu)
+            {
+                auto* popupMenuLnF { new juce::LookAndFeel_V4 };
+                popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
+                juce::PopupMenu pm;
+                pm.setLookAndFeel (popupMenuLnF);
+                pm.addSectionHeader ((sampleType == SampleProperties::SampleType::open ? "Opened " : "Closed ") + sampleIndexString);
+                pm.addSeparator ();
+                pm.addItem ("Delete", true, false, [this] ()
+                            {
+                            });
+                pm.addItem ("Swap", true, false, [this] ()
+                            {
+                            });
+                pm.addItem ("Revert", true, false, [this] ()
+                            {
+                            });
+                pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
+            }
+            else
+            {
+                if (auditioningSampleLabelComponent != nullptr)
+                    auditioningSampleLabelComponent->enablePlayBlink (false);
+                auditioningSampleLabelComponent = sampleLabel;
+                sampleLabel->enablePlayBlink (true);
+                startTimer (16);
+
+                const auto bankAndFileName = [this, hiHatSampleIndex, sampleType] ()
+                {
+                    const auto bankAndFileNameWithouExtension { getBankAndFileNameWithoutExtension (hiHatSampleIndex, sampleType) };
+                    auto fullFileNameWithoutExtension { juce::File (appProperties.getMostRecentFolder ()).getChildFile (bankAndFileNameWithouExtension) };
+                    if (fullFileNameWithoutExtension.withFileExtension ("._wav").existsAsFile ())
+                        return bankAndFileNameWithouExtension + "._wav";
+                    return bankAndFileNameWithouExtension + ".wav";
+                } ();
+                audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
+                audioPlayerProperties.setSampleSource (bankAndFileName, false);
+                audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::play, false);
+            }
+        };
+        
+        ////////////////////////////////////////////
         // add bank name (aka WHITE, RED, etc) label
         hiHatSampleInfo.name.setJustificationType (juce::Justification::centredRight);
         hiHatSampleInfo.name.setText (juce::String (hiHatSampleIndex + 1), juce::NotificationType::dontSendNotification);
         addAndMakeVisible (hiHatSampleInfo.name);
 
+        //////////////////////////
         // add opened sample label
         hiHatSampleInfo.openedNameLabel.setJustificationType (juce::Justification::centred);
         hiHatSampleInfo.openedNameLabel.setText ("Opened", juce::NotificationType::dontSendNotification);
@@ -45,13 +73,13 @@ SampleBankComponent::SampleBankComponent ()
             audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
             copySampleFile (juce::File (files[0]), hiHatSampleIndex, HiHatState::opened);
         };
-        hiHatSampleInfo.openedNameLabel.onMouseUp = [this, sampleLabel = &hiHatSampleInfo.openedNameLabel, hiHatSampleIndex, setupAuditioningForSample] ([[maybe_unused]] const juce::MouseEvent& mouseEvent)
+        hiHatSampleInfo.openedNameLabel.onMouseUp = [this, handleMouseClickOnSample] ([[maybe_unused]] const juce::MouseEvent& mouseEvent)
         {
-            const auto baseFileName { bankName.getText () + juce::File::getSeparatorString () + juce::String (hiHatSampleIndex + 1).paddedLeft ('0', 2) + "OH" };
-            setupAuditioningForSample (sampleLabel, baseFileName);
+            handleMouseClickOnSample (SampleProperties::SampleType::open, mouseEvent.mods.isPopupMenu ());
         };
         addAndMakeVisible (hiHatSampleInfo.openedNameLabel);
 
+        //////////////////////////
         // add closed sample label
         hiHatSampleInfo.closedNameLabel.setJustificationType (juce::Justification::centred);
         hiHatSampleInfo.closedNameLabel.setText ("Closed", juce::NotificationType::dontSendNotification);
@@ -61,10 +89,9 @@ SampleBankComponent::SampleBankComponent ()
             audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
             copySampleFile (juce::File (files [0]), hiHatSampleIndex, HiHatState::closed);
         };
-        hiHatSampleInfo.closedNameLabel.onMouseUp = [this, sampleLabel = &hiHatSampleInfo.closedNameLabel, hiHatSampleIndex, setupAuditioningForSample] ([[maybe_unused]] const juce::MouseEvent& mouseEvent)
+        hiHatSampleInfo.closedNameLabel.onMouseUp = [this, handleMouseClickOnSample] ([[maybe_unused]] const juce::MouseEvent& mouseEvent)
         {
-            const auto baseFileName { bankName.getText () + juce::File::getSeparatorString () + juce::String (hiHatSampleIndex + 1).paddedLeft ('0', 2) + "CH" };
-            setupAuditioningForSample (sampleLabel, baseFileName);
+            handleMouseClickOnSample (SampleProperties::SampleType::closed, mouseEvent.mods.isPopupMenu ());
         };
         addAndMakeVisible (hiHatSampleInfo.closedNameLabel);
     }
@@ -105,6 +132,11 @@ void SampleBankComponent::init (juce::ValueTree rootPropertiesVT, juce::ValueTre
         hiHatSampleInfo.closedNameLabel.setFileExistState (hiHatSampleInfo.closedSampleProperties.getExists ());
         return true;
     });
+}
+
+juce::String SampleBankComponent::getBankAndFileNameWithoutExtension (int hiHatSampleIndex, SampleProperties::SampleType sampleType)
+{
+    return bankName.getText () + juce::File::getSeparatorString () + juce::String (hiHatSampleIndex + 1).paddedLeft ('0', 2) + (sampleType == SampleProperties::SampleType::open ? "OH" : "CH");
 }
 
 void SampleBankComponent::sampleConvert (juce::AudioFormatReader* reader, juce::AudioBuffer<float>& outputBuffer)

@@ -58,7 +58,7 @@ private:
 
     void mouseUp (const juce::MouseEvent& mouseEvent) override
     {    
-        if (! mouseEvent.mods.isPopupMenu () && onMouseUp != nullptr)
+        if (onMouseUp != nullptr)
             onMouseUp (mouseEvent);
     }
 
@@ -161,6 +161,7 @@ private:
     FileDropLabel* auditioningSampleLabelComponent { nullptr };
 
     void copySampleFile (juce::File sourceFile, int hiHatSampleIndex, HiHatState hiHatState);
+    juce::String getBankAndFileNameWithoutExtension (int hiHatSampleIndex, SampleProperties::SampleType sampleType);
     void sampleConvert (juce::AudioFormatReader* reader, juce::AudioBuffer<float>& outputBuffer);
 
     void paint (juce::Graphics& g) override;
