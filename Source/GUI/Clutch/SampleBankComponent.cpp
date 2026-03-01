@@ -24,10 +24,14 @@ SampleBankComponent::SampleBankComponent ()
                 pm.setLookAndFeel (popupMenuLnF);
                 pm.addSectionHeader ((sampleType == SampleProperties::SampleType::open ? "Opened " : "Closed ") + sampleIndexString);
                 pm.addSeparator ();
-                pm.addItem ("Delete", true, false, [this] ()
-                            {
-                            });
-                pm.addItem ("Swap", true, false, [this] ()
+                const auto sampleFile { juce::File (getFullPath (hiHatSampleIndex, sampleType)) };
+                const auto otherSampleFile { juce::File (getFullPath (hiHatSampleIndex, sampleType == SampleProperties::SampleType::open ? SampleProperties::SampleType::closed : SampleProperties::SampleType::open)) };
+                pm.addItem ("Delete", sampleFile.exists (), false, [this, sampleFile] ()
+                {
+                    // TODO - figure out how to handle 'delete' in a non-destructive way
+                    sampleFile.deleteFile ();
+                });
+                pm.addItem ("Swap", sampleFile.exists () || otherSampleFile.exists (), false, [this] ()
                             {
                             });
                 pm.addItem ("Revert", true, false, [this] ()
@@ -129,6 +133,15 @@ void SampleBankComponent::init (juce::ValueTree rootPropertiesVT, juce::ValueTre
 juce::String SampleBankComponent::getBankAndFileNameWithoutExtension (int hiHatSampleIndex, SampleProperties::SampleType sampleType)
 {
     return bankName.getText () + juce::File::getSeparatorString () + juce::String (hiHatSampleIndex + 1).paddedLeft ('0', 2) + (sampleType == SampleProperties::SampleType::open ? "OH" : "CH");
+}
+
+juce::String SampleBankComponent::getFullPath (int hiHatSampleIndex, SampleProperties::SampleType sampleType)
+{
+    const auto bankAndFileNameWithouExtension { getBankAndFileNameWithoutExtension (hiHatSampleIndex, sampleType) };
+    auto fullFileNameWithoutExtension { juce::File (appProperties.getMostRecentFolder ()).getChildFile (bankAndFileNameWithouExtension) };
+    if (fullFileNameWithoutExtension.withFileExtension ("._wav").existsAsFile ())
+        return fullFileNameWithoutExtension.getFullPathName () + "._wav";
+    return fullFileNameWithoutExtension.getFullPathName () + ".wav";
 }
 
 juce::String SampleBankComponent::getBankAndFileName (int hiHatSampleIndex, SampleProperties::SampleType sampleType)
