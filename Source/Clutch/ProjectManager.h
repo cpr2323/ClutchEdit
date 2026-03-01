@@ -27,6 +27,8 @@ private:
     bool areEntireClutchPropertiesEqual (juce::ValueTree clutchPropertiesVT1, juce::ValueTree clutchPropertiesVT2);
     void cleanUpTempFiles ();
     void copySamplePropertiesExistsFlags (juce::ValueTree sourceClutchPropertiesVT, juce::ValueTree destClutchPropertiesVT);
+    void doQueuedDeletions ();
+    void forEachSamplePair (std::function<void (juce::ValueTree samplePairPropertiesVT, juce::File sampleBankFolder)> samplePairCallback);
     void openProject (const juce::File& hiHatIniFile);
     void saveProject ();
     void scanSamples (juce::ValueTree clutchPropertiesVT);

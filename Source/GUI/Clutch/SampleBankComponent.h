@@ -138,7 +138,7 @@ public:
     SampleBankComponent ();
     ~SampleBankComponent ();
 
-    void init (juce::ValueTree rootPropertiesVT, juce::ValueTree bankPropertiesVT);
+    void init (juce::ValueTree rootPropertiesVT, juce::ValueTree bankPropertiesVT, juce::ValueTree uneditedBankPropertiesVT);
 
     void setBankName (const juce::String& newBankName);
     void setBankFolder (const juce::File& newBankFolder);
@@ -146,14 +146,20 @@ public:
 private:
     AppProperties appProperties;
     BankProperties bankProperties;
+    BankProperties uneditedBankProperties;
     juce::Label bankName;
+    struct HiHatSamplePair
+    {
+        SampleProperties openedSampleProperties;
+        SampleProperties closedSampleProperties;
+    };
     struct HiHatSampleInfo
     {
         juce::Label name;
         FileDropLabel openedNameLabel;
         FileDropLabel closedNameLabel;
-        SampleProperties openSampleProperties;
-        SampleProperties closedSampleProperties;
+        HiHatSamplePair editedSamplePropertiesPair;
+        HiHatSamplePair uneditedSamplePropertiesPair;
     };
     std::array<HiHatSampleInfo, 16> hiHatSampleInfoList;
     juce::File banksRootFolder;

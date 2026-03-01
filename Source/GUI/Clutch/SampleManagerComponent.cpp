@@ -32,11 +32,15 @@ void SampleManagerComponent::init (juce::ValueTree rootPropertiesVT)
     RuntimeRootProperties runtimeRootProperties (rootPropertiesVT, RuntimeRootProperties::WrapperType::client, RuntimeRootProperties::EnableCallbacks::no);
     ClutchProperties editedClutchProperties (runtimeRootProperties.getValueTree ().getChildWithProperty (ClutchProperties::NamePropertyId, "edited"), ValueTreeWrapper<ClutchProperties>::WrapperType::client, ValueTreeWrapper<ClutchProperties>::EnableCallbacks::no);
     BankListProperties bankListProperties { editedClutchProperties.getValueTree (), BankListProperties::WrapperType::client, BankListProperties::EnableCallbacks::no };
-    bankListProperties.forEachBank ([this, rootPropertiesVT] (juce::ValueTree bankPropertiesVT, int bankIndex)
+    BankListProperties uneditedBankListProperties { runtimeRootProperties.getValueTree ().getChildWithProperty (ClutchProperties::NamePropertyId, "unedited"), BankListProperties::WrapperType::client, BankListProperties::EnableCallbacks::no };
+    bankListProperties.forEachBank ([this, rootPropertiesVT, uneditedBankListPropertiesVT = uneditedBankListProperties.getValueTree ()] (juce::ValueTree bankPropertiesVT, int bankIndex)
     {
         auto* sampleBankComponent { dynamic_cast<SampleBankComponent*> (findChildWithID ("SBC" + juce::String (bankIndex))) };
         jassert (sampleBankComponent != nullptr);
-        sampleBankComponent->init (rootPropertiesVT, bankPropertiesVT);
+        BankListProperties uneditedBankListProperties (uneditedBankListPropertiesVT, BankListProperties::WrapperType::client, BankListProperties::EnableCallbacks::no);
+
+        BankProperties uneditedBankProperties (uneditedBankListProperties.getBankVT (bankIndex), BankProperties::WrapperType::client, BankProperties::EnableCallbacks::no);
+        sampleBankComponent->init (rootPropertiesVT, bankPropertiesVT, uneditedBankProperties.getValueTree ());
         return true;
     });
 

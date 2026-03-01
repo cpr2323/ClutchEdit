@@ -26,17 +26,30 @@ SampleBankComponent::SampleBankComponent ()
                 pm.addSeparator ();
                 const auto sampleFile { juce::File (getFullPath (hiHatSampleIndex, sampleType)) };
                 const auto otherSampleFile { juce::File (getFullPath (hiHatSampleIndex, sampleType == SampleProperties::SampleType::open ? SampleProperties::SampleType::closed : SampleProperties::SampleType::open)) };
-                pm.addItem ("Delete", sampleFile.exists (), false, [this, sampleFile] ()
+                pm.addItem ("Delete", sampleFile.exists (), false, [this, sampleFile, &hiHatSampleInfo, sampleType] ()
                 {
-                    // TODO - figure out how to handle 'delete' in a non-destructive way
-                    sampleFile.deleteFile ();
+                    // if we are deleted a temp file, then we just delete the file.
+                    // if we are deleting the original file, then we mark the sample properties as deleted, but we don't actually delete the file. the original file will be deleted when the project is SAVED
+                    if (sampleFile.getFileExtension ().toLowerCase () == "_wav")
+                        sampleFile.deleteFile ();
+                    else
+                        sampleType == SampleProperties::SampleType::open ? hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.setDeleted (true, true) : hiHatSampleInfo.editedSamplePropertiesPair.closedSampleProperties.setDeleted (true, true);
                 });
                 pm.addItem ("Swap", sampleFile.exists () || otherSampleFile.exists (), false, [this] ()
                             {
                             });
-                pm.addItem ("Revert", true, false, [this] ()
-                            {
-                            });
+                pm.addItem ("Revert", true, false, [this, sampleFile, &hiHatSampleInfo, sampleType] ()
+                {
+                    // if we are reverting a temp file, then we just delete the file.
+                    if (sampleFile.getFileExtension ().toLowerCase () == "._wav")
+                        sampleFile.deleteFile ();
+
+                    // for both temp and original files, we also set the deleted flag to false, and copy the exists flag from the unedited properties
+                    auto& sampleProperties { sampleType == SampleProperties::SampleType::open ? hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties : hiHatSampleInfo.editedSamplePropertiesPair.closedSampleProperties };
+                    sampleProperties.setDeleted (false, true);
+                    auto& uneditedSampleProperties { sampleType == SampleProperties::SampleType::open ? hiHatSampleInfo.uneditedSamplePropertiesPair.openedSampleProperties : hiHatSampleInfo.uneditedSamplePropertiesPair.closedSampleProperties };
+                    sampleProperties.setExists (uneditedSampleProperties.getExists (), true);
+                });
                 pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
             }
             else
@@ -97,7 +110,7 @@ SampleBankComponent::~SampleBankComponent ()
 {
 }
 
-void SampleBankComponent::init (juce::ValueTree rootPropertiesVT, juce::ValueTree bankPropertiesVT)
+void SampleBankComponent::init (juce::ValueTree rootPropertiesVT, juce::ValueTree bankPropertiesVT, juce::ValueTree uneditedBankPropertiesVT)
 {
     PersistentRootProperties persistentRootProperties (rootPropertiesVT, PersistentRootProperties::WrapperType::client, PersistentRootProperties::EnableCallbacks::no);
     appProperties.wrap (persistentRootProperties.getValueTree (), AppProperties::WrapperType::client, AppProperties::EnableCallbacks::no);
@@ -106,26 +119,41 @@ void SampleBankComponent::init (juce::ValueTree rootPropertiesVT, juce::ValueTre
     audioPlayerProperties.wrap (runtimeRootProperties.getValueTree (), AudioPlayerProperties::WrapperType::client, AudioPlayerProperties::EnableCallbacks::no);
     
     bankProperties.wrap (bankPropertiesVT, BankProperties::WrapperType::client, BankProperties::EnableCallbacks::yes);
+    uneditedBankProperties.wrap (uneditedBankPropertiesVT, BankProperties::WrapperType::client, BankProperties::EnableCallbacks::yes);
+
     setBankName (bankProperties.getName ());
-    bankProperties.forEachSamplePair ([this] (juce::ValueTree samplePairVT, int samplePairIndex)
+    bankProperties.forEachSamplePair ([this, uneditedBankPropertiesVT = uneditedBankProperties.getValueTree ()] (juce::ValueTree samplePairVT, int samplePairIndex)
     {
-        SamplePairProperties samplePairProperties { samplePairVT, SamplePairProperties::WrapperType::client, SamplePairProperties::EnableCallbacks::no };
         HiHatSampleInfo& hiHatSampleInfo { hiHatSampleInfoList [samplePairIndex] };
 
-        hiHatSampleInfo.openSampleProperties.wrap (samplePairProperties.getOpenSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::yes);
-        hiHatSampleInfo.openSampleProperties.onExistsChange = [this, &hiHatSampleInfo] (bool exists)
+        SamplePairProperties samplePairProperties { samplePairVT, SamplePairProperties::WrapperType::client, SamplePairProperties::EnableCallbacks::no };
+        BankProperties uneditedBankProperties (uneditedBankPropertiesVT, BankProperties::WrapperType::client, BankProperties::EnableCallbacks::yes);
+        SamplePairProperties uneditedSamplePairProperties { uneditedBankProperties.getSamplePairVT( samplePairIndex), SamplePairProperties::WrapperType::client, SamplePairProperties::EnableCallbacks::no };
+
+        hiHatSampleInfo.uneditedSamplePropertiesPair.openedSampleProperties.wrap (uneditedSamplePairProperties.getOpenSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::yes);
+        hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.wrap (samplePairProperties.getOpenSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::yes);
+        hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.onExistsChange = [this, &hiHatSampleInfo] (bool exists)
         {
-            hiHatSampleInfo.openedNameLabel.setFileExistState (exists);
+            hiHatSampleInfo.openedNameLabel.setFileExistState (exists && ! hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.getDeleted() );
+        };
+        hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.onDeletedChange = [this, &hiHatSampleInfo] (bool deleted)
+            {
+                hiHatSampleInfo.openedNameLabel.setFileExistState (! deleted && hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.getExists());
+            };
+
+        hiHatSampleInfo.uneditedSamplePropertiesPair.closedSampleProperties.wrap (uneditedSamplePairProperties.getClosedSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::yes);
+        hiHatSampleInfo.editedSamplePropertiesPair.closedSampleProperties.wrap (samplePairProperties.getClosedSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::yes);
+        hiHatSampleInfo.editedSamplePropertiesPair.closedSampleProperties.onExistsChange = [this, &hiHatSampleInfo] (bool exists)
+        {
+            hiHatSampleInfo.closedNameLabel.setFileExistState (exists && !hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.getDeleted ());
+        };
+        hiHatSampleInfo.editedSamplePropertiesPair.closedSampleProperties.onDeletedChange = [this, &hiHatSampleInfo] (bool deleted)
+        {
+            hiHatSampleInfo.closedNameLabel.setFileExistState (! deleted && !hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.getExists ());
         };
 
-        hiHatSampleInfo.closedSampleProperties.wrap (samplePairProperties.getClosedSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::yes);
-        hiHatSampleInfo.closedSampleProperties.onExistsChange = [this, &hiHatSampleInfo] (bool exists)
-        {
-            hiHatSampleInfo.closedNameLabel.setFileExistState (exists);
-        };
-
-        hiHatSampleInfo.openedNameLabel.setFileExistState (hiHatSampleInfo.openSampleProperties.getExists ());
-        hiHatSampleInfo.closedNameLabel.setFileExistState (hiHatSampleInfo.closedSampleProperties.getExists ());
+        hiHatSampleInfo.openedNameLabel.setFileExistState (hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.getExists ());
+        hiHatSampleInfo.closedNameLabel.setFileExistState (hiHatSampleInfo.editedSamplePropertiesPair.closedSampleProperties.getExists ());
         return true;
     });
 }

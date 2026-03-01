@@ -2,8 +2,14 @@
 
 void SampleProperties::initValueTree ()
 {
+    setDeleted (false, false);
     setExists (false, false);
     setFilename ("", false);
+}
+
+void SampleProperties::setDeleted (bool deleted, bool includeSelfCallback)
+{
+    setValue (deleted, DeletedPropertyId, includeSelfCallback);
 }
 
 void SampleProperties::setExists (bool exists, bool includeSelfCallback)
@@ -19,6 +25,11 @@ void SampleProperties::setFilename (const juce::String& filename, bool includeSe
 void SampleProperties::setType (SampleType sampleType, bool includeSelfCallback)
 {
     setValue (juce::String (sampleType == SampleType::open ? "open" : "closed"), TypePropertyId, includeSelfCallback);
+}
+
+bool SampleProperties::getDeleted ()
+{
+    return getValue<bool> (DeletedPropertyId);
 }
 
 bool SampleProperties::getExists ()
@@ -41,7 +52,12 @@ void SampleProperties::valueTreePropertyChanged (juce::ValueTree& vt, const juce
     if (vt != data)
         return;
 
-    if (property == ExistsPropertyId)
+    if (property == DeletedPropertyId)
+    {
+        if (onDeletedChange)
+            onDeletedChange (getDeleted ());
+    }
+    else if (property == ExistsPropertyId)
     {
         if (onExistsChange)
             onExistsChange (getExists ());

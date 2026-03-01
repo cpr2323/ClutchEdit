@@ -51,14 +51,17 @@ public:
     {
     }
 
+    void setDeleted (bool deleted, bool includeSelfCallback);
     void setExists (bool exists, bool includeSelfCallback);
     void setFilename (const juce::String& filename, bool includeSelfCallback);
     void setType (SampleType sampleType, bool includeSelfCallback);
 
+    bool getDeleted ();
     bool getExists ();
     juce::String getFilename ();
     SampleType getType ();
 
+    std::function<void (bool deleted)> onDeletedChange;
     std::function<void (bool exists)> onExistsChange;
     std::function<void (const juce::String& filename)> onFilenameChange;
     std::function<void (SampleType sampleType)> onTypeChange;
@@ -66,6 +69,7 @@ public:
     static inline const juce::Identifier SampleTypeId { "Sample" };
     static inline const juce::Identifier FilenamePropertyId { "filename" };
     static inline const juce::Identifier ExistsPropertyId   { "exists" };
+    static inline const juce::Identifier DeletedPropertyId  { "deleted" };
     static inline const juce::Identifier TypePropertyId     { "type" };
 
     void initValueTree ();

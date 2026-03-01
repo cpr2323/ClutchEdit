@@ -215,6 +215,7 @@ bool ProjectManager::areEntireClutchPropertiesEqual (juce::ValueTree clutchPrope
             SamplePairProperties samplePairProperties1 { samplePairVT1, SamplePairProperties::WrapperType::client, SamplePairProperties::EnableCallbacks::no };
             SamplePairProperties samplePairProperties2 { samplePairVT2, SamplePairProperties::WrapperType::client, SamplePairProperties::EnableCallbacks::no };
 
+            // check exists flags
             // open sample
             SampleProperties openProperties1 { samplePairProperties1.getOpenSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
             SampleProperties openProperties2 { samplePairProperties2.getOpenSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
@@ -228,6 +229,21 @@ bool ProjectManager::areEntireClutchPropertiesEqual (juce::ValueTree clutchPrope
             SampleProperties closedProperties1 { samplePairProperties1.getClosedSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
             SampleProperties closedProperties2 { samplePairProperties2.getClosedSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
             if (closedProperties2.getExists () != closedProperties1.getExists ())
+            {
+                banksMatch = false;
+                return false;
+            }
+
+            // check deleted flags
+            // open sample
+            if (openProperties2.getDeleted () != openProperties1.getDeleted ())
+            {
+                banksMatch = false;
+                return false;
+            }
+
+            // closed sample
+            if (closedProperties2.getDeleted () != closedProperties1.getDeleted ())
             {
                 banksMatch = false;
                 return false;
@@ -264,11 +280,13 @@ void ProjectManager::copySamplePropertiesExistsFlags (juce::ValueTree sourceClut
             SampleProperties sourceOpenProperties { sourceSamplePair.getOpenSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
             SampleProperties destOpenProperties { destSamplePair.getOpenSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
             destOpenProperties.setExists (sourceOpenProperties.getExists (), false);
+            destOpenProperties.setDeleted (sourceOpenProperties.getDeleted (), false);
 
             // closed sample
             SampleProperties sourceClosedProperties { sourceSamplePair.getClosedSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
             SampleProperties destClosedProperties { destSamplePair.getClosedSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
             destClosedProperties.setExists (sourceClosedProperties.getExists (), false);
+            destClosedProperties.setDeleted (sourceClosedProperties.getDeleted (), false);
 
             return true;
         });
@@ -279,6 +297,7 @@ void ProjectManager::copySamplePropertiesExistsFlags (juce::ValueTree sourceClut
 
 void ProjectManager::saveProject ()
 {
+    doQueuedDeletions ();
     convertTempFilesToPerm ();
 
     // copy the data from the edited properties into the HiHatIniData object, and write it back out to the file
@@ -348,55 +367,77 @@ void ProjectManager::timerCallback ()
 
 void ProjectManager::convertTempFilesToPerm ()
 {
-    auto bankParentFolder { juce::File (appProperties.getMostRecentFolder ()) };
-    BankListProperties bankListProperties { editedClutchProperties.getValueTree (), BankListProperties::WrapperType::client, BankListProperties::EnableCallbacks::no };
-    bankListProperties.forEachBank ([bankParentFolder] (juce::ValueTree bankPropertiesVT, [[maybe_unused]] int bankIndex)
+    forEachSamplePair ([this] (juce::ValueTree samplePairVT, juce::File sampleBankFolder)
     {
-        BankProperties bankProperties { bankPropertiesVT, BankProperties::WrapperType::client, BankProperties::EnableCallbacks::no };
-        bankProperties.forEachSamplePair ([bankParentFolder, bankName = bankProperties.getName ()] (juce::ValueTree samplePairVT, [[maybe_unused]] int samplePairIndex)
+        auto checkSampleExistence = [&sampleBankFolder] (juce::ValueTree samplePropertiesVT)
         {
-            // check for file and update exists
-            SamplePairProperties samplePairProperties { samplePairVT, SamplePairProperties::WrapperType::client, SamplePairProperties::EnableCallbacks::no };
-            auto checkSampleExistence = [sampleBankFolder = bankParentFolder.getChildFile (bankName)] (juce::ValueTree samplePropertiesVT)
+            SampleProperties sampleProperties { samplePropertiesVT, SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
+            auto tempFileName { sampleBankFolder.getChildFile (sampleProperties.getFilename ()).withFileExtension ("._wav") };
+            if (tempFileName.existsAsFile ())
             {
-                SampleProperties sampleProperties { samplePropertiesVT, SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
-                auto tempFileName { sampleBankFolder.getChildFile (sampleProperties.getFilename ()).withFileExtension ("._wav") };
-                if (tempFileName.existsAsFile ())
-                {
-                    auto permFileName { sampleBankFolder.getChildFile (sampleProperties.getFilename ()).withFileExtension (".wav") };
-                    if (permFileName.existsAsFile ())
-                        permFileName.deleteFile ();
-                    tempFileName.moveFileTo (permFileName);
-                }
-            };
-            checkSampleExistence (samplePairProperties.getOpenSampleVT ());
-            checkSampleExistence (samplePairProperties.getClosedSampleVT ());
-            return true;
-        });
+                auto permFileName { sampleBankFolder.getChildFile (sampleProperties.getFilename ()).withFileExtension (".wav") };
+                if (permFileName.existsAsFile ())
+                    permFileName.deleteFile ();
+                tempFileName.moveFileTo (permFileName);
+            }
+        };
+        SamplePairProperties samplePairProperties { samplePairVT, SamplePairProperties::WrapperType::client, SamplePairProperties::EnableCallbacks::no };
+        checkSampleExistence (samplePairProperties.getOpenSampleVT ());
+        checkSampleExistence (samplePairProperties.getClosedSampleVT ());
         return true;
     });
 }
 
 void ProjectManager::cleanUpTempFiles ()
 {
+    forEachSamplePair ([this] (juce::ValueTree samplePairVT, juce::File sampleBankFolder)
+    {
+        auto checkSampleExistence = [&sampleBankFolder] (juce::ValueTree samplePropertiesVT)
+        {
+            SampleProperties sampleProperties { samplePropertiesVT, SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
+            auto tempFileName { sampleBankFolder.getChildFile (sampleProperties.getFilename ()).withFileExtension ("._wav") };
+            if (tempFileName.existsAsFile ())
+                tempFileName.deleteFile ();
+        };
+        // check for file and update exists
+        SamplePairProperties samplePairProperties { samplePairVT, SamplePairProperties::WrapperType::client, SamplePairProperties::EnableCallbacks::no };
+        checkSampleExistence (samplePairProperties.getOpenSampleVT ());
+        checkSampleExistence (samplePairProperties.getClosedSampleVT ());
+    });
+}
+
+void ProjectManager::doQueuedDeletions ()
+{
+    forEachSamplePair ([this] (juce::ValueTree samplePairVT, juce::File sampleBankFolder)
+    {
+        auto checkForFileDelete = [&sampleBankFolder] (juce::ValueTree samplePropertiesVT)
+        {
+            SampleProperties sampleProperties { samplePropertiesVT, SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
+            if (sampleProperties.getDeleted())
+            {
+                auto fileToDelete { sampleBankFolder.getChildFile (sampleProperties.getFilename ()).withFileExtension (".wav") };
+                fileToDelete.deleteFile ();
+                sampleProperties.setDeleted (false, false);
+                sampleProperties.setExists (false, false);
+            }
+        };
+        // check for file and update exists
+        SamplePairProperties samplePairProperties { samplePairVT, SamplePairProperties::WrapperType::client, SamplePairProperties::EnableCallbacks::no };
+        checkForFileDelete (samplePairProperties.getOpenSampleVT ());
+        checkForFileDelete (samplePairProperties.getClosedSampleVT ());
+    });
+}
+
+void ProjectManager::forEachSamplePair (std::function<void(juce::ValueTree samplePairPropertiesVT, juce::File sampleBankFolder)> samplePairCallback)
+{
     auto bankParentFolder { juce::File (appProperties.getMostRecentFolder ()) };
     BankListProperties bankListProperties { editedClutchProperties.getValueTree (), BankListProperties::WrapperType::client, BankListProperties::EnableCallbacks::no };
-    bankListProperties.forEachBank ([bankParentFolder] (juce::ValueTree bankPropertiesVT, [[maybe_unused]] int bankIndex)
+    bankListProperties.forEachBank ([bankParentFolder, samplePairCallback] (juce::ValueTree bankPropertiesVT, [[maybe_unused]] int bankIndex)
     {
         BankProperties bankProperties { bankPropertiesVT, BankProperties::WrapperType::client, BankProperties::EnableCallbacks::no };
-        bankProperties.forEachSamplePair ([bankParentFolder, bankName = bankProperties.getName ()] (juce::ValueTree samplePairVT, [[maybe_unused]] int samplePairIndex)
+        bankProperties.forEachSamplePair ([bankParentFolder, bankName = bankProperties.getName (), samplePairCallback] (juce::ValueTree samplePairVT, [[maybe_unused]] int samplePairIndex)
         {
-            // check for file and update exists
-            SamplePairProperties samplePairProperties { samplePairVT, SamplePairProperties::WrapperType::client, SamplePairProperties::EnableCallbacks::no };
-            auto checkSampleExistence = [sampleBankFolder = bankParentFolder.getChildFile (bankName)] (juce::ValueTree samplePropertiesVT)
-            {
-                SampleProperties sampleProperties { samplePropertiesVT, SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
-                auto tempFileName { sampleBankFolder.getChildFile (sampleProperties.getFilename ()).withFileExtension ("._wav") };
-                if (tempFileName.existsAsFile ())
-                    tempFileName.deleteFile ();
-            };
-            checkSampleExistence (samplePairProperties.getOpenSampleVT ());
-            checkSampleExistence (samplePairProperties.getClosedSampleVT ());
+            samplePairCallback (samplePairVT, bankParentFolder.getChildFile (bankName));
             return true;
         });
         return true;
