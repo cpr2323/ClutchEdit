@@ -36,7 +36,7 @@ void ProjectManager::init (juce::ValueTree theRootPropertiesVT)
         auto doQuit = [this] ()
         {
             cleanUpTempFiles ();
-            // since this is an async operation, and we are quitting the app, let's be safe and make a copy of the ValueTree we need
+            // since this is an async operation, and we are quitting the app, let's be safe take a reference to the ValueTree we need
             juce::MessageManager::callAsync ([runtimeRootPropertiesVT = runtimeRootProperties.getValueTree ()] ()
             {
                 RuntimeRootProperties runtimeRootProperties { runtimeRootPropertiesVT, RuntimeRootProperties::WrapperType::client, RuntimeRootProperties::EnableCallbacks::no };
@@ -76,8 +76,8 @@ void ProjectManager::init (juce::ValueTree theRootPropertiesVT)
 
     openProject (appProperties.getRecentlyUsedFile (0));
 
-    // scan sample folders and check for edits every second
-    startTimer (1000);
+    // scan sample folders and check for edits every 1/2 second
+    startTimer (500);
 }
 
 void ProjectManager::openProject (const juce::File& hiHatIniFile)
