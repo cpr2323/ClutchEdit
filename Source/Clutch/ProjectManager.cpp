@@ -355,7 +355,7 @@ void ProjectManager::timerCallback ()
         break;
         case ProjectManager::TimerTask::checkForEdits:
         {
-            projectManagerProperties.setProjectEdited (!areEntireClutchPropertiesEqual (unEditedClutchProperties.getValueTree (), editedClutchProperties.getValueTree ()), false);
+            projectManagerProperties.setProjectEdited (! areEntireClutchPropertiesEqual (unEditedClutchProperties.getValueTree (), editedClutchProperties.getValueTree ()), false);
             timerTask = TimerTask::scanSamples;
         }
         break;

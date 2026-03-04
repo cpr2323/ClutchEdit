@@ -30,14 +30,63 @@ SampleBankComponent::SampleBankComponent ()
                 {
                     // if we are deleted a temp file, then we just delete the file.
                     // if we are deleting the original file, then we mark the sample properties as deleted, but we don't actually delete the file. the original file will be deleted when the project is SAVED
-                    if (sampleFile.getFileExtension ().toLowerCase () == "_wav")
+                    if (sampleFile.getFileExtension ().toLowerCase () == "._wav")
                         sampleFile.deleteFile ();
                     else
                         sampleType == SampleProperties::SampleType::open ? hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.setDeleted (true, true) : hiHatSampleInfo.editedSamplePropertiesPair.closedSampleProperties.setDeleted (true, true);
                 });
-                pm.addItem ("Swap", sampleFile.exists () || otherSampleFile.exists (), false, [this] ()
-                            {
-                            });
+                pm.addItem ("Swap", sampleFile.exists () || otherSampleFile.exists (), false, [this, sampleFile, otherSampleFile, sampleType, &hiHatSampleInfo] ()
+                {
+                    if (sampleFile.exists () && ! otherSampleFile.exists ())
+                    {
+                        sampleFile.copyFileTo (otherSampleFile.withFileExtension ("._wav"));
+                        sampleType == SampleProperties::SampleType::open ? hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.setDeleted (true, true) : hiHatSampleInfo.editedSamplePropertiesPair.closedSampleProperties.setDeleted (true, true);
+                    }
+                    else if (! sampleFile.exists () && otherSampleFile.exists ())
+                    {
+                        otherSampleFile.copyFileTo (sampleFile.withFileExtension ("._wav"));
+                        sampleType == SampleProperties::SampleType::open ? hiHatSampleInfo.editedSamplePropertiesPair.closedSampleProperties.setDeleted (true, true) : hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.setDeleted (true, true);
+                    }
+                    else
+                    {
+                        // if both files exist, we need to use a temp file to swap them
+                        // todo handle temp files
+                        const auto sampleIsOriginal { sampleFile.getFileExtension ().toLowerCase () == ".wav" };
+                        const auto otherSampleIsOriginal { otherSampleFile.getFileExtension ().toLowerCase () == ".wav" };
+                        if (sampleIsOriginal && otherSampleIsOriginal)
+                        {
+                            sampleFile.copyFileTo (otherSampleFile.withFileExtension ("._wav"));
+                            otherSampleFile.copyFileTo (sampleFile.withFileExtension ("._wav"));
+                            hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.setDeleted (true, true);
+                            hiHatSampleInfo.editedSamplePropertiesPair.closedSampleProperties.setDeleted (true, true);
+                        }
+                        else if (sampleIsOriginal && ! otherSampleIsOriginal)
+                        {
+                            otherSampleFile.copyFileTo (sampleFile.withFileExtension ("._wav"));
+                            sampleFile.copyFileTo (otherSampleFile.withFileExtension ("._wav"));
+                            sampleType == SampleProperties::SampleType::open ? hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.setDeleted (true, true) : hiHatSampleInfo.editedSamplePropertiesPair.closedSampleProperties.setDeleted (true, true);
+                        }
+                        else if (! sampleIsOriginal && otherSampleIsOriginal)
+                        {
+                            sampleFile.copyFileTo (otherSampleFile.withFileExtension ("._wav"));
+                            otherSampleFile.copyFileTo (sampleFile.withFileExtension ("._wav"));
+                            sampleType == SampleProperties::SampleType::open ? hiHatSampleInfo.editedSamplePropertiesPair.closedSampleProperties.setDeleted (true, true) : hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.setDeleted (true, true);
+                        }
+                        else // ! sampleIsOriginal && ! otherSampleIsOriginal
+                        {
+                            auto tempFile { sampleFile.withFileExtension (".tmp") };
+                            sampleFile.copyFileTo (tempFile);
+                            otherSampleFile.copyFileTo (sampleFile.withFileExtension ("._wav"));
+                            tempFile.copyFileTo (otherSampleFile.withFileExtension ("._wav"));
+                            tempFile.deleteFile ();
+                            if (sampleFile.withFileExtension (".wav").exists ())
+                                sampleType == SampleProperties::SampleType::open ? hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.setDeleted (true, true) : hiHatSampleInfo.editedSamplePropertiesPair.closedSampleProperties.setDeleted (true, true);
+                            if (otherSampleFile.withFileExtension (".wav").exists ())
+                                sampleType == SampleProperties::SampleType::open ? hiHatSampleInfo.editedSamplePropertiesPair.closedSampleProperties.setDeleted (true, true) : hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.setDeleted (true, true);
+
+                        }
+                    }
+                });
                 pm.addItem ("Revert", true, false, [this, sampleFile, &hiHatSampleInfo, sampleType] ()
                 {
                     // if we are reverting a temp file, then we just delete the file.
@@ -80,7 +129,7 @@ SampleBankComponent::SampleBankComponent ()
         {
             jassert (files.size () == 1);
             audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
-            copySampleFile (juce::File (files[0]), hiHatSampleIndex, HiHatState::opened);
+            copyToTempSampleFile (juce::File (files[0]), hiHatSampleIndex, HiHatState::opened);
         };
         hiHatSampleInfo.openedNameLabel.onMouseUp = [this, handleMouseClickOnSample] ([[maybe_unused]] const juce::MouseEvent& mouseEvent)
         {
@@ -96,7 +145,7 @@ SampleBankComponent::SampleBankComponent ()
         {
             jassert (files.size () == 1);
             audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
-            copySampleFile (juce::File (files [0]), hiHatSampleIndex, HiHatState::closed);
+            copyToTempSampleFile (juce::File (files [0]), hiHatSampleIndex, HiHatState::closed);
         };
         hiHatSampleInfo.closedNameLabel.onMouseUp = [this, handleMouseClickOnSample] ([[maybe_unused]] const juce::MouseEvent& mouseEvent)
         {
@@ -130,26 +179,31 @@ void SampleBankComponent::init (juce::ValueTree rootPropertiesVT, juce::ValueTre
         BankProperties uneditedBankProperties (uneditedBankPropertiesVT, BankProperties::WrapperType::client, BankProperties::EnableCallbacks::yes);
         SamplePairProperties uneditedSamplePairProperties { uneditedBankProperties.getSamplePairVT( samplePairIndex), SamplePairProperties::WrapperType::client, SamplePairProperties::EnableCallbacks::no };
 
+        auto isTempFile = [this] (int samplePairIndex, SampleProperties::SampleType sampleType) -> bool
+        {
+            return juce::File (getFullPath(samplePairIndex, sampleType)).getFileExtension().toLowerCase() == "._wav";
+        };
+
         hiHatSampleInfo.uneditedSamplePropertiesPair.openedSampleProperties.wrap (uneditedSamplePairProperties.getOpenSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::yes);
         hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.wrap (samplePairProperties.getOpenSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::yes);
-        hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.onExistsChange = [this, &hiHatSampleInfo] (bool exists)
+        hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.onExistsChange = [this, &hiHatSampleInfo, isTempFile, samplePairIndex] (bool exists)
         {
-            hiHatSampleInfo.openedNameLabel.setFileExistState (exists && ! hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.getDeleted() );
+            hiHatSampleInfo.openedNameLabel.setFileExistState (exists && (isTempFile (samplePairIndex, SampleProperties::SampleType::open) || ! hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.getDeleted ()));
         };
-        hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.onDeletedChange = [this, &hiHatSampleInfo] (bool deleted)
-            {
-                hiHatSampleInfo.openedNameLabel.setFileExistState (! deleted && hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.getExists());
-            };
+        hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.onDeletedChange = [this, &hiHatSampleInfo, isTempFile, samplePairIndex] (bool deleted)
+        {
+            hiHatSampleInfo.openedNameLabel.setFileExistState ((isTempFile (samplePairIndex, SampleProperties::SampleType::open) || ! deleted) && hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.getExists());
+        };
 
         hiHatSampleInfo.uneditedSamplePropertiesPair.closedSampleProperties.wrap (uneditedSamplePairProperties.getClosedSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::yes);
         hiHatSampleInfo.editedSamplePropertiesPair.closedSampleProperties.wrap (samplePairProperties.getClosedSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::yes);
-        hiHatSampleInfo.editedSamplePropertiesPair.closedSampleProperties.onExistsChange = [this, &hiHatSampleInfo] (bool exists)
+        hiHatSampleInfo.editedSamplePropertiesPair.closedSampleProperties.onExistsChange = [this, &hiHatSampleInfo, isTempFile, samplePairIndex] (bool exists)
         {
-            hiHatSampleInfo.closedNameLabel.setFileExistState (exists && !hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.getDeleted ());
+            hiHatSampleInfo.closedNameLabel.setFileExistState (exists && (isTempFile (samplePairIndex, SampleProperties::SampleType::closed) || ! hiHatSampleInfo.editedSamplePropertiesPair.closedSampleProperties.getDeleted ()));
         };
-        hiHatSampleInfo.editedSamplePropertiesPair.closedSampleProperties.onDeletedChange = [this, &hiHatSampleInfo] (bool deleted)
+        hiHatSampleInfo.editedSamplePropertiesPair.closedSampleProperties.onDeletedChange = [this, &hiHatSampleInfo, isTempFile, samplePairIndex] (bool deleted)
         {
-            hiHatSampleInfo.closedNameLabel.setFileExistState (! deleted && !hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.getExists ());
+            hiHatSampleInfo.closedNameLabel.setFileExistState ((isTempFile (samplePairIndex, SampleProperties::SampleType::closed) || ! deleted) && hiHatSampleInfo.editedSamplePropertiesPair.closedSampleProperties.getExists ());
         };
 
         hiHatSampleInfo.openedNameLabel.setFileExistState (hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.getExists ());
@@ -216,7 +270,7 @@ void SampleBankComponent::sampleConvert (juce::AudioFormatReader* reader, juce::
         jassertfalse;
     }
 }
-void SampleBankComponent::copySampleFile (juce::File sourceFile, int hiHatSampleIndex, HiHatState hiHatState)
+void SampleBankComponent::copyToTempSampleFile (juce::File sourceFile, int hiHatSampleIndex, HiHatState hiHatState)
 {
     // TODO - move to centralized place
     juce::AudioFormatManager audioFormatManager;
@@ -249,6 +303,12 @@ void SampleBankComponent::copySampleFile (juce::File sourceFile, int hiHatSample
     }
 
     juce::File destFile { bankFolder.getChildFile (destinationFileName) };
+    if (destFile.withFileExtension (".wav").existsAsFile ())
+    {
+        auto& hiHatSampleInfo { hiHatSampleInfoList [hiHatSampleIndex] };
+        hiHatState == HiHatState::opened ? hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.setDeleted (true, true) : hiHatSampleInfo.editedSamplePropertiesPair.closedSampleProperties.setDeleted (true, true);
+    }
+
     if (reader->getFormatName () == "WAV file" && reader->numChannels == 1 && reader->bitsPerSample == 16 && (reader->sampleRate == 44100 || reader->sampleRate == 48000))
     {
         sourceFile.copyFileTo (destFile);

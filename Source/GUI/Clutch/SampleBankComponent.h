@@ -166,7 +166,7 @@ private:
     AudioPlayerProperties audioPlayerProperties;
     FileDropLabel* auditioningSampleLabelComponent { nullptr };
 
-    void copySampleFile (juce::File sourceFile, int hiHatSampleIndex, HiHatState hiHatState);
+    void copyToTempSampleFile (juce::File sourceFile, int hiHatSampleIndex, HiHatState hiHatState);
     juce::String getBankAndFileNameWithoutExtension (int hiHatSampleIndex, SampleProperties::SampleType sampleType);
     juce::String getFullPath (int hiHatSampleIndex, SampleProperties::SampleType sampleType);
     juce::String getBankAndFileName (int hiHatSampleIndex, SampleProperties::SampleType sampleType);
