@@ -1,50 +1,94 @@
 #include "EffectEditorComponent.h"
 #include "../../Clutch/ClutchProperties.h"
+#include "../../Clutch/LedColorList.h"
 #include "../../Utility/RuntimeRootProperties.h"
+
+enum EffectId
+{
+    none,
+    bitcrush,
+    chorus,
+    combfilter,
+    djfilter,
+    dubecho,
+    glitch,
+    reverb,
+    sputter
+};
+
+const std::array<juce::String, 9> effectNames
+{
+    "NONE",         // 0
+    "BITCRUSH",     // 1
+    "CHORUS",       // 2
+    "COMBFILTER",   // 3
+    "DJFILTER",     // 4
+    "DUBECHO",      // 5
+    "GLITCH",       // 6
+    "REVERB",       // 7
+    "SPUTTER"       // 8
+};
+
+const std::array<int, 8> effectDefaults
+{
+    EffectId::sputter,    // WHITE
+    EffectId::bitcrush,   // RED
+    EffectId::combfilter, // GREEN
+    EffectId::djfilter,   // BLUE
+    EffectId::dubecho,    // ORANGE
+    EffectId::chorus,     // CYAN
+    EffectId::reverb,     // VIOLET
+    EffectId::glitch      // YELLOW
+};
 
 EffectEditorComponent::EffectEditorComponent ()
 {
-    for (auto curStepIndex { 0 }; curStepIndex < 8; ++curStepIndex)
+    for (auto curEffectIndex { 0 }; curEffectIndex < 8; ++curEffectIndex)
     {
-        auto& effectEditor { effectEditors [curStepIndex] };
+        auto& effectEditor { effectEditors [curEffectIndex] };
         effectEditor.setTooltip ("");
-        effectEditor.addItem ("NONE", 1);
-        effectEditor.addItem ("BITCRUSH", 2);
-        effectEditor.addItem ("CHORUS", 3);
-        effectEditor.addItem ("COMBFILTER", 4);
-        effectEditor.addItem ("DJFILTER", 5);
-        effectEditor.addItem ("DUBECHO", 6);
-        effectEditor.addItem ("GLITCH", 7);
-        effectEditor.addItem ("REVERB", 8);
-        effectEditor.addItem ("SPUTTER", 9);
+        for (auto effectIndex { 0 }; effectIndex < effectNames.size (); ++effectIndex)
+            effectEditor.addItem (effectNames [effectIndex], effectIndex + 1);
         effectEditor.setLookAndFeel (&noArrowComboBoxLnF);
         effectEditor.setColour (juce::ComboBox::backgroundColourId, juce::Colours::darkgrey.darker (0.7f));
         effectEditor.setSelectedId (1);
-        effectEditor.setComponentID ("StepComboBox" + juce::String (curStepIndex));
-        effectEditor.onDragCallback = [this, &effectEditor, curStepIndex] (DragSpeed dragSpeed, int direction)
+        effectEditor.setComponentID ("StepComboBox" + juce::String (curEffectIndex));
+        effectEditor.onDragCallback = [this, &effectEditor, curEffectIndex] (DragSpeed dragSpeed, int direction)
         {
             const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
             const auto stepValue { effectEditor.getSelectedId () };
             effectEditor.setSelectedId (std::clamp (stepValue + scrollAmount, 1, 9), juce::NotificationType::dontSendNotification);
-            onEffectUiChanged (curStepIndex);
+            onEffectUiChanged (curEffectIndex);
         };
-        effectEditor.onPopupMenuCallback = [this] ()
+        effectEditor.onPopupMenuCallback = [this, curEffectIndex] ()
         {
-            juce::PopupMenu editMenu;
-            editMenu.showMenuAsync ({}, [this] (int) {});
+            auto* popupMenuLnF { new juce::LookAndFeel_V4 };
+            popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
+            juce::PopupMenu pm;
+            pm.setLookAndFeel (popupMenuLnF);
+            pm.addSectionHeader ("Effect " + juce::String (curEffectIndex + 1));
+            pm.addSeparator ();
+            pm.addItem ("Default", true, false, [this, curEffectIndex] ()
+            {
+                effectEditors [curEffectIndex].setText (effectNames[effectDefaults[curEffectIndex]], juce::NotificationType::dontSendNotification);
+            });
+            pm.addItem ("Revert", true, false, [this] ()
+            {
+            });
+
+            pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
         };
-        effectEditor.onChange = [this, curStepIndex] ()
+        effectEditor.onChange = [this, curEffectIndex] ()
         {
-            onEffectUiChanged (curStepIndex);
+            onEffectUiChanged (curEffectIndex);
         };
         addAndMakeVisible (effectEditor);
     }
 
     for (auto effectIndex { 0 }; effectIndex < 8; ++effectIndex)
     {
-        const juce::StringArray effectSelectNames { "WHITE", "RED", "ORANGE", "YELLOW", "GREEN", "BLUE", "CYAN", "VIOLET" };
         auto& effectLabel { effectLabels [effectIndex] };
-        effectLabel.setText (effectSelectNames [effectIndex], juce::NotificationType::dontSendNotification);
+        effectLabel.setText (gLedColorList [effectIndex], juce::NotificationType::dontSendNotification);
         effectLabel.setJustificationType (juce::Justification::centredLeft);
         addAndMakeVisible (effectLabel);
         auto& effectEditor { effectEditors [effectIndex] };

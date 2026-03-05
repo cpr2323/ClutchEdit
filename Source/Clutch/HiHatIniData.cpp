@@ -1,7 +1,9 @@
 #include "HiHatIniData.h"
-#include "SettingsProperties.h"
-#include "PatternListProperties.h"
+#include "EffectProperties.h"
 #include "EffectListProperties.h"
+#include "SettingsProperties.h"
+#include "PatternProperties.h"
+#include "PatternListProperties.h"
  // include require property headers
 
 constexpr auto kKeyColumn { 0 };

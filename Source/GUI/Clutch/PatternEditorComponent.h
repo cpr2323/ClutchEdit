@@ -1,7 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "../../Clutch/PatternListProperties.h"
+#include "../../Clutch/PatternProperties.h"
 #include "../../Utility/CustomComboBox.h"
 #include "../../Utility/CustomTextEditor.h"
 #include "../../Utility/NoArrowComboBoxLnF.h"

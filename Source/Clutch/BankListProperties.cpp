@@ -1,20 +1,10 @@
 #include "BankListProperties.h"
 #include "BankProperties.h"
+#include "LedColorList.h"
 
 void BankListProperties::initValueTree ()
 {
-    std::array<juce::String, 8> bankColors
-    {
-        "WHITE",
-        "RED",
-        "ORANGE",
-        "YELLOW",
-        "GREEN",
-        "BLUE",
-        "CYAN",
-        "VIOLET"
-    };
-    for (auto& bank : bankColors)
+    for (auto& bank : gLedColorList)
     {
         BankProperties bankProp ({}, ValueTreeWrapper<BankProperties>::WrapperType::owner, ValueTreeWrapper<BankProperties>::EnableCallbacks::no);
         bankProp.setName (bank, false);

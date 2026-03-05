@@ -1,21 +1,10 @@
 #include "PatternListEditorComponent.h"
 #include "../../Clutch/ClutchProperties.h"
+#include "../../Clutch/LedColorList.h"
 #include "../../Utility/RuntimeRootProperties.h"
 
 PatternListEditorComponent::PatternListEditorComponent ()
 {
-    std::array<juce::String, 8> patternNames
-    {
-        "WHITE",
-        "RED",
-        "ORANGE",
-        "YELLOW",
-        "GREEN",
-        "BLUE",
-        "CYAN",
-        "VIOLET"
-    };
-
     // create the pattern label and pattern editor rows
     for (auto patternIndex { 0 }; patternIndex < patternLabels.size (); ++patternIndex)
     {
@@ -23,7 +12,7 @@ PatternListEditorComponent::PatternListEditorComponent ()
 
         auto& patternLabel { patternLabels [patternIndex] };
         patternLabel.setColour (juce::Label::textColourId, juce::Colours::white);
-        patternLabel.setText (patternNames [patternIndex], juce::NotificationType::dontSendNotification);
+        patternLabel.setText (gLedColorList [patternIndex], juce::NotificationType::dontSendNotification);
         patternLabel.setJustificationType (juce::Justification::topRight);
         addAndMakeVisible (patternLabel);
     }

@@ -18,6 +18,7 @@ SampleBankComponent::SampleBankComponent ()
             const auto sampleIndexString { juce::String (hiHatSampleIndex + 1).paddedLeft ('0', 2) };
             if (isPopupMenu)
             {
+                // TODO - replace this with a static look and feel object instead of creating a new one every time
                 auto* popupMenuLnF { new juce::LookAndFeel_V4 };
                 popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
                 juce::PopupMenu pm;

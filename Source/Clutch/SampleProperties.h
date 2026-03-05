@@ -5,7 +5,7 @@
 
 // TODO move these notes elsewhere
 // There are eight folders (banks) at the root level
-//      "WHITE", "RED", "ORANGE", "YELLOW", "GREEN", "BLUE", "CYAN", "VIOLET"
+//      "WHITE", "RED", "GREEN", "BLUE", "ORANGE", "CYAN", "VIOLET", "YELLOW"
 // Each folder contains 32 samples, or 16 pairs of open/closed samples
 //      01CH.wav, 01OH.wav, 02CH.wav, 02OH.wav, ..., 16CH.wav, 16OH.wav
 // There is also a "Sample bank document - COLOR.rtf" file in each folder

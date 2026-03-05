@@ -53,7 +53,7 @@ public:
         initAudio ();
         initUi ();
 
-        //ValueTreeHelpers::dumpValueTreeContent (runtimeRootProperties.getValueTree (), true, [this] (juce::String line) { DebugLog ("", line); });
+        ValueTreeHelpers::dumpValueTreeContent (runtimeRootProperties.getValueTree (), false, [this] (juce::String line) { DebugLog ("", line); });
 
         // async quit timer
         startTimer (125);

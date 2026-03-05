@@ -5,10 +5,6 @@
   <MAINGROUP id="yofyvK" name="ClutchEdit">
     <GROUP id="{B4985F1C-C0B3-14FE-5BF5-BC3E89B7C97C}" name="Source">
       <GROUP id="{C33C0C59-ECFE-D357-BCF4-535A71D77EC9}" name="Clutch">
-        <FILE id="vIelX4" name="ProjectManagerProperties.cpp" compile="1" resource="0"
-              file="Source/Clutch/ProjectManagerProperties.cpp"/>
-        <FILE id="YHFOpJ" name="ProjectManagerProperties.h" compile="0" resource="0"
-              file="Source/Clutch/ProjectManagerProperties.h"/>
         <GROUP id="{65A89516-E52B-D1CE-6402-C582ADB4F294}" name="Audio">
           <FILE id="EzIS6r" name="AudioPlayer.cpp" compile="1" resource="0" file="Source/Clutch/Audio/AudioPlayer.cpp"/>
           <FILE id="uQHRXG" name="AudioPlayer.h" compile="0" resource="0" file="Source/Clutch/Audio/AudioPlayer.h"/>
@@ -33,10 +29,19 @@
               file="Source/Clutch/ClutchProperties.cpp"/>
         <FILE id="gzLMf2" name="ClutchProperties.h" compile="0" resource="0"
               file="Source/Clutch/ClutchProperties.h"/>
+        <FILE id="LESkSh" name="EffectProperties.cpp" compile="1" resource="0"
+              file="Source/Clutch/EffectProperties.cpp"/>
+        <FILE id="YBMlvG" name="EffectProperties.h" compile="0" resource="0"
+              file="Source/Clutch/EffectProperties.h"/>
         <FILE id="wBr4cC" name="EffectListProperties.cpp" compile="1" resource="0"
               file="Source/Clutch/EffectListProperties.cpp"/>
         <FILE id="zty9gZ" name="EffectListProperties.h" compile="0" resource="0"
               file="Source/Clutch/EffectListProperties.h"/>
+        <FILE id="ET12ut" name="LedColorList.h" compile="0" resource="0" file="Source/Clutch/LedColorList.h"/>
+        <FILE id="TbYyGC" name="PatternProperties.cpp" compile="1" resource="0"
+              file="Source/Clutch/PatternProperties.cpp"/>
+        <FILE id="uzKsN5" name="PatternProperties.h" compile="0" resource="0"
+              file="Source/Clutch/PatternProperties.h"/>
         <FILE id="kDflIv" name="PatternListProperties.cpp" compile="1" resource="0"
               file="Source/Clutch/PatternListProperties.cpp"/>
         <FILE id="almlvE" name="PatternListProperties.h" compile="0" resource="0"
@@ -45,6 +50,10 @@
               file="Source/Clutch/ProjectManager.cpp"/>
         <FILE id="FQR49l" name="ProjectManager.h" compile="0" resource="0"
               file="Source/Clutch/ProjectManager.h"/>
+        <FILE id="vIelX4" name="ProjectManagerProperties.cpp" compile="1" resource="0"
+              file="Source/Clutch/ProjectManagerProperties.cpp"/>
+        <FILE id="YHFOpJ" name="ProjectManagerProperties.h" compile="0" resource="0"
+              file="Source/Clutch/ProjectManagerProperties.h"/>
         <FILE id="ld6NRe" name="SamplePairProperties.cpp" compile="1" resource="0"
               file="Source/Clutch/SamplePairProperties.cpp"/>
         <FILE id="jhFidP" name="SamplePairProperties.h" compile="0" resource="0"
