@@ -14,6 +14,7 @@ PatternEditorComponent::PatternEditorComponent ()
     {
         auto& stepNumber { stepNumbers [columnIndex] };
         stepNumber.setJustificationType (juce::Justification::centredTop);
+        stepNumber.setColour (juce::Label::ColourIds::textColourId, juce::Colours::white.darker (0.4f));
         stepNumber.setText (juce::String (columnIndex + 1), juce::NotificationType::dontSendNotification);
         addAndMakeVisible (stepNumber);
     }
