@@ -70,10 +70,11 @@ EffectEditorComponent::EffectEditorComponent ()
             pm.addSeparator ();
             pm.addItem ("Default", true, false, [this, curEffectIndex] ()
             {
-                effectEditors [curEffectIndex].setText (effectNames[effectDefaults[curEffectIndex]], juce::NotificationType::dontSendNotification);
+                effectEditors [curEffectIndex].setText (effectNames[effectDefaults[curEffectIndex]], juce::NotificationType::sendNotification);
             });
-            pm.addItem ("Revert", true, false, [this] ()
+            pm.addItem ("Revert", true, false, [this, curEffectIndex] ()
             {
+                effectEditors [curEffectIndex].setText (uneditedEffectProperties[curEffectIndex].getEffect (), juce::NotificationType::sendNotification);
             });
 
             pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
@@ -106,14 +107,21 @@ EffectEditorComponent::~EffectEditorComponent ()
 
 void EffectEditorComponent::init (juce::ValueTree rootPropertiesVT)
 {
-    RuntimeRootProperties runtimeRootProperties (rootPropertiesVT, ValueTreeWrapper<RuntimeRootProperties>::WrapperType::client, ValueTreeWrapper<RuntimeRootProperties>::EnableCallbacks::no);
-    ClutchProperties clutchProperties (runtimeRootProperties.getValueTree ().getChildWithProperty (ClutchProperties::NamePropertyId, "edited"), ValueTreeWrapper<ClutchProperties>::WrapperType::client, ValueTreeWrapper<ClutchProperties>::EnableCallbacks::no);
-    effectListProperties.wrap (clutchProperties.getValueTree (), ValueTreeWrapper<EffectListProperties>::WrapperType::client, ValueTreeWrapper<EffectListProperties>::EnableCallbacks::no);
+    RuntimeRootProperties runtimeRootProperties (rootPropertiesVT, RuntimeRootProperties::WrapperType::client, RuntimeRootProperties::EnableCallbacks::no);
+    ClutchProperties clutchProperties (runtimeRootProperties.getValueTree ().getChildWithProperty (ClutchProperties::NamePropertyId, "edited"), ClutchProperties::WrapperType::client, ClutchProperties::EnableCallbacks::no);
+    EffectListProperties effectListProperties (clutchProperties.getValueTree (), EffectListProperties::WrapperType::client, EffectListProperties::EnableCallbacks::no);
     effectListProperties.forEachEffect ([this] (juce::ValueTree effectVT, int effectIndex)
     {
-        effectProperties [effectIndex].wrap (effectVT, ValueTreeWrapper<EffectProperties>::WrapperType::client, ValueTreeWrapper<EffectProperties>::EnableCallbacks::yes);
+        effectProperties [effectIndex].wrap (effectVT, EffectProperties::WrapperType::client, EffectProperties::EnableCallbacks::yes);
         effectProperties [effectIndex].onEffectChange = [this, effectIndex] (juce::String) { onEffectDataChanged (effectIndex); };
         onEffectDataChanged (effectIndex);
+        return true;
+    });
+    ClutchProperties uneditedClutchProperties (runtimeRootProperties.getValueTree ().getChildWithProperty (ClutchProperties::NamePropertyId, "unedited"), ClutchProperties::WrapperType::client, ClutchProperties::EnableCallbacks::no);
+    EffectListProperties uneditedEffectListProperties (uneditedClutchProperties.getValueTree (), EffectListProperties::WrapperType::client, EffectListProperties::EnableCallbacks::no);
+    uneditedEffectListProperties.forEachEffect ([this] (juce::ValueTree effectVT, int effectIndex)
+    {
+        uneditedEffectProperties [effectIndex].wrap (effectVT, EffectProperties::WrapperType::client, EffectProperties::EnableCallbacks::yes);
         return true;
     });
 }

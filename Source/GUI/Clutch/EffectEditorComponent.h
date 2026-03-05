@@ -24,10 +24,10 @@ public:
     void init (juce::ValueTree rootPropertiesVT);
 
 private:
-    EffectListProperties effectListProperties;
     std::array<juce::Label, 8> effectLabels;
     std::array<CustomComboBox, 8> effectEditors;
     std::array<EffectProperties, 8> effectProperties;
+    std::array<EffectProperties, 8> uneditedEffectProperties;
     NoArrowComboBoxLnF noArrowComboBoxLnF;
 
     void paintOverChildren (juce::Graphics& g) override;
