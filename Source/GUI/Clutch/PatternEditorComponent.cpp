@@ -7,8 +7,8 @@ constexpr auto kStepComboBoxHeight { 20 };
 constexpr auto kStepComboBoxWidth { 57 };
 constexpr auto kSpaceBetweenStepEditors { 2 };
 
-static const std::pair<juce::String, juce::String> gDefaultPatterns []
-{
+static const std::array<std::pair<const juce::String, const juce::String>, 8> gDefaultPatterns
+{{
     { "PTN_WHITE",  "6, 5, 7, 5, 0" },
     { "PTN_RED",    "6, 5, 5, 7, 5, 6, 5, 6, 4, 0" },
     { "PTN_GREEN",  "4, 3, 6, 3, 4, 7, 1, 2, 6, 4, 3, 6, 3, 6, 4, 5, 0" },
@@ -17,7 +17,7 @@ static const std::pair<juce::String, juce::String> gDefaultPatterns []
     { "PTN_CYAN",   "5, 5, 5, 7, 0" },
     { "PTN_VIOLET", "5, 4, 5, 5, 9, 5, 5, 4, 5, 5, 7, 4, 6, 4, 5, 3, 0" },
     { "PTN_YELLOW", "7, 3, 5, 7, 3, 5, 2, 5, 7, 3, 5, 3, 2, 8, 3, 2, 0" }
-};
+}};
 
 PatternEditorComponent::PatternEditorComponent ()
 {
@@ -64,18 +64,8 @@ PatternEditorComponent::PatternEditorComponent ()
         juce::PopupMenu lengthOptions;
         lengthOptions.addItem ("Default", true, false, [this] ()
         {
-            const auto patternKey { patternProperties.getId () };
-            bool defaultPatternFound { false };
-            for (const auto& curDefaultPattern : gDefaultPatterns)
-            {
-                if (curDefaultPattern.first == patternKey)
-                {
-                    const auto stepValues { juce::StringArray::fromTokens (curDefaultPattern.second, ",", "") };
-                    numberOfStepsEditor.setText (juce::String (stepValues.size () - 1), juce::NotificationType::sendNotification);
-                    defaultPatternFound = true;
-                }
-            }
-            jassert (defaultPatternFound == true);
+            const auto stepValues { juce::StringArray::fromTokens (defaultPattern, ",", "") };
+            numberOfStepsEditor.setText (juce::String (stepValues.size () - 1), juce::NotificationType::sendNotification);
         });
         lengthOptions.addItem ("Revert", true, false, [this] ()
         {
@@ -87,42 +77,11 @@ PatternEditorComponent::PatternEditorComponent ()
         juce::PopupMenu patternOptions;
         patternOptions.addItem ("Default", true, false, [this] ()
         {
-            const auto patternKey { patternProperties.getId () };
-            bool defaultPatternFound { false };
-            for (const auto& curDefaultPattern : gDefaultPatterns)
-            {
-                if (curDefaultPattern.first == patternKey)
-                {
-                    const auto patternString { curDefaultPattern.second };
-                    const auto stepValues { juce::StringArray::fromTokens (patternString, ",", "") };
-                    for (auto stepIndex { 0 }; stepIndex < 32; ++stepIndex)
-                    {
-                        if (stepIndex < stepValues.size () - 1)
-                            stepEditors [stepIndex].setSelectedId (stepValues [stepIndex].getIntValue (), juce::NotificationType::sendNotification);
-                        else
-                            stepEditors [stepIndex].setSelectedId (1, juce::NotificationType::sendNotification);
-                    }
-                    const auto patternLength { stepValues.size () - 1 };
-                    updateUiFromLengthChange (patternLength);
-                    defaultPatternFound = true;
-                }
-            }
-            jassert (defaultPatternFound == true);
-                                
+            updateUiFromPatternString (defaultPattern, true);
         });
         patternOptions.addItem ("Revert", true, false, [this] ()
         {
-            const auto patternString { uneditedPatternProperties.getPattern () };
-            const auto stepValues { juce::StringArray::fromTokens (patternString, ",", "") };
-            for (auto stepIndex { 0 }; stepIndex < 32; ++stepIndex)
-            {
-                if (stepIndex < stepValues.size () - 1)
-                    stepEditors [stepIndex].setSelectedId (stepValues [stepIndex].getIntValue (), juce::NotificationType::sendNotification);
-                else
-                    stepEditors [stepIndex].setSelectedId (1, juce::NotificationType::sendNotification);
-            }
-            const auto patternLength { stepValues.size () - 1 };
-            updateUiFromLengthChange (patternLength);
+            updateUiFromPatternString (uneditedPatternProperties.getPattern (), true);
         });
         pm.addSubMenu ("Length and Step Values", patternOptions, true);
         pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
@@ -187,6 +146,19 @@ void PatternEditorComponent::init (juce::ValueTree patternVT, juce::ValueTree un
     patternProperties.wrap (patternVT, PatternProperties::WrapperType::client, PatternProperties::EnableCallbacks::yes);
     patternProperties.onPatternChange = [this] (juce::String) { onPatternDataChanged (); };
     onPatternDataChanged ();
+    const auto defaultPatternFound = [this, patternKey { patternProperties.getId () }] ()
+    {
+        for (const auto& curDefaultPattern : gDefaultPatterns)
+        {
+            if (curDefaultPattern.first == patternKey)
+            {
+                defaultPattern = curDefaultPattern.second;
+                return true;
+            }
+        }
+        return false;
+    } ();
+    jassert (defaultPatternFound == true);
 }
 
 void PatternEditorComponent::updateUiFromLengthChange (int length)
@@ -234,11 +206,7 @@ void PatternEditorComponent::onPatternUiChanged ()
     //DebugLog ("PatternEditorComponent::onPatternUiChanged", "patternLength: " + juce::String(patternLength));
     juce::String patternString;
     for (auto stepIndex { 0 }; stepIndex < patternLength; ++stepIndex)
-    {
-        if (stepIndex > 0)
-            patternString += ",";
-        patternString += juce::String (stepEditors [stepIndex].getSelectedId ());
-    }
+        patternString += (stepIndex > 0 ? "," : "") + juce::String (stepEditors [stepIndex].getSelectedId ());
     patternString += (patternString.isNotEmpty () ? "," : "") + juce::String ("0");
     patternProperties.setPattern (patternString, false);
     //DebugLog ("PatternEditorComponent::onPatternUiChanged", "patternString: " + patternString);
@@ -246,16 +214,15 @@ void PatternEditorComponent::onPatternUiChanged ()
 
 void PatternEditorComponent::onPatternDataChanged ()
 {
-    const auto patternString { patternProperties.getPattern () };
+    updateUiFromPatternString (patternProperties.getPattern (), false);
+}
+
+void PatternEditorComponent::updateUiFromPatternString (juce::String patternString, bool haveUiSendNotification)
+{
     const auto stepValues { juce::StringArray::fromTokens (patternString, ",", "") };
+    const auto notificationType { haveUiSendNotification ? juce::NotificationType::sendNotification : juce::NotificationType::dontSendNotification };
     for (auto stepIndex { 0 }; stepIndex < 32; ++stepIndex)
-    {
-        if (stepIndex < stepValues.size () - 1)
-            stepEditors [stepIndex].setSelectedId (stepValues [stepIndex].getIntValue (), juce::NotificationType::dontSendNotification);
-        else
-            stepEditors [stepIndex].setSelectedId (1, juce::NotificationType::dontSendNotification);
-    }
+            stepEditors [stepIndex].setSelectedId (stepIndex < stepValues.size () - 1 ? stepValues [stepIndex].getIntValue () : 1, notificationType);
     const auto patternLength { stepValues.size () - 1 };
     updateUiFromLengthChange (patternLength);
 }
-

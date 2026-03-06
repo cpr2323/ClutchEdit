@@ -36,6 +36,7 @@ public:
 private:
     PatternProperties patternProperties;
     PatternProperties uneditedPatternProperties;
+    juce::String defaultPattern;
     CustomTextEditorInt numberOfStepsEditor;
     std::array<CustomComboBox, 32> stepEditors;
     NoArrowComboBoxLnF noArrowComboBoxLnF;
@@ -44,6 +45,7 @@ private:
 
     void onPatternUiChanged ();
     void onPatternDataChanged ();
+    void updateUiFromPatternString (juce::String patternString, bool haveUiSendNotification);
 
     void resized () override;
 };
