@@ -87,11 +87,42 @@ PatternEditorComponent::PatternEditorComponent ()
         juce::PopupMenu patternOptions;
         patternOptions.addItem ("Default", true, false, [this] ()
         {
-            //effectEditors [curEffectIndex].setText (effectNames[effectDefaults[curEffectIndex]], juce::NotificationType::sendNotification);
+            const auto patternKey { patternProperties.getId () };
+            bool defaultPatternFound { false };
+            for (const auto& curDefaultPattern : gDefaultPatterns)
+            {
+                if (curDefaultPattern.first == patternKey)
+                {
+                    const auto patternString { curDefaultPattern.second };
+                    const auto stepValues { juce::StringArray::fromTokens (patternString, ",", "") };
+                    for (auto stepIndex { 0 }; stepIndex < 32; ++stepIndex)
+                    {
+                        if (stepIndex < stepValues.size () - 1)
+                            stepEditors [stepIndex].setSelectedId (stepValues [stepIndex].getIntValue (), juce::NotificationType::sendNotification);
+                        else
+                            stepEditors [stepIndex].setSelectedId (1, juce::NotificationType::sendNotification);
+                    }
+                    const auto patternLength { stepValues.size () - 1 };
+                    updateUiFromLengthChange (patternLength);
+                    defaultPatternFound = true;
+                }
+            }
+            jassert (defaultPatternFound == true);
+                                
         });
         patternOptions.addItem ("Revert", true, false, [this] ()
         {
-            //effectEditors [curEffectIndex].setText (uneditedEffectProperties[curEffectIndex].getEffect (), juce::NotificationType::sendNotification);
+            const auto patternString { uneditedPatternProperties.getPattern () };
+            const auto stepValues { juce::StringArray::fromTokens (patternString, ",", "") };
+            for (auto stepIndex { 0 }; stepIndex < 32; ++stepIndex)
+            {
+                if (stepIndex < stepValues.size () - 1)
+                    stepEditors [stepIndex].setSelectedId (stepValues [stepIndex].getIntValue (), juce::NotificationType::sendNotification);
+                else
+                    stepEditors [stepIndex].setSelectedId (1, juce::NotificationType::sendNotification);
+            }
+            const auto patternLength { stepValues.size () - 1 };
+            updateUiFromLengthChange (patternLength);
         });
         pm.addSubMenu ("Length and Step Values", patternOptions, true);
         pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
