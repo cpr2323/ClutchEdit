@@ -7,6 +7,18 @@ constexpr auto kStepComboBoxHeight { 20 };
 constexpr auto kStepComboBoxWidth { 57 };
 constexpr auto kSpaceBetweenStepEditors { 2 };
 
+static const std::pair<juce::String, juce::String> gDefaultPatterns []
+{
+    { "PTN_WHITE",  "6, 5, 7, 5, 0" },
+    { "PTN_RED",    "6, 5, 5, 7, 5, 6, 5, 6, 4, 0" },
+    { "PTN_GREEN",  "4, 3, 6, 3, 4, 7, 1, 2, 6, 4, 3, 6, 3, 6, 4, 5, 0" },
+    { "PTN_BLUE",   "5, 2, 3, 5, 1, 5, 1, 0" },
+    { "PTN_ORANGE", "3, 2, 8, 5, 2, 6, 2, 2, 0" },
+    { "PTN_CYAN",   "5, 5, 5, 7, 0" },
+    { "PTN_VIOLET", "5, 4, 5, 5, 9, 5, 5, 4, 5, 5, 7, 4, 6, 4, 5, 3, 0" },
+    { "PTN_YELLOW", "7, 3, 5, 7, 3, 5, 2, 5, 7, 3, 5, 3, 2, 8, 3, 2, 0" }
+};
+
 PatternEditorComponent::PatternEditorComponent ()
 {
     // create the step numbers at the top of the columns
@@ -43,9 +55,44 @@ PatternEditorComponent::PatternEditorComponent ()
     };
     numberOfStepsEditor.onPopupMenuCallback = [this] ()
     {
-        juce::PopupMenu editMenu;
-        editMenu.addItem ("NEED TO IMPLEMENT FUNCTIONS", [this] () {});
-        editMenu.showMenuAsync ({}, [this] (int) {});
+        auto* popupMenuLnF { new juce::LookAndFeel_V4 };
+        popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
+        juce::PopupMenu pm;
+        pm.setLookAndFeel (popupMenuLnF);
+        pm.addSectionHeader ("Pattern " + patternProperties.getId().substring (4));
+        pm.addSeparator ();
+        juce::PopupMenu lengthOptions;
+        lengthOptions.addItem ("Default", true, false, [this] ()
+        {
+            const auto patternKey { patternProperties.getId () };
+            bool defaultPatternFound { false };
+            for (const auto& curDefaultPattern : gDefaultPatterns)
+            {
+                if (curDefaultPattern.first == patternKey)
+                {
+                    const auto stepValues { juce::StringArray::fromTokens (curDefaultPattern.second, ",", "") };
+                    numberOfStepsEditor.setText (juce::String (stepValues.size () - 1), juce::NotificationType::sendNotification);
+                    defaultPatternFound = true;
+                }
+            }
+            jassert (defaultPatternFound == true);
+        });
+        lengthOptions.addItem ("Revert", true, false, [this] ()
+        {
+            //effectEditors [curEffectIndex].setText (uneditedEffectProperties[curEffectIndex].getEffect (), juce::NotificationType::sendNotification);
+        });
+        pm.addSubMenu ("Length", lengthOptions, true);
+        juce::PopupMenu patternOptions;
+        patternOptions.addItem ("Default", true, false, [this] ()
+        {
+            //effectEditors [curEffectIndex].setText (effectNames[effectDefaults[curEffectIndex]], juce::NotificationType::sendNotification);
+        });
+        patternOptions.addItem ("Revert", true, false, [this] ()
+        {
+            //effectEditors [curEffectIndex].setText (uneditedEffectProperties[curEffectIndex].getEffect (), juce::NotificationType::sendNotification);
+        });
+        pm.addSubMenu ("Length and Step Values", patternOptions, true);
+        pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
     };
 
     numberOfStepsEditor.setColour (juce::TextEditor::backgroundColourId, juce::Colours::darkgrey.darker (kEnabledStepColor));
