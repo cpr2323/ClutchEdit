@@ -79,7 +79,9 @@ PatternEditorComponent::PatternEditorComponent ()
         });
         lengthOptions.addItem ("Revert", true, false, [this] ()
         {
-            //effectEditors [curEffectIndex].setText (uneditedEffectProperties[curEffectIndex].getEffect (), juce::NotificationType::sendNotification);
+            const auto pattern { uneditedPatternProperties.getPattern () };
+            const auto stepValues { juce::StringArray::fromTokens (pattern, ",", "") };
+            numberOfStepsEditor.setText (juce::String (stepValues.size () - 1), juce::NotificationType::sendNotification);
         });
         pm.addSubMenu ("Length", lengthOptions, true);
         juce::PopupMenu patternOptions;
@@ -148,8 +150,9 @@ PatternEditorComponent::~PatternEditorComponent ()
         stepComboBox.setLookAndFeel (nullptr);
 }
 
-void PatternEditorComponent::init (juce::ValueTree patternVT)
+void PatternEditorComponent::init (juce::ValueTree patternVT, juce::ValueTree uneditedPatterPropertiesVT)
 {
+    uneditedPatternProperties.wrap (uneditedPatterPropertiesVT, PatternProperties::WrapperType::client, PatternProperties::EnableCallbacks::yes);
     patternProperties.wrap (patternVT, PatternProperties::WrapperType::client, PatternProperties::EnableCallbacks::yes);
     patternProperties.onPatternChange = [this] (juce::String) { onPatternDataChanged (); };
     onPatternDataChanged ();

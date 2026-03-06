@@ -28,10 +28,12 @@ void PatternListEditorComponent::init (juce::ValueTree rootPropertiesVT)
     RuntimeRootProperties runtimeRootProperties (rootPropertiesVT, ValueTreeWrapper<RuntimeRootProperties>::WrapperType::client, ValueTreeWrapper<RuntimeRootProperties>::EnableCallbacks::no);
     ClutchProperties clutchProperties (runtimeRootProperties.getValueTree ().getChildWithProperty (ClutchProperties::NamePropertyId, "edited"), ValueTreeWrapper<ClutchProperties>::WrapperType::client, ValueTreeWrapper<ClutchProperties>::EnableCallbacks::no);
     patternListProperties.wrap (clutchProperties.getValueTree ().getChildWithName ("PatternList"), ValueTreeWrapper<PatternListProperties>::WrapperType::client, ValueTreeWrapper<PatternListProperties>::EnableCallbacks::yes);
+    ClutchProperties uneditedClutchProperties (runtimeRootProperties.getValueTree ().getChildWithProperty (ClutchProperties::NamePropertyId, "unedited"), ValueTreeWrapper<ClutchProperties>::WrapperType::client, ValueTreeWrapper<ClutchProperties>::EnableCallbacks::no);
+    PatternListProperties uneditedPatternListProperties (uneditedClutchProperties.getValueTree ().getChildWithName ("PatternList"), ValueTreeWrapper<PatternListProperties>::WrapperType::client, ValueTreeWrapper<PatternListProperties>::EnableCallbacks::yes);
 
     for (auto patternIndex { 0 }; patternIndex < patternEditors.size (); ++patternIndex)
     {
-        patternEditors[patternIndex].init (patternListProperties.getPatternVT (patternIndex));
+        patternEditors[patternIndex].init (patternListProperties.getPatternVT (patternIndex), uneditedPatternListProperties.getPatternVT (patternIndex));
     }
 }
 

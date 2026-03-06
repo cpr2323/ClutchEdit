@@ -30,11 +30,12 @@ public:
     PatternEditorComponent ();
     ~PatternEditorComponent ();
 
-    void init (juce::ValueTree rootPropertiesVT);
+    void init (juce::ValueTree rootPropertiesVT, juce::ValueTree uneditedPatterPropertiesVT);
     void updateUiFromLengthChange (int length);
 
 private:
     PatternProperties patternProperties;
+    PatternProperties uneditedPatternProperties;
     CustomTextEditorInt numberOfStepsEditor;
     std::array<CustomComboBox, 32> stepEditors;
     NoArrowComboBoxLnF noArrowComboBoxLnF;
