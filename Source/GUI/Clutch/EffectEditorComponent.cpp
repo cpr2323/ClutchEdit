@@ -66,7 +66,7 @@ EffectEditorComponent::EffectEditorComponent ()
             popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
             juce::PopupMenu pm;
             pm.setLookAndFeel (popupMenuLnF);
-            pm.addSectionHeader ("Effect " + juce::String (curEffectIndex + 1));
+            pm.addSectionHeader ("Effect " + effectProperties[curEffectIndex].getId ().substring (3));
             pm.addSeparator ();
             pm.addItem ("Default", true, false, [this, curEffectIndex] ()
             {
