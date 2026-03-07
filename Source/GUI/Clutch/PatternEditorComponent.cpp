@@ -1,6 +1,6 @@
 #include "PatternEditorComponent.h"
 
-constexpr auto kEnabledStepColor { 0.7f };
+constexpr auto kEnabledStepColor { 0.8f };
 constexpr auto kDisabledStepColor { 0.15f };
 
 constexpr auto kStepComboBoxHeight { 20 };
