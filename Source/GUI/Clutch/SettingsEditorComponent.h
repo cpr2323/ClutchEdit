@@ -17,6 +17,7 @@ public:
 
 private:
     SettingsProperties settingsProperties;
+    SettingsProperties uneditedSettingsProperties;
 
     NoArrowComboBoxLnF noArrowComboBoxLnF;
 
