@@ -9,7 +9,7 @@ juce::String getRoundedFloatString (float value, int decimalPlaces)
 
 SettingsEditorComponent::SettingsEditorComponent ()
 {
-    auto setupDoubleEditor = [this] (CustomTextEditorDouble& editor, juce::Label& label, const juce::String& labelText)
+    auto setupFloatEditor = [this] (CustomTextEditorFloat& editor, juce::Label& label, const juce::String& labelText)
     {
         label.setText (labelText, juce::dontSendNotification);
         addAndMakeVisible (label);
@@ -36,8 +36,8 @@ SettingsEditorComponent::SettingsEditorComponent ()
 	accClAmpModEditor.setTooltip ("Amp Mod CLOSED ACC hit");
 	accClAmpModEditor.getMinValueCallback = [this] () { return 0.1; };
 	accClAmpModEditor.getMaxValueCallback = [this] () { return 10.0; };
-	accClAmpModEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	accClAmpModEditor.updateDataCallback = [this] (double value) { accClAmpModUiChanged (static_cast<float> (value)); };
+	accClAmpModEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	accClAmpModEditor.updateDataCallback = [this] (float value) { accClAmpModUiChanged (static_cast<float> (value)); };
 	accClAmpModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -71,13 +71,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (accClAmpModEditor, accClAmpModLabel, "Acc Cl Amp Mod");
+	setupFloatEditor (accClAmpModEditor, accClAmpModLabel, "Acc Cl Amp Mod");
 
 	accClRelModEditor.setTooltip ("Acc Cl Rel Mod");
 	accClRelModEditor.getMinValueCallback = [this] () { return 0.1; };
 	accClRelModEditor.getMaxValueCallback = [this] () { return 10.0; };
-	accClRelModEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	accClRelModEditor.updateDataCallback = [this] (double value) { accClRelModUiChanged (static_cast<float> (value)); };
+	accClRelModEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	accClRelModEditor.updateDataCallback = [this] (float value) { accClRelModUiChanged (static_cast<float> (value)); };
 	accClRelModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -110,13 +110,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (accClRelModEditor, accClRelModLabel, "Acc Cl Rel Mod");
+	setupFloatEditor (accClRelModEditor, accClRelModLabel, "Acc Cl Rel Mod");
 
 	accOpAmpModEditor.setTooltip ("Acc Op Amp Mod");
 	accOpAmpModEditor.getMinValueCallback = [this] () { return 0.1; };
 	accOpAmpModEditor.getMaxValueCallback = [this] () { return 10.0; };
-	accOpAmpModEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	accOpAmpModEditor.updateDataCallback = [this] (double value) { accOpAmpModUiChanged (static_cast<float> (value)); };
+	accOpAmpModEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	accOpAmpModEditor.updateDataCallback = [this] (float value) { accOpAmpModUiChanged (static_cast<float> (value)); };
 	accOpAmpModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -149,13 +149,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (accOpAmpModEditor, accOpAmpModLabel, "Acc Op Amp Mod");
+	setupFloatEditor (accOpAmpModEditor, accOpAmpModLabel, "Acc Op Amp Mod");
 
 	accOpRelModEditor.setTooltip ("Acc Op Rel Mod");
 	accOpRelModEditor.getMinValueCallback = [this] () { return 0.1; };
 	accOpRelModEditor.getMaxValueCallback = [this] () { return 10.0; };
-	accOpRelModEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	accOpRelModEditor.updateDataCallback = [this] (double value) { accOpRelModUiChanged (static_cast<float> (value)); };
+	accOpRelModEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	accOpRelModEditor.updateDataCallback = [this] (float value) { accOpRelModUiChanged (static_cast<float> (value)); };
 	accOpRelModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -188,13 +188,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (accOpRelModEditor, accOpRelModLabel, "Acc Op Rel Mod");
+	setupFloatEditor (accOpRelModEditor, accOpRelModLabel, "Acc Op Rel Mod");
 
 	chokeReleaseEditor.setTooltip ("Choke Release");
 	chokeReleaseEditor.getMinValueCallback = [this] () { return 0.001; };
 	chokeReleaseEditor.getMaxValueCallback = [this] () { return 10.0; };
-	chokeReleaseEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	chokeReleaseEditor.updateDataCallback = [this] (double value) { chokeReleaseUiChanged (static_cast<float> (value)); };
+	chokeReleaseEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	chokeReleaseEditor.updateDataCallback = [this] (float value) { chokeReleaseUiChanged (static_cast<float> (value)); };
 	chokeReleaseEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -227,13 +227,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (chokeReleaseEditor, chokeReleaseLabel, "Choke Release");
+	setupFloatEditor (chokeReleaseEditor, chokeReleaseLabel, "Choke Release");
 
 	clsdMaxReleaseEditor.setTooltip ("Choke Release");
 	clsdMaxReleaseEditor.getMinValueCallback = [this] () { return 0.3; };
 	clsdMaxReleaseEditor.getMaxValueCallback = [this] () { return 2.0; };
-	clsdMaxReleaseEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	clsdMaxReleaseEditor.updateDataCallback = [this] (double value) { clsdMaxReleaseUiChanged (static_cast<float> (value)); };
+	clsdMaxReleaseEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	clsdMaxReleaseEditor.updateDataCallback = [this] (float value) { clsdMaxReleaseUiChanged (static_cast<float> (value)); };
 	clsdMaxReleaseEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -266,13 +266,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (clsdMaxReleaseEditor, clsdMaxReleaseLabel, "Clsd Max Release");
+	setupFloatEditor (clsdMaxReleaseEditor, clsdMaxReleaseLabel, "Clsd Max Release");
 
 	clsdRelOfstScaleEditor.setTooltip ("Choke Release");
 	clsdRelOfstScaleEditor.getMinValueCallback = [this] () { return 0.1; };
 	clsdRelOfstScaleEditor.getMaxValueCallback = [this] () { return 0.9; };
-	clsdRelOfstScaleEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	clsdRelOfstScaleEditor.updateDataCallback = [this] (double value) { clsdRelOfstScaleUiChanged (static_cast<float> (value)); };
+	clsdRelOfstScaleEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	clsdRelOfstScaleEditor.updateDataCallback = [this] (float value) { clsdRelOfstScaleUiChanged (static_cast<float> (value)); };
 	clsdRelOfstScaleEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -303,7 +303,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (clsdRelOfstScaleEditor, clsdRelOfstScaleLabel, "Clsd Rel Ofst Scale");
+	setupFloatEditor (clsdRelOfstScaleEditor, clsdRelOfstScaleLabel, "Clsd Rel Ofst Scale");
 
 	// 0: Independent Release for Closed
 	// 1: Release Offset mode
@@ -407,8 +407,8 @@ SettingsEditorComponent::SettingsEditorComponent ()
 	envelopeMaxReleaseEditor.setTooltip ("Envelope Max Release");
 	envelopeMaxReleaseEditor.getMinValueCallback = [this] () { return 0.6; };
 	envelopeMaxReleaseEditor.getMaxValueCallback = [this] () { return 20.0; };
-	envelopeMaxReleaseEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	envelopeMaxReleaseEditor.updateDataCallback = [this] (double value) { envelopeMaxReleaseUiChanged (static_cast<float> (value)); };
+	envelopeMaxReleaseEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	envelopeMaxReleaseEditor.updateDataCallback = [this] (float value) { envelopeMaxReleaseUiChanged (static_cast<float> (value)); };
 	envelopeMaxReleaseEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -441,13 +441,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (envelopeMaxReleaseEditor, envelopeMaxReleaseLabel, "Envelope Max Release");
+	setupFloatEditor (envelopeMaxReleaseEditor, envelopeMaxReleaseLabel, "Envelope Max Release");
 
 	feelAmpModEditor.setTooltip ("Feel Amp Mod");
 	feelAmpModEditor.getMinValueCallback = [this] () { return 0.0; };
 	feelAmpModEditor.getMaxValueCallback = [this] () { return 2.0; };
-	feelAmpModEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	feelAmpModEditor.updateDataCallback = [this] (double value) { feelAmpModUiChanged (static_cast<float> (value)); };
+	feelAmpModEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	feelAmpModEditor.updateDataCallback = [this] (float value) { feelAmpModUiChanged (static_cast<float> (value)); };
 	feelAmpModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -478,13 +478,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (feelAmpModEditor, feelAmpModLabel, "Feel Amp Mod");
+	setupFloatEditor (feelAmpModEditor, feelAmpModLabel, "Feel Amp Mod");
 
 	feelAttackModEditor.setTooltip ("Feel Attack Mod");
 	feelAttackModEditor.getMinValueCallback = [this] () { return 0.0; };
 	feelAttackModEditor.getMaxValueCallback = [this] () { return 5.0; };
-	feelAttackModEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	feelAttackModEditor.updateDataCallback = [this] (double value) { feelAttackModUiChanged (static_cast<float> (value)); };
+	feelAttackModEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	feelAttackModEditor.updateDataCallback = [this] (float value) { feelAttackModUiChanged (static_cast<float> (value)); };
 	feelAttackModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -516,13 +516,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (feelAttackModEditor, feelAttackModLabel, "Feel Attack Mod");
+	setupFloatEditor (feelAttackModEditor, feelAttackModLabel, "Feel Attack Mod");
 
 	feelReleaseModEditor.setTooltip ("Feel Release Mod");
 	feelReleaseModEditor.getMinValueCallback = [this] () { return 0.0; };
 	feelReleaseModEditor.getMaxValueCallback = [this] () { return 5.0; };
-	feelReleaseModEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	feelReleaseModEditor.updateDataCallback = [this] (double value) { feelReleaseModUiChanged (static_cast<float> (value)); };
+	feelReleaseModEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	feelReleaseModEditor.updateDataCallback = [this] (float value) { feelReleaseModUiChanged (static_cast<float> (value)); };
 	feelReleaseModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -554,7 +554,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (feelReleaseModEditor, feelReleaseModLabel, "Feel Release Mod");
+	setupFloatEditor (feelReleaseModEditor, feelReleaseModLabel, "Feel Release Mod");
 
 	fltrHpfMaxFreqEditor.setTooltip ("Fltr HPF Max Freq");
 	fltrHpfMaxFreqEditor.getMinValueCallback = [this] () { return 20; };
@@ -639,8 +639,8 @@ SettingsEditorComponent::SettingsEditorComponent ()
 	fltrHpfQEditor.setTooltip ("Fltr HPF Q");
 	fltrHpfQEditor.getMinValueCallback = [this] () { return 0.25; };
 	fltrHpfQEditor.getMaxValueCallback = [this] () { return 4.0; };
-	fltrHpfQEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fltrHpfQEditor.updateDataCallback = [this] (double value) { fltrHpfQUiChanged (static_cast<float> (value)); };
+	fltrHpfQEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fltrHpfQEditor.updateDataCallback = [this] (float value) { fltrHpfQUiChanged (static_cast<float> (value)); };
 	fltrHpfQEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -674,7 +674,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fltrHpfQEditor, fltrHpfQLabel, "Fltr HPF Q");
+	setupFloatEditor (fltrHpfQEditor, fltrHpfQLabel, "Fltr HPF Q");
 
 	fltrLpfMaxFreqEditor.setTooltip ("Fltr LPF Max Freq");
 	fltrLpfMaxFreqEditor.getMinValueCallback = [this] () { return 20; };
@@ -759,8 +759,8 @@ SettingsEditorComponent::SettingsEditorComponent ()
 	fltrLpfQEditor.setTooltip ("Fltr LPF Q");
 	fltrLpfQEditor.getMinValueCallback = [this] () { return 0.25; };
 	fltrLpfQEditor.getMaxValueCallback = [this] () { return 4.0; };
-	fltrLpfQEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fltrLpfQEditor.updateDataCallback = [this] (double value) { fltrLpfQUiChanged (static_cast<float> (value)); };
+	fltrLpfQEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fltrLpfQEditor.updateDataCallback = [this] (float value) { fltrLpfQUiChanged (static_cast<float> (value)); };
 	fltrLpfQEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -794,13 +794,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fltrLpfQEditor, fltrLpfQLabel, "Fltr LPF Q");
+	setupFloatEditor (fltrLpfQEditor, fltrLpfQLabel, "Fltr LPF Q");
 
 	fxChorusCenterEditor.setTooltip ("FX Chorus Center");
 	fxChorusCenterEditor.getMinValueCallback = [this] () { return 1.0; };
 	fxChorusCenterEditor.getMaxValueCallback = [this] () { return 20.0; };
-	fxChorusCenterEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxChorusCenterEditor.updateDataCallback = [this] (double value) { fxChorusCenterUiChanged (static_cast<float> (value)); };
+	fxChorusCenterEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxChorusCenterEditor.updateDataCallback = [this] (float value) { fxChorusCenterUiChanged (static_cast<float> (value)); };
 	fxChorusCenterEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -834,13 +834,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxChorusCenterEditor, fxChorusCenterLabel, "FX Chorus Center");
+	setupFloatEditor (fxChorusCenterEditor, fxChorusCenterLabel, "FX Chorus Center");
 
 	fxChorusDepthEditor.setTooltip ("FX Chorus Depth");
 	fxChorusDepthEditor.getMinValueCallback = [this] () { return 1.0; };
 	fxChorusDepthEditor.getMaxValueCallback = [this] () { return settingsProperties.getFxChorusCenter (); };
-	fxChorusDepthEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxChorusDepthEditor.updateDataCallback = [this] (double value) { fxChorusDepthUiChanged (static_cast<float> (value)); };
+	fxChorusDepthEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxChorusDepthEditor.updateDataCallback = [this] (float value) { fxChorusDepthUiChanged (static_cast<float> (value)); };
 	fxChorusDepthEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -874,13 +874,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxChorusDepthEditor, fxChorusDepthLabel, "FX Chorus Depth");
+	setupFloatEditor (fxChorusDepthEditor, fxChorusDepthLabel, "FX Chorus Depth");
 
 	fxChorusLfoBEditor.setTooltip ("FX Chorus LFO B");
 	fxChorusLfoBEditor.getMinValueCallback = [this] () { return 0.002; };
 	fxChorusLfoBEditor.getMaxValueCallback = [this] () { return 3.0; };
-	fxChorusLfoBEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxChorusLfoBEditor.updateDataCallback = [this] (double value) { fxChorusLfoBUiChanged (static_cast<float> (value)); };
+	fxChorusLfoBEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxChorusLfoBEditor.updateDataCallback = [this] (float value) { fxChorusLfoBUiChanged (static_cast<float> (value)); };
 	fxChorusLfoBEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -914,13 +914,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxChorusLfoBEditor, fxChorusLfoBLabel, "FX Chorus LFO B");
+	setupFloatEditor (fxChorusLfoBEditor, fxChorusLfoBLabel, "FX Chorus LFO B");
 
 	fxChorusLfoTEditor.setTooltip ("FX Chorus LFO T");
 	fxChorusLfoTEditor.getMinValueCallback = [this] () { return 0.002; };
 	fxChorusLfoTEditor.getMaxValueCallback = [this] () { return 3.0; };
-	fxChorusLfoTEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxChorusLfoTEditor.updateDataCallback = [this] (double value) { fxChorusLfoTUiChanged (static_cast<float> (value)); };
+	fxChorusLfoTEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxChorusLfoTEditor.updateDataCallback = [this] (float value) { fxChorusLfoTUiChanged (static_cast<float> (value)); };
 	fxChorusLfoTEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -954,13 +954,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxChorusLfoTEditor, fxChorusLfoTLabel, "FX Chorus LFO T");
+	setupFloatEditor (fxChorusLfoTEditor, fxChorusLfoTLabel, "FX Chorus LFO T");
 
 	fxChorusMixEditor.setTooltip ("FX Chorus Mix");
 	fxChorusMixEditor.getMinValueCallback = [this] () { return 0.1; };
 	fxChorusMixEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxChorusMixEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxChorusMixEditor.updateDataCallback = [this] (double value) { fxChorusMixUiChanged (static_cast<float> (value)); };
+	fxChorusMixEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxChorusMixEditor.updateDataCallback = [this] (float value) { fxChorusMixUiChanged (static_cast<float> (value)); };
 	fxChorusMixEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -992,13 +992,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxChorusMixEditor, fxChorusMixLabel, "FX Chorus Mix");
+	setupFloatEditor (fxChorusMixEditor, fxChorusMixLabel, "FX Chorus Mix");
 
 	fxChorusSpreadEditor.setTooltip ("FX Chorus Spread");
 	fxChorusSpreadEditor.getMinValueCallback = [this] () { return 0.01; };
 	fxChorusSpreadEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxChorusSpreadEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxChorusSpreadEditor.updateDataCallback = [this] (double value) { fxChorusSpreadUiChanged (static_cast<float> (value)); };
+	fxChorusSpreadEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxChorusSpreadEditor.updateDataCallback = [this] (float value) { fxChorusSpreadUiChanged (static_cast<float> (value)); };
 	fxChorusSpreadEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -1032,7 +1032,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxChorusSpreadEditor, fxChorusSpreadLabel, "FX Chorus Spread");
+	setupFloatEditor (fxChorusSpreadEditor, fxChorusSpreadLabel, "FX Chorus Spread");
 
 	// Integer # of Taps (1–4)
 	fxChorusTapsComboBox.setLookAndFeel (&noArrowComboBoxLnF);
@@ -1263,8 +1263,8 @@ SettingsEditorComponent::SettingsEditorComponent ()
 	fxDjfilterQGainReductionEditor.setTooltip ("FX DJ Filter Q Gain Reduction");
 	fxDjfilterQGainReductionEditor.getMinValueCallback = [this] () { return 0.01; };
 	fxDjfilterQGainReductionEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxDjfilterQGainReductionEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxDjfilterQGainReductionEditor.updateDataCallback = [this] (double value) { fxDjfilterQGainReductionUiChanged (static_cast<float> (value)); };
+	fxDjfilterQGainReductionEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxDjfilterQGainReductionEditor.updateDataCallback = [this] (float value) { fxDjfilterQGainReductionUiChanged (static_cast<float> (value)); };
 	fxDjfilterQGainReductionEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -1298,13 +1298,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxDjfilterQGainReductionEditor, fxDjfilterQGainReductionLabel, "FX DJ Filter Q Gain Reduction");
+	setupFloatEditor (fxDjfilterQGainReductionEditor, fxDjfilterQGainReductionLabel, "FX DJ Filter Q Gain Reduction");
 
 	fxDjfilterQMaxEditor.setTooltip ("FX DJ Filter Q Max");
 	fxDjfilterQMaxEditor.getMinValueCallback = [this] () { return 0.0; };
 	fxDjfilterQMaxEditor.getMaxValueCallback = [this] () { return 20.0; };
-	fxDjfilterQMaxEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxDjfilterQMaxEditor.updateDataCallback = [this] (double value) { fxDjfilterQMaxUiChanged (static_cast<float> (value)); };
+	fxDjfilterQMaxEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxDjfilterQMaxEditor.updateDataCallback = [this] (float value) { fxDjfilterQMaxUiChanged (static_cast<float> (value)); };
 	fxDjfilterQMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -1338,13 +1338,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxDjfilterQMaxEditor, fxDjfilterQMaxLabel, "FX DJ Filter Q Max");
+	setupFloatEditor (fxDjfilterQMaxEditor, fxDjfilterQMaxLabel, "FX DJ Filter Q Max");
 
 	fxDjfilterQMinEditor.setTooltip ("FX DJ Filter Q Min");
 	fxDjfilterQMinEditor.getMinValueCallback = [this] () { return 0.0; };
 	fxDjfilterQMinEditor.getMaxValueCallback = [this] () { return 20.0; };
-	fxDjfilterQMinEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxDjfilterQMinEditor.updateDataCallback = [this] (double value) { fxDjfilterQMinUiChanged (static_cast<float> (value)); };
+	fxDjfilterQMinEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxDjfilterQMinEditor.updateDataCallback = [this] (float value) { fxDjfilterQMinUiChanged (static_cast<float> (value)); };
 	fxDjfilterQMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -1378,7 +1378,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxDjfilterQMinEditor, fxDjfilterQMinLabel, "FX DJ Filter Q Min");
+	setupFloatEditor (fxDjfilterQMinEditor, fxDjfilterQMinLabel, "FX DJ Filter Q Min");
 
 	fxDubEchoHpfEditor.setTooltip ("FX Dub Echo HPF");
 	fxDubEchoHpfEditor.getMinValueCallback = [this] () { return 20; };
@@ -1463,8 +1463,8 @@ SettingsEditorComponent::SettingsEditorComponent ()
 	fxDubEchoMixEditor.setTooltip ("FX Dub Echo Mix");
 	fxDubEchoMixEditor.getMinValueCallback = [this] () { return 0.0; };
 	fxDubEchoMixEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxDubEchoMixEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxDubEchoMixEditor.updateDataCallback = [this] (double value) { fxDubEchoMixUiChanged (static_cast<float> (value)); };
+	fxDubEchoMixEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxDubEchoMixEditor.updateDataCallback = [this] (float value) { fxDubEchoMixUiChanged (static_cast<float> (value)); };
 	fxDubEchoMixEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -1498,7 +1498,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxDubEchoMixEditor, fxDubEchoMixLabel, "FX Dub Echo Mix");
+	setupFloatEditor (fxDubEchoMixEditor, fxDubEchoMixLabel, "FX Dub Echo Mix");
 
 	fxDubEchoTminEditor.setTooltip ("FX Dub Echo Tmin");
 	fxDubEchoTminEditor.getMinValueCallback = [this] () { return 0; };
@@ -1543,8 +1543,8 @@ SettingsEditorComponent::SettingsEditorComponent ()
 	fxGlitchCrushTimeMaxEditor.setTooltip ("FX Glitch Crush Time Max");
 	fxGlitchCrushTimeMaxEditor.getMinValueCallback = [this] () { return 0.0; };
 	fxGlitchCrushTimeMaxEditor.getMaxValueCallback = [this] () { return 100.0; };
-	fxGlitchCrushTimeMaxEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxGlitchCrushTimeMaxEditor.updateDataCallback = [this] (double value) { fxGlitchCrushTimeMaxUiChanged (static_cast<float> (value)); };
+	fxGlitchCrushTimeMaxEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxGlitchCrushTimeMaxEditor.updateDataCallback = [this] (float value) { fxGlitchCrushTimeMaxUiChanged (static_cast<float> (value)); };
 	fxGlitchCrushTimeMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -1578,13 +1578,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxGlitchCrushTimeMaxEditor, fxGlitchCrushTimeMaxLabel, "FX Glitch Crush Time Max");
+	setupFloatEditor (fxGlitchCrushTimeMaxEditor, fxGlitchCrushTimeMaxLabel, "FX Glitch Crush Time Max");
 
 	fxGlitchCrushTimeMinEditor.setTooltip ("FX Glitch Crush Time Min");
 	fxGlitchCrushTimeMinEditor.getMinValueCallback = [this] () { return 0.0; };
 	fxGlitchCrushTimeMinEditor.getMaxValueCallback = [this] () { return 100.0; };
-	fxGlitchCrushTimeMinEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxGlitchCrushTimeMinEditor.updateDataCallback = [this] (double value) { fxGlitchCrushTimeMinUiChanged (static_cast<float> (value)); };
+	fxGlitchCrushTimeMinEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxGlitchCrushTimeMinEditor.updateDataCallback = [this] (float value) { fxGlitchCrushTimeMinUiChanged (static_cast<float> (value)); };
 	fxGlitchCrushTimeMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -1618,13 +1618,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxGlitchCrushTimeMinEditor, fxGlitchCrushTimeMinLabel, "FX Glitch Crush Time Min");
+	setupFloatEditor (fxGlitchCrushTimeMinEditor, fxGlitchCrushTimeMinLabel, "FX Glitch Crush Time Min");
 
 	fxGlitchDropKeepLevelMaxEditor.setTooltip ("FX Glitch Drop Keep Level Max");
 	fxGlitchDropKeepLevelMaxEditor.getMinValueCallback = [this] () { return 0.0; };
 	fxGlitchDropKeepLevelMaxEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxGlitchDropKeepLevelMaxEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxGlitchDropKeepLevelMaxEditor.updateDataCallback = [this] (double value) { fxGlitchDropKeepLevelMaxUiChanged (static_cast<float> (value)); };
+	fxGlitchDropKeepLevelMaxEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxGlitchDropKeepLevelMaxEditor.updateDataCallback = [this] (float value) { fxGlitchDropKeepLevelMaxUiChanged (static_cast<float> (value)); };
 	fxGlitchDropKeepLevelMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -1658,13 +1658,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxGlitchDropKeepLevelMaxEditor, fxGlitchDropKeepLevelMaxLabel, "FX Glitch Drop Keep Level Max");
+	setupFloatEditor (fxGlitchDropKeepLevelMaxEditor, fxGlitchDropKeepLevelMaxLabel, "FX Glitch Drop Keep Level Max");
 
 	fxGlitchDropKeepLevelMinEditor.setTooltip ("FX Glitch Drop Keep Level Min");
 	fxGlitchDropKeepLevelMinEditor.getMinValueCallback = [this] () { return 0.0; };
 	fxGlitchDropKeepLevelMinEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxGlitchDropKeepLevelMinEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxGlitchDropKeepLevelMinEditor.updateDataCallback = [this] (double value) { fxGlitchDropKeepLevelMinUiChanged (static_cast<float> (value)); };
+	fxGlitchDropKeepLevelMinEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxGlitchDropKeepLevelMinEditor.updateDataCallback = [this] (float value) { fxGlitchDropKeepLevelMinUiChanged (static_cast<float> (value)); };
 	fxGlitchDropKeepLevelMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -1698,13 +1698,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxGlitchDropKeepLevelMinEditor, fxGlitchDropKeepLevelMinLabel, "FX Glitch Drop Keep Level Min");
+	setupFloatEditor (fxGlitchDropKeepLevelMinEditor, fxGlitchDropKeepLevelMinLabel, "FX Glitch Drop Keep Level Min");
 
 	fxGlitchDropKeepTimeMaxEditor.setTooltip ("FX Glitch Drop Keep Time Max");
 	fxGlitchDropKeepTimeMaxEditor.getMinValueCallback = [this] () { return 0.0; };
 	fxGlitchDropKeepTimeMaxEditor.getMaxValueCallback = [this] () { return 100.0; };
-	fxGlitchDropKeepTimeMaxEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxGlitchDropKeepTimeMaxEditor.updateDataCallback = [this] (double value) { fxGlitchDropKeepTimeMaxUiChanged (static_cast<float> (value)); };
+	fxGlitchDropKeepTimeMaxEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxGlitchDropKeepTimeMaxEditor.updateDataCallback = [this] (float value) { fxGlitchDropKeepTimeMaxUiChanged (static_cast<float> (value)); };
 	fxGlitchDropKeepTimeMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -1738,13 +1738,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxGlitchDropKeepTimeMaxEditor, fxGlitchDropKeepTimeMaxLabel, "FX Glitch Drop Keep Time Max");
+	setupFloatEditor (fxGlitchDropKeepTimeMaxEditor, fxGlitchDropKeepTimeMaxLabel, "FX Glitch Drop Keep Time Max");
 
 	fxGlitchDropKeepTimeMinEditor.setTooltip ("FX Glitch Drop Keep Time Min");
 	fxGlitchDropKeepTimeMinEditor.getMinValueCallback = [this] () { return 0.0; };
 	fxGlitchDropKeepTimeMinEditor.getMaxValueCallback = [this] () { return 100.0; };
-	fxGlitchDropKeepTimeMinEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxGlitchDropKeepTimeMinEditor.updateDataCallback = [this] (double value) { fxGlitchDropKeepTimeMinUiChanged (static_cast<float> (value)); };
+	fxGlitchDropKeepTimeMinEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxGlitchDropKeepTimeMinEditor.updateDataCallback = [this] (float value) { fxGlitchDropKeepTimeMinUiChanged (static_cast<float> (value)); };
 	fxGlitchDropKeepTimeMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -1778,13 +1778,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxGlitchDropKeepTimeMinEditor, fxGlitchDropKeepTimeMinLabel, "FX Glitch Drop Keep Time Min");
+	setupFloatEditor (fxGlitchDropKeepTimeMinEditor, fxGlitchDropKeepTimeMinLabel, "FX Glitch Drop Keep Time Min");
 
 	fxGlitchMicroloopPlayTMaxEditor.setTooltip ("FX Glitch Microloop Play T Max");
 	fxGlitchMicroloopPlayTMaxEditor.getMinValueCallback = [this] () { return 0.0; };
 	fxGlitchMicroloopPlayTMaxEditor.getMaxValueCallback = [this] () { return 100.0; };
-	fxGlitchMicroloopPlayTMaxEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxGlitchMicroloopPlayTMaxEditor.updateDataCallback = [this] (double value) { fxGlitchMicroloopPlayTMaxUiChanged (static_cast<float> (value)); };
+	fxGlitchMicroloopPlayTMaxEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxGlitchMicroloopPlayTMaxEditor.updateDataCallback = [this] (float value) { fxGlitchMicroloopPlayTMaxUiChanged (static_cast<float> (value)); };
 	fxGlitchMicroloopPlayTMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -1818,13 +1818,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxGlitchMicroloopPlayTMaxEditor, fxGlitchMicroloopPlayTMaxLabel, "FX Glitch Microloop Play T Max");
+	setupFloatEditor (fxGlitchMicroloopPlayTMaxEditor, fxGlitchMicroloopPlayTMaxLabel, "FX Glitch Microloop Play T Max");
 
 	fxGlitchMicroloopPlayTMinEditor.setTooltip ("FX Glitch Microloop Play T Min");
 	fxGlitchMicroloopPlayTMinEditor.getMinValueCallback = [this] () { return 0.0; };
 	fxGlitchMicroloopPlayTMinEditor.getMaxValueCallback = [this] () { return 100.0; };
-	fxGlitchMicroloopPlayTMinEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxGlitchMicroloopPlayTMinEditor.updateDataCallback = [this] (double value) { fxGlitchMicroloopPlayTMinUiChanged (static_cast<float> (value)); };
+	fxGlitchMicroloopPlayTMinEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxGlitchMicroloopPlayTMinEditor.updateDataCallback = [this] (float value) { fxGlitchMicroloopPlayTMinUiChanged (static_cast<float> (value)); };
 	fxGlitchMicroloopPlayTMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -1858,13 +1858,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxGlitchMicroloopPlayTMinEditor, fxGlitchMicroloopPlayTMinLabel, "FX Glitch Microloop Play T Min");
+	setupFloatEditor (fxGlitchMicroloopPlayTMinEditor, fxGlitchMicroloopPlayTMinLabel, "FX Glitch Microloop Play T Min");
 
 	fxGlitchMicroloopSmplTMaxEditor.setTooltip ("FX Glitch Microloop Smpl T Max");
 	fxGlitchMicroloopSmplTMaxEditor.getMinValueCallback = [this] () { return 0.0; };
 	fxGlitchMicroloopSmplTMaxEditor.getMaxValueCallback = [this] () { return 100.0; };
-	fxGlitchMicroloopSmplTMaxEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxGlitchMicroloopSmplTMaxEditor.updateDataCallback = [this] (double value) { fxGlitchMicroloopSmplTMaxUiChanged (static_cast<float> (value)); };
+	fxGlitchMicroloopSmplTMaxEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxGlitchMicroloopSmplTMaxEditor.updateDataCallback = [this] (float value) { fxGlitchMicroloopSmplTMaxUiChanged (static_cast<float> (value)); };
 	fxGlitchMicroloopSmplTMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -1898,13 +1898,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxGlitchMicroloopSmplTMaxEditor, fxGlitchMicroloopSmplTMaxLabel, "FX Glitch Microloop Smpl T Max");
+	setupFloatEditor (fxGlitchMicroloopSmplTMaxEditor, fxGlitchMicroloopSmplTMaxLabel, "FX Glitch Microloop Smpl T Max");
 
 	fxGlitchMicroloopSmplTMinEditor.setTooltip ("FX Glitch Microloop Smpl T Min");
 	fxGlitchMicroloopSmplTMinEditor.getMinValueCallback = [this] () { return 0.0; };
 	fxGlitchMicroloopSmplTMinEditor.getMaxValueCallback = [this] () { return 100.0; };
-	fxGlitchMicroloopSmplTMinEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxGlitchMicroloopSmplTMinEditor.updateDataCallback = [this] (double value) { fxGlitchMicroloopSmplTMinUiChanged (static_cast<float> (value)); };
+	fxGlitchMicroloopSmplTMinEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxGlitchMicroloopSmplTMinEditor.updateDataCallback = [this] (float value) { fxGlitchMicroloopSmplTMinUiChanged (static_cast<float> (value)); };
 	fxGlitchMicroloopSmplTMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -1938,13 +1938,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxGlitchMicroloopSmplTMinEditor, fxGlitchMicroloopSmplTMinLabel, "FX Glitch Microloop Smpl T Min");
+	setupFloatEditor (fxGlitchMicroloopSmplTMinEditor, fxGlitchMicroloopSmplTMinLabel, "FX Glitch Microloop Smpl T Min");
 
 	fxGlitchProbabilityMaxEditor.setTooltip ("FX Glitch Probability Max");
 	fxGlitchProbabilityMaxEditor.getMinValueCallback = [this] () { return 0.0; };
 	fxGlitchProbabilityMaxEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxGlitchProbabilityMaxEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxGlitchProbabilityMaxEditor.updateDataCallback = [this] (double value) { fxGlitchProbabilityMaxUiChanged (static_cast<float> (value)); };
+	fxGlitchProbabilityMaxEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxGlitchProbabilityMaxEditor.updateDataCallback = [this] (float value) { fxGlitchProbabilityMaxUiChanged (static_cast<float> (value)); };
 	fxGlitchProbabilityMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -1978,13 +1978,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxGlitchProbabilityMaxEditor, fxGlitchProbabilityMaxLabel, "FX Glitch Probability Max");
+	setupFloatEditor (fxGlitchProbabilityMaxEditor, fxGlitchProbabilityMaxLabel, "FX Glitch Probability Max");
 
 	fxGlitchProbabilityMinEditor.setTooltip ("FX Glitch Probability Min");
 	fxGlitchProbabilityMinEditor.getMinValueCallback = [this] () { return 0.0; };
 	fxGlitchProbabilityMinEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxGlitchProbabilityMinEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 5); };
-	fxGlitchProbabilityMinEditor.updateDataCallback = [this] (double value) { fxGlitchProbabilityMinUiChanged (static_cast<float> (value)); };
+	fxGlitchProbabilityMinEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 5); };
+	fxGlitchProbabilityMinEditor.updateDataCallback = [this] (float value) { fxGlitchProbabilityMinUiChanged (static_cast<float> (value)); };
 	fxGlitchProbabilityMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -2018,7 +2018,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxGlitchProbabilityMinEditor, fxGlitchProbabilityMinLabel, "FX Glitch Probability Min");
+	setupFloatEditor (fxGlitchProbabilityMinEditor, fxGlitchProbabilityMinLabel, "FX Glitch Probability Min");
 
 	fxGlitchStutterNumMaxEditor.setTooltip ("FX Glitch Stutter Num Max");
 	fxGlitchStutterNumMaxEditor.getMinValueCallback = [this] () { return 0; };
@@ -2103,8 +2103,8 @@ SettingsEditorComponent::SettingsEditorComponent ()
 	fxGlitchStutterSmplTMaxEditor.setTooltip ("FX Glitch Stutter Smpl T Max");
 	fxGlitchStutterSmplTMaxEditor.getMinValueCallback = [this] () { return 0.0; };
 	fxGlitchStutterSmplTMaxEditor.getMaxValueCallback = [this] () { return 100.0; };
-	fxGlitchStutterSmplTMaxEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxGlitchStutterSmplTMaxEditor.updateDataCallback = [this] (double value) { fxGlitchStutterSmplTMaxUiChanged (static_cast<float> (value)); };
+	fxGlitchStutterSmplTMaxEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxGlitchStutterSmplTMaxEditor.updateDataCallback = [this] (float value) { fxGlitchStutterSmplTMaxUiChanged (static_cast<float> (value)); };
 	fxGlitchStutterSmplTMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -2138,13 +2138,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxGlitchStutterSmplTMaxEditor, fxGlitchStutterSmplTMaxLabel, "FX Glitch Stutter Smpl T Max");
+	setupFloatEditor (fxGlitchStutterSmplTMaxEditor, fxGlitchStutterSmplTMaxLabel, "FX Glitch Stutter Smpl T Max");
 
 	fxGlitchStutterSmplTMinEditor.setTooltip ("FX Glitch Stutter Smpl T Min");
 	fxGlitchStutterSmplTMinEditor.getMinValueCallback = [this] () { return 0.0; };
 	fxGlitchStutterSmplTMinEditor.getMaxValueCallback = [this] () { return 100.0; };
-	fxGlitchStutterSmplTMinEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxGlitchStutterSmplTMinEditor.updateDataCallback = [this] (double value) { fxGlitchStutterSmplTMinUiChanged (static_cast<float> (value)); };
+	fxGlitchStutterSmplTMinEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxGlitchStutterSmplTMinEditor.updateDataCallback = [this] (float value) { fxGlitchStutterSmplTMinUiChanged (static_cast<float> (value)); };
 	fxGlitchStutterSmplTMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -2178,7 +2178,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxGlitchStutterSmplTMinEditor, fxGlitchStutterSmplTMinLabel, "FX Glitch Stutter Smpl T Min");
+	setupFloatEditor (fxGlitchStutterSmplTMinEditor, fxGlitchStutterSmplTMinLabel, "FX Glitch Stutter Smpl T Min");
 
 	fxGlitchStutterWindowEditor.setTooltip ("FX Glitch Stutter Window");
 	fxGlitchStutterWindowEditor.getMinValueCallback = [this] () { return 0; };
@@ -2223,8 +2223,8 @@ SettingsEditorComponent::SettingsEditorComponent ()
 	fxGlitchWeightCrushLowEditor.setTooltip ("FX Glitch Weight Crush Low");
 	fxGlitchWeightCrushLowEditor.getMinValueCallback = [this] () { return 0.0; };
 	fxGlitchWeightCrushLowEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxGlitchWeightCrushLowEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxGlitchWeightCrushLowEditor.updateDataCallback = [this] (double value) { fxGlitchWeightCrushLowUiChanged (static_cast<float> (value)); };
+	fxGlitchWeightCrushLowEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxGlitchWeightCrushLowEditor.updateDataCallback = [this] (float value) { fxGlitchWeightCrushLowUiChanged (static_cast<float> (value)); };
 	fxGlitchWeightCrushLowEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -2258,13 +2258,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxGlitchWeightCrushLowEditor, fxGlitchWeightCrushLowLabel, "FX Glitch Weight Crush Low");
+	setupFloatEditor (fxGlitchWeightCrushLowEditor, fxGlitchWeightCrushLowLabel, "FX Glitch Weight Crush Low");
 
 	fxGlitchWeightDropHighEditor.setTooltip ("FX Glitch Weight Drop High");
 	fxGlitchWeightDropHighEditor.getMinValueCallback = [this] () { return 0.0; };
 	fxGlitchWeightDropHighEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxGlitchWeightDropHighEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxGlitchWeightDropHighEditor.updateDataCallback = [this] (double value) { fxGlitchWeightDropHighUiChanged (static_cast<float> (value)); };
+	fxGlitchWeightDropHighEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxGlitchWeightDropHighEditor.updateDataCallback = [this] (float value) { fxGlitchWeightDropHighUiChanged (static_cast<float> (value)); };
 	fxGlitchWeightDropHighEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -2298,13 +2298,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxGlitchWeightDropHighEditor, fxGlitchWeightDropHighLabel, "FX Glitch Weight Drop High");
+	setupFloatEditor (fxGlitchWeightDropHighEditor, fxGlitchWeightDropHighLabel, "FX Glitch Weight Drop High");
 
 	fxGlitchWeightDropLowEditor.setTooltip ("FX Glitch Weight Drop Low");
 	fxGlitchWeightDropLowEditor.getMinValueCallback = [this] () { return 0.0; };
 	fxGlitchWeightDropLowEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxGlitchWeightDropLowEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxGlitchWeightDropLowEditor.updateDataCallback = [this] (double value) { fxGlitchWeightDropLowUiChanged (static_cast<float> (value)); };
+	fxGlitchWeightDropLowEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxGlitchWeightDropLowEditor.updateDataCallback = [this] (float value) { fxGlitchWeightDropLowUiChanged (static_cast<float> (value)); };
 	fxGlitchWeightDropLowEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -2338,13 +2338,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxGlitchWeightDropLowEditor, fxGlitchWeightDropLowLabel, "FX Glitch Weight Drop Low");
+	setupFloatEditor (fxGlitchWeightDropLowEditor, fxGlitchWeightDropLowLabel, "FX Glitch Weight Drop Low");
 
 	fxGlitchWeightHoldHighEditor.setTooltip ("FX Glitch Weight Hold High");
 	fxGlitchWeightHoldHighEditor.getMinValueCallback = [this] () { return 0.0; };
 	fxGlitchWeightHoldHighEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxGlitchWeightHoldHighEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxGlitchWeightHoldHighEditor.updateDataCallback = [this] (double value) { fxGlitchWeightHoldHighUiChanged (static_cast<float> (value)); };
+	fxGlitchWeightHoldHighEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxGlitchWeightHoldHighEditor.updateDataCallback = [this] (float value) { fxGlitchWeightHoldHighUiChanged (static_cast<float> (value)); };
 	fxGlitchWeightHoldHighEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -2378,13 +2378,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxGlitchWeightHoldHighEditor, fxGlitchWeightHoldHighLabel, "FX Glitch Weight Hold High");
+	setupFloatEditor (fxGlitchWeightHoldHighEditor, fxGlitchWeightHoldHighLabel, "FX Glitch Weight Hold High");
 
 	fxGlitchWeightHoldLowEditor.setTooltip ("FX Glitch Weight Hold Low");
 	fxGlitchWeightHoldLowEditor.getMinValueCallback = [this] () { return 0.0; };
 	fxGlitchWeightHoldLowEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxGlitchWeightHoldLowEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxGlitchWeightHoldLowEditor.updateDataCallback = [this] (double value) { fxGlitchWeightHoldLowUiChanged (static_cast<float> (value)); };
+	fxGlitchWeightHoldLowEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxGlitchWeightHoldLowEditor.updateDataCallback = [this] (float value) { fxGlitchWeightHoldLowUiChanged (static_cast<float> (value)); };
 	fxGlitchWeightHoldLowEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -2418,13 +2418,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxGlitchWeightHoldLowEditor, fxGlitchWeightHoldLowLabel, "FX Glitch Weight Hold Low");
+	setupFloatEditor (fxGlitchWeightHoldLowEditor, fxGlitchWeightHoldLowLabel, "FX Glitch Weight Hold Low");
 
 	fxGlitchWeightStutterHighEditor.setTooltip ("FX Glitch Weight Stutter High");
 	fxGlitchWeightStutterHighEditor.getMinValueCallback = [this] () { return 0.0; };
 	fxGlitchWeightStutterHighEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxGlitchWeightStutterHighEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxGlitchWeightStutterHighEditor.updateDataCallback = [this] (double value) { fxGlitchWeightStutterHighUiChanged (static_cast<float> (value)); };
+	fxGlitchWeightStutterHighEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxGlitchWeightStutterHighEditor.updateDataCallback = [this] (float value) { fxGlitchWeightStutterHighUiChanged (static_cast<float> (value)); };
 	fxGlitchWeightStutterHighEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -2458,13 +2458,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxGlitchWeightStutterHighEditor, fxGlitchWeightStutterHighLabel, "FX Glitch Weight Stutter High");
+	setupFloatEditor (fxGlitchWeightStutterHighEditor, fxGlitchWeightStutterHighLabel, "FX Glitch Weight Stutter High");
 
 	fxGlitchWeightStutterLowEditor.setTooltip ("FX Glitch Weight Stutter Low");
 	fxGlitchWeightStutterLowEditor.getMinValueCallback = [this] () { return 0.0; };
 	fxGlitchWeightStutterLowEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxGlitchWeightStutterLowEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	fxGlitchWeightStutterLowEditor.updateDataCallback = [this] (double value) { fxGlitchWeightStutterLowUiChanged (static_cast<float> (value)); };
+	fxGlitchWeightStutterLowEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	fxGlitchWeightStutterLowEditor.updateDataCallback = [this] (float value) { fxGlitchWeightStutterLowUiChanged (static_cast<float> (value)); };
 	fxGlitchWeightStutterLowEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -2498,7 +2498,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (fxGlitchWeightStutterLowEditor, fxGlitchWeightStutterLowLabel, "FX Glitch Weight Stutter Low");
+	setupFloatEditor (fxGlitchWeightStutterLowEditor, fxGlitchWeightStutterLowLabel, "FX Glitch Weight Stutter Low");
 
 	fxReverbHpfEditor.setTooltip ("FX Reverb HPF");
 	fxReverbHpfEditor.getMinValueCallback = [this] () { return 20; };
@@ -2649,8 +2649,8 @@ SettingsEditorComponent::SettingsEditorComponent ()
 	pitchHighEditor.setTooltip ("Pitch High");
 	pitchHighEditor.getMinValueCallback = [this] () { return 1.5; };
 	pitchHighEditor.getMaxValueCallback = [this] () { return 3.7; };
-	pitchHighEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	pitchHighEditor.updateDataCallback = [this] (double value) { pitchHighUiChanged (static_cast<float> (value)); };
+	pitchHighEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	pitchHighEditor.updateDataCallback = [this] (float value) { pitchHighUiChanged (static_cast<float> (value)); };
 	pitchHighEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -2684,13 +2684,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (pitchHighEditor, pitchHighLabel, "Pitch High");
+	setupFloatEditor (pitchHighEditor, pitchHighLabel, "Pitch High");
 
 	pitchLowEditor.setTooltip ("Pitch Low");
 	pitchLowEditor.getMinValueCallback = [this] () { return 0.001; };
 	pitchLowEditor.getMaxValueCallback = [this] () { return 0.5; };
-	pitchLowEditor.toStringCallback = [this] (double value) { return getRoundedFloatString (value, 4); };
-	pitchLowEditor.updateDataCallback = [this] (double value) { pitchLowUiChanged (static_cast<float> (value)); };
+	pitchLowEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
+	pitchLowEditor.updateDataCallback = [this] (float value) { pitchLowUiChanged (static_cast<float> (value)); };
 	pitchLowEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
 	{
 		const auto multiplier = [this, dragSpeed] ()
@@ -2724,7 +2724,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
 		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
 	};
-	setupDoubleEditor (pitchLowEditor, pitchLowLabel, "Pitch Low");
+	setupFloatEditor (pitchLowEditor, pitchLowLabel, "Pitch Low");
 
 	// 0: 0V = 100 % -5 = 0 % +5 = 200 %
 	// 1: 0V = 10 % +5 = 100 %

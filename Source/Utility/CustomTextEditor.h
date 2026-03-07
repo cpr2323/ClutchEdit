@@ -191,6 +191,16 @@ public:
     }
 };
 
+class CustomTextEditorFloat : public CustomTextEditor<float>
+{
+public:
+    CustomTextEditorFloat ()
+    {
+        onFocusLost = [this] () { setValue (getText ().getFloatValue ()); };
+        onReturnKey = [this] () { setValue (getText ().getFloatValue ()); };
+    }
+};
+
 class CustomTextEditorDouble : public CustomTextEditor<double>
 {
 public:
