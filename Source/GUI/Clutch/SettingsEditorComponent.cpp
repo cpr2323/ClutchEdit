@@ -9,2755 +9,1152 @@ juce::String getRoundedFloatString (float value, int decimalPlaces)
 
 SettingsEditorComponent::SettingsEditorComponent ()
 {
-    auto setupFloatEditor = [this] (CustomTextEditorFloat& editor, juce::Label& label, const juce::String& labelText)
-    {
-        label.setText (labelText, juce::dontSendNotification);
-        addAndMakeVisible (label);
-        editor.setColour (juce::TextEditor::backgroundColourId, juce::Colours::darkgrey.darker (0.5f));
-        editor.setIndents (5, 2);
-        addAndMakeVisible (editor);
-    };
-    auto setupIntEditor = [this] (CustomTextEditorInt& editor, juce::Label& label, const juce::String& labelText)
-    {
-        label.setText (labelText, juce::dontSendNotification);
-        addAndMakeVisible (label);
-        editor.setColour (juce::TextEditor::backgroundColourId, juce::Colours::darkgrey.darker (0.5f));
-        editor.setIndents (5, 2);
-        addAndMakeVisible (editor);
-    };
-    auto setupComboBox = [this] (CustomComboBox& comboBox, juce::Label& label, const juce::String& labelText)
-    {
-        label.setText (labelText, juce::dontSendNotification);
-        addAndMakeVisible (label);
-        comboBox.setColour (juce::ComboBox::backgroundColourId, juce::Colours::darkgrey.darker (0.5f));
-        addAndMakeVisible (comboBox);
-    };
+    popupMenuLnF.setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
 
-	accClAmpModEditor.setTooltip ("Amp Mod CLOSED ACC hit");
-	accClAmpModEditor.getMinValueCallback = [this] () { return 0.1; };
-	accClAmpModEditor.getMaxValueCallback = [this] () { return 10.0; };
-	accClAmpModEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	accClAmpModEditor.updateDataCallback = [this] (float value) { accClAmpModUiChanged (static_cast<float> (value)); };
-	accClAmpModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
+	struct EditorFloatData
 	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.01f;
-			else if (dragSpeed == DragSpeed::medium)
-				return 0.3f;
-			else
-				return 1.0f;
-		} ();
-		const auto newValue { settingsProperties.getAccClAmpMod () + (multiplier * direction) };
-		accClAmpModEditor.setValue (newValue);
+		CustomTextEditorFloat* editor;
+		juce::Label& label;
+		const juce::String& labelText;
+		juce::String toolTip;
+		juce::String menuHeader;
 	};
-	accClAmpModEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			accClAmpModEditor.setValue (1.3f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			accClAmpModEditor.setValue (uneditedSettingsProperties.getAccClAmpMod ());
-		});
 
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
+	struct FloatDataRange
+	{
+		float min;
+		float max;
 	};
-	setupFloatEditor (accClAmpModEditor, accClAmpModLabel, "Acc Cl Amp Mod");
 
-	accClRelModEditor.setTooltip ("Acc Cl Rel Mod");
-	accClRelModEditor.getMinValueCallback = [this] () { return 0.1; };
-	accClRelModEditor.getMaxValueCallback = [this] () { return 10.0; };
-	accClRelModEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	accClRelModEditor.updateDataCallback = [this] (float value) { accClRelModUiChanged (static_cast<float> (value)); };
-	accClRelModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
+	struct FloatDragMultipliers
 	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.01f;
-			else if (dragSpeed == DragSpeed::medium)
-				return 0.3f;
-			else
-				return 1.0f;
-		} ();
-		accClRelModEditor.setValue (settingsProperties.getAccClRelMod () + (multiplier * direction));
+		float slow;
+		float medium;
+		float fast;
 	};
-	accClRelModEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			accClRelModEditor.setValue (1.18f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			accClRelModEditor.setValue (uneditedSettingsProperties.getAccClRelMod ());
-		});
 
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
+	auto setupFloatEditor = [this] (EditorFloatData editorData,
+									   FloatDataRange dataRange,
+									   FloatDragMultipliers dragMultipliers,
+									   std::function<juce::String (float value)> toStringCallback,
+									   std::function<void (float value)> updateDataCallback,
+									   std::function<void (float valueOffset)> updateFromDragCallback,
+									   std::function<float ()> getDefaultValue,
+									   std::function<float ()> getUneditedValue)
+		{
+			jassert (editorData.editor != nullptr);
+			jassert (updateFromDragCallback != nullptr);
+			jassert (toStringCallback != nullptr);
+			jassert (updateDataCallback != nullptr);
+			jassert (getDefaultValue != nullptr);
+			jassert (getUneditedValue != nullptr);
+
+			editorData.editor->setTooltip (editorData.toolTip);
+			editorData.editor->getMinValueCallback = [minValue = dataRange.min] () { return minValue; };
+			editorData.editor->getMaxValueCallback = [maxValue = dataRange.max] () { return maxValue; };
+			editorData.editor->toStringCallback = [toStringCallback] (float value) { return toStringCallback (value); };
+			editorData.editor->updateDataCallback = [updateDataCallback] (float value) { updateDataCallback (value); };
+			editorData.editor->onDragCallback = [dragMultipliers, updateFromDragCallback] (DragSpeed dragSpeed, int direction)
+				{
+					const auto multiplier = [dragSpeed, dragMultipliers] ()
+						{
+							if (dragSpeed == DragSpeed::slow)
+								return dragMultipliers.slow;
+							else if (dragSpeed == DragSpeed::medium)
+								return dragMultipliers.medium;
+							else
+								return dragMultipliers.fast;
+						} ();
+
+					updateFromDragCallback (multiplier * direction);
+				};
+			editorData.editor->onPopupMenuCallback = [this, editor = editorData.editor, getDefaultValue, getUneditedValue, menuHeader = editorData.menuHeader] ()
+				{
+					auto* popupMenuLnF { new juce::LookAndFeel_V4 };
+					popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
+
+					juce::PopupMenu pm;
+					pm.setLookAndFeel (popupMenuLnF);
+					pm.addSectionHeader (menuHeader);
+					pm.addSeparator ();
+					pm.addItem ("Default", true, false, [editor, getDefaultValue] ()
+					{
+						editor->setValue (getDefaultValue ());
+					});
+					pm.addItem ("Revert", true, false, [editor, getUneditedValue] ()
+					{
+						editor->setValue (getUneditedValue ());
+					});
+
+					pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
+				};
+
+			editorData.label.setText (editorData.labelText, juce::dontSendNotification);
+			addAndMakeVisible (editorData.label);
+			editorData.editor->setColour (juce::TextEditor::backgroundColourId, juce::Colours::darkgrey.darker (0.5f));
+			editorData.editor->setIndents (5, 2);
+			addAndMakeVisible (editorData.editor);
+		};
+
+	struct EditorIntData
+	{
+		CustomTextEditorInt* editor;
+		juce::Label& label;
+		const juce::String& labelText;
+		juce::String toolTip;
+		juce::String menuHeader;
 	};
-	setupFloatEditor (accClRelModEditor, accClRelModLabel, "Acc Cl Rel Mod");
 
-	accOpAmpModEditor.setTooltip ("Acc Op Amp Mod");
-	accOpAmpModEditor.getMinValueCallback = [this] () { return 0.1; };
-	accOpAmpModEditor.getMaxValueCallback = [this] () { return 10.0; };
-	accOpAmpModEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	accOpAmpModEditor.updateDataCallback = [this] (float value) { accOpAmpModUiChanged (static_cast<float> (value)); };
-	accOpAmpModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
+	struct IntDataRange
 	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.1f;
-			else if (dragSpeed == DragSpeed::medium)
-				return 0.5f;
-			else
-				return 1.0f;
-		} ();
-		accOpAmpModEditor.setValue (settingsProperties.getAccOpAmpMod () + (multiplier * direction));
+		int min;
+		int max;
 	};
-	accOpAmpModEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			accOpAmpModEditor.setValue (1.25f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			accOpAmpModEditor.setValue (uneditedSettingsProperties.getAccOpAmpMod ());
-		});
 
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
+	struct IntDragMultipliers
+	{
+		int slow;
+		int medium;
+		int fast;
 	};
-	setupFloatEditor (accOpAmpModEditor, accOpAmpModLabel, "Acc Op Amp Mod");
 
-	accOpRelModEditor.setTooltip ("Acc Op Rel Mod");
-	accOpRelModEditor.getMinValueCallback = [this] () { return 0.1; };
-	accOpRelModEditor.getMaxValueCallback = [this] () { return 10.0; };
-	accOpRelModEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	accOpRelModEditor.updateDataCallback = [this] (float value) { accOpRelModUiChanged (static_cast<float> (value)); };
-	accOpRelModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
+	auto setupIntEditor = [this] (EditorIntData editorData,
+									 IntDataRange dataRange,
+									 IntDragMultipliers dragMultipliers,
+									 std::function<juce::String (int value)> toStringCallback,
+									 std::function<void (int value)> updateDataCallback,
+									 std::function<void (int valueOffset)> updateFromDragCallback,
+									 std::function<int ()> getDefaultValue,
+									 std::function<int ()> getUneditedValue)
 		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.1f;
-			else if (dragSpeed == DragSpeed::medium)
-				return 0.5f;
-			else
-				return 1.0f;
-		} ();
-		accOpRelModEditor.setValue (settingsProperties.getAccOpRelMod () + (multiplier * direction));
-	};
-	accOpRelModEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			accOpRelModEditor.setValue (1.25f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			accOpRelModEditor.setValue (uneditedSettingsProperties.getAccOpRelMod ());
-		});
+			jassert (editorData.editor != nullptr);
+			jassert (updateFromDragCallback != nullptr);
+			jassert (toStringCallback != nullptr);
+			jassert (updateDataCallback != nullptr);
+			jassert (getDefaultValue != nullptr);
+			jassert (getUneditedValue != nullptr);
 
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (accOpRelModEditor, accOpRelModLabel, "Acc Op Rel Mod");
+			editorData.editor->setTooltip (editorData.toolTip);
+			editorData.editor->getMinValueCallback = [minValue = dataRange.min] () { return minValue; };
+			editorData.editor->getMaxValueCallback = [maxValue = dataRange.max] () { return maxValue; };
+			editorData.editor->toStringCallback = [toStringCallback] (int value) { return toStringCallback (value); };
+			editorData.editor->updateDataCallback = [updateDataCallback] (int value) { updateDataCallback (value); };
+			editorData.editor->onDragCallback = [dragMultipliers, updateFromDragCallback] (DragSpeed dragSpeed, int direction)
+				{
+					const auto multiplier = [dragSpeed, dragMultipliers] ()
+					{
+						if (dragSpeed == DragSpeed::slow)
+							return dragMultipliers.slow;
+						else if (dragSpeed == DragSpeed::medium)
+							return dragMultipliers.medium;
+						else
+							return dragMultipliers.fast;
+					} ();
 
-	chokeReleaseEditor.setTooltip ("Choke Release");
-	chokeReleaseEditor.getMinValueCallback = [this] () { return 0.001; };
-	chokeReleaseEditor.getMaxValueCallback = [this] () { return 10.0; };
-	chokeReleaseEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	chokeReleaseEditor.updateDataCallback = [this] (float value) { chokeReleaseUiChanged (static_cast<float> (value)); };
-	chokeReleaseEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.001;
-			else if (dragSpeed == DragSpeed::medium)
-				return 0.5;
-			else
-				return 3.0;
-		} ();
-		chokeReleaseEditor.setValue (settingsProperties.getChokeRelease () + (multiplier * direction));
-	};
-	chokeReleaseEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			chokeReleaseEditor.setValue (0.08f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			chokeReleaseEditor.setValue (uneditedSettingsProperties.getChokeRelease ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (chokeReleaseEditor, chokeReleaseLabel, "Choke Release");
-
-	clsdMaxReleaseEditor.setTooltip ("Choke Release");
-	clsdMaxReleaseEditor.getMinValueCallback = [this] () { return 0.3; };
-	clsdMaxReleaseEditor.getMaxValueCallback = [this] () { return 2.0; };
-	clsdMaxReleaseEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	clsdMaxReleaseEditor.updateDataCallback = [this] (float value) { clsdMaxReleaseUiChanged (static_cast<float> (value)); };
-	clsdMaxReleaseEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.1f;
-			else if (dragSpeed == DragSpeed::medium)
-				return 0.3f;
-			else
-				return 1.0f;
-		} ();
-		clsdMaxReleaseEditor.setValue (settingsProperties.getClsdMaxRelease () + (multiplier * direction));
-	};
-	clsdMaxReleaseEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			clsdMaxReleaseEditor.setValue (0.8f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			clsdMaxReleaseEditor.setValue (uneditedSettingsProperties.getClsdMaxRelease ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (clsdMaxReleaseEditor, clsdMaxReleaseLabel, "Clsd Max Release");
-
-	clsdRelOfstScaleEditor.setTooltip ("Choke Release");
-	clsdRelOfstScaleEditor.getMinValueCallback = [this] () { return 0.1; };
-	clsdRelOfstScaleEditor.getMaxValueCallback = [this] () { return 0.9; };
-	clsdRelOfstScaleEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	clsdRelOfstScaleEditor.updateDataCallback = [this] (float value) { clsdRelOfstScaleUiChanged (static_cast<float> (value)); };
-	clsdRelOfstScaleEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow || dragSpeed == DragSpeed::medium)
-				return 0.1f;
-			else
-				return 0.3f;
-		} ();
-		clsdRelOfstScaleEditor.setValue (settingsProperties.getClsdRelOfstScale () + (multiplier * direction));
-	};
-	clsdRelOfstScaleEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			clsdRelOfstScaleEditor.setValue (0.5f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			clsdRelOfstScaleEditor.setValue (uneditedSettingsProperties.getClsdRelOfstScale ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (clsdRelOfstScaleEditor, clsdRelOfstScaleLabel, "Clsd Rel Ofst Scale");
-
-	// 0: Independent Release for Closed
-	// 1: Release Offset mode
-	clsdReleaseModeComboBox.setLookAndFeel (&noArrowComboBoxLnF);
-	clsdReleaseModeComboBox.setTooltip ("");
-	clsdReleaseModeComboBox.addItem ("Independent", 1);
-	clsdReleaseModeComboBox.addItem ("Offset", 2);
-	clsdReleaseModeComboBox.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
-		const auto clsdReleaseMode { clsdReleaseModeComboBox.getSelectedId () - 1 };
-		settingsProperties.setClsdReleaseMode (std::clamp (clsdReleaseMode + scrollAmount, 0, 1), true);
-	};
-	clsdReleaseModeComboBox.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			clsdReleaseModeComboBox.setSelectedId (2, juce::NotificationType::sendNotification);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			clsdReleaseModeComboBox.setSelectedId (uneditedSettingsProperties.getClsdReleaseMode () + 1, juce::NotificationType::sendNotification);
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupComboBox (clsdReleaseModeComboBox, clsdReleaseModeLabel, "Clsd Release Mode");
-
-	// 0: FX CV Always On
-	// 1: CV Disable : Freeze FX CV
-	cvDisableFxComboBox.setLookAndFeel (&noArrowComboBoxLnF);
-	cvDisableFxComboBox.setTooltip ("");
-	cvDisableFxComboBox.addItem ("FX CV On", 1);
-	cvDisableFxComboBox.addItem ("FX CV Off", 2);
-	cvDisableFxComboBox.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
-		const auto cvDisableFx { cvDisableFxComboBox.getSelectedId () - 1 };
-		settingsProperties.setCvDisableFx (std::clamp (cvDisableFx + scrollAmount, 0, 1), true);
-	};
-	cvDisableFxComboBox.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			cvDisableFxComboBox.setSelectedId(1, juce::NotificationType::sendNotification);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			cvDisableFxComboBox.setSelectedId (uneditedSettingsProperties.getCvDisableFx () + 1, juce::NotificationType::sendNotification);
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupComboBox (cvDisableFxComboBox, cvDisableFxLabel, "CV Disable FX");
-
-	// 0: Velocity always enabled
-	// 1: CV Off SW affects velocity
-	cvDisableVelocityComboBox.setLookAndFeel (&noArrowComboBoxLnF);
-	cvDisableVelocityComboBox.setTooltip ("");
-	cvDisableVelocityComboBox.addItem ("Always On", 1);
-	cvDisableVelocityComboBox.addItem ("CV Off", 2);
-	cvDisableVelocityComboBox.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
-		const auto cvDisableVelocity { cvDisableVelocityComboBox.getSelectedId () - 1 };
-		settingsProperties.setCvDisableVelocity (std::clamp (cvDisableVelocity + scrollAmount, 0, 1), true);
-	};
-	cvDisableVelocityComboBox.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			cvDisableVelocityComboBox.setSelectedId(1, juce::NotificationType::sendNotification);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			cvDisableVelocityComboBox.setSelectedId(uneditedSettingsProperties.getCvDisableVelocity () + 1, juce::NotificationType::sendNotification);
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupComboBox (cvDisableVelocityComboBox, cvDisableVelocityLabel, "CV Disable Velocity");
-
-	envelopeMaxReleaseEditor.setTooltip ("Envelope Max Release");
-	envelopeMaxReleaseEditor.getMinValueCallback = [this] () { return 0.6; };
-	envelopeMaxReleaseEditor.getMaxValueCallback = [this] () { return 20.0; };
-	envelopeMaxReleaseEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	envelopeMaxReleaseEditor.updateDataCallback = [this] (float value) { envelopeMaxReleaseUiChanged (static_cast<float> (value)); };
-	envelopeMaxReleaseEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.1f;
-			else if (dragSpeed == DragSpeed::medium)
-				return 0.5f;
-			else
-				return 1.0f;
-		} ();
-		envelopeMaxReleaseEditor.setValue (settingsProperties.getEnvelopeMaxRelease () + (multiplier * direction));
-	};
-	envelopeMaxReleaseEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			envelopeMaxReleaseEditor.setValue (4.0f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			envelopeMaxReleaseEditor.setValue (uneditedSettingsProperties.getEnvelopeMaxRelease ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (envelopeMaxReleaseEditor, envelopeMaxReleaseLabel, "Envelope Max Release");
-
-	feelAmpModEditor.setTooltip ("Feel Amp Mod");
-	feelAmpModEditor.getMinValueCallback = [this] () { return 0.0; };
-	feelAmpModEditor.getMaxValueCallback = [this] () { return 2.0; };
-	feelAmpModEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	feelAmpModEditor.updateDataCallback = [this] (float value) { feelAmpModUiChanged (static_cast<float> (value)); };
-	feelAmpModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow || dragSpeed == DragSpeed::medium)
-				return 0.1f;
-			else
-				return 1.0f;
-		} ();
-		feelAmpModEditor.setValue (settingsProperties.getFeelAmpMod () + (multiplier * direction));
-	};
-	feelAmpModEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			feelAmpModEditor.setValue (1.0f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			feelAmpModEditor.setValue (uneditedSettingsProperties.getFeelAmpMod ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (feelAmpModEditor, feelAmpModLabel, "Feel Amp Mod");
-
-	feelAttackModEditor.setTooltip ("Feel Attack Mod");
-	feelAttackModEditor.getMinValueCallback = [this] () { return 0.0; };
-	feelAttackModEditor.getMaxValueCallback = [this] () { return 5.0; };
-	feelAttackModEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	feelAttackModEditor.updateDataCallback = [this] (float value) { feelAttackModUiChanged (static_cast<float> (value)); };
-	feelAttackModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
+					updateFromDragCallback (multiplier * direction);
+				};
+			editorData.editor->onPopupMenuCallback = [this, editor = editorData.editor, getDefaultValue, getUneditedValue, menuHeader = editorData.menuHeader] ()
 			{
-				if (dragSpeed == DragSpeed::slow || dragSpeed == DragSpeed::medium)
-					return 0.1f;
-				else
-					return 1.0f;
-			} ();
-		const auto newValue { settingsProperties.getFeelAttackMod () + (multiplier * direction) };
-		feelAttackModEditor.setValue (newValue);
-	};
-	feelAttackModEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			feelAttackModEditor.setValue (1.0f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			feelAttackModEditor.setValue (uneditedSettingsProperties.getFeelAttackMod ());
-		});
+				auto* popupMenuLnF { new juce::LookAndFeel_V4 };
+				popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
 
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (feelAttackModEditor, feelAttackModLabel, "Feel Attack Mod");
+				juce::PopupMenu pm;
+				pm.setLookAndFeel (popupMenuLnF);
+				pm.addSectionHeader (menuHeader);
+				pm.addSeparator ();
+				pm.addItem ("Default", true, false, [editor, getDefaultValue] ()
+				{
+					editor->setValue (getDefaultValue ());
+				});
+				pm.addItem ("Revert", true, false, [editor, getUneditedValue] ()
+				{
+					editor->setValue (getUneditedValue ());
+				});
 
-	feelReleaseModEditor.setTooltip ("Feel Release Mod");
-	feelReleaseModEditor.getMinValueCallback = [this] () { return 0.0; };
-	feelReleaseModEditor.getMaxValueCallback = [this] () { return 5.0; };
-	feelReleaseModEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	feelReleaseModEditor.updateDataCallback = [this] (float value) { feelReleaseModUiChanged (static_cast<float> (value)); };
-	feelReleaseModEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow || dragSpeed == DragSpeed::medium)
-				return 0.1f;
-			else
-				return 1.0f;
-		} ();
-		const auto newValue { settingsProperties.getFeelReleaseMod () + (multiplier * direction) };
-		feelReleaseModEditor.setValue (newValue);
-	};
-	feelReleaseModEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			feelReleaseModEditor.setValue (1.0f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			feelReleaseModEditor.setValue (uneditedSettingsProperties.getFeelReleaseMod ());
-		});
+				pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
+			};
 
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (feelReleaseModEditor, feelReleaseModLabel, "Feel Release Mod");
+			editorData.label.setText (editorData.labelText, juce::dontSendNotification);
+			addAndMakeVisible (editorData.label);
+			editorData.editor->setColour (juce::TextEditor::backgroundColourId, juce::Colours::darkgrey.darker (0.5f));
+			editorData.editor->setIndents (5, 2);
+			addAndMakeVisible (editorData.editor);
+		};
 
-	fltrHpfMaxFreqEditor.setTooltip ("Fltr HPF Max Freq");
-	fltrHpfMaxFreqEditor.getMinValueCallback = [this] () { return 20; };
-	fltrHpfMaxFreqEditor.getMaxValueCallback = [this] () { return 20000; };
-	fltrHpfMaxFreqEditor.toStringCallback = [this] (int value) { return getRoundedFloatString (value, 4); };
-	fltrHpfMaxFreqEditor.updateDataCallback = [this] (int value) { fltrHpfMaxFreqUiChanged (value); };
-	fltrHpfMaxFreqEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 25;
-			else
-				return 100;
-		} ();
-		const auto newValue { settingsProperties.getFltrHpfMaxFreq () + (multiplier * direction) };
-		fltrHpfMaxFreqEditor.setValue (newValue);
-	};
-	fltrHpfMaxFreqEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fltrHpfMaxFreqEditor.setValue (14000);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fltrHpfMaxFreqEditor.setValue (uneditedSettingsProperties.getFltrHpfMaxFreq ());
-		});
 
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupIntEditor (fltrHpfMaxFreqEditor, fltrHpfMaxFreqLabel, "Fltr HPF Max Freq");
-
-	fltrHpfMinFreqEditor.setTooltip ("Fltr HPF Min Freq");
-	fltrHpfMinFreqEditor.getMinValueCallback = [this] () { return 20; };
-	fltrHpfMinFreqEditor.getMaxValueCallback = [this] () { return 20000; };
-	fltrHpfMinFreqEditor.toStringCallback = [this] (int value) { return getRoundedFloatString (value, 4); };
-	fltrHpfMinFreqEditor.updateDataCallback = [this] (int value) { fltrHpfMinFreqUiChanged (value); };
-	fltrHpfMinFreqEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
+	struct ComboBoxData
 	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 25;
-			else
-				return 100;
-		} ();
-		const auto newValue { settingsProperties.getFltrHpfMinFreq () + (multiplier * direction) };
-		fltrHpfMinFreqEditor.setValue (newValue);
+		CustomComboBox& comboBox;
+		juce::Label& label;
+		const juce::String& labelText;
+		juce::String toolTip;
+		juce::String menuHeader;
 	};
-	fltrHpfMinFreqEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fltrHpfMinFreqEditor.setValue (100);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fltrHpfMinFreqEditor.setValue (uneditedSettingsProperties.getFltrHpfMinFreq ());
-		});
 
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
+	struct ComboBoxMenuItemData
+	{
+		juce::String text;
+		int value;
 	};
-	setupIntEditor (fltrHpfMinFreqEditor, fltrHpfMinFreqLabel, "Fltr HPF Min Freq");
 
-	fltrHpfQEditor.setTooltip ("Fltr HPF Q");
-	fltrHpfQEditor.getMinValueCallback = [this] () { return 0.25; };
-	fltrHpfQEditor.getMaxValueCallback = [this] () { return 4.0; };
-	fltrHpfQEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fltrHpfQEditor.updateDataCallback = [this] (float value) { fltrHpfQUiChanged (static_cast<float> (value)); };
-	fltrHpfQEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
+	auto setupComboBox = [this] (ComboBoxData comboBoxData,
+									std::vector<ComboBoxMenuItemData> menuItems,
+									std::function<void (int valueOffset)> updateFromDragCallback,
+									std::function<int ()> getDefaultValue,
+									std::function<int ()> getUneditedValue)
 		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.001;
-			else if (dragSpeed == DragSpeed::medium)
-				return 0.1;
-			else
-				return 1.0;
-		} ();
-		const auto newValue { settingsProperties.getFltrHpfQ () + (multiplier * direction) };
-		fltrHpfQEditor.setValue (newValue);
-	};
-	fltrHpfQEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fltrHpfQEditor.setValue (1.0f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fltrHpfQEditor.setValue (uneditedSettingsProperties.getFltrHpfQ ());
-		});
+			jassert (updateFromDragCallback != nullptr);
+			jassert (getDefaultValue != nullptr);
+			jassert (getUneditedValue != nullptr);
 
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fltrHpfQEditor, fltrHpfQLabel, "Fltr HPF Q");
+			comboBoxData.comboBox.setLookAndFeel (&noArrowComboBoxLnF);
+			comboBoxData.comboBox.setTooltip (comboBoxData.toolTip);
+			comboBoxData.comboBox.clear (juce::dontSendNotification);
 
-	fltrLpfMaxFreqEditor.setTooltip ("Fltr LPF Max Freq");
-	fltrLpfMaxFreqEditor.getMinValueCallback = [this] () { return 20; };
-	fltrLpfMaxFreqEditor.getMaxValueCallback = [this] () { return 20000; };
-	fltrLpfMaxFreqEditor.toStringCallback = [this] (int value) { return juce::String (value); };
-	fltrLpfMaxFreqEditor.updateDataCallback = [this] (int value) { fltrLpfMaxFreqUiChanged (value); };
-	fltrLpfMaxFreqEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 25;
-			else
-				return 100;
-		} ();
-		const auto newValue { settingsProperties.getFltrLpfMaxFreq () + (multiplier * direction) };
-		fltrLpfMaxFreqEditor.setValue (newValue);
-	};
-	fltrLpfMaxFreqEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fltrLpfMaxFreqEditor.setValue (20000);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fltrLpfMaxFreqEditor.setValue (uneditedSettingsProperties.getFltrLpfMaxFreq ());
-		});
+			for (const auto& menuItem : menuItems)
+				comboBoxData.comboBox.addItem (menuItem.text, menuItem.value);
 
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupIntEditor (fltrLpfMaxFreqEditor, fltrLpfMaxFreqLabel, "Fltr LPF Max Freq");
-
-	fltrLpfMinFreqEditor.setTooltip ("Fltr LPF Min Freq");
-	fltrLpfMinFreqEditor.getMinValueCallback = [this] () { return 20; };
-	fltrLpfMinFreqEditor.getMaxValueCallback = [this] () { return 20000; };
-	fltrLpfMinFreqEditor.toStringCallback = [this] (int value) { return juce::String (value); };
-	fltrLpfMinFreqEditor.updateDataCallback = [this] (int value) { fltrLpfMinFreqUiChanged (value); };
-	fltrLpfMinFreqEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 25;
-			else
-				return 100;
-		} ();
-		const auto newValue { settingsProperties.getFltrLpfMinFreq () + (multiplier * direction) };
-		fltrLpfMinFreqEditor.setValue (newValue);
-	};
-	fltrLpfMinFreqEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fltrLpfMinFreqEditor.setValue (200);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fltrLpfMinFreqEditor.setValue (uneditedSettingsProperties.getFltrLpfMinFreq ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupIntEditor (fltrLpfMinFreqEditor, fltrLpfMinFreqLabel, "Fltr LPF Min Freq");
-
-	fltrLpfQEditor.setTooltip ("Fltr LPF Q");
-	fltrLpfQEditor.getMinValueCallback = [this] () { return 0.25; };
-	fltrLpfQEditor.getMaxValueCallback = [this] () { return 4.0; };
-	fltrLpfQEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fltrLpfQEditor.updateDataCallback = [this] (float value) { fltrLpfQUiChanged (static_cast<float> (value)); };
-	fltrLpfQEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
+			comboBoxData.comboBox.onDragCallback = [updateFromDragCallback] (DragSpeed dragSpeed, int direction)
 			{
-				if (dragSpeed == DragSpeed::slow)
-					return 0.001f;
-				else if (dragSpeed == DragSpeed::medium)
-					return 0.1f;
-				else
-					return 1.0f;
-			} ();
-		const auto newValue { settingsProperties.getFltrLpfQ () + (multiplier * direction) };
-		fltrLpfQEditor.setValue (newValue);
-	};
-	fltrLpfQEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fltrLpfQEditor.setValue (0.707f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fltrLpfQEditor.setValue (uneditedSettingsProperties.getFltrLpfQ ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fltrLpfQEditor, fltrLpfQLabel, "Fltr LPF Q");
-
-	fxChorusCenterEditor.setTooltip ("FX Chorus Center");
-	fxChorusCenterEditor.getMinValueCallback = [this] () { return 1.0; };
-	fxChorusCenterEditor.getMaxValueCallback = [this] () { return 20.0; };
-	fxChorusCenterEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxChorusCenterEditor.updateDataCallback = [this] (float value) { fxChorusCenterUiChanged (static_cast<float> (value)); };
-	fxChorusCenterEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 1.0;
-			else if (dragSpeed == DragSpeed::medium)
-				return 3.0;
-			else
-				return 10.0;
-		} ();
-		const auto newValue { settingsProperties.getFxChorusCenter () + (multiplier * direction) };
-		fxChorusCenterEditor.setValue (newValue);
-	};
-	fxChorusCenterEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxChorusCenterEditor.setValue (12.0f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxChorusCenterEditor.setValue (uneditedSettingsProperties.getFxChorusCenter ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxChorusCenterEditor, fxChorusCenterLabel, "FX Chorus Center");
-
-	fxChorusDepthEditor.setTooltip ("FX Chorus Depth");
-	fxChorusDepthEditor.getMinValueCallback = [this] () { return 1.0; };
-	fxChorusDepthEditor.getMaxValueCallback = [this] () { return settingsProperties.getFxChorusCenter (); };
-	fxChorusDepthEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxChorusDepthEditor.updateDataCallback = [this] (float value) { fxChorusDepthUiChanged (static_cast<float> (value)); };
-	fxChorusDepthEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 1.0;
-			else if (dragSpeed == DragSpeed::medium)
-				return 3.0;
-			else
-				return 10.0;
-		} ();
-		const auto newValue { settingsProperties.getFxChorusDepth () + (multiplier * direction) };
-		fxChorusDepthEditor.setValue (newValue);
-	};
-	fxChorusDepthEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxChorusDepthEditor.setValue (5.0f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxChorusDepthEditor.setValue (uneditedSettingsProperties.getFxChorusDepth ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxChorusDepthEditor, fxChorusDepthLabel, "FX Chorus Depth");
-
-	fxChorusLfoBEditor.setTooltip ("FX Chorus LFO B");
-	fxChorusLfoBEditor.getMinValueCallback = [this] () { return 0.002; };
-	fxChorusLfoBEditor.getMaxValueCallback = [this] () { return 3.0; };
-	fxChorusLfoBEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxChorusLfoBEditor.updateDataCallback = [this] (float value) { fxChorusLfoBUiChanged (static_cast<float> (value)); };
-	fxChorusLfoBEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.001f;
-			else if (dragSpeed == DragSpeed::medium)
-				return 0.1f;
-			else
-				return 0.5f;
-		} ();
-		const auto newValue { settingsProperties.getFxChorusLfoB () + (multiplier * direction) };
-		fxChorusLfoBEditor.setValue (newValue);
-	};
-	fxChorusLfoBEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxChorusLfoBEditor.setValue (0.002f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxChorusLfoBEditor.setValue (uneditedSettingsProperties.getFxChorusLfoB ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxChorusLfoBEditor, fxChorusLfoBLabel, "FX Chorus LFO B");
-
-	fxChorusLfoTEditor.setTooltip ("FX Chorus LFO T");
-	fxChorusLfoTEditor.getMinValueCallback = [this] () { return 0.002; };
-	fxChorusLfoTEditor.getMaxValueCallback = [this] () { return 3.0; };
-	fxChorusLfoTEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxChorusLfoTEditor.updateDataCallback = [this] (float value) { fxChorusLfoTUiChanged (static_cast<float> (value)); };
-	fxChorusLfoTEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.001f;
-			else if (dragSpeed == DragSpeed::medium)
-				return 0.1f;
-			else
-				return 0.5f;
-		} ();
-		const auto newValue { settingsProperties.getFxChorusLfoT () + (multiplier * direction) };
-		fxChorusLfoTEditor.setValue (newValue);
-	};
-	fxChorusLfoTEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxChorusLfoTEditor.setValue (3);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxChorusLfoTEditor.setValue (uneditedSettingsProperties.getFxChorusLfoT ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxChorusLfoTEditor, fxChorusLfoTLabel, "FX Chorus LFO T");
-
-	fxChorusMixEditor.setTooltip ("FX Chorus Mix");
-	fxChorusMixEditor.getMinValueCallback = [this] () { return 0.1; };
-	fxChorusMixEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxChorusMixEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxChorusMixEditor.updateDataCallback = [this] (float value) { fxChorusMixUiChanged (static_cast<float> (value)); };
-	fxChorusMixEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow || dragSpeed == DragSpeed::medium)
-				return 0.1f;
-			else
-				return 0.3f;
-		} ();
-		const auto newValue { settingsProperties.getFxChorusMix () + (multiplier * direction) };
-		fxChorusMixEditor.setValue (newValue);
-	};
-	fxChorusMixEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxChorusMixEditor.setValue (1.0f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxChorusMixEditor.setValue (uneditedSettingsProperties.getFxChorusMix ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxChorusMixEditor, fxChorusMixLabel, "FX Chorus Mix");
-
-	fxChorusSpreadEditor.setTooltip ("FX Chorus Spread");
-	fxChorusSpreadEditor.getMinValueCallback = [this] () { return 0.01; };
-	fxChorusSpreadEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxChorusSpreadEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxChorusSpreadEditor.updateDataCallback = [this] (float value) { fxChorusSpreadUiChanged (static_cast<float> (value)); };
-	fxChorusSpreadEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.01f;
-			else if (dragSpeed == DragSpeed::medium)
-				return 0.1f;
-			else
-				return 0.3f;
-		} ();
-		const auto newValue { settingsProperties.getFxChorusSpread () + (multiplier * direction) };
-		fxChorusSpreadEditor.setValue (newValue);
-	};
-	fxChorusSpreadEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxChorusSpreadEditor.setValue (0.01f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxChorusSpreadEditor.setValue (uneditedSettingsProperties.getFxChorusSpread ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxChorusSpreadEditor, fxChorusSpreadLabel, "FX Chorus Spread");
-
-	// Integer # of Taps (1–4)
-	fxChorusTapsComboBox.setLookAndFeel (&noArrowComboBoxLnF);
-	fxChorusTapsComboBox.setTooltip ("");
-	fxChorusTapsComboBox.addItem ("1", 1);
-	fxChorusTapsComboBox.addItem ("2", 2);
-	fxChorusTapsComboBox.addItem ("3", 3);
-	fxChorusTapsComboBox.addItem ("4", 4);
-	fxChorusTapsComboBox.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
-		const auto fxChorusTaps { fxChorusTapsComboBox.getSelectedId () };
-		settingsProperties.setFxChorusTaps (std::clamp (fxChorusTaps + scrollAmount, 1, 4), true);
-	};
-	fxChorusTapsComboBox.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxChorusTapsComboBox.setSelectedId (4, juce::NotificationType::sendNotification);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxChorusTapsComboBox.setSelectedId (uneditedSettingsProperties.getFxChorusTaps () + 1, juce::NotificationType::sendNotification);
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupComboBox (fxChorusTapsComboBox, fxChorusTapsLabel, "FX Chorus Taps");
-
-	// 0: -5 to 5V, 1: 0 to 5V 
-	fxCvUnipolarComboBox.setLookAndFeel (&noArrowComboBoxLnF);
-	fxCvUnipolarComboBox.setTooltip ("");
-	fxCvUnipolarComboBox.addItem ("-5v to 5v", 1);
-	fxCvUnipolarComboBox.addItem ("0v to 5v", 2);
-	fxCvUnipolarComboBox.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
-		const auto fxCvUnipolar { fxCvUnipolarComboBox.getSelectedId () - 1 };
-		settingsProperties.setFxCvUnipolar (std::clamp (fxCvUnipolar + scrollAmount, 0, 1), true);
-	};
-	fxCvUnipolarComboBox.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxCvUnipolarComboBox.setSelectedId (2, juce::NotificationType::sendNotification);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxCvUnipolarComboBox.setSelectedId (uneditedSettingsProperties.getFxCvUnipolar () + 1, juce::NotificationType::sendNotification);
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupComboBox (fxCvUnipolarComboBox, fxCvUnipolarLabel, "FX CV Unipolar");
-
-	fxDjfilterHpfMaxEditor.setTooltip ("FX DJ Filter HPF Max");
-	fxDjfilterHpfMaxEditor.getMinValueCallback = [this] () { return 20; };
-	fxDjfilterHpfMaxEditor.getMaxValueCallback = [this] () { return 20000; };
-	fxDjfilterHpfMaxEditor.toStringCallback = [this] (int value) { return juce::String (value); };
-	fxDjfilterHpfMaxEditor.updateDataCallback = [this] (int value) { fxDjfilterHpfMaxUiChanged (value); };
-	fxDjfilterHpfMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 25;
-			else
-				return 100;
-		} ();
-		const auto newValue { settingsProperties.getFxDjfilterHpfMax () + (multiplier * direction) };
-		fxDjfilterHpfMaxEditor.setValue (newValue);
-	};
-	fxDjfilterHpfMaxEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxDjfilterHpfMaxEditor.setValue (14000);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxDjfilterHpfMaxEditor.setValue (uneditedSettingsProperties.getFxDjfilterHpfMax ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupIntEditor (fxDjfilterHpfMaxEditor, fxDjfilterHpfMaxLabel, "FX DJ Filter HPF Max");
-
-	fxDjfilterHpfMinEditor.setTooltip ("FX DJ Filter HPF Min");
-	fxDjfilterHpfMinEditor.getMinValueCallback = [this] () { return 20; };
-	fxDjfilterHpfMinEditor.getMaxValueCallback = [this] () { return 20000; };
-	fxDjfilterHpfMinEditor.toStringCallback = [this] (int value) { return juce::String (value); };
-	fxDjfilterHpfMinEditor.updateDataCallback = [this] (int value) { fxDjfilterHpfMinUiChanged (value); };
-	fxDjfilterHpfMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
+				const auto valueOffset { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
+				updateFromDragCallback (valueOffset);
+			};
+			comboBoxData.comboBox.onPopupMenuCallback = [this, comboBox = &comboBoxData.comboBox, getDefaultValue, getUneditedValue, menuHeader = comboBoxData.menuHeader] ()
 			{
-				if (dragSpeed == DragSpeed::slow)
-					return 1;
-				else if (dragSpeed == DragSpeed::medium)
-					return 25;
-				else
-					return 100;
-			} ();
-		const auto newValue { settingsProperties.getFxDjfilterHpfMin () + (multiplier * direction) };
-		fxDjfilterHpfMinEditor.setValue (newValue);
-	};
-	fxDjfilterHpfMinEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxDjfilterHpfMinEditor.setValue (100);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxDjfilterHpfMinEditor.setValue (uneditedSettingsProperties.getFxDjfilterHpfMin ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupIntEditor (fxDjfilterHpfMinEditor, fxDjfilterHpfMinLabel, "FX DJ Filter HPF Min");
-
-	fxDjfilterLpfMaxEditor.setTooltip ("FX DJ Filter LPF Max");
-	fxDjfilterLpfMaxEditor.getMinValueCallback = [this] () { return 20; };
-	fxDjfilterLpfMaxEditor.getMaxValueCallback = [this] () { return 20000; };
-	fxDjfilterLpfMaxEditor.toStringCallback = [this] (int value) { return juce::String (value); };
-	fxDjfilterLpfMaxEditor.updateDataCallback = [this] (int value) { fxDjfilterLpfMaxUiChanged (value); };
-	fxDjfilterLpfMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 25;
-			else
-				return 100;
-		} ();
-		const auto newValue { settingsProperties.getFxDjfilterLpfMax () + (multiplier * direction) };
-		fxDjfilterLpfMaxEditor.setValue (newValue);
-	};
-	fxDjfilterLpfMaxEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxDjfilterLpfMaxEditor.setValue (20000);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxDjfilterLpfMaxEditor.setValue (uneditedSettingsProperties.getFxDjfilterLpfMax ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupIntEditor (fxDjfilterLpfMaxEditor, fxDjfilterLpfMaxLabel, "FX DJ Filter LPF Max");
-
-	fxDjfilterLpfMinEditor.setTooltip ("FX DJ Filter LPF Min");
-	fxDjfilterLpfMinEditor.getMinValueCallback = [this] () { return 20; };
-	fxDjfilterLpfMinEditor.getMaxValueCallback = [this] () { return 20000; };
-	fxDjfilterLpfMinEditor.toStringCallback = [this] (int value) { return juce::String (value); };
-	fxDjfilterLpfMinEditor.updateDataCallback = [this] (int value) { fxDjfilterLpfMinUiChanged (value); };
-	fxDjfilterLpfMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 25;
-			else
-				return 100;
-		} ();
-		const auto newValue { settingsProperties.getFxDjfilterLpfMin () + (multiplier * direction) };
-		fxDjfilterLpfMinEditor.setValue (newValue);
-	};
-	fxDjfilterLpfMinEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxDjfilterLpfMinEditor.setValue (200);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxDjfilterLpfMinEditor.setValue (uneditedSettingsProperties.getFxDjfilterLpfMin ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupIntEditor (fxDjfilterLpfMinEditor, fxDjfilterLpfMinLabel, "FX DJ Filter LPF Min");
-
-	fxDjfilterQGainReductionEditor.setTooltip ("FX DJ Filter Q Gain Reduction");
-	fxDjfilterQGainReductionEditor.getMinValueCallback = [this] () { return 0.01; };
-	fxDjfilterQGainReductionEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxDjfilterQGainReductionEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxDjfilterQGainReductionEditor.updateDataCallback = [this] (float value) { fxDjfilterQGainReductionUiChanged (static_cast<float> (value)); };
-	fxDjfilterQGainReductionEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.01f;
-			else if (dragSpeed == DragSpeed::medium)
-				return 0.1f;
-			else
-				return 0.3f;
-		} ();
-		const auto newValue { settingsProperties.getFxDjfilterQGainReduction () + (multiplier * direction) };
-		fxDjfilterQGainReductionEditor.setValue (newValue);
-	};
-	fxDjfilterQGainReductionEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxDjfilterQGainReductionEditor.setValue (0.12f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxDjfilterQGainReductionEditor.setValue (uneditedSettingsProperties.getFxDjfilterQGainReduction ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxDjfilterQGainReductionEditor, fxDjfilterQGainReductionLabel, "FX DJ Filter Q Gain Reduction");
-
-	fxDjfilterQMaxEditor.setTooltip ("FX DJ Filter Q Max");
-	fxDjfilterQMaxEditor.getMinValueCallback = [this] () { return 0.0; };
-	fxDjfilterQMaxEditor.getMaxValueCallback = [this] () { return 20.0; };
-	fxDjfilterQMaxEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxDjfilterQMaxEditor.updateDataCallback = [this] (float value) { fxDjfilterQMaxUiChanged (static_cast<float> (value)); };
-	fxDjfilterQMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.1f;
-			else if (dragSpeed == DragSpeed::medium)
-				return 3.0f;
-			else
-				return 10.0f;
-		} ();
-		const auto newValue { settingsProperties.getFxDjfilterQMax () + (multiplier * direction) };
-		fxDjfilterQMaxEditor.setValue (newValue);
-	};
-	fxDjfilterQMaxEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxDjfilterQMaxEditor.setValue (4.0f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxDjfilterQMaxEditor.setValue (uneditedSettingsProperties.getFxDjfilterQMax ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxDjfilterQMaxEditor, fxDjfilterQMaxLabel, "FX DJ Filter Q Max");
-
-	fxDjfilterQMinEditor.setTooltip ("FX DJ Filter Q Min");
-	fxDjfilterQMinEditor.getMinValueCallback = [this] () { return 0.0; };
-	fxDjfilterQMinEditor.getMaxValueCallback = [this] () { return 20.0; };
-	fxDjfilterQMinEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxDjfilterQMinEditor.updateDataCallback = [this] (float value) { fxDjfilterQMinUiChanged (static_cast<float> (value)); };
-	fxDjfilterQMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.1f;
-			else if (dragSpeed == DragSpeed::medium)
-				return 3.0f;
-			else
-				return 10.0f;
-		} ();
-		const auto newValue { settingsProperties.getFxDjfilterQMin () + (multiplier * direction) };
-		fxDjfilterQMinEditor.setValue (newValue);
-	};
-	fxDjfilterQMinEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxDjfilterQMinEditor.setValue (0.5f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxDjfilterQMinEditor.setValue (uneditedSettingsProperties.getFxDjfilterQMin ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxDjfilterQMinEditor, fxDjfilterQMinLabel, "FX DJ Filter Q Min");
-
-	fxDubEchoHpfEditor.setTooltip ("FX Dub Echo HPF");
-	fxDubEchoHpfEditor.getMinValueCallback = [this] () { return 20; };
-	fxDubEchoHpfEditor.getMaxValueCallback = [this] () { return 20000; };
-	fxDubEchoHpfEditor.toStringCallback = [this] (int value) { return juce::String (value); };
-	fxDubEchoHpfEditor.updateDataCallback = [this] (int value) { fxDubEchoHpfUiChanged (value); };
-	fxDubEchoHpfEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 25;
-			else
-				return 100;
-		} ();
-		const auto newValue { settingsProperties.getFxDubEchoHpf () + (multiplier * direction) };
-		fxDubEchoHpfEditor.setValue (newValue);
-	};
-	fxDubEchoHpfEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxDubEchoHpfEditor.setValue (400);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxDubEchoHpfEditor.setValue (uneditedSettingsProperties.getFxDubEchoHpf ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupIntEditor (fxDubEchoHpfEditor, fxDubEchoHpfLabel, "FX Dub Echo HPF");
-
-	fxDubEchoLpfEditor.setTooltip ("FX Dub Echo LPF");
-	fxDubEchoLpfEditor.getMinValueCallback = [this] () { return 20; };
-	fxDubEchoLpfEditor.getMaxValueCallback = [this] () { return 20000; };
-	fxDubEchoLpfEditor.toStringCallback = [this] (int value) { return juce::String (value); };
-	fxDubEchoLpfEditor.updateDataCallback = [this] (int value) { fxDubEchoLpfUiChanged (value); };
-	fxDubEchoLpfEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 25;
-			else
-				return 100;
-		} ();
-		const auto newValue { settingsProperties.getFxDubEchoLpf () + (multiplier * direction) };
-		fxDubEchoLpfEditor.setValue (newValue);
-	};
-	fxDubEchoLpfEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxDubEchoLpfEditor.setValue (8400);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxDubEchoLpfEditor.setValue (uneditedSettingsProperties.getFxDubEchoLpf ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupIntEditor (fxDubEchoLpfEditor, fxDubEchoLpfLabel, "FX Dub Echo LPF");
-
-	fxDubEchoMixEditor.setTooltip ("FX Dub Echo Mix");
-	fxDubEchoMixEditor.getMinValueCallback = [this] () { return 0.0; };
-	fxDubEchoMixEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxDubEchoMixEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxDubEchoMixEditor.updateDataCallback = [this] (float value) { fxDubEchoMixUiChanged (static_cast<float> (value)); };
-	fxDubEchoMixEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.1f;
-			else if (dragSpeed == DragSpeed::medium)
-				return 0.3f;
-			else
-				return 0.5f;
-		} ();
-		const auto newValue { settingsProperties.getFxDubEchoMix () + (multiplier * direction) };
-		fxDubEchoMixEditor.setValue (newValue);
-	};
-	fxDubEchoMixEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxDubEchoMixEditor.setValue (0.38f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxDubEchoMixEditor.setValue (uneditedSettingsProperties.getFxDubEchoMix ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxDubEchoMixEditor, fxDubEchoMixLabel, "FX Dub Echo Mix");
-
-	fxDubEchoTminEditor.setTooltip ("FX Dub Echo Tmin");
-	fxDubEchoTminEditor.getMinValueCallback = [this] () { return 0; };
-	fxDubEchoTminEditor.getMaxValueCallback = [this] () { return 100; };
-	fxDubEchoTminEditor.toStringCallback = [this] (int value) { return juce::String (value); };
-	fxDubEchoTminEditor.updateDataCallback = [this] (int value) { fxDubEchoTminUiChanged (value); };
-	fxDubEchoTminEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 10;
-			else
-				return 25;
-		} ();
-		const auto newValue { settingsProperties.getFxDubEchoTmin () + (multiplier * direction) };
-		fxDubEchoTminEditor.setValue (newValue);
-	};
-	fxDubEchoTminEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxDubEchoTminEditor.setValue (30);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxDubEchoTminEditor.setValue (uneditedSettingsProperties.getFxDubEchoTmin ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupIntEditor (fxDubEchoTminEditor, fxDubEchoTminLabel, "FX Dub Echo Tmin");
-
-	fxGlitchCrushTimeMaxEditor.setTooltip ("FX Glitch Crush Time Max");
-	fxGlitchCrushTimeMaxEditor.getMinValueCallback = [this] () { return 0.0; };
-	fxGlitchCrushTimeMaxEditor.getMaxValueCallback = [this] () { return 100.0; };
-	fxGlitchCrushTimeMaxEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxGlitchCrushTimeMaxEditor.updateDataCallback = [this] (float value) { fxGlitchCrushTimeMaxUiChanged (static_cast<float> (value)); };
-	fxGlitchCrushTimeMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 5.0;
-			else
-				return 25.0;
-		} ();
-		const auto newValue { settingsProperties.getFxGlitchCrushTimeMax () + (multiplier * direction) };
-		fxGlitchCrushTimeMaxEditor.setValue (newValue);
-	};
-	fxGlitchCrushTimeMaxEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxGlitchCrushTimeMaxEditor.setValue (50.0f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxGlitchCrushTimeMaxEditor.setValue (uneditedSettingsProperties.getFxGlitchCrushTimeMax ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxGlitchCrushTimeMaxEditor, fxGlitchCrushTimeMaxLabel, "FX Glitch Crush Time Max");
-
-	fxGlitchCrushTimeMinEditor.setTooltip ("FX Glitch Crush Time Min");
-	fxGlitchCrushTimeMinEditor.getMinValueCallback = [this] () { return 0.0; };
-	fxGlitchCrushTimeMinEditor.getMaxValueCallback = [this] () { return 100.0; };
-	fxGlitchCrushTimeMinEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxGlitchCrushTimeMinEditor.updateDataCallback = [this] (float value) { fxGlitchCrushTimeMinUiChanged (static_cast<float> (value)); };
-	fxGlitchCrushTimeMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-			{
-				if (dragSpeed == DragSpeed::slow)
-					return 0.1;
-				else if (dragSpeed == DragSpeed::medium)
-					return 5.0;
-				else
-					return 25.0;
-			} ();
-		const auto newValue { settingsProperties.getFxGlitchCrushTimeMin () + (multiplier * direction) };
-		fxGlitchCrushTimeMinEditor.setValue (newValue);
-	};
-	fxGlitchCrushTimeMinEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxGlitchCrushTimeMinEditor.setValue (10.0f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxGlitchCrushTimeMinEditor.setValue (uneditedSettingsProperties.getFxGlitchCrushTimeMin ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxGlitchCrushTimeMinEditor, fxGlitchCrushTimeMinLabel, "FX Glitch Crush Time Min");
-
-	fxGlitchDropKeepLevelMaxEditor.setTooltip ("FX Glitch Drop Keep Level Max");
-	fxGlitchDropKeepLevelMaxEditor.getMinValueCallback = [this] () { return 0.0; };
-	fxGlitchDropKeepLevelMaxEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxGlitchDropKeepLevelMaxEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxGlitchDropKeepLevelMaxEditor.updateDataCallback = [this] (float value) { fxGlitchDropKeepLevelMaxUiChanged (static_cast<float> (value)); };
-	fxGlitchDropKeepLevelMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 0.3;
-			else
-				return 0.5;
-		} ();
-		const auto newValue { settingsProperties.getFxGlitchDropKeepLevelMax () + (multiplier * direction) };
-		fxGlitchDropKeepLevelMaxEditor.setValue (newValue);
-	};
-	fxGlitchDropKeepLevelMaxEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxGlitchDropKeepLevelMaxEditor.setValue (0.75f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxGlitchDropKeepLevelMaxEditor.setValue (uneditedSettingsProperties.getFxGlitchDropKeepLevelMax ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxGlitchDropKeepLevelMaxEditor, fxGlitchDropKeepLevelMaxLabel, "FX Glitch Drop Keep Level Max");
-
-	fxGlitchDropKeepLevelMinEditor.setTooltip ("FX Glitch Drop Keep Level Min");
-	fxGlitchDropKeepLevelMinEditor.getMinValueCallback = [this] () { return 0.0; };
-	fxGlitchDropKeepLevelMinEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxGlitchDropKeepLevelMinEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxGlitchDropKeepLevelMinEditor.updateDataCallback = [this] (float value) { fxGlitchDropKeepLevelMinUiChanged (static_cast<float> (value)); };
-	fxGlitchDropKeepLevelMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 0.3;
-			else
-				return 0.5;
-		} ();
-		const auto newValue { settingsProperties.getFxGlitchDropKeepLevelMin () + (multiplier * direction) };
-		fxGlitchDropKeepLevelMinEditor.setValue (newValue);
-	};
-	fxGlitchDropKeepLevelMinEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxGlitchDropKeepLevelMinEditor.setValue (0.0f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxGlitchDropKeepLevelMinEditor.setValue (uneditedSettingsProperties.getFxGlitchDropKeepLevelMin ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxGlitchDropKeepLevelMinEditor, fxGlitchDropKeepLevelMinLabel, "FX Glitch Drop Keep Level Min");
-
-	fxGlitchDropKeepTimeMaxEditor.setTooltip ("FX Glitch Drop Keep Time Max");
-	fxGlitchDropKeepTimeMaxEditor.getMinValueCallback = [this] () { return 0.0; };
-	fxGlitchDropKeepTimeMaxEditor.getMaxValueCallback = [this] () { return 100.0; };
-	fxGlitchDropKeepTimeMaxEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxGlitchDropKeepTimeMaxEditor.updateDataCallback = [this] (float value) { fxGlitchDropKeepTimeMaxUiChanged (static_cast<float> (value)); };
-	fxGlitchDropKeepTimeMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 10.0;
-			else
-				return 25.0;
-		} ();
-		const auto newValue { settingsProperties.getFxGlitchDropKeepTimeMax () + (multiplier * direction) };
-		fxGlitchDropKeepTimeMaxEditor.setValue (newValue);
-	};
-	fxGlitchDropKeepTimeMaxEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxGlitchDropKeepTimeMaxEditor.setValue (40.0f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxGlitchDropKeepTimeMaxEditor.setValue (uneditedSettingsProperties.getFxGlitchDropKeepTimeMax ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxGlitchDropKeepTimeMaxEditor, fxGlitchDropKeepTimeMaxLabel, "FX Glitch Drop Keep Time Max");
-
-	fxGlitchDropKeepTimeMinEditor.setTooltip ("FX Glitch Drop Keep Time Min");
-	fxGlitchDropKeepTimeMinEditor.getMinValueCallback = [this] () { return 0.0; };
-	fxGlitchDropKeepTimeMinEditor.getMaxValueCallback = [this] () { return 100.0; };
-	fxGlitchDropKeepTimeMinEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxGlitchDropKeepTimeMinEditor.updateDataCallback = [this] (float value) { fxGlitchDropKeepTimeMinUiChanged (static_cast<float> (value)); };
-	fxGlitchDropKeepTimeMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 10.0;
-			else
-				return 25.0;
-		} ();
-		const auto newValue { settingsProperties.getFxGlitchDropKeepTimeMin () + (multiplier * direction) };
-		fxGlitchDropKeepTimeMinEditor.setValue (newValue);
-	};
-	fxGlitchDropKeepTimeMinEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxGlitchDropKeepTimeMinEditor.setValue (4.0f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxGlitchDropKeepTimeMinEditor.setValue (uneditedSettingsProperties.getFxGlitchDropKeepTimeMin ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxGlitchDropKeepTimeMinEditor, fxGlitchDropKeepTimeMinLabel, "FX Glitch Drop Keep Time Min");
-
-	fxGlitchMicroloopPlayTMaxEditor.setTooltip ("FX Glitch Microloop Play T Max");
-	fxGlitchMicroloopPlayTMaxEditor.getMinValueCallback = [this] () { return 0.0; };
-	fxGlitchMicroloopPlayTMaxEditor.getMaxValueCallback = [this] () { return 100.0; };
-	fxGlitchMicroloopPlayTMaxEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxGlitchMicroloopPlayTMaxEditor.updateDataCallback = [this] (float value) { fxGlitchMicroloopPlayTMaxUiChanged (static_cast<float> (value)); };
-	fxGlitchMicroloopPlayTMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 10.0;
-			else
-				return 25.0;
-		} ();
-		const auto newValue { settingsProperties.getFxGlitchMicroloopPlayTMax () + (multiplier * direction) };
-		fxGlitchMicroloopPlayTMaxEditor.setValue (newValue);
-	};
-	fxGlitchMicroloopPlayTMaxEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxGlitchMicroloopPlayTMaxEditor.setValue (15.0f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxGlitchMicroloopPlayTMaxEditor.setValue (uneditedSettingsProperties.getFxGlitchMicroloopPlayTMax ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxGlitchMicroloopPlayTMaxEditor, fxGlitchMicroloopPlayTMaxLabel, "FX Glitch Microloop Play T Max");
-
-	fxGlitchMicroloopPlayTMinEditor.setTooltip ("FX Glitch Microloop Play T Min");
-	fxGlitchMicroloopPlayTMinEditor.getMinValueCallback = [this] () { return 0.0; };
-	fxGlitchMicroloopPlayTMinEditor.getMaxValueCallback = [this] () { return 100.0; };
-	fxGlitchMicroloopPlayTMinEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxGlitchMicroloopPlayTMinEditor.updateDataCallback = [this] (float value) { fxGlitchMicroloopPlayTMinUiChanged (static_cast<float> (value)); };
-	fxGlitchMicroloopPlayTMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 10.0;
-			else
-				return 25.0;
-		} ();
-		const auto newValue { settingsProperties.getFxGlitchMicroloopPlayTMin () + (multiplier * direction) };
-		fxGlitchMicroloopPlayTMinEditor.setValue (newValue);
-	};
-	fxGlitchMicroloopPlayTMinEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxGlitchMicroloopPlayTMinEditor.setValue (5.0f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxGlitchMicroloopPlayTMinEditor.setValue (uneditedSettingsProperties.getFxGlitchMicroloopPlayTMin ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxGlitchMicroloopPlayTMinEditor, fxGlitchMicroloopPlayTMinLabel, "FX Glitch Microloop Play T Min");
-
-	fxGlitchMicroloopSmplTMaxEditor.setTooltip ("FX Glitch Microloop Smpl T Max");
-	fxGlitchMicroloopSmplTMaxEditor.getMinValueCallback = [this] () { return 0.0; };
-	fxGlitchMicroloopSmplTMaxEditor.getMaxValueCallback = [this] () { return 100.0; };
-	fxGlitchMicroloopSmplTMaxEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxGlitchMicroloopSmplTMaxEditor.updateDataCallback = [this] (float value) { fxGlitchMicroloopSmplTMaxUiChanged (static_cast<float> (value)); };
-	fxGlitchMicroloopSmplTMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 10.0;
-			else
-				return 25.0;
-		} ();
-		const auto newValue { settingsProperties.getFxGlitchMicroloopSmplTMax () + (multiplier * direction) };
-		fxGlitchMicroloopSmplTMaxEditor.setValue (newValue);
-	};
-	fxGlitchMicroloopSmplTMaxEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxGlitchMicroloopSmplTMaxEditor.setValue (3.0f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxGlitchMicroloopSmplTMaxEditor.setValue (uneditedSettingsProperties.getFxGlitchMicroloopSmplTMax ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxGlitchMicroloopSmplTMaxEditor, fxGlitchMicroloopSmplTMaxLabel, "FX Glitch Microloop Smpl T Max");
-
-	fxGlitchMicroloopSmplTMinEditor.setTooltip ("FX Glitch Microloop Smpl T Min");
-	fxGlitchMicroloopSmplTMinEditor.getMinValueCallback = [this] () { return 0.0; };
-	fxGlitchMicroloopSmplTMinEditor.getMaxValueCallback = [this] () { return 100.0; };
-	fxGlitchMicroloopSmplTMinEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxGlitchMicroloopSmplTMinEditor.updateDataCallback = [this] (float value) { fxGlitchMicroloopSmplTMinUiChanged (static_cast<float> (value)); };
-	fxGlitchMicroloopSmplTMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 10.0;
-			else
-				return 25.0;
-		} ();
-		const auto newValue { settingsProperties.getFxGlitchMicroloopSmplTMin () + (multiplier * direction) };
-		fxGlitchMicroloopSmplTMinEditor.setValue (newValue);
-	};
-	fxGlitchMicroloopSmplTMinEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxGlitchMicroloopSmplTMinEditor.setValue (0.2f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxGlitchMicroloopSmplTMinEditor.setValue (uneditedSettingsProperties.getFxGlitchMicroloopSmplTMin ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxGlitchMicroloopSmplTMinEditor, fxGlitchMicroloopSmplTMinLabel, "FX Glitch Microloop Smpl T Min");
-
-	fxGlitchProbabilityMaxEditor.setTooltip ("FX Glitch Probability Max");
-	fxGlitchProbabilityMaxEditor.getMinValueCallback = [this] () { return 0.0; };
-	fxGlitchProbabilityMaxEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxGlitchProbabilityMaxEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxGlitchProbabilityMaxEditor.updateDataCallback = [this] (float value) { fxGlitchProbabilityMaxUiChanged (static_cast<float> (value)); };
-	fxGlitchProbabilityMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 0.3;
-			else
-				return 0.5;
-		} ();
-		const auto newValue { settingsProperties.getFxGlitchProbabilityMax () + (multiplier * direction) };
-		fxGlitchProbabilityMaxEditor.setValue (newValue);
-	};
-	fxGlitchProbabilityMaxEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxGlitchProbabilityMaxEditor.setValue (0.003f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxGlitchProbabilityMaxEditor.setValue (uneditedSettingsProperties.getFxGlitchProbabilityMax ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxGlitchProbabilityMaxEditor, fxGlitchProbabilityMaxLabel, "FX Glitch Probability Max");
-
-	fxGlitchProbabilityMinEditor.setTooltip ("FX Glitch Probability Min");
-	fxGlitchProbabilityMinEditor.getMinValueCallback = [this] () { return 0.0; };
-	fxGlitchProbabilityMinEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxGlitchProbabilityMinEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 5); };
-	fxGlitchProbabilityMinEditor.updateDataCallback = [this] (float value) { fxGlitchProbabilityMinUiChanged (static_cast<float> (value)); };
-	fxGlitchProbabilityMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 0.3;
-			else
-				return 0.5;
-		} ();
-		const auto newValue { settingsProperties.getFxGlitchProbabilityMin () + (multiplier * direction) };
-		fxGlitchProbabilityMinEditor.setValue (newValue);
-	};
-	fxGlitchProbabilityMinEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxGlitchProbabilityMinEditor.setValue (0.00005f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxGlitchProbabilityMinEditor.setValue (uneditedSettingsProperties.getFxGlitchProbabilityMin ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxGlitchProbabilityMinEditor, fxGlitchProbabilityMinLabel, "FX Glitch Probability Min");
-
-	fxGlitchStutterNumMaxEditor.setTooltip ("FX Glitch Stutter Num Max");
-	fxGlitchStutterNumMaxEditor.getMinValueCallback = [this] () { return 0; };
-	fxGlitchStutterNumMaxEditor.getMaxValueCallback = [this] () { return 100; };
-	fxGlitchStutterNumMaxEditor.toStringCallback = [this] (int value) { return juce::String (value); };
-	fxGlitchStutterNumMaxEditor.updateDataCallback = [this] (int value) { fxGlitchStutterNumMaxUiChanged (value); };
-	fxGlitchStutterNumMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 10;
-			else
-				return 25;
-		} ();
-		const auto newValue { settingsProperties.getFxGlitchStutterNumMax () + (multiplier * direction) };
-		fxGlitchStutterNumMaxEditor.setValue (newValue);
-	};
-	fxGlitchStutterNumMaxEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxGlitchStutterNumMaxEditor.setValue (5);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxGlitchStutterNumMaxEditor.setValue (uneditedSettingsProperties.getFxGlitchStutterNumMax ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupIntEditor (fxGlitchStutterNumMaxEditor, fxGlitchStutterNumMaxLabel, "FX Glitch Stutter Num Max");
-
-	fxGlitchStutterNumMinEditor.setTooltip ("FX Glitch Stutter Num Min");
-	fxGlitchStutterNumMinEditor.getMinValueCallback = [this] () { return 0; };
-	fxGlitchStutterNumMinEditor.getMaxValueCallback = [this] () { return 100; };
-	fxGlitchStutterNumMinEditor.toStringCallback = [this] (int value) { return juce::String (value); };
-	fxGlitchStutterNumMinEditor.updateDataCallback = [this] (int value) { fxGlitchStutterNumMinUiChanged (value); };
-	fxGlitchStutterNumMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 10;
-			else
-				return 25;
-		} ();
-		const auto newValue { settingsProperties.getFxGlitchStutterNumMin () + (multiplier * direction) };
-		fxGlitchStutterNumMinEditor.setValue (newValue);
-	};
-	fxGlitchStutterNumMinEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxGlitchStutterNumMinEditor.setValue (2);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxGlitchStutterNumMinEditor.setValue (uneditedSettingsProperties.getFxGlitchStutterNumMin ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupIntEditor (fxGlitchStutterNumMinEditor, fxGlitchStutterNumMinLabel, "FX Glitch Stutter Num Min");
-
-	fxGlitchStutterSmplTMaxEditor.setTooltip ("FX Glitch Stutter Smpl T Max");
-	fxGlitchStutterSmplTMaxEditor.getMinValueCallback = [this] () { return 0.0; };
-	fxGlitchStutterSmplTMaxEditor.getMaxValueCallback = [this] () { return 100.0; };
-	fxGlitchStutterSmplTMaxEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxGlitchStutterSmplTMaxEditor.updateDataCallback = [this] (float value) { fxGlitchStutterSmplTMaxUiChanged (static_cast<float> (value)); };
-	fxGlitchStutterSmplTMaxEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 10.0;
-			else
-				return 25.0;
-		} ();
-		const auto newValue { settingsProperties.getFxGlitchStutterSmplTMax () + (multiplier * direction) };
-		fxGlitchStutterSmplTMaxEditor.setValue (newValue);
-	};
-	fxGlitchStutterSmplTMaxEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxGlitchStutterSmplTMaxEditor.setValue (10.0f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxGlitchStutterSmplTMaxEditor.setValue (uneditedSettingsProperties.getFxGlitchStutterSmplTMax ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxGlitchStutterSmplTMaxEditor, fxGlitchStutterSmplTMaxLabel, "FX Glitch Stutter Smpl T Max");
-
-	fxGlitchStutterSmplTMinEditor.setTooltip ("FX Glitch Stutter Smpl T Min");
-	fxGlitchStutterSmplTMinEditor.getMinValueCallback = [this] () { return 0.0; };
-	fxGlitchStutterSmplTMinEditor.getMaxValueCallback = [this] () { return 100.0; };
-	fxGlitchStutterSmplTMinEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxGlitchStutterSmplTMinEditor.updateDataCallback = [this] (float value) { fxGlitchStutterSmplTMinUiChanged (static_cast<float> (value)); };
-	fxGlitchStutterSmplTMinEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 10.0;
-			else
-				return 25.0;
-		} ();
-		const auto newValue { settingsProperties.getFxGlitchStutterSmplTMin () + (multiplier * direction) };
-		fxGlitchStutterSmplTMinEditor.setValue (newValue);
-	};
-	fxGlitchStutterSmplTMinEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxGlitchStutterSmplTMinEditor.setValue (3.0f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxGlitchStutterSmplTMinEditor.setValue (uneditedSettingsProperties.getFxGlitchStutterSmplTMin ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxGlitchStutterSmplTMinEditor, fxGlitchStutterSmplTMinLabel, "FX Glitch Stutter Smpl T Min");
-
-	fxGlitchStutterWindowEditor.setTooltip ("FX Glitch Stutter Window");
-	fxGlitchStutterWindowEditor.getMinValueCallback = [this] () { return 0; };
-	fxGlitchStutterWindowEditor.getMaxValueCallback = [this] () { return 100; };
-	fxGlitchStutterWindowEditor.toStringCallback = [this] (int value) { return juce::String (value); };
-	fxGlitchStutterWindowEditor.updateDataCallback = [this] (int value) { fxGlitchStutterWindowUiChanged (value); };
-	fxGlitchStutterWindowEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 10;
-			else
-				return 25;
-		} ();
-		const auto newValue { settingsProperties.getFxGlitchStutterWindow () + (multiplier * direction) };
-		fxGlitchStutterWindowEditor.setValue (newValue);
-	};
-	fxGlitchStutterWindowEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxGlitchStutterWindowEditor.setValue (20);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxGlitchStutterWindowEditor.setValue (uneditedSettingsProperties.getFxGlitchStutterWindow ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupIntEditor (fxGlitchStutterWindowEditor, fxGlitchStutterWindowLabel, "FX Glitch Stutter Window");
-
-	fxGlitchWeightCrushLowEditor.setTooltip ("FX Glitch Weight Crush Low");
-	fxGlitchWeightCrushLowEditor.getMinValueCallback = [this] () { return 0.0; };
-	fxGlitchWeightCrushLowEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxGlitchWeightCrushLowEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxGlitchWeightCrushLowEditor.updateDataCallback = [this] (float value) { fxGlitchWeightCrushLowUiChanged (static_cast<float> (value)); };
-	fxGlitchWeightCrushLowEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 0.3;
-			else
-				return 0.5;
-		} ();
-		const auto newValue { settingsProperties.getFxGlitchWeightCrushLow () + (multiplier * direction) };
-		fxGlitchWeightCrushLowEditor.setValue (newValue);
-	};
-	fxGlitchWeightCrushLowEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxGlitchWeightCrushLowEditor.setValue (0.30f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxGlitchWeightCrushLowEditor.setValue (uneditedSettingsProperties.getFxGlitchWeightCrushLow ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxGlitchWeightCrushLowEditor, fxGlitchWeightCrushLowLabel, "FX Glitch Weight Crush Low");
-
-	fxGlitchWeightDropHighEditor.setTooltip ("FX Glitch Weight Drop High");
-	fxGlitchWeightDropHighEditor.getMinValueCallback = [this] () { return 0.0; };
-	fxGlitchWeightDropHighEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxGlitchWeightDropHighEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxGlitchWeightDropHighEditor.updateDataCallback = [this] (float value) { fxGlitchWeightDropHighUiChanged (static_cast<float> (value)); };
-	fxGlitchWeightDropHighEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 0.3;
-			else
-				return 0.5;
-		} ();
-		const auto newValue { settingsProperties.getFxGlitchWeightDropHigh () + (multiplier * direction) };
-		fxGlitchWeightDropHighEditor.setValue (newValue);
-	};
-	fxGlitchWeightDropHighEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxGlitchWeightDropHighEditor.setValue (0.07f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxGlitchWeightDropHighEditor.setValue (uneditedSettingsProperties.getFxGlitchWeightDropHigh ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxGlitchWeightDropHighEditor, fxGlitchWeightDropHighLabel, "FX Glitch Weight Drop High");
-
-	fxGlitchWeightDropLowEditor.setTooltip ("FX Glitch Weight Drop Low");
-	fxGlitchWeightDropLowEditor.getMinValueCallback = [this] () { return 0.0; };
-	fxGlitchWeightDropLowEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxGlitchWeightDropLowEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxGlitchWeightDropLowEditor.updateDataCallback = [this] (float value) { fxGlitchWeightDropLowUiChanged (static_cast<float> (value)); };
-	fxGlitchWeightDropLowEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-			{
-				if (dragSpeed == DragSpeed::slow)
-					return 0.1;
-				else if (dragSpeed == DragSpeed::medium)
-					return 0.3;
-				else
-					return 0.5;
-			} ();
-		const auto newValue { settingsProperties.getFxGlitchWeightDropLow () + (multiplier * direction) };
-		fxGlitchWeightDropLowEditor.setValue (newValue);
-	};
-	fxGlitchWeightDropLowEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxGlitchWeightDropLowEditor.setValue (0.02f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxGlitchWeightDropLowEditor.setValue (uneditedSettingsProperties.getFxGlitchWeightDropLow ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxGlitchWeightDropLowEditor, fxGlitchWeightDropLowLabel, "FX Glitch Weight Drop Low");
-
-	fxGlitchWeightHoldHighEditor.setTooltip ("FX Glitch Weight Hold High");
-	fxGlitchWeightHoldHighEditor.getMinValueCallback = [this] () { return 0.0; };
-	fxGlitchWeightHoldHighEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxGlitchWeightHoldHighEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxGlitchWeightHoldHighEditor.updateDataCallback = [this] (float value) { fxGlitchWeightHoldHighUiChanged (static_cast<float> (value)); };
-	fxGlitchWeightHoldHighEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 0.3;
-			else
-				return 0.5;
-		} ();
-		const auto newValue { settingsProperties.getFxGlitchWeightHoldHigh () + (multiplier * direction) };
-		fxGlitchWeightHoldHighEditor.setValue (newValue);
-	};
-	fxGlitchWeightHoldHighEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxGlitchWeightHoldHighEditor.setValue (0.30f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxGlitchWeightHoldHighEditor.setValue (uneditedSettingsProperties.getFxGlitchWeightHoldHigh ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxGlitchWeightHoldHighEditor, fxGlitchWeightHoldHighLabel, "FX Glitch Weight Hold High");
-
-	fxGlitchWeightHoldLowEditor.setTooltip ("FX Glitch Weight Hold Low");
-	fxGlitchWeightHoldLowEditor.getMinValueCallback = [this] () { return 0.0; };
-	fxGlitchWeightHoldLowEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxGlitchWeightHoldLowEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxGlitchWeightHoldLowEditor.updateDataCallback = [this] (float value) { fxGlitchWeightHoldLowUiChanged (static_cast<float> (value)); };
-	fxGlitchWeightHoldLowEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 0.3;
-			else
-				return 0.5;
-		} ();
-		const auto newValue { settingsProperties.getFxGlitchWeightHoldLow () + (multiplier * direction) };
-		fxGlitchWeightHoldLowEditor.setValue (newValue);
-	};
-	fxGlitchWeightHoldLowEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxGlitchWeightHoldLowEditor.setValue (0.15f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxGlitchWeightHoldLowEditor.setValue (uneditedSettingsProperties.getFxGlitchWeightHoldLow ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxGlitchWeightHoldLowEditor, fxGlitchWeightHoldLowLabel, "FX Glitch Weight Hold Low");
-
-	fxGlitchWeightStutterHighEditor.setTooltip ("FX Glitch Weight Stutter High");
-	fxGlitchWeightStutterHighEditor.getMinValueCallback = [this] () { return 0.0; };
-	fxGlitchWeightStutterHighEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxGlitchWeightStutterHighEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxGlitchWeightStutterHighEditor.updateDataCallback = [this] (float value) { fxGlitchWeightStutterHighUiChanged (static_cast<float> (value)); };
-	fxGlitchWeightStutterHighEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-			{
-				if (dragSpeed == DragSpeed::slow)
-					return 0.1;
-				else if (dragSpeed == DragSpeed::medium)
-					return 0.3;
-				else
-					return 0.5;
-			} ();
-		const auto newValue { settingsProperties.getFxGlitchWeightStutterHigh () + (multiplier * direction) };
-		fxGlitchWeightStutterHighEditor.setValue (newValue);
-	};
-	fxGlitchWeightStutterHighEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxGlitchWeightStutterHighEditor.setValue (0.20);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxGlitchWeightStutterHighEditor.setValue (uneditedSettingsProperties.getFxGlitchWeightStutterHigh ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxGlitchWeightStutterHighEditor, fxGlitchWeightStutterHighLabel, "FX Glitch Weight Stutter High");
-
-	fxGlitchWeightStutterLowEditor.setTooltip ("FX Glitch Weight Stutter Low");
-	fxGlitchWeightStutterLowEditor.getMinValueCallback = [this] () { return 0.0; };
-	fxGlitchWeightStutterLowEditor.getMaxValueCallback = [this] () { return 1.0; };
-	fxGlitchWeightStutterLowEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	fxGlitchWeightStutterLowEditor.updateDataCallback = [this] (float value) { fxGlitchWeightStutterLowUiChanged (static_cast<float> (value)); };
-	fxGlitchWeightStutterLowEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 0.3;
-			else
-				return 0.5;
-		} ();
-		const auto newValue { settingsProperties.getFxGlitchWeightStutterLow () + (multiplier * direction) };
-		fxGlitchWeightStutterLowEditor.setValue (newValue);
-	};
-	fxGlitchWeightStutterLowEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxGlitchWeightStutterLowEditor.setValue (0.05f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxGlitchWeightStutterLowEditor.setValue (uneditedSettingsProperties.getFxGlitchWeightStutterLow ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (fxGlitchWeightStutterLowEditor, fxGlitchWeightStutterLowLabel, "FX Glitch Weight Stutter Low");
-
-	fxReverbHpfEditor.setTooltip ("FX Reverb HPF");
-	fxReverbHpfEditor.getMinValueCallback = [this] () { return 20; };
-	fxReverbHpfEditor.getMaxValueCallback = [this] () { return 20000; };
-	fxReverbHpfEditor.toStringCallback = [this] (int value) { return juce::String (value); };
-	fxReverbHpfEditor.updateDataCallback = [this] (int value) { fxReverbHpfUiChanged (value); };
-	fxReverbHpfEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 10;
-			else
-				return 25;
-		} ();
-		const auto newValue { settingsProperties.getFxReverbHpf () + (multiplier * direction) };
-		fxReverbHpfEditor.setValue (newValue);
-	};
-	fxReverbHpfEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxReverbHpfEditor.setValue (700);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxReverbHpfEditor.setValue (uneditedSettingsProperties.getFxReverbHpf ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupIntEditor (fxReverbHpfEditor, fxReverbHpfLabel, "FX Reverb HPF");
-
-	fxReverbLpfEditor.setTooltip ("FX Reverb LPF");
-	fxReverbLpfEditor.getMinValueCallback = [this] () { return 20; };
-	fxReverbLpfEditor.getMaxValueCallback = [this] () { return 20000; };
-	fxReverbLpfEditor.toStringCallback = [this] (int value) { return juce::String (value); };
-	fxReverbLpfEditor.updateDataCallback = [this] (int value) { fxReverbLpfUiChanged (value); };
-	fxReverbLpfEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-			{
-				if (dragSpeed == DragSpeed::slow)
-					return 1;
-				else if (dragSpeed == DragSpeed::medium)
-					return 10;
-				else
-					return 25;
-			} ();
-		const auto newValue { settingsProperties.getFxReverbLpf () + (multiplier * direction) };
-		fxReverbLpfEditor.setValue (newValue);
-	};
-	fxReverbLpfEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			fxReverbLpfEditor.setValue (9000);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			fxReverbLpfEditor.setValue (uneditedSettingsProperties.getFxReverbLpf ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupIntEditor (fxReverbLpfEditor, fxReverbLpfLabel, "FX Reverb LPF");
-
-	// 0: 0V = 100 % -5 = 0 % +5 = 200 %
-	// 1: 0V = 10 % +5 = 100 %
-	gateModeComboBox.setLookAndFeel (&noArrowComboBoxLnF);
-	gateModeComboBox.setTooltip ("");
-	gateModeComboBox.addItem ("Immediate", 1);
-	gateModeComboBox.addItem ("After Gate Falls", 2);
-	gateModeComboBox.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
-		const auto gateMode { gateModeComboBox.getSelectedId () - 1 };
-		settingsProperties.setGateMode (std::clamp (gateMode + scrollAmount, 0, 1), true);
-	};
-	gateModeComboBox.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			gateModeComboBox.setSelectedId (1, juce::NotificationType::sendNotification);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			gateModeComboBox.setSelectedId (uneditedSettingsProperties.getGateMode () + 1, juce::NotificationType::sendNotification);
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupComboBox (gateModeComboBox, gateModeLabel, "Gate Mode");
-
-	// 0 to sense small movement (wiggle)
-	// 1 to require passing old value
-	knobPosTakeupComboBox.setLookAndFeel (&noArrowComboBoxLnF);
-	knobPosTakeupComboBox.setTooltip ("");
-	knobPosTakeupComboBox.addItem ("Small Movement", 1);
-	knobPosTakeupComboBox.addItem ("Pass Old Value", 2);
-	knobPosTakeupComboBox.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
-		const auto fxCvUnipolar { knobPosTakeupComboBox.getSelectedId () - 1 };
-		settingsProperties.setKnobPosTakeup (std::clamp (fxCvUnipolar + scrollAmount, 0, 1), true);
-	};
-	knobPosTakeupComboBox.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			knobPosTakeupComboBox.setSelectedId (2, juce::NotificationType::sendNotification);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			knobPosTakeupComboBox.setSelectedId (uneditedSettingsProperties.getKnobPosTakeup () + 1, juce::NotificationType::sendNotification);
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupComboBox (knobPosTakeupComboBox, knobPosTakeupLabel, "Knob Pos Takeup");
-
-	pitchHighEditor.setTooltip ("Pitch High");
-	pitchHighEditor.getMinValueCallback = [this] () { return 1.5; };
-	pitchHighEditor.getMaxValueCallback = [this] () { return 3.7; };
-	pitchHighEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	pitchHighEditor.updateDataCallback = [this] (float value) { pitchHighUiChanged (static_cast<float> (value)); };
-	pitchHighEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.1;
-			else if (dragSpeed == DragSpeed::medium)
-				return 0.3;
-			else
-				return 0.5;
-		} ();
-		const auto newValue { settingsProperties.getPitchHigh () + (multiplier * direction) };
-		pitchHighEditor.setValue (newValue);
-	};
-	pitchHighEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			pitchHighEditor.setValue (2.5f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			pitchHighEditor.setValue (uneditedSettingsProperties.getPitchHigh ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (pitchHighEditor, pitchHighLabel, "Pitch High");
-
-	pitchLowEditor.setTooltip ("Pitch Low");
-	pitchLowEditor.getMinValueCallback = [this] () { return 0.001; };
-	pitchLowEditor.getMaxValueCallback = [this] () { return 0.5; };
-	pitchLowEditor.toStringCallback = [this] (float value) { return getRoundedFloatString (value, 4); };
-	pitchLowEditor.updateDataCallback = [this] (float value) { pitchLowUiChanged (static_cast<float> (value)); };
-	pitchLowEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto multiplier = [this, dragSpeed] ()
-		{
-			if (dragSpeed == DragSpeed::slow)
-				return 0.001;
-			else if (dragSpeed == DragSpeed::medium)
-				return 0.01;
-			else
-				return 0.1;
-		} ();
-		const auto newValue { settingsProperties.getPitchLow () + (multiplier * direction) };
-		pitchLowEditor.setValue (newValue);
-	};
-	pitchLowEditor.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			pitchLowEditor.setValue (0.125f);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			pitchLowEditor.setValue (uneditedSettingsProperties.getPitchLow ());
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupFloatEditor (pitchLowEditor, pitchLowLabel, "Pitch Low");
-
-	// 0: 0V = 100 % -5 = 0 % +5 = 200 %
-	// 1: 0V = 10 % +5 = 100 %
-	velocityUnipolarComboBox.setLookAndFeel (&noArrowComboBoxLnF);
-	velocityUnipolarComboBox.setTooltip ("");
-	velocityUnipolarComboBox.addItem ("0%-100%-200%", 1);
-	velocityUnipolarComboBox.addItem ("0%-100%", 2);
-	velocityUnipolarComboBox.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
-	{
-		const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
-		const auto velocityUnipolar { velocityUnipolarComboBox.getSelectedId () - 1 };
-		settingsProperties.setVelocityUnipolar (std::clamp (velocityUnipolar + scrollAmount, 0, 1), true);
-	};
-	velocityUnipolarComboBox.onPopupMenuCallback = [this] ()
-	{
-		auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-		popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-		juce::PopupMenu pm;
-		pm.setLookAndFeel (popupMenuLnF);
-		pm.addSectionHeader ("Amp Mod");
-		pm.addSeparator ();
-		pm.addItem ("Default", true, false, [this] ()
-		{
-			velocityUnipolarComboBox.setSelectedId (1, juce::NotificationType::sendNotification);
-		});
-		pm.addItem ("Revert", true, false, [this] ()
-		{
-			velocityUnipolarComboBox.setSelectedId (uneditedSettingsProperties.getVelocityUnipolar () + 1, juce::NotificationType::sendNotification);
-		});
-
-		pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-	};
-	setupComboBox (velocityUnipolarComboBox, velocityUnipolarLabel, "Velocity Unipolar");
+				auto* popupMenuLnF { new juce::LookAndFeel_V4 };
+				popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
+
+				juce::PopupMenu pm;
+				pm.setLookAndFeel (popupMenuLnF);
+				pm.addSectionHeader (menuHeader);
+				pm.addSeparator ();
+				pm.addItem ("Default", true, false, [comboBox, getDefaultValue] ()
+				{
+					comboBox->setSelectedId (getDefaultValue (), juce::NotificationType::sendNotification);
+				});
+				pm.addItem ("Revert", true, false, [comboBox, getUneditedValue] ()
+				{
+					comboBox->setSelectedId (getUneditedValue (), juce::NotificationType::sendNotification);
+				});
+
+				pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
+			};
+            comboBoxData.label.setText (comboBoxData.labelText, juce::dontSendNotification);
+            comboBoxData.comboBox.setColour (juce::ComboBox::backgroundColourId, juce::Colours::darkgrey.darker (0.5f));
+            addAndMakeVisible (comboBoxData.label);
+            addAndMakeVisible (comboBoxData.comboBox);
+		};
+
+    // THIS IS THE ORIGINAL SETUP CODE
+    setupFloatEditor ({ &accClAmpModEditor, accClAmpModLabel, "Acc Cl Amp Mod", "Amp Mod CLOSED ACC hit", "Acc Cl Amp Mod" },
+                         { 0.1f, 10.0f },
+                         { 0.01f, 0.3f, 1.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { accClAmpModUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getAccClAmpMod () + valueOffset };
+                             accClAmpModEditor.setValue (newValue);
+                         },
+                         [this] () { return 1.3f; },
+                         [this] () { return uneditedSettingsProperties.getAccClAmpMod (); });
+
+    setupFloatEditor ({ &accClRelModEditor, accClRelModLabel, "Acc Cl Rel Mod", "Acc Cl Rel Mod", "Acc Cl Rel Mod" },
+                         { 0.1f, 10.0f },
+                         { 0.01f, 0.3f, 1.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { accClRelModUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getAccClRelMod () + valueOffset };
+                             accClRelModEditor.setValue (newValue);
+                         },
+                         [this] () { return 1.18f; },
+                         [this] () { return uneditedSettingsProperties.getAccClRelMod (); });
+
+    setupFloatEditor ({ &accOpAmpModEditor, accOpAmpModLabel, "Acc Op Amp Mod", "Acc Op Amp Mod", "Acc Op Amp Mod" },
+                         { 0.1f, 10.0f },
+                         { 0.1f, 0.5f, 1.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { accOpAmpModUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getAccOpAmpMod () + valueOffset };
+                             accOpAmpModEditor.setValue (newValue);
+                         },
+                         [this] () { return 1.25f; },
+                         [this] () { return uneditedSettingsProperties.getAccOpAmpMod (); });
+
+    setupFloatEditor ({ &accOpRelModEditor, accOpRelModLabel, "Acc Op Rel Mod", "Acc Op Rel Mod", "Acc Op Rel Mod" },
+                         { 0.1f, 10.0f },
+                         { 0.1f, 0.5f, 1.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { accOpRelModUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getAccOpRelMod () + valueOffset };
+                             accOpRelModEditor.setValue (newValue);
+                         },
+                         [this] () { return 1.25f; },
+                         [this] () { return uneditedSettingsProperties.getAccOpRelMod (); });
+
+    setupFloatEditor ({ &chokeReleaseEditor, chokeReleaseLabel, "Choke Release", "Choke Release", "Choke Release" },
+                         { 0.001f, 10.0f },
+                         { 0.001f, 0.5f, 3.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { chokeReleaseUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getChokeRelease () + valueOffset };
+                             chokeReleaseEditor.setValue (newValue);
+                         },
+                         [this] () { return 0.08f; },
+                         [this] () { return uneditedSettingsProperties.getChokeRelease (); });
+
+    setupFloatEditor ({ &clsdMaxReleaseEditor, clsdMaxReleaseLabel, "Clsd Max Release", "Choke Release", "Clsd Max Release" },
+                         { 0.3f, 2.0f },
+                         { 0.1f, 0.3f, 1.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { clsdMaxReleaseUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getClsdMaxRelease () + valueOffset };
+                             clsdMaxReleaseEditor.setValue (newValue);
+                         },
+                         [this] () { return 0.8f; },
+                         [this] () { return uneditedSettingsProperties.getClsdMaxRelease (); });
+
+    setupFloatEditor ({ &clsdRelOfstScaleEditor, clsdRelOfstScaleLabel, "Clsd Rel Ofst Scale", "Choke Release", "Clsd Rel Ofst Scale" },
+                         { 0.1f, 0.9f },
+                         { 0.1f, 0.1f, 0.3f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { clsdRelOfstScaleUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getClsdRelOfstScale () + valueOffset };
+                             clsdRelOfstScaleEditor.setValue (newValue);
+                         },
+                         [this] () { return 0.5f; },
+                         [this] () { return uneditedSettingsProperties.getClsdRelOfstScale (); });
+
+    // 0: Independent Release for Closed
+    // 1: Release Offset mode
+    setupComboBox ({ clsdReleaseModeComboBox, clsdReleaseModeLabel, "Clsd Release Mode", "", "Clsd Release Mode" },
+                      { { "Independent", 1 },
+                        { "Offset", 2 } },
+                      [this] (int valueOffset)
+                      {
+                          const auto clsdReleaseMode { clsdReleaseModeComboBox.getSelectedId () - 1 };
+                          settingsProperties.setClsdReleaseMode (std::clamp (clsdReleaseMode + valueOffset, 0, 1), true);
+                      },
+                      [this] () { return 2; },
+                      [this] () { return uneditedSettingsProperties.getClsdReleaseMode () + 1; });
+
+    // 0: FX CV Always On
+    // 1: CV Disable : Freeze FX CV
+    setupComboBox ({ cvDisableFxComboBox, cvDisableFxLabel, "CV Disable FX", "", "CV Disable FX" },
+                      { { "FX CV On", 1 },
+                        { "FX CV Off", 2 } },
+                      [this] (int valueOffset)
+                      {
+                          const auto cvDisableFx { cvDisableFxComboBox.getSelectedId () - 1 };
+                          settingsProperties.setCvDisableFx (std::clamp (cvDisableFx + valueOffset, 0, 1), true);
+                      },
+                      [this] () { return 1; },
+                      [this] () { return uneditedSettingsProperties.getCvDisableFx () + 1; });
+
+    // 0: Velocity always enabled
+    // 1: CV Off SW affects velocity
+    setupComboBox ({ cvDisableVelocityComboBox, cvDisableVelocityLabel, "CV Disable Velocity", "", "CV Disable Velocity" },
+                      { { "Always On", 1 },
+                        { "CV Off", 2 } },
+                      [this] (int valueOffset)
+                      {
+                          const auto cvDisableVelocity { cvDisableVelocityComboBox.getSelectedId () - 1 };
+                          settingsProperties.setCvDisableVelocity (std::clamp (cvDisableVelocity + valueOffset, 0, 1), true);
+                      },
+                      [this] () { return 1; },
+                      [this] () { return uneditedSettingsProperties.getCvDisableVelocity () + 1; });
+
+    setupFloatEditor ({ &envelopeMaxReleaseEditor, envelopeMaxReleaseLabel, "Envelope Max Release", "Envelope Max Release", "Envelope Max Release" },
+                         { 0.6f, 20.0f },
+                         { 0.1f, 0.5f, 1.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { envelopeMaxReleaseUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getEnvelopeMaxRelease () + valueOffset };
+                             envelopeMaxReleaseEditor.setValue (newValue);
+                         },
+                         [this] () { return 4.0f; },
+                         [this] () { return uneditedSettingsProperties.getEnvelopeMaxRelease (); });
+
+    setupFloatEditor ({ &feelAmpModEditor, feelAmpModLabel, "Feel Amp Mod", "Feel Amp Mod", "Feel Amp Mod" },
+                         { 0.0f, 2.0f },
+                         { 0.1f, 0.1f, 1.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { feelAmpModUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFeelAmpMod () + valueOffset };
+                             feelAmpModEditor.setValue (newValue);
+                         },
+                         [this] () { return 1.0f; },
+                         [this] () { return uneditedSettingsProperties.getFeelAmpMod (); });
+
+    setupFloatEditor ({ &feelAttackModEditor, feelAttackModLabel, "Feel Attack Mod", "Feel Attack Mod", "Feel Attack Mod" },
+                         { 0.0f, 5.0f },
+                         { 0.1f, 0.1f, 1.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { feelAttackModUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFeelAttackMod () + valueOffset };
+                             feelAttackModEditor.setValue (newValue);
+                         },
+                         [this] () { return 1.0f; },
+                         [this] () { return uneditedSettingsProperties.getFeelAttackMod (); });
+
+    setupFloatEditor ({ &feelReleaseModEditor, feelReleaseModLabel, "Feel Release Mod", "Feel Release Mod", "Feel Release Mod" },
+                         { 0.0f, 5.0f },
+                         { 0.1f, 0.1f, 1.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { feelReleaseModUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFeelReleaseMod () + valueOffset };
+                             feelReleaseModEditor.setValue (newValue);
+                         },
+                         [this] () { return 1.0f; },
+                         [this] () { return uneditedSettingsProperties.getFeelReleaseMod (); });
+
+    setupIntEditor ({ &fltrHpfMaxFreqEditor, fltrHpfMaxFreqLabel, "Fltr HPF Max Freq", "Fltr HPF Max Freq", "Fltr HPF Max Freq" },
+                       { 20, 20000 },
+                       { 1, 25, 100 },
+                       [this] (int value) { return juce::String (value); },
+                       [this] (int value) { fltrHpfMaxFreqUiChanged (value); },
+                       [this] (int valueOffset)
+                       {
+                           const auto newValue { settingsProperties.getFltrHpfMaxFreq () + valueOffset };
+                           fltrHpfMaxFreqEditor.setValue (newValue);
+                       },
+                       [this] () { return 14000; },
+                       [this] () { return uneditedSettingsProperties.getFltrHpfMaxFreq (); });
+
+    setupIntEditor ({ &fltrHpfMinFreqEditor, fltrHpfMinFreqLabel, "Fltr HPF Min Freq", "Fltr HPF Min Freq", "Fltr HPF Min Freq" },
+                       { 20, 20000 },
+                       { 1, 25, 100 },
+                       [this] (int value) { return juce::String (value); },
+                       [this] (int value) { fltrHpfMinFreqUiChanged (value); },
+                       [this] (int valueOffset)
+                       {
+                           const auto newValue { settingsProperties.getFltrHpfMinFreq () + valueOffset };
+                           fltrHpfMinFreqEditor.setValue (newValue);
+                       },
+                       [this] () { return 100; },
+                       [this] () { return uneditedSettingsProperties.getFltrHpfMinFreq (); });
+
+    setupFloatEditor ({ &fltrHpfQEditor, fltrHpfQLabel, "Fltr HPF Q", "Fltr HPF Q", "Fltr HPF Q" },
+                         { 0.25f, 4.0f },
+                         { 0.001f, 0.1f, 1.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fltrHpfQUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFltrHpfQ () + valueOffset };
+                             fltrHpfQEditor.setValue (newValue);
+                         },
+                         [this] () { return 1.0f; },
+                         [this] () { return uneditedSettingsProperties.getFltrHpfQ (); });
+
+    setupIntEditor ({ &fltrLpfMaxFreqEditor, fltrLpfMaxFreqLabel, "Fltr LPF Max Freq", "Fltr LPF Max Freq", "Fltr LPF Max Freq" },
+                       { 20, 20000 },
+                       { 1, 25, 100 },
+                       [this] (int value) { return juce::String (value); },
+                       [this] (int value) { fltrLpfMaxFreqUiChanged (value); },
+                       [this] (int valueOffset)
+                       {
+                           const auto newValue { settingsProperties.getFltrLpfMaxFreq () + valueOffset };
+                           fltrLpfMaxFreqEditor.setValue (newValue);
+                       },
+                       [this] () { return 20000; },
+                       [this] () { return uneditedSettingsProperties.getFltrLpfMaxFreq (); });
+
+    setupIntEditor ({ &fltrLpfMinFreqEditor, fltrLpfMinFreqLabel, "Fltr LPF Min Freq", "Fltr LPF Min Freq", "Fltr LPF Min Freq" },
+                       { 20, 20000 },
+                       { 1, 25, 100 },
+                       [this] (int value) { return juce::String (value); },
+                       [this] (int value) { fltrLpfMinFreqUiChanged (value); },
+                       [this] (int valueOffset)
+                       {
+                           const auto newValue { settingsProperties.getFltrLpfMinFreq () + valueOffset };
+                           fltrLpfMinFreqEditor.setValue (newValue);
+                       },
+                       [this] () { return 200; },
+                       [this] () { return uneditedSettingsProperties.getFltrLpfMinFreq (); });
+
+    setupFloatEditor ({ &fltrLpfQEditor, fltrLpfQLabel, "Fltr LPF Q", "Fltr LPF Q", "Fltr LPF Q" },
+                         { 0.25f, 4.0f },
+                         { 0.001f, 0.1f, 1.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fltrLpfQUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFltrLpfQ () + valueOffset };
+                             fltrLpfQEditor.setValue (newValue);
+                         },
+                         [this] () { return 0.707f; },
+                         [this] () { return uneditedSettingsProperties.getFltrLpfQ (); });
+
+    setupFloatEditor ({ &fxChorusCenterEditor, fxChorusCenterLabel, "FX Chorus Center", "FX Chorus Center", "FX Chorus Center" },
+                         { 1.0f, 20.0f },
+                         { 1.0f, 3.0f, 10.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxChorusCenterUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxChorusCenter () + valueOffset };
+                             fxChorusCenterEditor.setValue (newValue);
+                         },
+                         [this] () { return 12.0f; },
+                         [this] () { return uneditedSettingsProperties.getFxChorusCenter (); });
+
+    setupFloatEditor ({ &fxChorusDepthEditor, fxChorusDepthLabel, "FX Chorus Depth", "FX Chorus Depth", "FX Chorus Depth" },
+                         { 1.0f, 5.0f },
+                         { 1.0f, 3.0f, 10.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxChorusDepthUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxChorusDepth () + valueOffset };
+                             fxChorusDepthEditor.setValue (newValue);
+                         },
+                         [this] () { return settingsProperties.getFxChorusCenter (); },
+                         [this] () { return uneditedSettingsProperties.getFxChorusDepth (); });
+
+    setupFloatEditor ({ &fxChorusLfoBEditor, fxChorusLfoBLabel, "FX Chorus LFO B", "FX Chorus LFO B", "FX Chorus LFO B" },
+                         { 0.002f, 3.0f },
+                         { 0.001f, 0.1f, 0.5f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxChorusLfoBUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxChorusLfoB () + valueOffset };
+                             fxChorusLfoBEditor.setValue (newValue);
+                         },
+                         [this] () { return 0.002f; },
+                         [this] () { return uneditedSettingsProperties.getFxChorusLfoB (); });
+
+    setupFloatEditor ({ &fxChorusLfoTEditor, fxChorusLfoTLabel, "FX Chorus LFO T", "FX Chorus LFO T", "FX Chorus LFO T" },
+                         { 0.002f, 3.0f },
+                         { 0.001f, 0.1f, 0.5f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxChorusLfoTUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxChorusLfoT () + valueOffset };
+                             fxChorusLfoTEditor.setValue (newValue);
+                         },
+                         [this] () { return 3.0f; },
+                         [this] () { return uneditedSettingsProperties.getFxChorusLfoT (); });
+
+    setupFloatEditor ({ &fxChorusMixEditor, fxChorusMixLabel, "FX Chorus Mix", "FX Chorus Mix", "FX Chorus Mix" },
+                         { 0.1f, 1.0f },
+                         { 0.1f, 0.1f, 0.3f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxChorusMixUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxChorusMix () + valueOffset };
+                             fxChorusMixEditor.setValue (newValue);
+                         },
+                         [this] () { return 1.0f; },
+                         [this] () { return uneditedSettingsProperties.getFxChorusMix (); });
+
+    setupFloatEditor ({ &fxChorusSpreadEditor, fxChorusSpreadLabel, "FX Chorus Spread", "FX Chorus Spread", "FX Chorus Spread" },
+                         { 0.01f, 1.0f },
+                         { 0.01f, 0.1f, 0.3f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxChorusSpreadUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxChorusSpread () + valueOffset };
+                             fxChorusSpreadEditor.setValue (newValue);
+                         },
+                         [this] () { return 0.01f; },
+                         [this] () { return uneditedSettingsProperties.getFxChorusSpread (); });
+
+    // Integer # of Taps (1–4)
+    setupComboBox ({ fxChorusTapsComboBox, fxChorusTapsLabel, "FX Chorus Taps", "", "FX Chorus Taps" },
+                      { { "1", 1 },
+                        { "2", 2 },
+                        { "3", 3 },
+                        { "4", 4 } },
+                      [this] (int valueOffset)
+                      {
+                          const auto fxChorusTaps { fxChorusTapsComboBox.getSelectedId () };
+                          settingsProperties.setFxChorusTaps (std::clamp (fxChorusTaps + valueOffset, 1, 4), true);
+                      },
+                      [this] () { return 4; },
+                      [this] () { return uneditedSettingsProperties.getFxChorusTaps () + 1; });
+
+    // 0: -5 to 5V, 1: 0 to 5V 
+    setupComboBox ({ fxCvUnipolarComboBox, fxCvUnipolarLabel, "FX CV Unipolar", "", "FX CV Unipolar" },
+                      { { "-5v to 5v", 1 },
+                        { "0v to 5v", 2 } },
+                      [this] (int valueOffset)
+                      {
+                          const auto fxCvUnipolar { fxCvUnipolarComboBox.getSelectedId () - 1 };
+                          settingsProperties.setFxCvUnipolar (std::clamp (fxCvUnipolar + valueOffset, 0, 1), true);
+                      },
+                      [this] () { return 2; },
+                      [this] () { return uneditedSettingsProperties.getFxCvUnipolar () + 1; });
+
+    setupIntEditor ({ &fxDjfilterHpfMaxEditor, fxDjfilterHpfMaxLabel, "FX DJ Filter HPF Max", "FX DJ Filter HPF Max", "FX DJ Filter HPF Max" },
+                       { 20, 20000 },
+                       { 1, 25, 100 },
+                       [this] (int value) { return juce::String (value); },
+                       [this] (int value) { fxDjfilterHpfMaxUiChanged (value); },
+                       [this] (int valueOffset)
+                       {
+                           const auto newValue { settingsProperties.getFxDjfilterHpfMax () + valueOffset };
+                           fxDjfilterHpfMaxEditor.setValue (newValue);
+                       },
+                       [this] () { return 14000; },
+                       [this] () { return uneditedSettingsProperties.getFxDjfilterHpfMax (); });
+
+    setupIntEditor ({ &fxDjfilterHpfMinEditor, fxDjfilterHpfMinLabel, "FX DJ Filter HPF Min", "FX DJ Filter HPF Min", "FX DJ Filter HPF Min" },
+                       { 20, 20000 },
+                       { 1, 25, 100 },
+                       [this] (int value) { return juce::String (value); },
+                       [this] (int value) { fxDjfilterHpfMinUiChanged (value); },
+                       [this] (int valueOffset)
+                       {
+                           const auto newValue { settingsProperties.getFxDjfilterHpfMin () + valueOffset };
+                           fxDjfilterHpfMinEditor.setValue (newValue);
+                       },
+                       [this] () { return 100; },
+                       [this] () { return uneditedSettingsProperties.getFxDjfilterHpfMin (); });
+
+    setupIntEditor ({ &fxDjfilterLpfMaxEditor, fxDjfilterLpfMaxLabel, "FX DJ Filter LPF Max", "FX DJ Filter LPF Max", "FX DJ Filter LPF Max" },
+                       { 20, 20000 },
+                       { 1, 25, 100 },
+                       [this] (int value) { return juce::String (value); },
+                       [this] (int value) { fxDjfilterLpfMaxUiChanged (value); },
+                       [this] (int valueOffset)
+                       {
+                           const auto newValue { settingsProperties.getFxDjfilterLpfMax () + valueOffset };
+                           fxDjfilterLpfMaxEditor.setValue (newValue);
+                       },
+                       [this] () { return 20000; },
+                       [this] () { return uneditedSettingsProperties.getFxDjfilterLpfMax (); });
+
+    setupIntEditor ({ &fxDjfilterLpfMinEditor, fxDjfilterLpfMinLabel, "FX DJ Filter LPF Min", "FX DJ Filter LPF Min", "FX DJ Filter LPF Min" },
+                       { 20, 20000 },
+                       { 1, 25, 100 },
+                       [this] (int value) { return juce::String (value); },
+                       [this] (int value) { fxDjfilterLpfMinUiChanged (value); },
+                       [this] (int valueOffset)
+                       {
+                           const auto newValue { settingsProperties.getFxDjfilterLpfMin () + valueOffset };
+                           fxDjfilterLpfMinEditor.setValue (newValue);
+                       },
+                       [this] () { return 200; },
+                       [this] () { return uneditedSettingsProperties.getFxDjfilterLpfMin (); });
+
+    setupFloatEditor ({ &fxDjfilterQGainReductionEditor, fxDjfilterQGainReductionLabel, "FX DJ Filter Q Gain Reduction", "FX DJ Filter Q Gain Reduction", "FX DJ Filter Q Gain Reduction" },
+                         { 0.01f, 1.0f },
+                         { 0.01f, 0.1f, 0.3f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxDjfilterQGainReductionUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxDjfilterQGainReduction () + valueOffset };
+                             fxDjfilterQGainReductionEditor.setValue (newValue);
+                         },
+                         [this] () { return 0.12f; },
+                         [this] () { return uneditedSettingsProperties.getFxDjfilterQGainReduction (); });
+
+    setupFloatEditor ({ &fxDjfilterQMaxEditor, fxDjfilterQMaxLabel, "FX DJ Filter Q Max", "FX DJ Filter Q Max", "FX DJ Filter Q Max" },
+                         { 0.0f, 20.0f },
+                         { 0.1f, 3.0f, 10.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxDjfilterQMaxUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxDjfilterQMax () + valueOffset };
+                             fxDjfilterQMaxEditor.setValue (newValue);
+                         },
+                         [this] () { return 4.0f; },
+                         [this] () { return uneditedSettingsProperties.getFxDjfilterQMax (); });
+
+    setupFloatEditor ({ &fxDjfilterQMinEditor, fxDjfilterQMinLabel, "FX DJ Filter Q Min", "FX DJ Filter Q Min", "FX DJ Filter Q Min" },
+                         { 0.0f, 20.0f },
+                         { 0.1f, 3.0f, 10.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxDjfilterQMinUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxDjfilterQMin () + valueOffset };
+                             fxDjfilterQMinEditor.setValue (newValue);
+                         },
+                         [this] () { return 0.5f; },
+                         [this] () { return uneditedSettingsProperties.getFxDjfilterQMin (); });
+
+    setupIntEditor ({ &fxDubEchoHpfEditor, fxDubEchoHpfLabel, "FX Dub Echo HPF", "FX Dub Echo HPF", "FX Dub Echo HPF" },
+                       { 20, 20000 },
+                       { 1, 25, 100 },
+                       [this] (int value) { return juce::String (value); },
+                       [this] (int value) { fxDubEchoHpfUiChanged (value); },
+                       [this] (int valueOffset)
+                       {
+                           const auto newValue { settingsProperties.getFxDubEchoHpf () + valueOffset };
+                           fxDubEchoHpfEditor.setValue (newValue);
+                       },
+                       [this] () { return 400; },
+                       [this] () { return uneditedSettingsProperties.getFxDubEchoHpf (); });
+
+    setupIntEditor ({ &fxDubEchoLpfEditor, fxDubEchoLpfLabel, "FX Dub Echo LPF", "FX Dub Echo LPF", "FX Dub Echo LPF" },
+                       { 20, 20000 },
+                       { 1, 25, 100 },
+                       [this] (int value) { return juce::String (value); },
+                       [this] (int value) { fxDubEchoLpfUiChanged (value); },
+                       [this] (int valueOffset)
+                       {
+                           const auto newValue { settingsProperties.getFxDubEchoLpf () + valueOffset };
+                           fxDubEchoLpfEditor.setValue (newValue);
+                       },
+                       [this] () { return 8400; },
+                       [this] () { return uneditedSettingsProperties.getFxDubEchoLpf (); });
+
+    setupFloatEditor ({ &fxDubEchoMixEditor, fxDubEchoMixLabel, "FX Dub Echo Mix", "FX Dub Echo Mix", "FX Dub Echo Mix" },
+                         { 0.0f, 1.0f },
+                         { 0.1f, 0.3f, 0.5f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxDubEchoMixUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxDubEchoMix () + valueOffset };
+                             fxDubEchoMixEditor.setValue (newValue);
+                         },
+                         [this] () { return 0.38f; },
+                         [this] () { return uneditedSettingsProperties.getFxDubEchoMix (); });
+
+    setupIntEditor ({ &fxDubEchoTminEditor, fxDubEchoTminLabel, "FX Dub Echo Tmin", "FX Dub Echo Tmin", "FX Dub Echo Tmin" },
+                       { 0, 100 },
+                       { 1, 10, 25 },
+                       [this] (int value) { return juce::String (value); },
+                       [this] (int value) { fxDubEchoTminUiChanged (value); },
+                       [this] (int valueOffset)
+                       {
+                           const auto newValue { settingsProperties.getFxDubEchoTmin () + valueOffset };
+                           fxDubEchoTminEditor.setValue (newValue);
+                       },
+                       [this] () { return 30; },
+                       [this] () { return uneditedSettingsProperties.getFxDubEchoTmin (); });
+
+    setupFloatEditor ({ &fxGlitchCrushTimeMaxEditor, fxGlitchCrushTimeMaxLabel, "FX Glitch Crush Time Max", "FX Glitch Crush Time Max", "FX Glitch Crush Time Max" },
+                         { 0.0f, 100.0f },
+                         { 0.1f, 5.0f, 25.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxGlitchCrushTimeMaxUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxGlitchCrushTimeMax () + valueOffset };
+                             fxGlitchCrushTimeMaxEditor.setValue (newValue);
+                         },
+                         [this] () { return 50.0f; },
+                         [this] () { return uneditedSettingsProperties.getFxGlitchCrushTimeMax (); });
+
+    setupFloatEditor ({ &fxGlitchCrushTimeMinEditor, fxGlitchCrushTimeMinLabel, "FX Glitch Crush Time Min", "FX Glitch Crush Time Min", "FX Glitch Crush Time Min" },
+                         { 0.0f, 100.0f },
+                         { 0.1f, 5.0f, 25.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxGlitchCrushTimeMinUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxGlitchCrushTimeMin () + valueOffset };
+                             fxGlitchCrushTimeMinEditor.setValue (newValue);
+                         },
+                         [this] () { return 10.0f; },
+                         [this] () { return uneditedSettingsProperties.getFxGlitchCrushTimeMin (); });
+
+    setupFloatEditor ({ &fxGlitchDropKeepLevelMaxEditor, fxGlitchDropKeepLevelMaxLabel, "FX Glitch Drop Keep Level Max", "FX Glitch Drop Keep Level Max", "FX Glitch Drop Keep Level Max" },
+                         { 0.0f, 1.0f },
+                         { 0.1f, 0.3f, 0.5f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxGlitchDropKeepLevelMaxUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxGlitchDropKeepLevelMax () + valueOffset };
+                             fxGlitchDropKeepLevelMaxEditor.setValue (newValue);
+                         },
+                         [this] () { return 0.75f; },
+                         [this] () { return uneditedSettingsProperties.getFxGlitchDropKeepLevelMax (); });
+
+    setupFloatEditor ({ &fxGlitchDropKeepLevelMinEditor, fxGlitchDropKeepLevelMinLabel, "FX Glitch Drop Keep Level Min", "FX Glitch Drop Keep Level Min", "FX Glitch Drop Keep Level Min" },
+                         { 0.0f, 1.0f },
+                         { 0.1f, 0.3f, 0.5f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxGlitchDropKeepLevelMinUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxGlitchDropKeepLevelMin () + valueOffset };
+                             fxGlitchDropKeepLevelMinEditor.setValue (newValue);
+                         },
+                         [this] () { return 0.0f; },
+                         [this] () { return uneditedSettingsProperties.getFxGlitchDropKeepLevelMin (); });
+
+    setupFloatEditor ({ &fxGlitchDropKeepTimeMaxEditor, fxGlitchDropKeepTimeMaxLabel, "FX Glitch Drop Keep Time Max", "FX Glitch Drop Keep Time Max", "FX Glitch Drop Keep Time Max" },
+                         { 0.0f, 100.0f },
+                         { 0.1f, 10.0f, 25.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxGlitchDropKeepTimeMaxUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxGlitchDropKeepTimeMax () + valueOffset };
+                             fxGlitchDropKeepTimeMaxEditor.setValue (newValue);
+                         },
+                         [this] () { return 40.0f; },
+                         [this] () { return uneditedSettingsProperties.getFxGlitchDropKeepTimeMax (); });
+
+    setupFloatEditor ({ &fxGlitchDropKeepTimeMinEditor, fxGlitchDropKeepTimeMinLabel, "FX Glitch Drop Keep Time Min", "FX Glitch Drop Keep Time Min", "FX Glitch Drop Keep Time Min" },
+                         { 0.0f, 100.0f },
+                         { 0.1f, 10.0f, 25.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxGlitchDropKeepTimeMinUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxGlitchDropKeepTimeMin () + valueOffset };
+                             fxGlitchDropKeepTimeMinEditor.setValue (newValue);
+                         },
+                         [this] () { return 4.0f; },
+                         [this] () { return uneditedSettingsProperties.getFxGlitchDropKeepTimeMin (); });
+
+    setupFloatEditor ({ &fxGlitchMicroloopPlayTMaxEditor, fxGlitchMicroloopPlayTMaxLabel, "FX Glitch Microloop Play T Max", "FX Glitch Microloop Play T Max", "FX Glitch Microloop Play T Max" },
+                         { 0.0f, 100.0f },
+                         { 0.1f, 10.0f, 25.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxGlitchMicroloopPlayTMaxUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxGlitchMicroloopPlayTMax () + valueOffset };
+                             fxGlitchMicroloopPlayTMaxEditor.setValue (newValue);
+                         },
+                         [this] () { return 15.0f; },
+                         [this] () { return uneditedSettingsProperties.getFxGlitchMicroloopPlayTMax (); });
+
+    setupFloatEditor ({ &fxGlitchMicroloopPlayTMinEditor, fxGlitchMicroloopPlayTMinLabel, "FX Glitch Microloop Play T Min", "FX Glitch Microloop Play T Min", "FX Glitch Microloop Play T Min" },
+                         { 0.0f, 100.0f },
+                         { 0.1f, 10.0f, 25.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxGlitchMicroloopPlayTMinUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxGlitchMicroloopPlayTMin () + valueOffset };
+                             fxGlitchMicroloopPlayTMinEditor.setValue (newValue);
+                         },
+                         [this] () { return 5.0f; },
+                         [this] () { return uneditedSettingsProperties.getFxGlitchMicroloopPlayTMin (); });
+
+    setupFloatEditor ({ &fxGlitchMicroloopSmplTMaxEditor, fxGlitchMicroloopSmplTMaxLabel, "FX Glitch Microloop Smpl T Max", "FX Glitch Microloop Smpl T Max", "FX Glitch Microloop Smpl T Max" },
+                         { 0.0f, 100.0f },
+                         { 0.1f, 10.0f, 25.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxGlitchMicroloopSmplTMaxUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxGlitchMicroloopSmplTMax () + valueOffset };
+                             fxGlitchMicroloopSmplTMaxEditor.setValue (newValue);
+                         },
+                         [this] () { return 3.0f; },
+                         [this] () { return uneditedSettingsProperties.getFxGlitchMicroloopSmplTMax (); });
+
+    setupFloatEditor ({ &fxGlitchMicroloopSmplTMinEditor, fxGlitchMicroloopSmplTMinLabel, "FX Glitch Microloop Smpl T Min", "FX Glitch Microloop Smpl T Min", "FX Glitch Microloop Smpl T Min" },
+                         { 0.0f, 100.0f },
+                         { 0.1f, 10.0f, 25.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxGlitchMicroloopSmplTMinUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxGlitchMicroloopSmplTMin () + valueOffset };
+                             fxGlitchMicroloopSmplTMinEditor.setValue (newValue);
+                         },
+                         [this] () { return 0.2f; },
+                         [this] () { return uneditedSettingsProperties.getFxGlitchMicroloopSmplTMin (); });
+
+    setupFloatEditor ({ &fxGlitchProbabilityMaxEditor, fxGlitchProbabilityMaxLabel, "FX Glitch Probability Max", "FX Glitch Probability Max", "FX Glitch Probability Max" },
+                         { 0.0f, 1.0f },
+                         { 0.1f, 0.3f, 0.5f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxGlitchProbabilityMaxUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxGlitchProbabilityMax () + valueOffset };
+                             fxGlitchProbabilityMaxEditor.setValue (newValue);
+                         },
+                         [this] () { return 0.003f; },
+                         [this] () { return uneditedSettingsProperties.getFxGlitchProbabilityMax (); });
+
+    setupFloatEditor ({ &fxGlitchProbabilityMinEditor, fxGlitchProbabilityMinLabel, "FX Glitch Probability Min", "FX Glitch Probability Min", "FX Glitch Probability Min" },
+                         { 0.0f, 1.0f },
+                         { 0.1f, 0.3f, 0.5f },
+                         [this] (float value) { return getRoundedFloatString (value, 5); },
+                         [this] (float value) { fxGlitchProbabilityMinUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxGlitchProbabilityMin () + valueOffset };
+                             fxGlitchProbabilityMinEditor.setValue (newValue);
+                         },
+                         [this] () { return 0.00005f; },
+                         [this] () { return uneditedSettingsProperties.getFxGlitchProbabilityMin (); });
+
+    setupIntEditor ({ &fxGlitchStutterNumMaxEditor, fxGlitchStutterNumMaxLabel, "FX Glitch Stutter Num Max", "FX Glitch Stutter Num Max", "FX Glitch Stutter Num Max" },
+                       { 0, 100 },
+                       { 1, 10, 25 },
+                       [this] (int value) { return juce::String (value); },
+                       [this] (int value) { fxGlitchStutterNumMaxUiChanged (value); },
+                       [this] (int valueOffset)
+                       {
+                           const auto newValue { settingsProperties.getFxGlitchStutterNumMax () + valueOffset };
+                           fxGlitchStutterNumMaxEditor.setValue (newValue);
+                       },
+                       [this] () { return 5; },
+                       [this] () { return uneditedSettingsProperties.getFxGlitchStutterNumMax (); });
+
+    setupIntEditor ({ &fxGlitchStutterNumMinEditor, fxGlitchStutterNumMinLabel, "FX Glitch Stutter Num Min", "FX Glitch Stutter Num Min", "FX Glitch Stutter Num Min" },
+                       { 0, 100 },
+                       { 1, 10, 25 },
+                       [this] (int value) { return juce::String (value); },
+                       [this] (int value) { fxGlitchStutterNumMinUiChanged (value); },
+                       [this] (int valueOffset)
+                       {
+                           const auto newValue { settingsProperties.getFxGlitchStutterNumMin () + valueOffset };
+                           fxGlitchStutterNumMinEditor.setValue (newValue);
+                       },
+                       [this] () { return 2; },
+                       [this] () { return uneditedSettingsProperties.getFxGlitchStutterNumMin (); });
+
+    setupFloatEditor ({ &fxGlitchStutterSmplTMaxEditor, fxGlitchStutterSmplTMaxLabel, "FX Glitch Stutter Smpl T Max", "FX Glitch Stutter Smpl T Max", "FX Glitch Stutter Smpl T Max" },
+                         { 0.0f, 100.0f },
+                         { 0.1f, 10.0f, 25.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxGlitchStutterSmplTMaxUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxGlitchStutterSmplTMax () + valueOffset };
+                             fxGlitchStutterSmplTMaxEditor.setValue (newValue);
+                         },
+                         [this] () { return 10.0f; },
+                         [this] () { return uneditedSettingsProperties.getFxGlitchStutterSmplTMax (); });
+
+    setupFloatEditor ({ &fxGlitchStutterSmplTMinEditor, fxGlitchStutterSmplTMinLabel, "FX Glitch Stutter Smpl T Min", "FX Glitch Stutter Smpl T Min", "FX Glitch Stutter Smpl T Min" },
+                         { 0.0f, 100.0f },
+                         { 0.1f, 10.0f, 25.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxGlitchStutterSmplTMinUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxGlitchStutterSmplTMin () + valueOffset };
+                             fxGlitchStutterSmplTMinEditor.setValue (newValue);
+                         },
+                         [this] () { return 3.0f; },
+                         [this] () { return uneditedSettingsProperties.getFxGlitchStutterSmplTMin (); });
+
+    setupIntEditor ({ &fxGlitchStutterWindowEditor, fxGlitchStutterWindowLabel, "FX Glitch Stutter Window", "FX Glitch Stutter Window", "FX Glitch Stutter Window" },
+                       { 0, 100 },
+                       { 1, 10, 25 },
+                       [this] (int value) { return juce::String (value); },
+                       [this] (int value) { fxGlitchStutterWindowUiChanged (value); },
+                       [this] (int valueOffset)
+                       {
+                           const auto newValue { settingsProperties.getFxGlitchStutterWindow () + valueOffset };
+                           fxGlitchStutterWindowEditor.setValue (newValue);
+                       },
+                       [this] () { return 20; },
+                       [this] () { return uneditedSettingsProperties.getFxGlitchStutterWindow (); });
+
+    setupFloatEditor ({ &fxGlitchWeightCrushLowEditor, fxGlitchWeightCrushLowLabel, "FX Glitch Weight Crush Low", "FX Glitch Weight Crush Low", "FX Glitch Weight Crush Low" },
+                         { 0.0f, 1.0f },
+                         { 0.1f, 0.3f, 0.5f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxGlitchWeightCrushLowUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxGlitchWeightCrushLow () + valueOffset };
+                             fxGlitchWeightCrushLowEditor.setValue (newValue);
+                         },
+                         [this] () { return 0.30f; },
+                         [this] () { return uneditedSettingsProperties.getFxGlitchWeightCrushLow (); });
+
+    setupFloatEditor ({ &fxGlitchWeightDropHighEditor, fxGlitchWeightDropHighLabel, "FX Glitch Weight Drop High", "FX Glitch Weight Drop High", "FX Glitch Weight Drop High" },
+                         { 0.0f, 1.0f },
+                         { 0.1f, 0.3f, 0.5f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxGlitchWeightDropHighUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxGlitchWeightDropHigh () + valueOffset };
+                             fxGlitchWeightDropHighEditor.setValue (newValue);
+                         },
+                         [this] () { return 0.07f; },
+                         [this] () { return uneditedSettingsProperties.getFxGlitchWeightDropHigh (); });
+
+    setupFloatEditor ({ &fxGlitchWeightDropLowEditor, fxGlitchWeightDropLowLabel, "FX Glitch Weight Drop Low", "FX Glitch Weight Drop Low", "FX Glitch Weight Drop Low" },
+                         { 0.0f, 1.0f },
+                         { 0.1f, 0.3f, 0.5f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxGlitchWeightDropLowUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxGlitchWeightDropLow () + valueOffset };
+                             fxGlitchWeightDropLowEditor.setValue (newValue);
+                         },
+                         [this] () { return 0.02f; },
+                         [this] () { return uneditedSettingsProperties.getFxGlitchWeightDropLow (); });
+
+    setupFloatEditor ({ &fxGlitchWeightHoldHighEditor, fxGlitchWeightHoldHighLabel, "FX Glitch Weight Hold High", "FX Glitch Weight Hold High", "FX Glitch Weight Hold High" },
+                         { 0.0f, 1.0f },
+                         { 0.1f, 0.3f, 0.5f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxGlitchWeightHoldHighUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxGlitchWeightHoldHigh () + valueOffset };
+                             fxGlitchWeightHoldHighEditor.setValue (newValue);
+                         },
+                         [this] () { return 0.30f; },
+                         [this] () { return uneditedSettingsProperties.getFxGlitchWeightHoldHigh (); });
+
+    setupFloatEditor ({ &fxGlitchWeightHoldLowEditor, fxGlitchWeightHoldLowLabel, "FX Glitch Weight Hold Low", "FX Glitch Weight Hold Low", "FX Glitch Weight Hold Low" },
+                         { 0.0f, 1.0f },
+                         { 0.1f, 0.3f, 0.5f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxGlitchWeightHoldLowUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxGlitchWeightHoldLow () + valueOffset };
+                             fxGlitchWeightHoldLowEditor.setValue (newValue);
+                         },
+                         [this] () { return 0.15f; },
+                         [this] () { return uneditedSettingsProperties.getFxGlitchWeightHoldLow (); });
+
+    setupFloatEditor ({ &fxGlitchWeightStutterHighEditor, fxGlitchWeightStutterHighLabel, "FX Glitch Weight Stutter High", "FX Glitch Weight Stutter High", "FX Glitch Weight Stutter High" },
+                         { 0.0f, 1.0f },
+                         { 0.1f, 0.3f, 0.5f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxGlitchWeightStutterHighUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxGlitchWeightStutterHigh () + valueOffset };
+                             fxGlitchWeightStutterHighEditor.setValue (newValue);
+                         },
+                         [this] () { return 0.20f; },
+                         [this] () { return uneditedSettingsProperties.getFxGlitchWeightStutterHigh (); });
+
+    setupFloatEditor ({ &fxGlitchWeightStutterLowEditor, fxGlitchWeightStutterLowLabel, "FX Glitch Weight Stutter Low", "FX Glitch Weight Stutter Low", "FX Glitch Weight Stutter Low" },
+                         { 0.0f, 1.0f },
+                         { 0.1f, 0.3f, 0.5f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxGlitchWeightStutterLowUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxGlitchWeightStutterLow () + valueOffset };
+                             fxGlitchWeightStutterLowEditor.setValue (newValue);
+                         },
+                         [this] () { return 0.05f; },
+                         [this] () { return uneditedSettingsProperties.getFxGlitchWeightStutterLow (); });
+
+    setupIntEditor ({ &fxReverbHpfEditor, fxReverbHpfLabel, "FX Reverb HPF", "FX Reverb HPF", "FX Reverb HPF" },
+                       { 20, 20000 },
+                       { 1, 10, 25 },
+                       [this] (int value) { return juce::String (value); },
+                       [this] (int value) { fxReverbHpfUiChanged (value); },
+                       [this] (int valueOffset)
+                       {
+                           const auto newValue { settingsProperties.getFxReverbHpf () + valueOffset };
+                           fxReverbHpfEditor.setValue (newValue);
+                       },
+                       [this] () { return 700; },
+                       [this] () { return uneditedSettingsProperties.getFxReverbHpf (); });
+
+    setupIntEditor ({ &fxReverbLpfEditor, fxReverbLpfLabel, "FX Reverb LPF", "FX Reverb LPF", "FX Reverb LPF" },
+                       { 20, 20000 },
+                       { 1, 10, 25 },
+                       [this] (int value) { return juce::String (value); },
+                       [this] (int value) { fxReverbLpfUiChanged (value); },
+                       [this] (int valueOffset)
+                       {
+                           const auto newValue { settingsProperties.getFxReverbLpf () + valueOffset };
+                           fxReverbLpfEditor.setValue (newValue);
+                       },
+                       [this] () { return 9000; },
+                       [this] () { return uneditedSettingsProperties.getFxReverbLpf (); });
+
+    // 0: 0V = 100 % -5 = 0 % +5 = 200 %
+    // 1: 0V = 10 % +5 = 100 %
+    setupComboBox ({ gateModeComboBox, gateModeLabel, "Gate Mode", "", "Gate Mode" },
+                      { { "Immediate", 1 },
+                        { "After Gate Falls", 2 } },
+                      [this] (int valueOffset)
+                      {
+                          const auto gateMode { gateModeComboBox.getSelectedId () - 1 };
+                          settingsProperties.setGateMode (std::clamp (gateMode + valueOffset, 0, 1), true);
+                      },
+                      [this] () { return 1; },
+                      [this] () { return uneditedSettingsProperties.getGateMode () + 1; });
+
+    // 0 to sense small movement (wiggle)
+    // 1 to require passing old value
+    setupComboBox ({ knobPosTakeupComboBox, knobPosTakeupLabel, "Knob Pos Takeup", "", "Knob Pos Takeup" },
+                      { { "Small Movement", 1 },
+                        { "Pass Old Value", 2 } },
+                      [this] (int valueOffset)
+                      {
+                          const auto fxCvUnipolar { knobPosTakeupComboBox.getSelectedId () - 1 };
+                          settingsProperties.setKnobPosTakeup (std::clamp (fxCvUnipolar + valueOffset, 0, 1), true);
+                      },
+                      [this] () { return 2; },
+                      [this] () { return uneditedSettingsProperties.getKnobPosTakeup () + 1; });
+
+    setupFloatEditor ({ &pitchHighEditor, pitchHighLabel, "Pitch High", "Pitch High", "Pitch High" },
+                         { 1.5f, 3.7f },
+                         { 0.1f, 0.3f, 0.5f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { pitchHighUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getPitchHigh () + valueOffset };
+                             pitchHighEditor.setValue (newValue);
+                         },
+                         [this] () { return 2.5f; },
+                         [this] () { return uneditedSettingsProperties.getPitchHigh (); });
+
+    setupFloatEditor ({ &pitchLowEditor, pitchLowLabel, "Pitch Low", "Pitch Low", "Pitch Low" },
+                         { 0.001f, 0.5f },
+                         { 0.001f, 0.01f, 0.1f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { pitchLowUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getPitchLow () + valueOffset };
+                             pitchLowEditor.setValue (newValue);
+                         },
+                         [this] () { return 0.125f; },
+                         [this] () { return uneditedSettingsProperties.getPitchLow (); });
+
+    // 0: 0V = 100 % -5 = 0 % +5 = 200 %
+    // 1: 0V = 10 % +5 = 100 %
+    setupComboBox ({ velocityUnipolarComboBox, velocityUnipolarLabel, "Velocity Unipolar", "", "Velocity Unipolar" },
+                      { { "0%-100%-200%", 1 },
+                        { "0%-100%", 2 } },
+                      [this] (int valueOffset)
+                      {
+                          const auto velocityUnipolar { velocityUnipolarComboBox.getSelectedId () - 1 };
+                          settingsProperties.setVelocityUnipolar (std::clamp (velocityUnipolar + valueOffset, 0, 1), true);
+                      },
+                      [this] () { return 1; },
+                      [this] () { return uneditedSettingsProperties.getVelocityUnipolar () + 1; });
 }
 
 SettingsEditorComponent::~SettingsEditorComponent ()
