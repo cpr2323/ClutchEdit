@@ -27,15 +27,6 @@ SampleBankComponent::SampleBankComponent ()
                 pm.addSeparator ();
                 const auto sampleFile { juce::File (getFullPath (hiHatSampleIndex, sampleType)) };
                 const auto otherSampleFile { juce::File (getFullPath (hiHatSampleIndex, sampleType == SampleProperties::SampleType::open ? SampleProperties::SampleType::closed : SampleProperties::SampleType::open)) };
-                pm.addItem ("Delete", sampleFile.exists (), false, [this, sampleFile, &hiHatSampleInfo, sampleType] ()
-                {
-                    // if we are deleted a temp file, then we just delete the file.
-                    // if we are deleting the original file, then we mark the sample properties as deleted, but we don't actually delete the file. the original file will be deleted when the project is SAVED
-                    if (sampleFile.getFileExtension ().toLowerCase () == "._wav")
-                        sampleFile.deleteFile ();
-                    else
-                        sampleType == SampleProperties::SampleType::open ? hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.setDeleted (true, true) : hiHatSampleInfo.editedSamplePropertiesPair.closedSampleProperties.setDeleted (true, true);
-                });
                 pm.addItem ("Swap", sampleFile.exists () || otherSampleFile.exists (), false, [this, sampleFile, otherSampleFile, sampleType, &hiHatSampleInfo] ()
                 {
                     if (sampleFile.exists () && ! otherSampleFile.exists ())
@@ -87,6 +78,15 @@ SampleBankComponent::SampleBankComponent ()
 
                         }
                     }
+                });
+                pm.addItem ("Delete", sampleFile.exists (), false, [this, sampleFile, &hiHatSampleInfo, sampleType] ()
+                {
+                    // if we are deleted a temp file, then we just delete the file.
+                    // if we are deleting the original file, then we mark the sample properties as deleted, but we don't actually delete the file. the original file will be deleted when the project is SAVED
+                    if (sampleFile.getFileExtension ().toLowerCase () == "._wav")
+                        sampleFile.deleteFile ();
+                    else
+                        sampleType == SampleProperties::SampleType::open ? hiHatSampleInfo.editedSamplePropertiesPair.openedSampleProperties.setDeleted (true, true) : hiHatSampleInfo.editedSamplePropertiesPair.closedSampleProperties.setDeleted (true, true);
                 });
                 pm.addItem ("Revert", true, false, [this, sampleFile, &hiHatSampleInfo, sampleType] ()
                 {
