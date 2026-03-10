@@ -55,39 +55,35 @@ SettingsEditorComponent::SettingsEditorComponent ()
 			editorData.editor->toStringCallback = [toStringCallback] (float value) { return toStringCallback (value); };
 			editorData.editor->updateDataCallback = [updateDataCallback] (float value) { updateDataCallback (value); };
 			editorData.editor->onDragCallback = [dragMultipliers, updateFromDragCallback] (DragSpeed dragSpeed, int direction)
-				{
-					const auto multiplier = [dragSpeed, dragMultipliers] ()
-						{
-							if (dragSpeed == DragSpeed::slow)
-								return dragMultipliers.slow;
-							else if (dragSpeed == DragSpeed::medium)
-								return dragMultipliers.medium;
-							else
-								return dragMultipliers.fast;
-						} ();
+                {
+                    const auto multiplier = [dragSpeed, dragMultipliers] ()
+                        {
+                            if (dragSpeed == DragSpeed::slow)
+                                return dragMultipliers.slow;
+                            else if (dragSpeed == DragSpeed::medium)
+                                return dragMultipliers.medium;
+                            else
+                                return dragMultipliers.fast;
+                        } ();
 
-					updateFromDragCallback (multiplier * direction);
-				};
+                    updateFromDragCallback (multiplier * direction);
+                };
 			editorData.editor->onPopupMenuCallback = [this, editor = editorData.editor, getDefaultValue, getUneditedValue, menuHeader = editorData.menuHeader] ()
+			{
+				juce::PopupMenu pm;
+				pm.setLookAndFeel (&popupMenuLnF);
+				pm.addSectionHeader (menuHeader);
+				pm.addSeparator ();
+				pm.addItem ("Default", true, false, [editor, getDefaultValue] ()
 				{
-					auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-					popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-
-					juce::PopupMenu pm;
-					pm.setLookAndFeel (popupMenuLnF);
-					pm.addSectionHeader (menuHeader);
-					pm.addSeparator ();
-					pm.addItem ("Default", true, false, [editor, getDefaultValue] ()
-					{
-						editor->setValue (getDefaultValue ());
-					});
-					pm.addItem ("Revert", true, false, [editor, getUneditedValue] ()
-					{
-						editor->setValue (getUneditedValue ());
-					});
-
-					pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-				};
+					editor->setValue (getDefaultValue ());
+				});
+				pm.addItem ("Revert", true, false, [editor, getUneditedValue] ()
+				{
+					editor->setValue (getUneditedValue ());
+				});
+                pm.showMenuAsync ({}, [this, &pm] (int) { pm.setLookAndFeel (nullptr); });
+            };
 
 			editorData.label.setText (editorData.labelText, juce::dontSendNotification);
 			addAndMakeVisible (editorData.label);
@@ -155,11 +151,8 @@ SettingsEditorComponent::SettingsEditorComponent ()
 				};
 			editorData.editor->onPopupMenuCallback = [this, editor = editorData.editor, getDefaultValue, getUneditedValue, menuHeader = editorData.menuHeader] ()
 			{
-				auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-				popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-
 				juce::PopupMenu pm;
-				pm.setLookAndFeel (popupMenuLnF);
+				pm.setLookAndFeel (&popupMenuLnF);
 				pm.addSectionHeader (menuHeader);
 				pm.addSeparator ();
 				pm.addItem ("Default", true, false, [editor, getDefaultValue] ()
@@ -170,8 +163,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 				{
 					editor->setValue (getUneditedValue ());
 				});
-
-				pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
+				pm.showMenuAsync ({}, [this, &pm] (int) { pm.setLookAndFeel (nullptr); });
 			};
 
 			editorData.label.setText (editorData.labelText, juce::dontSendNotification);
@@ -221,11 +213,8 @@ SettingsEditorComponent::SettingsEditorComponent ()
 			};
 			comboBoxData.comboBox.onPopupMenuCallback = [this, comboBox = &comboBoxData.comboBox, getDefaultValue, getUneditedValue, menuHeader = comboBoxData.menuHeader] ()
 			{
-				auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-				popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-
 				juce::PopupMenu pm;
-				pm.setLookAndFeel (popupMenuLnF);
+				pm.setLookAndFeel (&popupMenuLnF);
 				pm.addSectionHeader (menuHeader);
 				pm.addSeparator ();
 				pm.addItem ("Default", true, false, [comboBox, getDefaultValue] ()
@@ -236,8 +225,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 				{
 					comboBox->setSelectedId (getUneditedValue (), juce::NotificationType::sendNotification);
 				});
-
-				pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
+				pm.showMenuAsync ({}, [this, &pm] (int) { pm.setLookAndFeel (nullptr); });
 			};
             comboBoxData.label.setText (comboBoxData.labelText, juce::dontSendNotification);
             comboBoxData.comboBox.setColour (juce::ComboBox::backgroundColourId, juce::Colours::darkgrey.darker (0.5f));
