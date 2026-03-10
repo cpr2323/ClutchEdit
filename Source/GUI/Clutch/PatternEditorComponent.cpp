@@ -121,10 +121,27 @@ PatternEditorComponent::PatternEditorComponent ()
             stepComboBox.setSelectedId (std::clamp (stepValue + scrollAmount, 1, 9), juce::NotificationType::dontSendNotification);
             onPatternUiChanged ();
         };
-        stepComboBox.onPopupMenuCallback = [this] ()
+        stepComboBox.onPopupMenuCallback = [this, curStepIndex, &stepComboBox] ()
         {
-            juce::PopupMenu editMenu;
-            editMenu.showMenuAsync ({}, [this] (int) {});
+            auto* popupMenuLnF { new juce::LookAndFeel_V4 };
+            popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
+
+            juce::PopupMenu pm;
+            pm.setLookAndFeel (popupMenuLnF);
+            pm.addSectionHeader ("Step " + juce::String(curStepIndex + 1));
+            pm.addSeparator ();
+            pm.addItem ("Default", true, false, [&stepComboBox] ()
+            {
+                stepComboBox.setSelectedId (1, juce::NotificationType::sendNotification);
+            });
+            pm.addItem ("Revert", true, false, [this, &stepComboBox, curStepIndex, &pm] ()
+            {
+                const auto patternString { uneditedPatternProperties.getPattern () };
+                const auto stepValues { juce::StringArray::fromTokens (patternString, ",", "") };
+                jassert (curStepIndex < stepValues.size () - 1);
+                stepComboBox.setSelectedId (stepValues[curStepIndex].getIntValue (), juce::NotificationType::sendNotification);
+            });
+            pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
         };
         stepComboBox.onChange = [this] ()
         {

@@ -36,12 +36,15 @@ public:
 private:
     PatternProperties patternProperties;
     PatternProperties uneditedPatternProperties;
-    juce::String defaultPattern;
+
     CustomTextEditorInt numberOfStepsEditor;
     std::array<CustomComboBox, 32> stepEditors;
+    std::array<juce::Label, 32> stepNumbers;
+
     NoArrowComboBoxLnF noArrowComboBoxLnF;
     ToggleButtonLnF toggleButtonLnF;
-    std::array<juce::Label, 32> stepNumbers;
+
+    juce::String defaultPattern;
 
     void onPatternUiChanged ();
     void onPatternDataChanged ();
