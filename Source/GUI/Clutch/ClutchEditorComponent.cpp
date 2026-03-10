@@ -1,5 +1,5 @@
 #include "ClutchEditorComponent.h"
-#include "../../Clutch/HiHatIniData.h"
+//#include "../../Clutch/HiHatIniData.h"
 #include "../../Utility/PersistentRootProperties.h"
 
 ClutchEditorComponent::ClutchEditorComponent ()
@@ -18,6 +18,10 @@ ClutchEditorComponent::ClutchEditorComponent ()
     addComponentWithViewPort ("SETTINGS", &settingsEditorComponent, 1086, 447);
     addComponentWithViewPort ("PATTERNS", &patternListEditorComponent, 1060, 697);
     addComponentWithViewPort ("EFFECTS", &effectEditorComponent, 223, 263);
+    editorTabs.onTabChanged = [this] (int tabIndex)
+    {
+        guiProperties.setActiveTab (tabIndex, false);
+    };
     addAndMakeVisible (editorTabs);
 
     // SETTINGS BUTTON
@@ -89,15 +93,16 @@ void ClutchEditorComponent::init (juce::ValueTree rootPropertiesVT)
 {
     PersistentRootProperties persistentRootProperties (rootPropertiesVT, PersistentRootProperties::WrapperType::client, PersistentRootProperties::EnableCallbacks::no);
     appProperties.wrap (persistentRootProperties.getValueTree (), AppProperties::WrapperType::client, AppProperties::EnableCallbacks::yes);
+    guiProperties.wrap (persistentRootProperties.getValueTree (), GuiProperties::WrapperType::client, GuiProperties::EnableCallbacks::no);
 
-    runtimeRootProperties.wrap (rootPropertiesVT, ValueTreeWrapper<RuntimeRootProperties>::WrapperType::client, ValueTreeWrapper<RuntimeRootProperties>::EnableCallbacks::no);
+    runtimeRootProperties.wrap (rootPropertiesVT, RuntimeRootProperties::WrapperType::client, RuntimeRootProperties::EnableCallbacks::no);
     projectManagerProperties.wrap (runtimeRootProperties.getValueTree (), ProjectManagerProperties::WrapperType::owner, ProjectManagerProperties::EnableCallbacks::yes);
     projectManagerProperties.onProjectEditedChange = [this] (bool projectEdited)
     {
         saveButton.setEnabled (projectEdited);
     };
     audioPlayerProperties.wrap (runtimeRootProperties.getValueTree (), AudioPlayerProperties::WrapperType::client, AudioPlayerProperties::EnableCallbacks::no);
-    clutchProperties.wrap (runtimeRootProperties.getValueTree ().getChildWithProperty(ClutchProperties::NamePropertyId, "edited"), ValueTreeWrapper<ClutchProperties>::WrapperType::client, ValueTreeWrapper<ClutchProperties>::EnableCallbacks::no);
+    clutchProperties.wrap (runtimeRootProperties.getValueTree ().getChildWithProperty(ClutchProperties::NamePropertyId, "edited"), ClutchProperties::WrapperType::client, ClutchProperties::EnableCallbacks::no);
     // TODO pass in the clutch VT directly instead of root VT
     settingsEditorComponent.init (rootPropertiesVT);
     patternListEditorComponent.init (rootPropertiesVT);
@@ -105,6 +110,8 @@ void ClutchEditorComponent::init (juce::ValueTree rootPropertiesVT)
     sampleManagerComponent.init (rootPropertiesVT);
 
     saveButton.setEnabled (projectManagerProperties.getProjectEdited ());
+
+    editorTabs.setCurrentTabIndex (guiProperties.getActiveTab ());
 }
 
 void ClutchEditorComponent::resized()

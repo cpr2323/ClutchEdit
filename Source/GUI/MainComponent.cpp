@@ -21,7 +21,6 @@ MainComponent::MainComponent (juce::ValueTree rootPropertiesVT)
 
 void MainComponent::restoreLayout ()
 {
-    const auto [pane1Size, pane2Size, pane3Size] { guiProperties.getPaneSizes () };
 }
 
 void MainComponent::saveLayoutChanges ()
