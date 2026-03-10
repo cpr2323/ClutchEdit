@@ -20,7 +20,6 @@ private:
     SettingsProperties uneditedSettingsProperties;
 
     NoArrowComboBoxLnF noArrowComboBoxLnF;
-    juce::LookAndFeel_V4 popupMenuLnF;
 
     CustomTextEditorFloat accClAmpModEditor;
     juce::Label accClAmpModLabel;
