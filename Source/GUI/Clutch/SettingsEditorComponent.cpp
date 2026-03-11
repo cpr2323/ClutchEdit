@@ -969,6 +969,19 @@ SettingsEditorComponent::SettingsEditorComponent ()
                        [this] () { return 20; },
                        [this] () { return uneditedSettingsProperties.getFxGlitchStutterWindow (); });
 
+    setupFloatEditor ({ &fxGlitchWeightCrushHighEditor, fxGlitchWeightCrushHighLabel, "FX Glitch Weight Crush High", "FX Glitch Weight Crush High", "FX Glitch Weight Crush High" },
+                      { 0.0f, 1.0f },
+                      { 0.1f, 0.3f, 0.5f },
+                      [this] (float value) { return getRoundedFloatString (value, 4); },
+                      [this] (float value) { fxGlitchWeightCrushHighUiChanged (value); },
+                      [this] (float valueOffset)
+                      {
+                          const auto newValue { settingsProperties.getFxGlitchWeightCrushHigh () + valueOffset };
+                          fxGlitchWeightCrushHighEditor.setValue (newValue);
+                      },
+                      [this] () { return 0.20f; },
+                      [this] () { return uneditedSettingsProperties.getFxGlitchWeightCrushHigh (); });
+
     setupFloatEditor ({ &fxGlitchWeightCrushLowEditor, fxGlitchWeightCrushLowLabel, "FX Glitch Weight Crush Low", "FX Glitch Weight Crush Low", "FX Glitch Weight Crush Low" },
                          { 0.0f, 1.0f },
                          { 0.1f, 0.3f, 0.5f },
@@ -2097,6 +2110,7 @@ void SettingsEditorComponent::resized ()
         { &fxGlitchStutterSmplTMaxEditor, &fxGlitchStutterSmplTMaxLabel },
         { &fxGlitchStutterSmplTMinEditor, &fxGlitchStutterSmplTMinLabel },
         { &fxGlitchStutterWindowEditor, &fxGlitchStutterWindowLabel },
+        { &fxGlitchWeightCrushHighEditor, &fxGlitchWeightCrushHighLabel },
         { &fxGlitchWeightCrushLowEditor, &fxGlitchWeightCrushLowLabel },
         { &fxGlitchWeightDropHighEditor, &fxGlitchWeightDropHighLabel },
         { &fxGlitchWeightDropLowEditor, &fxGlitchWeightDropLowLabel },
