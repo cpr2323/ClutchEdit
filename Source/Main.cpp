@@ -19,7 +19,7 @@
 #include "Utility/ValueTreeMonitor.h"
 
 // used to add things like TEST, or ALPHA, or BETA, etc to the version number when displayed
-constexpr char* kVersionDecorator { "" };
+constexpr char* kVersionDecorator { " | ALPHA-3" };
 
 // this requires the third party Melatonin Inspector be installed and added to the project
 // https://github.com/sudara/melatonin_inspector
