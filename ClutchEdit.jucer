@@ -72,6 +72,10 @@
       </GROUP>
       <GROUP id="{F84B9547-B9C5-0346-2143-1B0A6AFB5014}" name="GUI">
         <GROUP id="{6E3055B2-5C28-C545-AD81-3DAC2EA28786}" name="Clutch">
+          <GROUP id="{DD0435C2-5CB6-4282-07E2-2E4DEE8C3FBC}" name="Data">
+            <FILE id="K1dVQ8" name="clutchediticon.png" compile="0" resource="1"
+                  file="Source/GUI/Clutch/Data/clutchediticon.png"/>
+          </GROUP>
           <FILE id="VPt0Kr" name="ClutchEditorComponent.cpp" compile="1" resource="0"
                 file="Source/GUI/Clutch/ClutchEditorComponent.cpp"/>
           <FILE id="EOQC3B" name="ClutchEditorComponent.h" compile="0" resource="0"
@@ -198,7 +202,7 @@
   </MODULES>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
   <EXPORTFORMATS>
-    <VS2022 targetFolder="Builds/VisualStudio2022">
+    <VS2022 targetFolder="Builds/VisualStudio2022" smallIcon="K1dVQ8" bigIcon="K1dVQ8">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="ClutchEdit"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="ClutchEdit"/>
