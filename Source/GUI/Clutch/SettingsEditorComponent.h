@@ -164,6 +164,41 @@ private:
     CustomComboBox velocityUnipolarComboBox;
     juce::Label velocityUnipolarLabel;
 
+    juce::Label accentHeaderLabel;
+    juce::Label accentOpenedHeaderLabel;
+    juce::Label accentClosedHeaderLabel;
+
+    juce::Label closedHeaderLabel;
+
+    juce::Label cvHeaderLabel;
+
+    juce::Label envelopeFeelHeaderLabel;
+
+    juce::Label filterHeaderLabel;
+    juce::Label filterHpfHeaderLabel;
+    juce::Label filterLpfHeaderLabel;
+
+    juce::Label pitchGateHeaderLabel;
+
+    juce::Label chorusHeaderLabel;
+
+    juce::Label djFilterHeaderLabel;
+    juce::Label djFilterHpfHeaderLabel;
+    juce::Label djFilterLpfHeaderLabel;
+    juce::Label djFilterQHeaderLabel;
+
+    juce::Label dubEchoHeaderLabel;
+
+    juce::Label reverbHeaderLabel;
+
+    juce::Label glitchHeaderLabel;
+    juce::Label glitchCrushHeaderLabel;
+    juce::Label glitchDropHeaderLabel;
+    juce::Label glitchMicroloopHeaderLabel;
+    juce::Label glitchProbabilityHeaderLabel;
+    juce::Label glitchStutterHeaderLabel;
+    juce::Label glitchWeightsHeaderLabel;
+
     void pitchLowDataChanged (float value);
     void pitchHighDataChanged (float value);
     void envelopeMaxReleaseDataChanged (float value);

@@ -1163,6 +1163,50 @@ SettingsEditorComponent::SettingsEditorComponent ()
                       },
                       [this] () { return 1; },
                       [this] () { return uneditedSettingsProperties.getVelocityUnipolar () + 1; });
+
+    auto setupHeaderLabel = [this] (juce::Label& label, const juce::String& text, float fontHeight)
+        {
+            label.setText (text, juce::dontSendNotification);
+            label.setJustificationType (juce::Justification::centredLeft);
+            label.setColour (juce::Label::textColourId, juce::Colours::white.withAlpha (0.92f));
+            label.setFont (juce::Font (fontHeight, juce::Font::bold));
+            addAndMakeVisible (label);
+        };
+
+    setupHeaderLabel (accentHeaderLabel, "Accent", 16.0f);
+    setupHeaderLabel (accentOpenedHeaderLabel, "Opened", 14.0f);
+    setupHeaderLabel (accentClosedHeaderLabel, "Closed", 14.0f);
+
+    setupHeaderLabel (closedHeaderLabel, "Closed", 16.0f);
+
+    setupHeaderLabel (cvHeaderLabel, "CV", 16.0f);
+
+    setupHeaderLabel (envelopeFeelHeaderLabel, "Envelope / Feel", 16.0f);
+
+    setupHeaderLabel (filterHeaderLabel, "Filter", 16.0f);
+    setupHeaderLabel (filterHpfHeaderLabel, "HPF", 14.0f);
+    setupHeaderLabel (filterLpfHeaderLabel, "LPF", 14.0f);
+
+    setupHeaderLabel (pitchGateHeaderLabel, "Pitch / Gate", 16.0f);
+
+    setupHeaderLabel (chorusHeaderLabel, "Chorus", 16.0f);
+
+    setupHeaderLabel (djFilterHeaderLabel, "DJ Filter", 16.0f);
+    setupHeaderLabel (djFilterHpfHeaderLabel, "HPF", 14.0f);
+    setupHeaderLabel (djFilterLpfHeaderLabel, "LPF", 14.0f);
+    setupHeaderLabel (djFilterQHeaderLabel, "Q", 14.0f);
+
+    setupHeaderLabel (dubEchoHeaderLabel, "Dub Echo", 16.0f);
+
+    setupHeaderLabel (reverbHeaderLabel, "Reverb", 16.0f);
+
+    setupHeaderLabel (glitchHeaderLabel, "Glitch", 16.0f);
+    setupHeaderLabel (glitchCrushHeaderLabel, "Crush", 14.0f);
+    setupHeaderLabel (glitchDropHeaderLabel, "Drop", 14.0f);
+    setupHeaderLabel (glitchMicroloopHeaderLabel, "Microloop", 14.0f);
+    setupHeaderLabel (glitchProbabilityHeaderLabel, "Probability", 14.0f);
+    setupHeaderLabel (glitchStutterHeaderLabel, "Stutter", 14.0f);
+    setupHeaderLabel (glitchWeightsHeaderLabel, "Weights", 14.0f);
 }
 
 SettingsEditorComponent::~SettingsEditorComponent ()
@@ -2039,9 +2083,16 @@ void SettingsEditorComponent::fxGlitchStutterWindowUiChanged (int value)
     settingsProperties.setFxGlitchStutterWindow (value, false);
 }
 
-void SettingsEditorComponent::paint (juce::Graphics& g)
+
+void SettingsEditorComponent::paint (juce::Graphics & g)
 {
     g.fillAll (juce::Colours::darkgrey);
+
+    const auto bounds { getLocalBounds ().reduced (10) };
+    const auto dividerX { bounds.getX () + (bounds.getWidth () / 2) };
+
+    g.setColour (juce::Colours::white.withAlpha (0.14f));
+    g.drawVerticalLine (dividerX, static_cast<float> (bounds.getY ()), static_cast<float> (bounds.getBottom ()));
 }
 
 void SettingsEditorComponent::resized ()
@@ -2052,97 +2103,316 @@ void SettingsEditorComponent::resized ()
         juce::Label* label;
     };
 
-    CompLabelPair pairs [] =
-    {
-        { &accClAmpModEditor, &accClAmpModLabel },
-        { &accClRelModEditor, &accClRelModLabel },
-        { &accOpAmpModEditor, &accOpAmpModLabel },
-        { &accOpRelModEditor, &accOpRelModLabel },
-        { &chokeReleaseEditor, &chokeReleaseLabel },
-        { &clsdMaxReleaseEditor, &clsdMaxReleaseLabel },
-        { &clsdRelOfstScaleEditor, &clsdRelOfstScaleLabel },
-        { &clsdReleaseModeComboBox, &clsdReleaseModeLabel },
-        { &cvDisableFxComboBox, &cvDisableFxLabel },
-        { &cvDisableVelocityComboBox, &cvDisableVelocityLabel },
-        { &envelopeMaxReleaseEditor, &envelopeMaxReleaseLabel },
-        { &feelAmpModEditor, &feelAmpModLabel },
-        { &feelAttackModEditor, &feelAttackModLabel },
-        { &feelReleaseModEditor, &feelReleaseModLabel },
-        { &fltrHpfMaxFreqEditor, &fltrHpfMaxFreqLabel },
-        { &fltrHpfMinFreqEditor, &fltrHpfMinFreqLabel },
-        { &fltrHpfQEditor, &fltrHpfQLabel },
-        { &fltrLpfMaxFreqEditor, &fltrLpfMaxFreqLabel },
-        { &fltrLpfMinFreqEditor, &fltrLpfMinFreqLabel },
-        { &fltrLpfQEditor, &fltrLpfQLabel },
-        { &fxChorusCenterEditor, &fxChorusCenterLabel },
-        { &fxChorusDepthEditor, &fxChorusDepthLabel },
-        { &fxChorusLfoBEditor, &fxChorusLfoBLabel },
-        { &fxChorusLfoTEditor, &fxChorusLfoTLabel },
-        { &fxChorusMixEditor, &fxChorusMixLabel },
-        { &fxChorusSpreadEditor, &fxChorusSpreadLabel },
-        { &fxChorusTapsComboBox, &fxChorusTapsLabel },
-        { &fxCvUnipolarComboBox, &fxCvUnipolarLabel },
-        { &fxDjfilterHpfMaxEditor, &fxDjfilterHpfMaxLabel },
-        { &fxDjfilterHpfMinEditor, &fxDjfilterHpfMinLabel },
-        { &fxDjfilterLpfMaxEditor, &fxDjfilterLpfMaxLabel },
-        { &fxDjfilterLpfMinEditor, &fxDjfilterLpfMinLabel },
-        { &fxDjfilterQGainReductionEditor, &fxDjfilterQGainReductionLabel },
-        { &fxDjfilterQMaxEditor, &fxDjfilterQMaxLabel },
-        { &fxDjfilterQMinEditor, &fxDjfilterQMinLabel },
-        { &fxDubEchoHpfEditor, &fxDubEchoHpfLabel },
-        { &fxDubEchoLpfEditor, &fxDubEchoLpfLabel },
-        { &fxDubEchoMixEditor, &fxDubEchoMixLabel },
-        { &fxDubEchoTminEditor, &fxDubEchoTminLabel },
-        { &fxGlitchCrushTimeMaxEditor, &fxGlitchCrushTimeMaxLabel },
-        { &fxGlitchCrushTimeMinEditor, &fxGlitchCrushTimeMinLabel },
-        { &fxGlitchDropKeepLevelMaxEditor, &fxGlitchDropKeepLevelMaxLabel },
-        { &fxGlitchDropKeepLevelMinEditor, &fxGlitchDropKeepLevelMinLabel },
-        { &fxGlitchDropKeepTimeMaxEditor, &fxGlitchDropKeepTimeMaxLabel },
-        { &fxGlitchDropKeepTimeMinEditor, &fxGlitchDropKeepTimeMinLabel },
-        { &fxGlitchMicroloopPlayTMaxEditor, &fxGlitchMicroloopPlayTMaxLabel },
-        { &fxGlitchMicroloopPlayTMinEditor, &fxGlitchMicroloopPlayTMinLabel },
-        { &fxGlitchMicroloopSmplTMaxEditor, &fxGlitchMicroloopSmplTMaxLabel },
-        { &fxGlitchMicroloopSmplTMinEditor, &fxGlitchMicroloopSmplTMinLabel },
-        { &fxGlitchProbabilityMaxEditor, &fxGlitchProbabilityMaxLabel },
-        { &fxGlitchProbabilityMinEditor, &fxGlitchProbabilityMinLabel },
-        { &fxGlitchStutterNumMaxEditor, &fxGlitchStutterNumMaxLabel },
-        { &fxGlitchStutterNumMinEditor, &fxGlitchStutterNumMinLabel },
-        { &fxGlitchStutterSmplTMaxEditor, &fxGlitchStutterSmplTMaxLabel },
-        { &fxGlitchStutterSmplTMinEditor, &fxGlitchStutterSmplTMinLabel },
-        { &fxGlitchStutterWindowEditor, &fxGlitchStutterWindowLabel },
-        { &fxGlitchWeightCrushHighEditor, &fxGlitchWeightCrushHighLabel },
-        { &fxGlitchWeightCrushLowEditor, &fxGlitchWeightCrushLowLabel },
-        { &fxGlitchWeightDropHighEditor, &fxGlitchWeightDropHighLabel },
-        { &fxGlitchWeightDropLowEditor, &fxGlitchWeightDropLowLabel },
-        { &fxGlitchWeightHoldHighEditor, &fxGlitchWeightHoldHighLabel },
-        { &fxGlitchWeightHoldLowEditor, &fxGlitchWeightHoldLowLabel },
-        { &fxGlitchWeightStutterHighEditor, &fxGlitchWeightStutterHighLabel },
-        { &fxGlitchWeightStutterLowEditor, &fxGlitchWeightStutterLowLabel },
-        { &fxReverbHpfEditor, &fxReverbHpfLabel },
-        { &fxReverbLpfEditor, &fxReverbLpfLabel },
-        { &gateModeComboBox, &gateModeLabel },
-        { &knobPosTakeupComboBox, &knobPosTakeupLabel },
-        { &pitchHighEditor, &pitchHighLabel },
-        { &pitchLowEditor, &pitchLowLabel },
-        { &velocityUnipolarComboBox, &velocityUnipolarLabel }
-    };
+    constexpr auto kOuterMargin { 10 };
+    constexpr auto kMidGap { 18 };
+    constexpr auto kColumnGap { 18 };
 
-
-    auto curX { 10 };
-    auto curY { 10 };
     constexpr auto kLabelWidth { 160 };
     constexpr auto kCompWidth { 100 };
-    constexpr auto kLineHeight { 20 };
-    constexpr auto kLinePerColumn { 20 };
-    for (const auto& p : pairs)
-    {
-        p.label->setBounds (curX, curY, kLabelWidth, kLineHeight);
-        p.comp->setBounds (curX + kLabelWidth + 2, curY, kCompWidth, kLineHeight);
-        curY += kLineHeight + 2;
-        if (curY + kLineHeight + 2 > kLinePerColumn * (kLineHeight + 2))
+    constexpr auto kRowHeight { 20 };
+    constexpr auto kRowGap { 2 };
+
+    constexpr auto kSectionHeaderHeight { 24 };
+    constexpr auto kSubHeaderHeight { 20 };
+    constexpr auto kSectionGap { 10 };
+    constexpr auto kSubSectionGap { 6 };
+
+    constexpr auto kIndentSectionContent { 12 };
+    constexpr auto kIndentSubsection { 12 };
+    constexpr auto kIndentParamUnderSubsection { 24 };
+
+    const auto rowStride { kRowHeight + kRowGap };
+
+    auto bounds { getLocalBounds ().reduced (kOuterMargin) };
+
+    auto leftArea { bounds.removeFromLeft ((bounds.getWidth () - kMidGap) / 2) };
+    bounds.removeFromLeft (kMidGap);
+    auto rightArea { bounds };
+
+    auto makeColumns =
+        [&] (juce::Rectangle<int> area, int numColumns)
         {
-            curY = 10;
-            curX += kLabelWidth + kCompWidth + 10;
-        }
-    }
+            std::vector<juce::Rectangle<int>> columns;
+            const auto totalGap { (numColumns - 1) * kColumnGap };
+            const auto columnWidth { (area.getWidth () - totalGap) / numColumns };
+
+            for (int i { 0 }; i < numColumns; ++i)
+            {
+                const auto x { area.getX () + i * (columnWidth + kColumnGap) };
+                columns.emplace_back (x, area.getY (), columnWidth, area.getHeight ());
+            }
+
+            return columns;
+        };
+
+    auto positionHeader =
+        [] (juce::Label& header, juce::Rectangle<int>& area, int height, int indent = 0)
+        {
+            header.setBounds (area.getX () + indent, area.getY (), area.getWidth () - indent, height);
+            area.removeFromTop (height);
+        };
+
+    auto positionRows =
+        [&] (juce::Rectangle<int>& area, std::initializer_list<CompLabelPair> pairs, int indent = 0)
+        {
+            auto y { area.getY () };
+
+            for (const auto& pair : pairs)
+            {
+                pair.label->setBounds (area.getX () + indent, y, kLabelWidth - indent, kRowHeight);
+                pair.comp->setBounds (area.getX () + kLabelWidth + 2, y, kCompWidth, kRowHeight);
+                y += rowStride;
+            }
+
+            area.setY (y);
+            area.setHeight (juce::jmax (0, area.getBottom () - y));
+        };
+
+    auto addVerticalGap =
+        [] (juce::Rectangle<int>& area, int amount)
+        {
+            area.removeFromTop (amount);
+        };
+
+    auto leftColumns { makeColumns (leftArea, 2) };
+    auto rightColumns { makeColumns (rightArea, 2) };
+
+    auto& leftColumn0 { leftColumns [0] };
+    auto& leftColumn1 { leftColumns [1] };
+    auto& rightColumn0 { rightColumns [0] };
+    auto& rightColumn1 { rightColumns [1] };
+
+    // =========================================================================
+    // LEFT SIDE
+    // =========================================================================
+
+    // Accent
+    positionHeader (accentHeaderLabel, leftColumn0, kSectionHeaderHeight);
+    addVerticalGap (leftColumn0, 2);
+
+    positionHeader (accentOpenedHeaderLabel, leftColumn0, kSubHeaderHeight, kIndentSubsection);
+    positionRows (leftColumn0,
+                  {
+                      { &accOpAmpModEditor, &accOpAmpModLabel },
+                      { &accOpRelModEditor, &accOpRelModLabel }
+                  }, kIndentParamUnderSubsection);
+
+    addVerticalGap (leftColumn0, kSubSectionGap);
+
+    positionHeader (accentClosedHeaderLabel, leftColumn0, kSubHeaderHeight, kIndentSubsection);
+    positionRows (leftColumn0,
+                  {
+                      { &accClAmpModEditor, &accClAmpModLabel },
+                      { &accClRelModEditor, &accClRelModLabel }
+                  }, kIndentParamUnderSubsection);
+
+    addVerticalGap (leftColumn0, kSectionGap);
+
+    // Closed
+    positionHeader (closedHeaderLabel, leftColumn0, kSectionHeaderHeight);
+    positionRows (leftColumn0,
+                  {
+                      { &clsdMaxReleaseEditor, &clsdMaxReleaseLabel },
+                      { &clsdRelOfstScaleEditor, &clsdRelOfstScaleLabel },
+                      { &clsdReleaseModeComboBox, &clsdReleaseModeLabel }
+                  }, kIndentSectionContent);
+
+    addVerticalGap (leftColumn0, kSectionGap);
+
+    // Envelope / Feel
+    positionHeader (envelopeFeelHeaderLabel, leftColumn0, kSectionHeaderHeight);
+    positionRows (leftColumn0,
+                  {
+                      { &chokeReleaseEditor, &chokeReleaseLabel },
+                      { &envelopeMaxReleaseEditor, &envelopeMaxReleaseLabel },
+                      { &feelAmpModEditor, &feelAmpModLabel },
+                      { &feelAttackModEditor, &feelAttackModLabel },
+                      { &feelReleaseModEditor, &feelReleaseModLabel }
+                  }, kIndentSectionContent);
+
+                  // CV
+    positionHeader (cvHeaderLabel, leftColumn1, kSectionHeaderHeight);
+    positionRows (leftColumn1,
+                  {
+                      { &cvDisableFxComboBox, &cvDisableFxLabel },
+                      { &cvDisableVelocityComboBox, &cvDisableVelocityLabel },
+                      { &fxCvUnipolarComboBox, &fxCvUnipolarLabel },
+                      { &velocityUnipolarComboBox, &velocityUnipolarLabel }
+                  }, kIndentSectionContent);
+
+    addVerticalGap (leftColumn1, kSectionGap);
+
+    // Filter
+    positionHeader (filterHeaderLabel, leftColumn1, kSectionHeaderHeight);
+    addVerticalGap (leftColumn1, 2);
+
+    positionHeader (filterHpfHeaderLabel, leftColumn1, kSubHeaderHeight, kIndentSubsection);
+    positionRows (leftColumn1,
+                  {
+                      { &fltrHpfMinFreqEditor, &fltrHpfMinFreqLabel },
+                      { &fltrHpfMaxFreqEditor, &fltrHpfMaxFreqLabel },
+                      { &fltrHpfQEditor, &fltrHpfQLabel }
+                  }, kIndentParamUnderSubsection);
+
+    addVerticalGap (leftColumn1, kSubSectionGap);
+
+    positionHeader (filterLpfHeaderLabel, leftColumn1, kSubHeaderHeight, kIndentSubsection);
+    positionRows (leftColumn1,
+                  {
+                      { &fltrLpfMinFreqEditor, &fltrLpfMinFreqLabel },
+                      { &fltrLpfMaxFreqEditor, &fltrLpfMaxFreqLabel },
+                      { &fltrLpfQEditor, &fltrLpfQLabel }
+                  }, kIndentParamUnderSubsection);
+
+    addVerticalGap (leftColumn1, kSectionGap);
+
+    // Pitch / Gate
+    positionHeader (pitchGateHeaderLabel, leftColumn1, kSectionHeaderHeight);
+    positionRows (leftColumn1,
+                  {
+                      { &pitchLowEditor, &pitchLowLabel },
+                      { &pitchHighEditor, &pitchHighLabel },
+                      { &gateModeComboBox, &gateModeLabel },
+                      { &knobPosTakeupComboBox, &knobPosTakeupLabel }
+                  }, kIndentSectionContent);
+
+                  // =========================================================================
+                  // RIGHT SIDE
+                  // =========================================================================
+
+                  // Chorus
+    positionHeader (chorusHeaderLabel, rightColumn0, kSectionHeaderHeight);
+    positionRows (rightColumn0,
+                  {
+                      { &fxChorusCenterEditor, &fxChorusCenterLabel },
+                      { &fxChorusDepthEditor, &fxChorusDepthLabel },
+                      { &fxChorusLfoBEditor, &fxChorusLfoBLabel },
+                      { &fxChorusLfoTEditor, &fxChorusLfoTLabel },
+                      { &fxChorusMixEditor, &fxChorusMixLabel },
+                      { &fxChorusSpreadEditor, &fxChorusSpreadLabel },
+                      { &fxChorusTapsComboBox, &fxChorusTapsLabel }
+                  }, kIndentSectionContent);
+
+    addVerticalGap (rightColumn0, kSectionGap);
+
+    // DJ Filter
+    positionHeader (djFilterHeaderLabel, rightColumn0, kSectionHeaderHeight);
+    addVerticalGap (rightColumn0, 2);
+
+    positionHeader (djFilterHpfHeaderLabel, rightColumn0, kSubHeaderHeight, kIndentSubsection);
+    positionRows (rightColumn0,
+                  {
+                      { &fxDjfilterHpfMinEditor, &fxDjfilterHpfMinLabel },
+                      { &fxDjfilterHpfMaxEditor, &fxDjfilterHpfMaxLabel }
+                  }, kIndentParamUnderSubsection);
+
+    addVerticalGap (rightColumn0, kSubSectionGap);
+
+    positionHeader (djFilterLpfHeaderLabel, rightColumn0, kSubHeaderHeight, kIndentSubsection);
+    positionRows (rightColumn0,
+                  {
+                      { &fxDjfilterLpfMinEditor, &fxDjfilterLpfMinLabel },
+                      { &fxDjfilterLpfMaxEditor, &fxDjfilterLpfMaxLabel }
+                  }, kIndentParamUnderSubsection);
+
+    addVerticalGap (rightColumn0, kSubSectionGap);
+
+    positionHeader (djFilterQHeaderLabel, rightColumn0, kSubHeaderHeight, kIndentSubsection);
+    positionRows (rightColumn0,
+                  {
+                      { &fxDjfilterQMinEditor, &fxDjfilterQMinLabel },
+                      { &fxDjfilterQMaxEditor, &fxDjfilterQMaxLabel },
+                      { &fxDjfilterQGainReductionEditor, &fxDjfilterQGainReductionLabel }
+                  }, kIndentParamUnderSubsection);
+
+    addVerticalGap (rightColumn0, kSectionGap);
+
+    // Dub Echo
+    positionHeader (dubEchoHeaderLabel, rightColumn0, kSectionHeaderHeight);
+    positionRows (rightColumn0,
+                  {
+                      { &fxDubEchoHpfEditor, &fxDubEchoHpfLabel },
+                      { &fxDubEchoLpfEditor, &fxDubEchoLpfLabel },
+                      { &fxDubEchoMixEditor, &fxDubEchoMixLabel },
+                      { &fxDubEchoTminEditor, &fxDubEchoTminLabel }
+                  }, kIndentSectionContent);
+
+    addVerticalGap (rightColumn0, kSectionGap);
+
+    // Reverb
+    positionHeader (reverbHeaderLabel, rightColumn0, kSectionHeaderHeight);
+    positionRows (rightColumn0,
+                  {
+                      { &fxReverbHpfEditor, &fxReverbHpfLabel },
+                      { &fxReverbLpfEditor, &fxReverbLpfLabel }
+                  }, kIndentSectionContent);
+
+                  // Glitch
+    positionHeader (glitchHeaderLabel, rightColumn1, kSectionHeaderHeight);
+    addVerticalGap (rightColumn1, 2);
+
+    positionHeader (glitchCrushHeaderLabel, rightColumn1, kSubHeaderHeight, kIndentSubsection);
+    positionRows (rightColumn1,
+                  {
+                      { &fxGlitchCrushTimeMinEditor, &fxGlitchCrushTimeMinLabel },
+                      { &fxGlitchCrushTimeMaxEditor, &fxGlitchCrushTimeMaxLabel }
+                  }, kIndentParamUnderSubsection);
+
+    addVerticalGap (rightColumn1, kSubSectionGap);
+
+    positionHeader (glitchDropHeaderLabel, rightColumn1, kSubHeaderHeight, kIndentSubsection);
+    positionRows (rightColumn1,
+                  {
+                      { &fxGlitchDropKeepLevelMinEditor, &fxGlitchDropKeepLevelMinLabel },
+                      { &fxGlitchDropKeepLevelMaxEditor, &fxGlitchDropKeepLevelMaxLabel },
+                      { &fxGlitchDropKeepTimeMinEditor, &fxGlitchDropKeepTimeMinLabel },
+                      { &fxGlitchDropKeepTimeMaxEditor, &fxGlitchDropKeepTimeMaxLabel }
+                  }, kIndentParamUnderSubsection);
+
+    addVerticalGap (rightColumn1, kSubSectionGap);
+
+    positionHeader (glitchMicroloopHeaderLabel, rightColumn1, kSubHeaderHeight, kIndentSubsection);
+    positionRows (rightColumn1,
+                  {
+                      { &fxGlitchMicroloopPlayTMinEditor, &fxGlitchMicroloopPlayTMinLabel },
+                      { &fxGlitchMicroloopPlayTMaxEditor, &fxGlitchMicroloopPlayTMaxLabel },
+                      { &fxGlitchMicroloopSmplTMinEditor, &fxGlitchMicroloopSmplTMinLabel },
+                      { &fxGlitchMicroloopSmplTMaxEditor, &fxGlitchMicroloopSmplTMaxLabel }
+                  }, kIndentParamUnderSubsection);
+
+    addVerticalGap (rightColumn1, kSubSectionGap);
+
+    positionHeader (glitchProbabilityHeaderLabel, rightColumn1, kSubHeaderHeight, kIndentSubsection);
+    positionRows (rightColumn1,
+                  {
+                      { &fxGlitchProbabilityMinEditor, &fxGlitchProbabilityMinLabel },
+                      { &fxGlitchProbabilityMaxEditor, &fxGlitchProbabilityMaxLabel }
+                  }, kIndentParamUnderSubsection);
+
+    addVerticalGap (rightColumn1, kSubSectionGap);
+
+    positionHeader (glitchStutterHeaderLabel, rightColumn1, kSubHeaderHeight, kIndentSubsection);
+    positionRows (rightColumn1,
+                  {
+                      { &fxGlitchStutterNumMinEditor, &fxGlitchStutterNumMinLabel },
+                      { &fxGlitchStutterNumMaxEditor, &fxGlitchStutterNumMaxLabel },
+                      { &fxGlitchStutterSmplTMinEditor, &fxGlitchStutterSmplTMinLabel },
+                      { &fxGlitchStutterSmplTMaxEditor, &fxGlitchStutterSmplTMaxLabel },
+                      { &fxGlitchStutterWindowEditor, &fxGlitchStutterWindowLabel }
+                  }, kIndentParamUnderSubsection);
+
+    addVerticalGap (rightColumn1, kSubSectionGap);
+
+    positionHeader (glitchWeightsHeaderLabel, rightColumn1, kSubHeaderHeight, kIndentSubsection);
+    positionRows (rightColumn1,
+                  {
+                      { &fxGlitchWeightCrushLowEditor, &fxGlitchWeightCrushLowLabel },
+                      { &fxGlitchWeightCrushHighEditor, &fxGlitchWeightCrushHighLabel },
+                      { &fxGlitchWeightDropLowEditor, &fxGlitchWeightDropLowLabel },
+                      { &fxGlitchWeightDropHighEditor, &fxGlitchWeightDropHighLabel },
+                      { &fxGlitchWeightHoldLowEditor, &fxGlitchWeightHoldLowLabel },
+                      { &fxGlitchWeightHoldHighEditor, &fxGlitchWeightHoldHighLabel },
+                      { &fxGlitchWeightStutterLowEditor, &fxGlitchWeightStutterLowLabel },
+                      { &fxGlitchWeightStutterHighEditor, &fxGlitchWeightStutterHighLabel }
+                  }, kIndentParamUnderSubsection);
 }
