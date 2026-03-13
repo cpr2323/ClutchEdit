@@ -172,13 +172,15 @@ private:
 
     juce::Label cvHeaderLabel;
 
-    juce::Label envelopeFeelHeaderLabel;
+    juce::Label envelopeHeaderLabel;
+    juce::Label feelHeaderLabel;
 
     juce::Label filterHeaderLabel;
     juce::Label filterHpfHeaderLabel;
     juce::Label filterLpfHeaderLabel;
 
-    juce::Label pitchGateHeaderLabel;
+    juce::Label pitchHeaderLabel;
+    juce::Label utilityHeaderLabel;
 
     juce::Label chorusHeaderLabel;
 
@@ -198,6 +200,8 @@ private:
     juce::Label glitchProbabilityHeaderLabel;
     juce::Label glitchStutterHeaderLabel;
     juce::Label glitchWeightsHeaderLabel;
+
+    std::vector<juce::Rectangle<int>> sectionBoxes;
 
     void pitchLowDataChanged (float value);
     void pitchHighDataChanged (float value);
