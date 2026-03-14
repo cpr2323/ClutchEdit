@@ -15,7 +15,7 @@ ClutchEditorComponent::ClutchEditorComponent ()
         editorTabs.addTab (title, juce::Colours::darkgrey, viewPort, true);
     };
     addComponentWithViewPort ("SAMPLES", &sampleManagerComponent, 1254, 407);
-    addComponentWithViewPort ("SETTINGS", &settingsEditorComponent, 1086, 1000);
+    addComponentWithViewPort ("SETTINGS", &settingsEditorComponent, 1200, 1000);
     addComponentWithViewPort ("PATTERNS", &patternListEditorComponent, 1060, 697);
     addComponentWithViewPort ("EFFECTS", &effectEditorComponent, 223, 263);
     editorTabs.onTabChanged = [this] (int tabIndex)

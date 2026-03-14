@@ -2130,7 +2130,7 @@ void SettingsEditorComponent::paint (juce::Graphics& g)
     constexpr auto kSeparatorInsetX { 0 };
     constexpr auto kSeparatorThickness { 1.0f };
 
-    g.setColour (kSectionOutlineColour);
+    g.setColour (kSectionOutlineColour.brighter (0.4f));
     for (const auto& box : sectionBoxes)
     {
         g.drawRoundedRectangle (box.toFloat (), kSectionCornerSize, kSectionOutlineThickness);
@@ -2240,7 +2240,7 @@ void SettingsEditorComponent::resized ()
     //==========================================================================
 
     constexpr auto kGlitchColumnGap { 5 };
-    constexpr auto kGlitchControlWidth { 40 };
+    constexpr auto kGlitchControlWidth { 60 };
     constexpr auto kGlitchControlGap { 4 };
     constexpr auto kGlitchSubHeaderIndent { 8 };
     constexpr auto kGlitchContentIndent { 12 };
@@ -2687,7 +2687,7 @@ void SettingsEditorComponent::resized ()
                 auto y { area.getY () };
                 const auto controlX { subColumnBounds.getRight () - kGlitchControlWidth };
                 const auto labelX { subColumnBounds.getX () + indent };
-                const auto labelWidth { juce::jmax (18, controlX - labelX - kGlitchControlGap) };
+                const auto labelWidth { juce::jmax (18, controlX - labelX/* - kGlitchControlGap*/) };
 
                 for (const auto& pair : pairs)
                 {
