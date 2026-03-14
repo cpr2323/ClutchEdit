@@ -2225,24 +2225,30 @@ void SettingsEditorComponent::resized ()
         };
 
     auto finishSection =
-        [&] (const juce::Rectangle<int>& columnArea, int startY, int endY)
+        [&] (const juce::Rectangle<int>& columnBounds, int startY, int endY)
         {
             const auto top { startY - kSectionBoxPadTop };
             const auto bottom { endY + kSectionBoxPadBottom };
+
             sectionBoxes.emplace_back (
-                columnArea.getX () - kSectionBoxPadX,
+                columnBounds.getX () - kSectionBoxPadX,
                 top,
-                columnArea.getWidth () + (kSectionBoxPadX * 2),
+                columnBounds.getWidth () + (kSectionBoxPadX * 2),
                 juce::jmax (0, bottom - top));
         };
 
     auto leftColumns { makeColumns (leftArea, 2) };
     auto rightColumns { makeColumns (rightArea, 2) };
 
-    auto& leftColumn0 { leftColumns [0] };
-    auto& leftColumn1 { leftColumns [1] };
-    auto& rightColumn0 { rightColumns [0] };
-    auto& rightColumn1 { rightColumns [1] };
+    auto leftColumn0Bounds { leftColumns [0] };
+    auto leftColumn1Bounds { leftColumns [1] };
+    auto rightColumn0Bounds { rightColumns [0] };
+    auto rightColumn1Bounds { rightColumns [1] };
+
+    auto leftColumn0 { leftColumn0Bounds };
+    auto leftColumn1 { leftColumn1Bounds };
+    auto rightColumn0 { rightColumn0Bounds };
+    auto rightColumn1 { rightColumn1Bounds };
 
     // =========================================================================
     // LEFT SIDE
@@ -2250,83 +2256,93 @@ void SettingsEditorComponent::resized ()
 
     // Accent
     {
-        const auto startY { beginSection (leftColumn0) };
+        auto& column { leftColumn0 };
+        const auto& columnBounds { leftColumn0Bounds };
+        const auto startY { beginSection (column) };
 
-        positionHeader (accentHeaderLabel, leftColumn0, kSectionHeaderHeight);
-        addVerticalGap (leftColumn0, 2);
+        positionHeader (accentHeaderLabel, column, kSectionHeaderHeight);
+        addVerticalGap (column, 2);
 
-        positionHeader (accentOpenedHeaderLabel, leftColumn0, kSubHeaderHeight, kIndentSubsection);
-        positionRows (leftColumn0,
+        positionHeader (accentOpenedHeaderLabel, column, kSubHeaderHeight, kIndentSubsection);
+        positionRows (column,
                       {
                           { &accOpAmpModEditor, &accOpAmpModLabel },
                           { &accOpRelModEditor, &accOpRelModLabel }
                       }, kIndentParamUnderSubsection);
 
-        addVerticalGap (leftColumn0, kSubSectionGap);
+        addVerticalGap (column, kSubSectionGap);
 
-        positionHeader (accentClosedHeaderLabel, leftColumn0, kSubHeaderHeight, kIndentSubsection);
-        positionRows (leftColumn0,
+        positionHeader (accentClosedHeaderLabel, column, kSubHeaderHeight, kIndentSubsection);
+        positionRows (column,
                       {
                           { &accClAmpModEditor, &accClAmpModLabel },
                           { &accClRelModEditor, &accClRelModLabel }
                       }, kIndentParamUnderSubsection);
 
-        finishSection (leftColumns [0], startY, leftColumn0.getY ());
-        addVerticalGap (leftColumn0, kSectionGap);
+        finishSection (columnBounds, startY, column.getY ());
+        addVerticalGap (column, kSectionGap);
     }
 
     // Closed
     {
-        const auto startY { beginSection (leftColumn0) };
+        auto& column { leftColumn0 };
+        const auto& columnBounds { leftColumn0Bounds };
+        const auto startY { beginSection (column) };
 
-        positionHeader (closedHeaderLabel, leftColumn0, kSectionHeaderHeight);
-        positionRows (leftColumn0,
+        positionHeader (closedHeaderLabel, column, kSectionHeaderHeight);
+        positionRows (column,
                       {
                           { &clsdMaxReleaseEditor, &clsdMaxReleaseLabel },
                           { &clsdRelOfstScaleEditor, &clsdRelOfstScaleLabel },
                           { &clsdReleaseModeComboBox, &clsdReleaseModeLabel }
                       }, kIndentSectionContent);
 
-        finishSection (leftColumns [0], startY, leftColumn0.getY ());
-        addVerticalGap (leftColumn0, kSectionGap);
+        finishSection (columnBounds, startY, column.getY ());
+        addVerticalGap (column, kSectionGap);
     }
 
     // Envelope
     {
-        const auto startY { beginSection (leftColumn0) };
+        auto& column { leftColumn0 };
+        const auto& columnBounds { leftColumn0Bounds };
+        const auto startY { beginSection (column) };
 
-        positionHeader (envelopeHeaderLabel, leftColumn0, kSectionHeaderHeight);
-        positionRows (leftColumn0,
+        positionHeader (envelopeHeaderLabel, column, kSectionHeaderHeight);
+        positionRows (column,
                       {
                           { &chokeReleaseEditor, &chokeReleaseLabel },
                           { &envelopeMaxReleaseEditor, &envelopeMaxReleaseLabel }
                       }, kIndentSectionContent);
 
-        finishSection (leftColumns [0], startY, leftColumn0.getY ());
-        addVerticalGap (leftColumn0, kSectionGap);
+        finishSection (columnBounds, startY, column.getY ());
+        addVerticalGap (column, kSectionGap);
     }
 
     // Feel
     {
-        const auto startY { beginSection (leftColumn0) };
+        auto& column { leftColumn0 };
+        const auto& columnBounds { leftColumn0Bounds };
+        const auto startY { beginSection (column) };
 
-        positionHeader (feelHeaderLabel, leftColumn0, kSectionHeaderHeight);
-        positionRows (leftColumn0,
+        positionHeader (feelHeaderLabel, column, kSectionHeaderHeight);
+        positionRows (column,
                       {
                           { &feelAmpModEditor, &feelAmpModLabel },
                           { &feelAttackModEditor, &feelAttackModLabel },
                           { &feelReleaseModEditor, &feelReleaseModLabel }
                       }, kIndentSectionContent);
 
-        finishSection (leftColumns [0], startY, leftColumn0.getY ());
+        finishSection (columnBounds, startY, column.getY ());
     }
 
     // CV
     {
-        const auto startY { beginSection (leftColumn1) };
+        auto& column { leftColumn1 };
+        const auto& columnBounds { leftColumn1Bounds };
+        const auto startY { beginSection (column) };
 
-        positionHeader (cvHeaderLabel, leftColumn1, kSectionHeaderHeight);
-        positionRows (leftColumn1,
+        positionHeader (cvHeaderLabel, column, kSectionHeaderHeight);
+        positionRows (column,
                       {
                           { &cvDisableFxComboBox, &cvDisableFxLabel },
                           { &cvDisableVelocityComboBox, &cvDisableVelocityLabel },
@@ -2334,66 +2350,72 @@ void SettingsEditorComponent::resized ()
                           { &velocityUnipolarComboBox, &velocityUnipolarLabel }
                       }, kIndentSectionContent);
 
-        finishSection (leftColumns [1], startY, leftColumn1.getY ());
-        addVerticalGap (leftColumn1, kSectionGap);
+        finishSection (columnBounds, startY, column.getY ());
+        addVerticalGap (column, kSectionGap);
     }
 
     // Filter
     {
-        const auto startY { beginSection (leftColumn1) };
+        auto& column { leftColumn1 };
+        const auto& columnBounds { leftColumn1Bounds };
+        const auto startY { beginSection (column) };
 
-        positionHeader (filterHeaderLabel, leftColumn1, kSectionHeaderHeight);
-        addVerticalGap (leftColumn1, 2);
+        positionHeader (filterHeaderLabel, column, kSectionHeaderHeight);
+        addVerticalGap (column, 2);
 
-        positionHeader (filterHpfHeaderLabel, leftColumn1, kSubHeaderHeight, kIndentSubsection);
-        positionRows (leftColumn1,
+        positionHeader (filterHpfHeaderLabel, column, kSubHeaderHeight, kIndentSubsection);
+        positionRows (column,
                       {
                           { &fltrHpfMinFreqEditor, &fltrHpfMinFreqLabel },
                           { &fltrHpfMaxFreqEditor, &fltrHpfMaxFreqLabel },
                           { &fltrHpfQEditor, &fltrHpfQLabel }
                       }, kIndentParamUnderSubsection);
 
-        addVerticalGap (leftColumn1, kSubSectionGap);
+        addVerticalGap (column, kSubSectionGap);
 
-        positionHeader (filterLpfHeaderLabel, leftColumn1, kSubHeaderHeight, kIndentSubsection);
-        positionRows (leftColumn1,
+        positionHeader (filterLpfHeaderLabel, column, kSubHeaderHeight, kIndentSubsection);
+        positionRows (column,
                       {
                           { &fltrLpfMinFreqEditor, &fltrLpfMinFreqLabel },
                           { &fltrLpfMaxFreqEditor, &fltrLpfMaxFreqLabel },
                           { &fltrLpfQEditor, &fltrLpfQLabel }
                       }, kIndentParamUnderSubsection);
 
-        finishSection (leftColumns [1], startY, leftColumn1.getY ());
-        addVerticalGap (leftColumn1, kSectionGap);
+        finishSection (columnBounds, startY, column.getY ());
+        addVerticalGap (column, kSectionGap);
     }
 
     // Pitch
     {
-        const auto startY { beginSection (leftColumn1) };
+        auto& column { leftColumn1 };
+        const auto& columnBounds { leftColumn1Bounds };
+        const auto startY { beginSection (column) };
 
-        positionHeader (pitchHeaderLabel, leftColumn1, kSectionHeaderHeight);
-        positionRows (leftColumn1,
+        positionHeader (pitchHeaderLabel, column, kSectionHeaderHeight);
+        positionRows (column,
                       {
                           { &pitchLowEditor, &pitchLowLabel },
                           { &pitchHighEditor, &pitchHighLabel }
                       }, kIndentSectionContent);
 
-        finishSection (leftColumns [1], startY, leftColumn1.getY ());
-        addVerticalGap (leftColumn1, kSectionGap);
+        finishSection (columnBounds, startY, column.getY ());
+        addVerticalGap (column, kSectionGap);
     }
 
     // Utility
     {
-        const auto startY { beginSection (leftColumn1) };
+        auto& column { leftColumn1 };
+        const auto& columnBounds { leftColumn1Bounds };
+        const auto startY { beginSection (column) };
 
-        positionHeader (utilityHeaderLabel, leftColumn1, kSectionHeaderHeight);
-        positionRows (leftColumn1,
+        positionHeader (utilityHeaderLabel, column, kSectionHeaderHeight);
+        positionRows (column,
                       {
                           { &gateModeComboBox, &gateModeLabel },
                           { &knobPosTakeupComboBox, &knobPosTakeupLabel }
                       }, kIndentSectionContent);
 
-        finishSection (leftColumns [1], startY, leftColumn1.getY ());
+        finishSection (columnBounds, startY, column.getY ());
     }
 
     // =========================================================================
@@ -2402,10 +2424,12 @@ void SettingsEditorComponent::resized ()
 
     // Chorus
     {
-        const auto startY { beginSection (rightColumn0) };
+        auto& column { rightColumn0 };
+        const auto& columnBounds { rightColumn0Bounds };
+        const auto startY { beginSection (column) };
 
-        positionHeader (chorusHeaderLabel, rightColumn0, kSectionHeaderHeight);
-        positionRows (rightColumn0,
+        positionHeader (chorusHeaderLabel, column, kSectionHeaderHeight);
+        positionRows (column,
                       {
                           { &fxChorusCenterEditor, &fxChorusCenterLabel },
                           { &fxChorusDepthEditor, &fxChorusDepthLabel },
@@ -2416,67 +2440,73 @@ void SettingsEditorComponent::resized ()
                           { &fxChorusTapsComboBox, &fxChorusTapsLabel }
                       }, kIndentSectionContent);
 
-        finishSection (rightColumns [0], startY, rightColumn0.getY ());
-        addVerticalGap (rightColumn0, kSectionGap);
+        finishSection (columnBounds, startY, column.getY ());
+        addVerticalGap (column, kSectionGap);
     }
 
     // Reverb
     {
-        const auto startY { beginSection (rightColumn0) };
+        auto& column { rightColumn0 };
+        const auto& columnBounds { rightColumn0Bounds };
+        const auto startY { beginSection (column) };
 
-        positionHeader (reverbHeaderLabel, rightColumn0, kSectionHeaderHeight);
-        positionRows (rightColumn0,
+        positionHeader (reverbHeaderLabel, column, kSectionHeaderHeight);
+        positionRows (column,
                       {
                           { &fxReverbHpfEditor, &fxReverbHpfLabel },
                           { &fxReverbLpfEditor, &fxReverbLpfLabel }
                       }, kIndentSectionContent);
 
-        finishSection (rightColumns [0], startY, rightColumn0.getY ());
-        addVerticalGap (rightColumn0, kSectionGap);
+        finishSection (columnBounds, startY, column.getY ());
+        addVerticalGap (column, kSectionGap);
     }
 
     // DJ Filter
     {
-        const auto startY { beginSection (rightColumn0) };
+        auto& column { rightColumn0 };
+        const auto& columnBounds { rightColumn0Bounds };
+        const auto startY { beginSection (column) };
 
-        positionHeader (djFilterHeaderLabel, rightColumn0, kSectionHeaderHeight);
-        addVerticalGap (rightColumn0, 2);
+        positionHeader (djFilterHeaderLabel, column, kSectionHeaderHeight);
+        addVerticalGap (column, 2);
 
-        positionHeader (djFilterHpfHeaderLabel, rightColumn0, kSubHeaderHeight, kIndentSubsection);
-        positionRows (rightColumn0,
+        positionHeader (djFilterHpfHeaderLabel, column, kSubHeaderHeight, kIndentSubsection);
+        positionRows (column,
                       {
                           { &fxDjfilterHpfMinEditor, &fxDjfilterHpfMinLabel },
                           { &fxDjfilterHpfMaxEditor, &fxDjfilterHpfMaxLabel }
                       }, kIndentParamUnderSubsection);
 
-        addVerticalGap (rightColumn0, kSubSectionGap);
+        addVerticalGap (column, kSubSectionGap);
 
-        positionHeader (djFilterLpfHeaderLabel, rightColumn0, kSubHeaderHeight, kIndentSubsection);
-        positionRows (rightColumn0,
+        positionHeader (djFilterLpfHeaderLabel, column, kSubHeaderHeight, kIndentSubsection);
+        positionRows (column,
                       {
                           { &fxDjfilterLpfMinEditor, &fxDjfilterLpfMinLabel },
                           { &fxDjfilterLpfMaxEditor, &fxDjfilterLpfMaxLabel }
                       }, kIndentParamUnderSubsection);
 
-        addVerticalGap (rightColumn0, kSubSectionGap);
+        addVerticalGap (column, kSubSectionGap);
 
-        positionHeader (djFilterQHeaderLabel, rightColumn0, kSubHeaderHeight, kIndentSubsection);
-        positionRows (rightColumn0,
+        positionHeader (djFilterQHeaderLabel, column, kSubHeaderHeight, kIndentSubsection);
+        positionRows (column,
                       {
                           { &fxDjfilterQMinEditor, &fxDjfilterQMinLabel },
                           { &fxDjfilterQMaxEditor, &fxDjfilterQMaxLabel },
                           { &fxDjfilterQGainReductionEditor, &fxDjfilterQGainReductionLabel }
                       }, kIndentParamUnderSubsection);
 
-        finishSection (rightColumns [0], startY, rightColumn0.getY ());
+        finishSection (columnBounds, startY, column.getY ());
     }
 
     // Dub Echo
     {
-        const auto startY { beginSection (rightColumn1) };
+        auto& column { rightColumn1 };
+        const auto& columnBounds { rightColumn1Bounds };
+        const auto startY { beginSection (column) };
 
-        positionHeader (dubEchoHeaderLabel, rightColumn1, kSectionHeaderHeight);
-        positionRows (rightColumn1,
+        positionHeader (dubEchoHeaderLabel, column, kSectionHeaderHeight);
+        positionRows (column,
                       {
                           { &fxDubEchoHpfEditor, &fxDubEchoHpfLabel },
                           { &fxDubEchoLpfEditor, &fxDubEchoLpfLabel },
@@ -2484,15 +2514,19 @@ void SettingsEditorComponent::resized ()
                           { &fxDubEchoTminEditor, &fxDubEchoTminLabel }
                       }, kIndentSectionContent);
 
-        finishSection (rightColumns [1], startY, rightColumn1.getY ());
-        addVerticalGap (rightColumn1, kSectionGap);
+        finishSection (columnBounds, startY, column.getY ());
+        addVerticalGap (column, kSectionGap);
     }
 
-    // Glitch (two internal columns inside right side)
+    // Glitch
     {
-        auto glitchArea { rightColumns [1] };
-        glitchArea.setY (rightColumn1.getY ());
-        glitchArea.setHeight (rightColumn1.getBottom () - rightColumn1.getY ());
+        auto& column { rightColumn1 };
+        const auto& columnBounds { rightColumn1Bounds };
+
+        auto glitchArea { columnBounds };
+        glitchArea.setY (column.getY ());
+        glitchArea.setHeight (column.getBottom () - column.getY ());
+
         const auto startY { glitchArea.getY () };
 
         constexpr auto kGlitchColumnGap { 10 };
@@ -2602,6 +2636,8 @@ void SettingsEditorComponent::resized ()
                             });
 
         const auto glitchEndY { juce::jmax (glitchColumn0.getY (), glitchColumn1.getY ()) };
-        finishSection (rightColumns [1], startY, glitchEndY);
+        finishSection (columnBounds, startY, glitchEndY);
+        column.setY (glitchEndY);
+        column.setHeight (juce::jmax (0, columnBounds.getBottom () - glitchEndY));
     }
 }
