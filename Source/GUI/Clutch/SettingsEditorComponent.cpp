@@ -2108,7 +2108,7 @@ void SettingsEditorComponent::resized ()
     constexpr auto kColumnGap { 14 };
 
     constexpr auto kLabelWidth { 118 };
-    constexpr auto kCompWidth { 72 };
+    constexpr auto kCompWidth { 90 };
     constexpr auto kRowHeight { 20 };
     constexpr auto kRowGap { 2 };
 
