@@ -56,9 +56,12 @@ void SampleManagerComponent::updateBanks ()
 
 void SampleManagerComponent::paint (juce::Graphics& g)
 {
-    g.setColour (juce::Colours::black);
+    const auto kSectionOutlineColour { juce::Colour (0xff6a6a6a) };
+    g.setColour (kSectionOutlineColour.brighter (0.4f));
+    constexpr auto kSectionCornerSize { 4.0f };
+    constexpr auto kSectionOutlineThickness { 1.0f };
     for (auto& sampleBankComponent : sampleBankComponents)
-        g.drawRect (sampleBankComponent.getBounds ());
+        g.drawRoundedRectangle (sampleBankComponent.getBounds ().toFloat (), kSectionCornerSize, kSectionOutlineThickness);
 }
 
 void SampleManagerComponent::resized ()

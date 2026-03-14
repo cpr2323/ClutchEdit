@@ -383,7 +383,11 @@ void SampleBankComponent::setBankFolder (const juce::File& newBankFolder)
 
 void SampleBankComponent::paint (juce::Graphics& g)
 {
-    g.setColour (juce::Colours::black);
+    const auto kSectionOutlineColour { juce::Colour (0xff6a6a6a) };
+    g.setColour (kSectionOutlineColour.brighter (0.4f));
+    constexpr auto kSectionCornerSize { 4.0f };
+    constexpr auto kSectionOutlineThickness { 1.0f };
+
     // TODO juce docs recommend using drawRect for vertical and horizontal lines
     // draw horizontal lines
     for (auto lineIndex { 0 }; lineIndex < 15; ++lineIndex)
@@ -396,9 +400,9 @@ void SampleBankComponent::paint (juce::Graphics& g)
                              hiHatSampleInfoList [0].openedNameLabel.getRight () + 2, hiHatSampleInfoList [15].openedNameLabel.getBottom () + 2 }.toFloat (), 1.0f);
 
     // draw box outline
-    g.drawRect (hiHatSampleInfoList [0].openedNameLabel.getX (), hiHatSampleInfoList [0].openedNameLabel.getY (),
-                hiHatSampleInfoList [0].closedNameLabel.getRight () - hiHatSampleInfoList [0].openedNameLabel.getX (),
-                hiHatSampleInfoList [15].openedNameLabel.getBottom () - hiHatSampleInfoList [0].openedNameLabel.getY () + 2);
+    g.drawRoundedRectangle (hiHatSampleInfoList [0].openedNameLabel.getX (), hiHatSampleInfoList [0].openedNameLabel.getY (),
+                            hiHatSampleInfoList [0].closedNameLabel.getRight () - hiHatSampleInfoList [0].openedNameLabel.getX (),
+                            hiHatSampleInfoList [15].openedNameLabel.getBottom () - hiHatSampleInfoList [0].openedNameLabel.getY () + 2, kSectionCornerSize, kSectionOutlineThickness);
 }
 
 void SampleBankComponent::resized ()

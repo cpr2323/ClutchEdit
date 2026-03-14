@@ -14,7 +14,7 @@ ClutchEditorComponent::ClutchEditorComponent ()
         viewPort->getVerticalScrollBar ().setColour (juce::ScrollBar::ColourIds::thumbColourId, thumbColor);
         editorTabs.addTab (title, juce::Colours::darkgrey, viewPort, true);
     };
-    addComponentWithViewPort ("SAMPLES", &sampleManagerComponent, 1254, 407);
+    addComponentWithViewPort ("SAMPLES", &sampleManagerComponent, 1245, 375);
     addComponentWithViewPort ("SETTINGS", &settingsEditorComponent, 1200, 1000);
     addComponentWithViewPort ("PATTERNS", &patternListEditorComponent, 1060, 697);
     addComponentWithViewPort ("EFFECTS", &effectEditorComponent, 223, 263);
