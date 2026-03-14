@@ -32,66 +32,66 @@ SettingsEditorComponent::SettingsEditorComponent ()
 	};
 
 	auto setupFloatEditor = [this] (EditorFloatData editorData,
-									   FloatDataRange dataRange,
-									   FloatDragMultipliers dragMultipliers,
-									   std::function<juce::String (float value)> toStringCallback,
-									   std::function<void (float value)> updateDataCallback,
-									   std::function<void (float valueOffset)> updateFromDragCallback,
-									   std::function<float ()> getDefaultValue,
-									   std::function<float ()> getUneditedValue)
+									FloatDataRange dataRange,
+									FloatDragMultipliers dragMultipliers,
+									std::function<juce::String (float value)> toStringCallback,
+									std::function<void (float value)> updateDataCallback,
+									std::function<void (float valueOffset)> updateFromDragCallback,
+									std::function<float ()> getDefaultValue,
+									std::function<float ()> getUneditedValue)
+	{
+		jassert (editorData.editor != nullptr);
+		jassert (updateFromDragCallback != nullptr);
+		jassert (toStringCallback != nullptr);
+		jassert (updateDataCallback != nullptr);
+		jassert (getDefaultValue != nullptr);
+		jassert (getUneditedValue != nullptr);
+
+		editorData.editor->setTooltip (editorData.toolTip);
+		editorData.editor->getMinValueCallback = [minValue = dataRange.min] () { return minValue; };
+		editorData.editor->getMaxValueCallback = [maxValue = dataRange.max] () { return maxValue; };
+		editorData.editor->toStringCallback = [toStringCallback] (float value) { return toStringCallback (value); };
+		editorData.editor->updateDataCallback = [updateDataCallback] (float value) { updateDataCallback (value); };
+		editorData.editor->onDragCallback = [dragMultipliers, updateFromDragCallback] (DragSpeed dragSpeed, int direction)
+        {
+            const auto multiplier = [dragSpeed, dragMultipliers] ()
+                {
+                    if (dragSpeed == DragSpeed::slow)
+                        return dragMultipliers.slow;
+                    else if (dragSpeed == DragSpeed::medium)
+                        return dragMultipliers.medium;
+                    else
+                        return dragMultipliers.fast;
+                } ();
+
+            updateFromDragCallback (multiplier * direction);
+        };
+		editorData.editor->onPopupMenuCallback = [this, editor = editorData.editor, getDefaultValue, getUneditedValue, menuHeader = editorData.menuHeader] ()
 		{
-			jassert (editorData.editor != nullptr);
-			jassert (updateFromDragCallback != nullptr);
-			jassert (toStringCallback != nullptr);
-			jassert (updateDataCallback != nullptr);
-			jassert (getDefaultValue != nullptr);
-			jassert (getUneditedValue != nullptr);
+            auto* popupMenuLnF { new juce::LookAndFeel_V4 };
+            popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
 
-			editorData.editor->setTooltip (editorData.toolTip);
-			editorData.editor->getMinValueCallback = [minValue = dataRange.min] () { return minValue; };
-			editorData.editor->getMaxValueCallback = [maxValue = dataRange.max] () { return maxValue; };
-			editorData.editor->toStringCallback = [toStringCallback] (float value) { return toStringCallback (value); };
-			editorData.editor->updateDataCallback = [updateDataCallback] (float value) { updateDataCallback (value); };
-			editorData.editor->onDragCallback = [dragMultipliers, updateFromDragCallback] (DragSpeed dragSpeed, int direction)
-            {
-                const auto multiplier = [dragSpeed, dragMultipliers] ()
-                    {
-                        if (dragSpeed == DragSpeed::slow)
-                            return dragMultipliers.slow;
-                        else if (dragSpeed == DragSpeed::medium)
-                            return dragMultipliers.medium;
-                        else
-                            return dragMultipliers.fast;
-                    } ();
-
-                updateFromDragCallback (multiplier * direction);
-            };
-			editorData.editor->onPopupMenuCallback = [this, editor = editorData.editor, getDefaultValue, getUneditedValue, menuHeader = editorData.menuHeader] ()
+			juce::PopupMenu pm;
+			pm.setLookAndFeel (popupMenuLnF);
+			pm.addSectionHeader (menuHeader);
+			pm.addSeparator ();
+			pm.addItem ("Default", true, false, [editor, getDefaultValue] ()
 			{
-                auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-                popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
+				editor->setValue (getDefaultValue ());
+			});
+			pm.addItem ("Revert", true, false, [editor, getUneditedValue] ()
+			{
+				editor->setValue (getUneditedValue ());
+			});
+            pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
+        };
 
-				juce::PopupMenu pm;
-				pm.setLookAndFeel (popupMenuLnF);
-				pm.addSectionHeader (menuHeader);
-				pm.addSeparator ();
-				pm.addItem ("Default", true, false, [editor, getDefaultValue] ()
-				{
-					editor->setValue (getDefaultValue ());
-				});
-				pm.addItem ("Revert", true, false, [editor, getUneditedValue] ()
-				{
-					editor->setValue (getUneditedValue ());
-				});
-                pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-            };
-
-			editorData.label.setText (editorData.labelText, juce::dontSendNotification);
-			addAndMakeVisible (editorData.label);
-			editorData.editor->setColour (juce::TextEditor::backgroundColourId, juce::Colours::darkgrey.darker (0.5f));
-			editorData.editor->setIndents (5, 2);
-			addAndMakeVisible (editorData.editor);
-		};
+		editorData.label.setText (editorData.labelText, juce::dontSendNotification);
+		addAndMakeVisible (editorData.label);
+		editorData.editor->setColour (juce::TextEditor::backgroundColourId, juce::Colours::darkgrey.darker (0.5f));
+		editorData.editor->setIndents (5, 2);
+		addAndMakeVisible (editorData.editor);
+	};
 
 	struct EditorIntData
 	{
@@ -116,66 +116,66 @@ SettingsEditorComponent::SettingsEditorComponent ()
 	};
 
 	auto setupIntEditor = [this] (EditorIntData editorData,
-									 IntDataRange dataRange,
-									 IntDragMultipliers dragMultipliers,
-									 std::function<juce::String (int value)> toStringCallback,
-									 std::function<void (int value)> updateDataCallback,
-									 std::function<void (int valueOffset)> updateFromDragCallback,
-									 std::function<int ()> getDefaultValue,
-									 std::function<int ()> getUneditedValue)
+								  IntDataRange dataRange,
+								  IntDragMultipliers dragMultipliers,
+								  std::function<juce::String (int value)> toStringCallback,
+								  std::function<void (int value)> updateDataCallback,
+								  std::function<void (int valueOffset)> updateFromDragCallback,
+								  std::function<int ()> getDefaultValue,
+								  std::function<int ()> getUneditedValue)
+	{
+		jassert (editorData.editor != nullptr);
+		jassert (updateFromDragCallback != nullptr);
+		jassert (toStringCallback != nullptr);
+		jassert (updateDataCallback != nullptr);
+		jassert (getDefaultValue != nullptr);
+		jassert (getUneditedValue != nullptr);
+
+		editorData.editor->setTooltip (editorData.toolTip);
+		editorData.editor->getMinValueCallback = [minValue = dataRange.min] () { return minValue; };
+		editorData.editor->getMaxValueCallback = [maxValue = dataRange.max] () { return maxValue; };
+		editorData.editor->toStringCallback = [toStringCallback] (int value) { return toStringCallback (value); };
+		editorData.editor->updateDataCallback = [updateDataCallback] (int value) { updateDataCallback (value); };
+		editorData.editor->onDragCallback = [dragMultipliers, updateFromDragCallback] (DragSpeed dragSpeed, int direction)
 		{
-			jassert (editorData.editor != nullptr);
-			jassert (updateFromDragCallback != nullptr);
-			jassert (toStringCallback != nullptr);
-			jassert (updateDataCallback != nullptr);
-			jassert (getDefaultValue != nullptr);
-			jassert (getUneditedValue != nullptr);
-
-			editorData.editor->setTooltip (editorData.toolTip);
-			editorData.editor->getMinValueCallback = [minValue = dataRange.min] () { return minValue; };
-			editorData.editor->getMaxValueCallback = [maxValue = dataRange.max] () { return maxValue; };
-			editorData.editor->toStringCallback = [toStringCallback] (int value) { return toStringCallback (value); };
-			editorData.editor->updateDataCallback = [updateDataCallback] (int value) { updateDataCallback (value); };
-			editorData.editor->onDragCallback = [dragMultipliers, updateFromDragCallback] (DragSpeed dragSpeed, int direction)
+			const auto multiplier = [dragSpeed, dragMultipliers] ()
 			{
-				const auto multiplier = [dragSpeed, dragMultipliers] ()
-				{
-					if (dragSpeed == DragSpeed::slow)
-						return dragMultipliers.slow;
-					else if (dragSpeed == DragSpeed::medium)
-						return dragMultipliers.medium;
-					else
-						return dragMultipliers.fast;
-				} ();
+				if (dragSpeed == DragSpeed::slow)
+					return dragMultipliers.slow;
+				else if (dragSpeed == DragSpeed::medium)
+					return dragMultipliers.medium;
+				else
+					return dragMultipliers.fast;
+			} ();
 
-				updateFromDragCallback (multiplier * direction);
-			};
-			editorData.editor->onPopupMenuCallback = [this, editor = editorData.editor, getDefaultValue, getUneditedValue, menuHeader = editorData.menuHeader] ()
-			{
-                auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-                popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-
-				juce::PopupMenu pm;
-				pm.setLookAndFeel (popupMenuLnF);
-				pm.addSectionHeader (menuHeader);
-				pm.addSeparator ();
-				pm.addItem ("Default", true, false, [editor, getDefaultValue] ()
-				{
-					editor->setValue (getDefaultValue ());
-				});
-				pm.addItem ("Revert", true, false, [editor, getUneditedValue] ()
-				{
-					editor->setValue (getUneditedValue ());
-				});
-                pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-            };
-
-			editorData.label.setText (editorData.labelText, juce::dontSendNotification);
-			addAndMakeVisible (editorData.label);
-			editorData.editor->setColour (juce::TextEditor::backgroundColourId, juce::Colours::darkgrey.darker (0.5f));
-			editorData.editor->setIndents (5, 2);
-			addAndMakeVisible (editorData.editor);
+			updateFromDragCallback (multiplier * direction);
 		};
+		editorData.editor->onPopupMenuCallback = [this, editor = editorData.editor, getDefaultValue, getUneditedValue, menuHeader = editorData.menuHeader] ()
+		{
+            auto* popupMenuLnF { new juce::LookAndFeel_V4 };
+            popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
+
+			juce::PopupMenu pm;
+			pm.setLookAndFeel (popupMenuLnF);
+			pm.addSectionHeader (menuHeader);
+			pm.addSeparator ();
+			pm.addItem ("Default", true, false, [editor, getDefaultValue] ()
+			{
+				editor->setValue (getDefaultValue ());
+			});
+			pm.addItem ("Revert", true, false, [editor, getUneditedValue] ()
+			{
+				editor->setValue (getUneditedValue ());
+			});
+            pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
+        };
+
+		editorData.label.setText (editorData.labelText, juce::dontSendNotification);
+		addAndMakeVisible (editorData.label);
+		editorData.editor->setColour (juce::TextEditor::backgroundColourId, juce::Colours::darkgrey.darker (0.5f));
+		editorData.editor->setIndents (5, 2);
+		addAndMakeVisible (editorData.editor);
+	};
 
 
 	struct ComboBoxData
@@ -194,51 +194,53 @@ SettingsEditorComponent::SettingsEditorComponent ()
 	};
 
 	auto setupComboBox = [this] (ComboBoxData comboBoxData,
-									std::vector<ComboBoxMenuItemData> menuItems,
-									std::function<void (int valueOffset)> updateFromDragCallback,
-									std::function<int ()> getDefaultValue,
-									std::function<int ()> getUneditedValue)
+								 std::vector<ComboBoxMenuItemData> menuItems,
+                                 std::function<void ()> onChangeCallback,
+								 std::function<void (int valueOffset)> updateFromDragCallback,
+								 std::function<int ()> getDefaultValue,
+								 std::function<int ()> getUneditedValue)
+	{
+        jassert (onChangeCallback != nullptr);
+        jassert (updateFromDragCallback != nullptr);
+		jassert (getDefaultValue != nullptr);
+		jassert (getUneditedValue != nullptr);
+
+		comboBoxData.comboBox.setLookAndFeel (&noArrowComboBoxLnF);
+		comboBoxData.comboBox.setTooltip (comboBoxData.toolTip);
+
+		for (const auto& menuItem : menuItems)
+			comboBoxData.comboBox.addItem (menuItem.text, menuItem.value);
+
+		comboBoxData.comboBox.onDragCallback = [updateFromDragCallback] (DragSpeed dragSpeed, int direction)
 		{
-			jassert (updateFromDragCallback != nullptr);
-			jassert (getDefaultValue != nullptr);
-			jassert (getUneditedValue != nullptr);
-
-			comboBoxData.comboBox.setLookAndFeel (&noArrowComboBoxLnF);
-			comboBoxData.comboBox.setTooltip (comboBoxData.toolTip);
-			comboBoxData.comboBox.clear (juce::dontSendNotification);
-
-			for (const auto& menuItem : menuItems)
-				comboBoxData.comboBox.addItem (menuItem.text, menuItem.value);
-
-			comboBoxData.comboBox.onDragCallback = [updateFromDragCallback] (DragSpeed dragSpeed, int direction)
-			{
-				const auto valueOffset { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
-				updateFromDragCallback (valueOffset);
-			};
-			comboBoxData.comboBox.onPopupMenuCallback = [this, comboBox = &comboBoxData.comboBox, getDefaultValue, getUneditedValue, menuHeader = comboBoxData.menuHeader] ()
-			{
-                auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-                popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-
-				juce::PopupMenu pm;
-				pm.setLookAndFeel (popupMenuLnF);
-				pm.addSectionHeader (menuHeader);
-				pm.addSeparator ();
-				pm.addItem ("Default", true, false, [comboBox, getDefaultValue] ()
-				{
-					comboBox->setSelectedId (getDefaultValue (), juce::NotificationType::sendNotification);
-				});
-				pm.addItem ("Revert", true, false, [comboBox, getUneditedValue] ()
-				{
-					comboBox->setSelectedId (getUneditedValue (), juce::NotificationType::sendNotification);
-				});
-                pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
-            };
-            comboBoxData.label.setText (comboBoxData.labelText, juce::dontSendNotification);
-            comboBoxData.comboBox.setColour (juce::ComboBox::backgroundColourId, juce::Colours::darkgrey.darker (0.5f));
-            addAndMakeVisible (comboBoxData.label);
-            addAndMakeVisible (comboBoxData.comboBox);
+			const auto valueOffset { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
+			updateFromDragCallback (valueOffset);
 		};
+		comboBoxData.comboBox.onPopupMenuCallback = [this, comboBox = &comboBoxData.comboBox, getDefaultValue, getUneditedValue, menuHeader = comboBoxData.menuHeader] ()
+		{
+            auto* popupMenuLnF { new juce::LookAndFeel_V4 };
+            popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
+
+			juce::PopupMenu pm;
+			pm.setLookAndFeel (popupMenuLnF);
+			pm.addSectionHeader (menuHeader);
+			pm.addSeparator ();
+			pm.addItem ("Default", true, false, [comboBox, getDefaultValue] ()
+			{
+				comboBox->setSelectedId (getDefaultValue (), juce::NotificationType::sendNotification);
+			});
+			pm.addItem ("Revert", true, false, [comboBox, getUneditedValue] ()
+			{
+				comboBox->setSelectedId (getUneditedValue (), juce::NotificationType::sendNotification);
+			});
+            pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
+        };
+        comboBoxData.label.setText (comboBoxData.labelText, juce::dontSendNotification);
+        comboBoxData.comboBox.setColour (juce::ComboBox::backgroundColourId, juce::Colours::darkgrey.darker (0.5f));
+        comboBoxData.comboBox.onChange = onChangeCallback;
+        addAndMakeVisible (comboBoxData.label);
+        addAndMakeVisible (comboBoxData.comboBox);
+	};
 
     // THIS IS THE ORIGINAL SETUP CODE
     setupFloatEditor ({ &accClAmpModEditor, accClAmpModLabel, "Amp Mod", "Amp Mod CLOSED ACC hit", "Acc Cl Amp Mod" },
@@ -337,6 +339,10 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupComboBox ({ clsdReleaseModeComboBox, clsdReleaseModeLabel, "Release Mode", "", "Clsd Release Mode" },
                       { { "Independent", 1 },
                         { "Offset", 2 } },
+                      [this] ()
+                      {
+                          clsdReleaseModeUiChanged (clsdReleaseModeComboBox.getSelectedId () - 1);
+                      },
                       [this] (int valueOffset)
                       {
                           const auto clsdReleaseMode { clsdReleaseModeComboBox.getSelectedId () - 1 };
@@ -350,6 +356,10 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupComboBox ({ cvDisableFxComboBox, cvDisableFxLabel, "CV Disable FX", "", "CV Disable FX" },
                       { { "FX CV On", 1 },
                         { "FX CV Off", 2 } },
+                      [this] ()
+                      {
+                          cvDisableFxUiChanged (cvDisableFxComboBox.getSelectedId () - 1);
+                      },
                       [this] (int valueOffset)
                       {
                           const auto cvDisableFx { cvDisableFxComboBox.getSelectedId () - 1 };
@@ -363,6 +373,10 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupComboBox ({ cvDisableVelocityComboBox, cvDisableVelocityLabel, "CV Disable Velocity", "", "CV Disable Velocity" },
                       { { "Always On", 1 },
                         { "CV Off", 2 } },
+                      [this] ()
+                      {
+                          cvDisableVelocityUiChanged (cvDisableVelocityComboBox.getSelectedId () - 1);
+                      },
                       [this] (int valueOffset)
                       {
                           const auto cvDisableVelocity { cvDisableVelocityComboBox.getSelectedId () - 1 };
@@ -585,6 +599,10 @@ SettingsEditorComponent::SettingsEditorComponent ()
                         { "2", 2 },
                         { "3", 3 },
                         { "4", 4 } },
+                      [this] ()
+                      {
+                          fxChorusTapsUiChanged (fxChorusTapsComboBox.getSelectedId ());
+                      },
                       [this] (int valueOffset)
                       {
                           const auto fxChorusTaps { fxChorusTapsComboBox.getSelectedId () };
@@ -597,6 +615,10 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupComboBox ({ fxCvUnipolarComboBox, fxCvUnipolarLabel, "FX CV Unipolar", "", "FX CV Unipolar" },
                       { { "-5v to 5v", 1 },
                         { "0v to 5v", 2 } },
+                      [this] ()
+                      {
+                          fxCvUnipolarUiChanged (fxChorusTapsComboBox.getSelectedId ());
+                      },
                       [this] (int valueOffset)
                       {
                           const auto fxCvUnipolar { fxCvUnipolarComboBox.getSelectedId () - 1 };
@@ -1104,6 +1126,10 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupComboBox ({ gateModeComboBox, gateModeLabel, "Gate Mode", "", "Gate Mode" },
                       { { "Immediate", 1 },
                         { "After Gate Falls", 2 } },
+                      [this] ()
+                      {
+                          gateModeUiChanged (gateModeComboBox.getSelectedId () - 1);
+                      },
                       [this] (int valueOffset)
                       {
                           const auto gateMode { gateModeComboBox.getSelectedId () - 1 };
@@ -1117,10 +1143,14 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupComboBox ({ knobPosTakeupComboBox, knobPosTakeupLabel, "Knob Pos Takeup", "", "Knob Pos Takeup" },
                       { { "Small Movement", 1 },
                         { "Pass Old Value", 2 } },
+                      [this] ()
+                      {
+                          knobPosTakeupUiChanged (knobPosTakeupComboBox.getSelectedId () - 1);
+                      },
                       [this] (int valueOffset)
                       {
-                          const auto fxCvUnipolar { knobPosTakeupComboBox.getSelectedId () - 1 };
-                          settingsProperties.setKnobPosTakeup (std::clamp (fxCvUnipolar + valueOffset, 0, 1), true);
+                          const auto knobsPosTakeUp { knobPosTakeupComboBox.getSelectedId () - 1 };
+                          settingsProperties.setKnobPosTakeup (std::clamp (knobsPosTakeUp + valueOffset, 0, 1), true);
                       },
                       [this] () { return 2; },
                       [this] () { return uneditedSettingsProperties.getKnobPosTakeup () + 1; });
@@ -1156,6 +1186,10 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupComboBox ({ velocityUnipolarComboBox, velocityUnipolarLabel, "Velocity Unipolar", "", "Velocity Unipolar" },
                       { { "0%-100%-200%", 1 },
                         { "0%-100%", 2 } },
+                      [this] ()
+                      {
+                          velocityUnipolarUiChanged (velocityUnipolarComboBox.getSelectedId () - 1);
+                      },
                       [this] (int valueOffset)
                       {
                           const auto velocityUnipolar { velocityUnipolarComboBox.getSelectedId () - 1 };
@@ -1417,7 +1451,7 @@ void SettingsEditorComponent::chokeReleaseUiChanged (float value)
 
 void SettingsEditorComponent::clsdReleaseModeDataChanged (int value)
 {
-    clsdReleaseModeComboBox.setSelectedId (value + 1);
+    clsdReleaseModeComboBox.setSelectedId (value + 1, juce::NotificationType::dontSendNotification);
 }
 
 void SettingsEditorComponent::clsdReleaseModeUiChanged (int value)
@@ -1517,7 +1551,7 @@ void SettingsEditorComponent::feelAmpModUiChanged (float value)
 
 void SettingsEditorComponent::fxCvUnipolarDataChanged (int value)
 {
-    fxCvUnipolarComboBox.setSelectedId (value + 1);
+    fxCvUnipolarComboBox.setSelectedId (value + 1, juce::NotificationType::dontSendNotification);
 }
 
 void SettingsEditorComponent::fxCvUnipolarUiChanged (int value)
@@ -1527,7 +1561,7 @@ void SettingsEditorComponent::fxCvUnipolarUiChanged (int value)
 
 void SettingsEditorComponent::velocityUnipolarDataChanged (int value)
 {
-    velocityUnipolarComboBox.setSelectedId (value + 1);
+    velocityUnipolarComboBox.setSelectedId (value + 1, juce::NotificationType::dontSendNotification);
 }
 
 void SettingsEditorComponent::velocityUnipolarUiChanged (int value)
@@ -1537,7 +1571,7 @@ void SettingsEditorComponent::velocityUnipolarUiChanged (int value)
 
 void SettingsEditorComponent::cvDisableVelocityDataChanged (int value)
 {
-    cvDisableVelocityComboBox.setSelectedId (value + 1);
+    cvDisableVelocityComboBox.setSelectedId (value + 1, juce::NotificationType::dontSendNotification);
 }
 
 void SettingsEditorComponent::cvDisableVelocityUiChanged (int value)
@@ -1547,7 +1581,7 @@ void SettingsEditorComponent::cvDisableVelocityUiChanged (int value)
 
 void SettingsEditorComponent::cvDisableFxDataChanged (int value)
 {
-    cvDisableFxComboBox.setSelectedId (value + 1);
+    cvDisableFxComboBox.setSelectedId (value + 1, juce::NotificationType::dontSendNotification);
 }
 
 void SettingsEditorComponent::cvDisableFxUiChanged (int value)
@@ -1557,7 +1591,7 @@ void SettingsEditorComponent::cvDisableFxUiChanged (int value)
 
 void SettingsEditorComponent::gateModeDataChanged (int value)
 {
-    gateModeComboBox.setSelectedId (value + 1);
+    gateModeComboBox.setSelectedId (value + 1, juce::NotificationType::dontSendNotification);
 }
 
 void SettingsEditorComponent::gateModeUiChanged (int value)
@@ -1567,7 +1601,7 @@ void SettingsEditorComponent::gateModeUiChanged (int value)
 
 void SettingsEditorComponent::knobPosTakeupDataChanged (int value)
 {
-    knobPosTakeupComboBox.setSelectedId (value + 1);
+    knobPosTakeupComboBox.setSelectedId (value + 1, juce::NotificationType::dontSendNotification);
 }
 
 void SettingsEditorComponent::knobPosTakeupUiChanged (int value)
@@ -1787,7 +1821,7 @@ void SettingsEditorComponent::fxChorusSpreadUiChanged (float value)
 
 void SettingsEditorComponent::fxChorusTapsDataChanged (int value)
 {
-    fxChorusTapsComboBox.setSelectedId (value);
+    fxChorusTapsComboBox.setSelectedId (value, juce::NotificationType::dontSendNotification);
 }
 
 void SettingsEditorComponent::fxChorusTapsUiChanged (int value)
