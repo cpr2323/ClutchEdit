@@ -2386,6 +2386,21 @@ void SettingsEditorComponent::resized ()
         addVerticalGap (rightColumn0, kSectionGap);
     }
 
+    // Reverb
+    {
+        const auto startY { beginSection (rightColumn0) };
+
+        positionHeader (reverbHeaderLabel, rightColumn0, kSectionHeaderHeight);
+        positionRows (rightColumn0,
+                      {
+                          { &fxReverbHpfEditor, &fxReverbHpfLabel },
+                          { &fxReverbLpfEditor, &fxReverbLpfLabel }
+                      }, kIndentSectionContent);
+
+        finishSection (rightColumns [0], startY, rightColumn0.getY ());
+        addVerticalGap (rightColumn0, kSectionGap);
+    }
+
     // DJ Filter
     {
         const auto startY { beginSection (rightColumn0) };
@@ -2420,15 +2435,14 @@ void SettingsEditorComponent::resized ()
                       }, kIndentParamUnderSubsection);
 
         finishSection (rightColumns [0], startY, rightColumn0.getY ());
-        addVerticalGap (rightColumn0, kSectionGap);
     }
 
     // Dub Echo
     {
-        const auto startY { beginSection (rightColumn0) };
+        const auto startY { beginSection (rightColumn1) };
 
-        positionHeader (dubEchoHeaderLabel, rightColumn0, kSectionHeaderHeight);
-        positionRows (rightColumn0,
+        positionHeader (dubEchoHeaderLabel, rightColumn1, kSectionHeaderHeight);
+        positionRows (rightColumn1,
                       {
                           { &fxDubEchoHpfEditor, &fxDubEchoHpfLabel },
                           { &fxDubEchoLpfEditor, &fxDubEchoLpfLabel },
@@ -2436,33 +2450,21 @@ void SettingsEditorComponent::resized ()
                           { &fxDubEchoTminEditor, &fxDubEchoTminLabel }
                       }, kIndentSectionContent);
 
-        finishSection (rightColumns [0], startY, rightColumn0.getY ());
-        addVerticalGap (rightColumn0, kSectionGap);
-    }
-
-    // Reverb
-    {
-        const auto startY { beginSection (rightColumn0) };
-
-        positionHeader (reverbHeaderLabel, rightColumn0, kSectionHeaderHeight);
-        positionRows (rightColumn0,
-                      {
-                          { &fxReverbHpfEditor, &fxReverbHpfLabel },
-                          { &fxReverbLpfEditor, &fxReverbLpfLabel }
-                      }, kIndentSectionContent);
-
-        finishSection (rightColumns [0], startY, rightColumn0.getY ());
+        finishSection (rightColumns [1], startY, rightColumn1.getY ());
+        addVerticalGap (rightColumn1, kSectionGap);
     }
 
     // Glitch (two internal columns inside right side)
     {
         auto glitchArea { rightColumns [1] };
+        glitchArea.setY (rightColumn1.getY ());
+        glitchArea.setHeight (rightColumn1.getBottom () - rightColumn1.getY ());
         const auto startY { glitchArea.getY () };
 
         constexpr auto kGlitchColumnGap { 10 };
         constexpr auto kGlitchRowIndent { 14 };
         constexpr auto kGlitchInnerGap { 4 };
-        constexpr auto kGlitchCompWidth { 52 };
+        constexpr auto kGlitchCompWidth { 40 };
 
         positionHeader (glitchHeaderLabel, glitchArea, kSectionHeaderHeight);
         addVerticalGap (glitchArea, 2);
@@ -2531,14 +2533,14 @@ void SettingsEditorComponent::resized ()
                                 { &fxGlitchMicroloopSmplTMaxEditor, &fxGlitchMicroloopSmplTMaxLabel }
                             });
 
-        positionHeader (glitchProbabilityHeaderLabel, glitchColumn1, kSubHeaderHeight, kIndentSubsection);
-        positionGlitchRows (glitchColumn1,
+        addVerticalGap (glitchColumn0, kSubSectionGap);
+
+        positionHeader (glitchProbabilityHeaderLabel, glitchColumn0, kSubHeaderHeight, kIndentSubsection);
+        positionGlitchRows (glitchColumn0,
                             {
                                 { &fxGlitchProbabilityMinEditor, &fxGlitchProbabilityMinLabel },
                                 { &fxGlitchProbabilityMaxEditor, &fxGlitchProbabilityMaxLabel }
                             });
-
-        addVerticalGap (glitchColumn1, kSubSectionGap);
 
         positionHeader (glitchStutterHeaderLabel, glitchColumn1, kSubHeaderHeight, kIndentSubsection);
         positionGlitchRows (glitchColumn1,
