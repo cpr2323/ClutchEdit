@@ -128,9 +128,13 @@ void EffectEditorComponent::init (juce::ValueTree rootPropertiesVT)
 
 void EffectEditorComponent::paintOverChildren (juce::Graphics& g)
 {
-    g.setColour (juce::Colours::black);
-    g.drawRect (effectLabels [0].getX (), effectLabels [0].getY () - 5, effectEditors [0].getRight () - effectLabels [0].getX () + 5,
-                effectLabels [7].getBottom () - effectLabels [0].getY () + 10);
+    const auto kSectionOutlineColour { juce::Colour (0xff6a6a6a) };
+    g.setColour (kSectionOutlineColour.brighter (0.4f));
+    constexpr auto kSectionCornerSize { 4.0f };
+    constexpr auto kSectionOutlineThickness { 1.0f };
+    g.drawRoundedRectangle (juce::Rectangle<int> (
+        effectLabels [0].getX (), effectLabels [0].getY () - 5, effectEditors [0].getRight () - effectLabels [0].getX () + 5,
+        effectLabels [7].getBottom () - effectLabels [0].getY () + 10).toFloat (), kSectionCornerSize, kSectionOutlineThickness);
 }
 
 void EffectEditorComponent::resized ()
