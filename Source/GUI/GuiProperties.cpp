@@ -2,8 +2,8 @@
 
 const auto defaultXPos { -1 };
 const auto defaultYPos { -1 };
-const auto defaultWidth { 1117 };
-const auto defaultHeight { 609 };
+const auto defaultWidth { 1260 };
+const auto defaultHeight { 760 };
 
 void GuiProperties::initValueTree ()
 {
