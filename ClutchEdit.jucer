@@ -17,6 +17,9 @@
           <FILE id="dMxHFQ" name="AudioSettingsProperties.h" compile="0" resource="0"
                 file="Source/Clutch/Audio/AudioSettingsProperties.h"/>
         </GROUP>
+        <GROUP id="{B825E329-D16B-D165-C29D-1D26148DD423}" name="Data">
+          <FILE id="RUyRg6" name="HIHAT.INI" compile="0" resource="1" file="Source/Clutch/Data/HIHAT.INI"/>
+        </GROUP>
         <FILE id="AUlW60" name="BankProperties.cpp" compile="1" resource="0"
               file="Source/Clutch/BankProperties.cpp"/>
         <FILE id="qX2Qmy" name="BankProperties.h" compile="0" resource="0"

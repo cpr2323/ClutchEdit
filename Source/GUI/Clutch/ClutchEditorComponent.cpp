@@ -1,6 +1,6 @@
 #include "ClutchEditorComponent.h"
-//#include "../../Clutch/HiHatIniData.h"
 #include "../../Utility/PersistentRootProperties.h"
+#include "../../Clutch/LedColorList.h"
 
 ClutchEditorComponent::ClutchEditorComponent ()
 {
@@ -38,23 +38,22 @@ ClutchEditorComponent::ClutchEditorComponent ()
         pm.addItem ("Open", true, false, [this] ()
         {
             auto openFile = [this] ()
+            {
+                fileChooser.reset (new juce::FileChooser ("Please select the Clutch HIHAT.INI file you want to edit...", {}, "*.INI"));
+                fileChooser->launchAsync (juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles, [this] (const juce::FileChooser& fc) mutable
                 {
-                    fileChooser.reset (new juce::FileChooser ("Please select the Clutch HIHAT.INI file you want to edit...", {}, "*.INI"));
-                    fileChooser->launchAsync (juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles, [this] (const juce::FileChooser& fc) mutable
+                    if (fc.getURLResults ().size () == 1 && fc.getURLResults () [0].isLocalFile ())
                     {
-                        if (fc.getURLResults ().size () == 1 && fc.getURLResults () [0].isLocalFile ())
-                        {
-                            projectManagerProperties.doCleanUpTempFiles (false);
-                            auto urlResult { fc.getURLResults () [0] };
-                            juce::File fileToLoad (urlResult.getLocalFile ().getFullPathName ());
-                            if (fileToLoad.isDirectory ())
-                                return;
-                            audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
-                            appProperties.setMostRecentFolder (fileToLoad.getParentDirectory ().getFullPathName ());
-                            appProperties.addRecentlyUsedFile (fileToLoad.getFullPathName ());
-                        }
-                    }, nullptr);
-                };
+                        projectManagerProperties.doCleanUpTempFiles (false);
+                        juce::File fileToLoad (fc.getURLResults () [0].getLocalFile ().getFullPathName ());
+                        if (fileToLoad.isDirectory ())
+                            return;
+                        audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
+                        appProperties.setMostRecentFolder (fileToLoad.getParentDirectory ().getFullPathName ());
+                        appProperties.addRecentlyUsedFile (fileToLoad.getFullPathName ());
+                    }
+                }, nullptr);
+            };
 
             if (!projectManagerProperties.getProjectEdited ())
             {
@@ -74,10 +73,54 @@ ClutchEditorComponent::ClutchEditorComponent ()
                                                     }));
             }
         });
-        pm.addItem ("New", true, false, [] ()
+        pm.addItem ("New", true, false, [this] ()
         {
+            auto doNew = [this] ()
+            {
+                fileChooser.reset (new juce::FileChooser ("Please select the Clutch HIHAT.INI file you want to create...", {}, "*.INI"));
+                fileChooser->launchAsync (juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::canSelectFiles | juce::FileBrowserComponent::warnAboutOverwriting, [this] (const juce::FileChooser& fc) mutable
+                {
+                    if (fc.getURLResults ().size () == 1 && fc.getURLResults () [0].isLocalFile ())
+                    {
+                        juce::File fileToCreate (fc.getURLResults () [0].getLocalFile ().getFullPathName ());
+                        if (fileToCreate.getFileExtension () == "")
+                            fileToCreate = fileToCreate.withFileExtension (".INI");
+                        if (fileToCreate.isDirectory ())
+                            return;
+                        projectManagerProperties.doCleanUpTempFiles (false);
+                        fileToCreate.deleteFile ();
+                        fileToCreate.appendData (BinaryData::HIHAT_INI, BinaryData::HIHAT_INISize);
+                        auto projectPath { fileToCreate.getParentDirectory () };
+                        for (auto& ledColor : gLedColorList)
+                        {
+                            auto bankAColorDirectory { projectPath.getChildFile (ledColor) };
+                            bankAColorDirectory.createDirectory ();
+                        }
+                        audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
+                        appProperties.setMostRecentFolder (fileToCreate.getParentDirectory ().getFullPathName ());
+                        appProperties.addRecentlyUsedFile (fileToCreate.getFullPathName ());
+                    }
+                }, nullptr);
+            };
+            if (! projectManagerProperties.getProjectEdited ())
+            {
+                doNew ();
+            }
+            else
+            {
+                juce::AlertWindow::showOkCancelBox (juce::AlertWindow::WarningIcon, "WARNING: Edits Have Been Made",
+                                                    "You have not saved the project that you have edited.\n  Select Continue to lose your changes.\n  Select Cancel to go back and save.", "Continue (lose changes)", "Cancel", nullptr,
+                                                    juce::ModalCallbackFunction::create ([this, doNew] (int option)
+                                                    {
+                                                        juce::MessageManager::callAsync ([this, option, doNew] ()
+                                                        {
+                                                            if (option == 1) // Continue
+                                                                doNew ();
+                                                        });
+                                                    }));
+            }
         });
-        pm.addItem ("Settings", true, false, [this] ()
+        pm.addItem ("Audio Settings", true, false, [this] ()
         {
             audioPlayerProperties.showConfigDialog (false);
         });
