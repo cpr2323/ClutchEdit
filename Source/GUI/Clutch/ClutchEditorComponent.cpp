@@ -24,55 +24,17 @@ ClutchEditorComponent::ClutchEditorComponent ()
     };
     addAndMakeVisible (editorTabs);
 
-    // SETTINGS BUTTON
-    optionsButton.setButtonText ("OPTIONS");
-    optionsButton.onClick = [this] ()
+    // TOOLS BUTTON
+    toolsButton.setButtonText ("TOOLS");
+    toolsButton.onClick = [this] ()
     {
         auto* popupMenuLnF { new juce::LookAndFeel_V4 };
         popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
 
         juce::PopupMenu pm;
         pm.setLookAndFeel (popupMenuLnF);
-        pm.addSectionHeader ("Options");
+        pm.addSectionHeader ("TOOLS");
         pm.addSeparator ();
-        pm.addItem ("Open", true, false, [this] ()
-        {
-            auto openFile = [this] ()
-            {
-                fileChooser.reset (new juce::FileChooser ("Please select the Clutch HIHAT.INI file you want to edit...", {}, "*.INI"));
-                fileChooser->launchAsync (juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles, [this] (const juce::FileChooser& fc) mutable
-                {
-                    if (fc.getURLResults ().size () == 1 && fc.getURLResults () [0].isLocalFile ())
-                    {
-                        projectManagerProperties.doCleanUpTempFiles (false);
-                        juce::File fileToLoad (fc.getURLResults () [0].getLocalFile ().getFullPathName ());
-                        if (fileToLoad.isDirectory ())
-                            return;
-                        audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
-                        appProperties.setMostRecentFolder (fileToLoad.getParentDirectory ().getFullPathName ());
-                        appProperties.addRecentlyUsedFile (fileToLoad.getFullPathName ());
-                    }
-                }, nullptr);
-            };
-
-            if (!projectManagerProperties.getProjectEdited ())
-            {
-                openFile ();
-            }
-            else
-            {
-                juce::AlertWindow::showOkCancelBox (juce::AlertWindow::WarningIcon, "WARNING: Edits Have Been Made",
-                                                    "You have not saved the project that you have edited.\n  Select Continue to lose your changes.\n  Select Cancel to go back and save.", "Continue (lose changes)", "Cancel", nullptr,
-                                                    juce::ModalCallbackFunction::create ([this, openFile] (int option)
-                                                    {
-                                                        juce::MessageManager::callAsync ([this, option, openFile] ()
-                                                        {
-                                                            if (option == 1) // Continue
-                                                                openFile ();
-                                                        });
-                                                    }));
-            }
-        });
         pm.addItem ("New", true, false, [this] ()
         {
             auto doNew = [this] ()
@@ -126,16 +88,58 @@ ClutchEditorComponent::ClutchEditorComponent ()
         });
         pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
     };
-    addAndMakeVisible (optionsButton);
+    addAndMakeVisible (toolsButton);
 
     // SAVE BUTTON
     saveButton.setButtonText ("SAVE");
-    saveButton.setEnabled (false); // TODO: do this when the edit compare functionality is working
+    saveButton.setEnabled (false);
     saveButton.onClick = [this] ()
     {
         projectManagerProperties.doSaveProject (false);
     };
     addAndMakeVisible (saveButton);
+
+    // OPEN BUTTON
+    openButton.setButtonText ("OPEN");
+    openButton.onClick = [this] ()
+    {
+        auto openFile = [this] ()
+        {
+            fileChooser.reset (new juce::FileChooser ("Please select the Clutch HIHAT.INI file you want to edit...", {}, "*.INI"));
+            fileChooser->launchAsync (juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles, [this] (const juce::FileChooser& fc) mutable
+            {
+                if (fc.getURLResults ().size () == 1 && fc.getURLResults () [0].isLocalFile ())
+                {
+                    projectManagerProperties.doCleanUpTempFiles (false);
+                    juce::File fileToLoad (fc.getURLResults () [0].getLocalFile ().getFullPathName ());
+                    if (fileToLoad.isDirectory ())
+                        return;
+                    audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
+                    appProperties.setMostRecentFolder (fileToLoad.getParentDirectory ().getFullPathName ());
+                    appProperties.addRecentlyUsedFile (fileToLoad.getFullPathName ());
+                }
+            }, nullptr);
+        };
+
+        if (!projectManagerProperties.getProjectEdited ())
+        {
+            openFile ();
+        }
+        else
+        {
+            juce::AlertWindow::showOkCancelBox (juce::AlertWindow::WarningIcon, "WARNING: Edits Have Been Made",
+                                                "You have not saved the project that you have edited.\n  Select Continue to lose your changes.\n  Select Cancel to go back and save.", "Continue (lose changes)", "Cancel", nullptr,
+                                                juce::ModalCallbackFunction::create ([this, openFile] (int option)
+                                                {
+                                                    juce::MessageManager::callAsync ([this, option, openFile] ()
+                                                    {
+                                                        if (option == 1) // Continue
+                                                            openFile ();
+                                                    });
+                                                }));
+        }
+    };
+    addAndMakeVisible (openButton);
 }
 
 ClutchEditorComponent::~ClutchEditorComponent ()
@@ -171,7 +175,8 @@ void ClutchEditorComponent::resized()
 {
     auto bounds { getLocalBounds () };
     auto topLine { bounds.removeFromTop (30) };
-    optionsButton.setBounds (topLine.removeFromRight (100).reduced (5));
+    toolsButton.setBounds (topLine.removeFromRight (100).reduced (5));
+    openButton.setBounds (topLine.removeFromRight (100).reduced (5));
     saveButton.setBounds (topLine.removeFromRight (100).reduced (5));
     editorTabs.setBounds (getLocalBounds ());
 }
