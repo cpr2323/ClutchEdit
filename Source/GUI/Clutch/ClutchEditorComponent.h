@@ -46,8 +46,7 @@ private:
     SampleManagerComponent sampleManagerComponent;
     SettingsEditorComponent settingsEditorComponent;
     juce::TextButton saveButton;
-    juce::TextButton openButton;
-    juce::TextButton settingsButton;
+    juce::TextButton optionsButton;
     TabbedComponentWithCallback editorTabs { juce::TabbedButtonBar::Orientation::TabsAtTop };
     std::unique_ptr<juce::FileChooser> fileChooser;
 
