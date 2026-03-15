@@ -47,9 +47,9 @@ void PatternListEditorComponent::paintOverChildren (juce::Graphics& g)
     {
         auto& patternLabel { patternLabels [patternIndex] };
         auto& patternEditor { patternEditors [patternIndex] };
-        const auto x { patternLabel.getX () + 5 };
+        const auto x { patternLabel.getX () };
         const auto y { patternEditor.getY () };
-        const auto width { patternLabel.getWidth () + patternEditor.getWidth () - 70 };
+        const auto width { patternLabel.getWidth () + patternEditor.getWidth () - 65 };
         const auto height { patternEditor.getHeight () - 5 };
         g.drawRoundedRectangle (juce::Rectangle<int> (x, y, width, height).toFloat(), kSectionCornerSize, kSectionOutlineThickness);
     }
@@ -57,6 +57,7 @@ void PatternListEditorComponent::paintOverChildren (juce::Graphics& g)
 
 void PatternListEditorComponent::resized ()
 {
+    constexpr auto kLabelXOffset { 5 };
     constexpr auto kInitialYOffset { 8 };
     constexpr auto kInitialXOffset { 60 };
     constexpr auto kPatternEditorHeight { 85 };
@@ -65,7 +66,7 @@ void PatternListEditorComponent::resized ()
     // position the pattern name and pattern editor rows
     for (auto patternIndex { 0 }; patternIndex < patternEditors.size (); ++patternIndex)
     {
-        patternLabels [patternIndex].setBounds (0, kInitialYOffset + (patternIndex * kPatternEditorHeight) + 33, kInitialXOffset, kPatternEditorHeight);
-        patternEditors [patternIndex].setBounds (kInitialXOffset, kInitialYOffset + (patternIndex * kPatternEditorHeight), bounds.getWidth (), kPatternEditorHeight);
+        patternLabels [patternIndex].setBounds (kLabelXOffset, kInitialYOffset + (patternIndex * kPatternEditorHeight) + 33, kInitialXOffset, kPatternEditorHeight);
+        patternEditors [patternIndex].setBounds (kInitialXOffset + kLabelXOffset, kInitialYOffset + (patternIndex * kPatternEditorHeight), bounds.getWidth (), kPatternEditorHeight);
     }
 }
