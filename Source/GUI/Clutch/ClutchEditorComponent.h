@@ -38,6 +38,8 @@ private:
     AppProperties appProperties;
     AudioPlayerProperties audioPlayerProperties;
     ClutchProperties clutchProperties;
+    ClutchProperties uneditedClutchProperties;
+    ClutchProperties defaultClutchProperties;
     EffectEditorComponent effectEditorComponent;
     GuiProperties guiProperties;
     PatternListEditorComponent patternListEditorComponent;

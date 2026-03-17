@@ -1,6 +1,7 @@
 #include "ClutchEditorComponent.h"
 #include "../../Utility/PersistentRootProperties.h"
 #include "../../Clutch/LedColorList.h"
+#include "../../Clutch/ProjectManager.h"
 
 ClutchEditorComponent::ClutchEditorComponent ()
 {
@@ -14,6 +15,7 @@ ClutchEditorComponent::ClutchEditorComponent ()
         viewPort->getVerticalScrollBar ().setColour (juce::ScrollBar::ColourIds::thumbColourId, thumbColor);
         editorTabs.addTab (title, juce::Colours::darkgrey, viewPort, true);
     };
+
     addComponentWithViewPort ("SAMPLES", &sampleManagerComponent, 1245, 375);
     addComponentWithViewPort ("SETTINGS", &settingsEditorComponent, 1200, 555);
     addComponentWithViewPort ("PATTERNS", &patternListEditorComponent, 1060, 697);
@@ -81,6 +83,14 @@ ClutchEditorComponent::ClutchEditorComponent ()
                                                         });
                                                     }));
             }
+        });
+        pm.addItem ("Default", true, false, [this] ()
+        {
+            ProjectManager::copy (defaultClutchProperties.getValueTree (), clutchProperties.getValueTree ());
+        });
+        pm.addItem ("Revert", true, false, [this] ()
+        {
+            ProjectManager::copy (uneditedClutchProperties.getValueTree (), clutchProperties.getValueTree ());
         });
         pm.addItem ("Audio Settings", true, false, [this] ()
         {
@@ -159,6 +169,8 @@ void ClutchEditorComponent::init (juce::ValueTree rootPropertiesVT)
         saveButton.setEnabled (projectEdited);
     };
     audioPlayerProperties.wrap (runtimeRootProperties.getValueTree (), AudioPlayerProperties::WrapperType::client, AudioPlayerProperties::EnableCallbacks::no);
+    uneditedClutchProperties.wrap (runtimeRootProperties.getValueTree ().getChildWithProperty (ClutchProperties::NamePropertyId, "unedited"), ClutchProperties::WrapperType::client, ClutchProperties::EnableCallbacks::no);
+    defaultClutchProperties.wrap (runtimeRootProperties.getValueTree ().getChildWithProperty (ClutchProperties::NamePropertyId, "default"), ClutchProperties::WrapperType::client, ClutchProperties::EnableCallbacks::no);
     clutchProperties.wrap (runtimeRootProperties.getValueTree ().getChildWithProperty(ClutchProperties::NamePropertyId, "edited"), ClutchProperties::WrapperType::client, ClutchProperties::EnableCallbacks::no);
     // TODO pass in the clutch VT directly instead of root VT
     settingsEditorComponent.init (rootPropertiesVT);

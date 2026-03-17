@@ -21,6 +21,12 @@ void AudioPlayerProperties::setSampleSource (juce::String sampleSource, bool inc
     setValue (sampleSource, SampleSourcePropertyId, includeSelfCallback);
 }
 
+void AudioPlayerProperties::setSampleId (int id, bool includeSelfCallback)
+{
+    juce::Logger::outputDebugString ("AudioPlayer - SampleId: " + juce::String (id));
+    setValue (id, SampleIdPropertyId, includeSelfCallback);
+}
+
 void AudioPlayerProperties::showConfigDialog (bool includeSelfCallback)
 {
     toggleValue (ShowConfigDialogPropertyId, includeSelfCallback);
@@ -41,6 +47,11 @@ juce::String AudioPlayerProperties::getSampleSource ()
     return getValue<juce::String> (SampleSourcePropertyId);
 }
 
+int AudioPlayerProperties::getSampleId ()
+{
+    return getValue<int> (SampleIdPropertyId);
+}
+
 void AudioPlayerProperties::valueTreePropertyChanged (juce::ValueTree& treeWhosePropertyHasChanged, const juce::Identifier& property)
 {
     if (treeWhosePropertyHasChanged == data)
@@ -59,6 +70,11 @@ void AudioPlayerProperties::valueTreePropertyChanged (juce::ValueTree& treeWhose
         {
             if (onSampleSourceChanged != nullptr)
                 onSampleSourceChanged (getSampleSource ());
+        }
+        else if (property == SampleIdPropertyId)
+        {
+            if (onSampleIdChanged != nullptr)
+                onSampleIdChanged (getSampleId ());
         }
         else if (property == ShowConfigDialogPropertyId)
         {

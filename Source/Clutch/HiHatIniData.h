@@ -20,6 +20,7 @@ public:
     ~HiHatIniData () = default;
 
     void readFromFile (const juce::File& file);
+    void readFromIniText (const juce::StringArray& hiHatIniLines);
     void writeToFile (juce::File outputFile);
     void FillInDataFromProperties (const juce::ValueTree clutchVT);
     void FillInPropertiesFromData (juce::ValueTree clutchVt);

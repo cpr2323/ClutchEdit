@@ -14,6 +14,8 @@ enum class LedColor
     yellow
 };
 
+int getLedColorIndex (juce::String ledColor);
+
 const std::array<juce::String, 8> gLedColorList
 {
     "WHITE", "RED", "GREEN", "BLUE", "ORANGE", "CYAN", "VIOLET", "YELLOW"

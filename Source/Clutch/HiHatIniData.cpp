@@ -273,65 +273,65 @@ void HiHatIniData::FillInPropertiesFromData (juce::ValueTree clutchVt)
 
 void HiHatIniData::readFromFile (const juce::File& file)
 {
-    juce::FileInputStream inputStream (file);
-    if (inputStream.openedOk ())
+    readFromIniText (juce::StringArray::fromLines (file.loadFileAsString ()));
+}
+
+void HiHatIniData::readFromIniText (const juce::StringArray& hiHatIniLines)
+{
+    iniLines.clear ();
+    juce::String currentSection;
+    for (auto& line : hiHatIniLines)
     {
-        iniLines.clear ();
-        juce::String currentSection;
-        while (!inputStream.isExhausted ())
+        HiHatIniFileLine iniLine;
+        iniLine.section = currentSection;
+        iniLine.rawLine = line;
+        auto trimmedLine = line.trim ();
+        if (trimmedLine.isEmpty ())
         {
-            juce::String line { inputStream.readNextLine () };
-            HiHatIniFileLine iniLine;
+            iniLine.lineType = LineType::unknown;
+        }
+        else if (trimmedLine.startsWithChar (';'))
+        {
+            iniLine.lineType = LineType::comment;
+            iniLine.comment = trimmedLine.substring (1);
+        }
+        else if (trimmedLine.startsWithChar ('['))
+        {
+            iniLine.lineType = LineType::section;
+            currentSection = trimmedLine.fromFirstOccurrenceOf ("[", false, false).upToLastOccurrenceOf ("]", false, false).trim ();
             iniLine.section = currentSection;
-            iniLine.rawLine = line;
-            auto trimmedLine = line.trim ();
-            if (trimmedLine.isEmpty ())
+        }
+        else
+        {
+            auto key { trimmedLine.upToFirstOccurrenceOf (" ", false, false).trim () };
+            if (!key.isEmpty ())
             {
-                iniLine.lineType = LineType::unknown;
-            }
-            else if (trimmedLine.startsWithChar (';'))
-            {
-                iniLine.lineType = LineType::comment;
-                iniLine.comment = trimmedLine.substring (1);
-            }
-            else if (trimmedLine.startsWithChar ('['))
-            {
-                iniLine.lineType = LineType::section;
-                currentSection = trimmedLine.fromFirstOccurrenceOf ("[", false, false).upToLastOccurrenceOf ("]", false, false).trim ();
-                iniLine.section = currentSection;
-            }
-            else
-            {
-                auto key { trimmedLine.upToFirstOccurrenceOf (" ", false, false).trim () };
-                if (!key.isEmpty ())
+                auto afterKey = trimmedLine.fromFirstOccurrenceOf (" ", false, false).trim ();
+                if (afterKey.startsWithChar ('='))
                 {
-                    auto afterKey = trimmedLine.fromFirstOccurrenceOf (" ", false, false).trim ();
-                    if (afterKey.startsWithChar ('='))
+                    auto valuePart = afterKey.fromFirstOccurrenceOf ("=", false, false).trim ();
+                    if (!valuePart.isEmpty ())
                     {
-                        auto valuePart = afterKey.fromFirstOccurrenceOf ("=", false, false).trim ();
-                        if (!valuePart.isEmpty ())
+                        iniLine.lineType = LineType::keyValuePair;
+                        iniLine.key = key;
+                        iniLine.value = valuePart.upToFirstOccurrenceOf (" ;", false, false).trim ();
+                        auto comment = valuePart.fromFirstOccurrenceOf (" ;", true, false).trim ();
+                        if (!comment.isEmpty ())
                         {
-                            iniLine.lineType = LineType::keyValuePair;
-                            iniLine.key = key;
-                            iniLine.value = valuePart.upToFirstOccurrenceOf (" ;", false, false).trim ();
-                            auto comment = valuePart.fromFirstOccurrenceOf (" ;", true, false).trim ();
-                            if (!comment.isEmpty ())
-                            {
-                                iniLine.comment = comment;
-                                auto defaultValueIndex = comment.lastIndexOf ("d:");
-                                if (defaultValueIndex != -1)
-                                    iniLine.defaultValue = comment.substring (defaultValueIndex + 2).trim ();
-                            }
+                            iniLine.comment = comment;
+                            auto defaultValueIndex = comment.lastIndexOf ("d:");
+                            if (defaultValueIndex != -1)
+                                iniLine.defaultValue = comment.substring (defaultValueIndex + 2).trim ();
                         }
                     }
                 }
-                else
-                {
-                    iniLine.lineType = LineType::unknown;
-                }
             }
-            iniLines.push_back (iniLine);
+            else
+            {
+                iniLine.lineType = LineType::unknown;
+            }
         }
+        iniLines.push_back (iniLine);
     }
 }
 void HiHatIniData::writeToFile (juce::File outputFile)

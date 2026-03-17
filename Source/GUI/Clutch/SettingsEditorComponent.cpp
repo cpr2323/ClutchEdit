@@ -2241,7 +2241,6 @@ void SettingsEditorComponent::resized ()
 
     constexpr auto kGlitchColumnGap { 5 };
     constexpr auto kGlitchControlWidth { 60 };
-    constexpr auto kGlitchControlGap { 4 };
     constexpr auto kGlitchSubHeaderIndent { 8 };
     constexpr auto kGlitchContentIndent { 12 };
 

@@ -12,6 +12,7 @@ class ProjectManager : public juce::Timer
 public:
     ProjectManager ();
     void init (juce::ValueTree rootPropertiesVT);
+    static void copy (juce::ValueTree sourceClutchPropertiesVT, juce::ValueTree destClutchPropertiesVT);
 
 private:
     juce::ValueTree rootPropertiesVT;
@@ -26,12 +27,16 @@ private:
 
     bool areEntireClutchPropertiesEqual (juce::ValueTree clutchPropertiesVT1, juce::ValueTree clutchPropertiesVT2);
     void cleanUpTempFiles ();
-    void copySamplePropertiesExistsFlags (juce::ValueTree sourceClutchPropertiesVT, juce::ValueTree destClutchPropertiesVT);
     void doQueuedDeletions ();
     void forEachSamplePair (std::function<void (juce::ValueTree samplePairPropertiesVT, juce::File sampleBankFolder)> samplePairCallback);
     void openProject (const juce::File& hiHatIniFile);
     void saveProject ();
     void scanSamples (juce::ValueTree clutchPropertiesVT);
+
+    static void copySampleProperties (juce::ValueTree sourceClutchPropertiesVT, juce::ValueTree destClutchPropertiesVT, bool copySamplesReference);
+    static void copySettingsProperties (juce::ValueTree sourceClutchPropertiesVT, juce::ValueTree destClutchPropertiesVT);
+    static void copyEffectListProperties (juce::ValueTree sourceClutchPropertiesVT, juce::ValueTree destClutchPropertiesVT);
+    static void copyPatternListProperties (juce::ValueTree sourceClutchPropertiesVT, juce::ValueTree destClutchPropertiesVT);
 
     void timerCallback () override;
     void convertTempFilesToPerm ();

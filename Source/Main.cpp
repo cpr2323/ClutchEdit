@@ -53,7 +53,7 @@ public:
         initAudio ();
         initUi ();
 
-        ValueTreeHelpers::dumpValueTreeContent (runtimeRootProperties.getValueTree (), false, [this] (juce::String line) { DebugLog ("", line); });
+        //ValueTreeHelpers::dumpValueTreeContent (runtimeRootProperties.getValueTree (), false, [this] (juce::String line) { DebugLog ("", line); });
 
         // async quit timer
         startTimer (125);
@@ -116,12 +116,16 @@ public:
         // add default clutch properties for unedited properties
         auto unEditedClutchProperties { ClutchProperties (clutchProperties.getValueTree ().createCopy (), ClutchProperties::WrapperType::owner, ClutchProperties::EnableCallbacks::no) };
         unEditedClutchProperties.setName ("unedited", false);
-        runtimeRootProperties.getValueTree ().addChild (unEditedClutchProperties.getValueTree ().createCopy (), -1, nullptr);
+        runtimeRootProperties.getValueTree ().addChild (unEditedClutchProperties.getValueTree (), -1, nullptr);
 
         // add default clutch properties for edited properties
         auto editedClutchProperties { ClutchProperties (clutchProperties.getValueTree ().createCopy (), ClutchProperties::WrapperType::owner, ClutchProperties::EnableCallbacks::no) };
         editedClutchProperties.setName ("edited", false);
-        runtimeRootProperties.getValueTree ().addChild (editedClutchProperties.getValueTree ().createCopy (), -1, nullptr);
+        runtimeRootProperties.getValueTree ().addChild (editedClutchProperties.getValueTree (), -1, nullptr);
+
+        auto defaultClutchProperties { ClutchProperties (clutchProperties.getValueTree ().createCopy (), ClutchProperties::WrapperType::owner, ClutchProperties::EnableCallbacks::no) };
+        defaultClutchProperties.setName ("default", false);
+        runtimeRootProperties.getValueTree ().addChild (defaultClutchProperties.getValueTree (), -1, nullptr);
 
         projectManager.init (rootProperties.getValueTree ());
     }

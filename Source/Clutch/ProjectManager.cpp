@@ -96,7 +96,7 @@ void ProjectManager::openProject (const juce::File& hiHatIniFile)
     // create bank list properties on the unedited branch, so we can track sample changes
     scanSamples (unEditedClutchProperties.getValueTree ());
     // initialize the edited sample properties by copying from the unedited sample properties
-    copySamplePropertiesExistsFlags (unEditedClutchProperties.getValueTree (), editedClutchProperties.getValueTree ());
+    copySampleProperties (unEditedClutchProperties.getValueTree (), editedClutchProperties.getValueTree (), false);
 }
 
 bool ProjectManager::areEntireClutchPropertiesEqual (juce::ValueTree clutchPropertiesVT1, juce::ValueTree clutchPropertiesVT2)
@@ -259,43 +259,6 @@ bool ProjectManager::areEntireClutchPropertiesEqual (juce::ValueTree clutchPrope
     return banksMatch;
 }
 
-void ProjectManager::copySamplePropertiesExistsFlags (juce::ValueTree sourceClutchPropertiesVT, juce::ValueTree destClutchPropertiesVT)
-{
-        // copy unedited bank list properties to edited bank list properties so that they can be edited
-    BankListProperties sourceBankListProperties { sourceClutchPropertiesVT, BankListProperties::WrapperType::client, BankListProperties::EnableCallbacks::no };
-    BankListProperties destBankListProperties { destClutchPropertiesVT, BankListProperties::WrapperType::client, BankListProperties::EnableCallbacks::no };
-
-    // copy the exist flag in the SampleProperties for each sample from the unEditedBankListProperties to sample sample in the editedBankListProperties
-    sourceBankListProperties.forEachBank ([&destBankListProperties] (juce::ValueTree sourceBankVT, int bankIndex)
-    {
-        auto destBankVT = destBankListProperties.getBankVT (bankIndex);
-        BankProperties sourceBank { sourceBankVT, BankProperties::WrapperType::client, BankProperties::EnableCallbacks::no };
-        BankProperties destBank { destBankVT, BankProperties::WrapperType::client, BankProperties::EnableCallbacks::no };
-
-        sourceBank.forEachSamplePair ([&destBank] (juce::ValueTree sourceSamplePairVT, int samplePairIndex)
-        {
-            auto destSamplePairVT { destBank.getSamplePairVT (samplePairIndex) };
-            SamplePairProperties sourceSamplePair { sourceSamplePairVT, SamplePairProperties::WrapperType::client, SamplePairProperties::EnableCallbacks::no };
-            SamplePairProperties destSamplePair { destSamplePairVT, SamplePairProperties::WrapperType::client, SamplePairProperties::EnableCallbacks::no };
-
-            // open sample
-            SampleProperties sourceOpenProperties { sourceSamplePair.getOpenSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
-            SampleProperties destOpenProperties { destSamplePair.getOpenSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
-            destOpenProperties.setExists (sourceOpenProperties.getExists (), false);
-            destOpenProperties.setDeleted (sourceOpenProperties.getDeleted (), false);
-
-            // closed sample
-            SampleProperties sourceClosedProperties { sourceSamplePair.getClosedSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
-            SampleProperties destClosedProperties { destSamplePair.getClosedSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
-            destClosedProperties.setExists (sourceClosedProperties.getExists (), false);
-            destClosedProperties.setDeleted (sourceClosedProperties.getDeleted (), false);
-
-            return true;
-        });
-
-        return true;
-    });
-}
 
 void ProjectManager::saveProject ()
 {
@@ -310,7 +273,7 @@ void ProjectManager::saveProject ()
     // NOTE: I am copying from the data, instead of the other properties, because this function is already doing the needed work
     //       I would like to eventually change it to copy from the properties
     hiHatIniData.FillInPropertiesFromData (unEditedClutchProperties.getValueTree ());
-    copySamplePropertiesExistsFlags (editedClutchProperties.getValueTree (), unEditedClutchProperties.getValueTree ());
+    copySampleProperties (editedClutchProperties.getValueTree (), unEditedClutchProperties.getValueTree (), true);
 }
 
 void ProjectManager::scanSamples (juce::ValueTree clutchPropertiesVT)
@@ -444,4 +407,159 @@ void ProjectManager::forEachSamplePair (std::function<void(juce::ValueTree sampl
         });
         return true;
     });
+}
+
+void ProjectManager::copySampleProperties (juce::ValueTree sourceClutchPropertiesVT, juce::ValueTree destClutchPropertiesVT, bool copySamplesReference)
+{
+        // copy unedited bank list properties to edited bank list properties so that they can be edited
+    BankListProperties sourceBankListProperties { sourceClutchPropertiesVT, BankListProperties::WrapperType::client, BankListProperties::EnableCallbacks::no };
+    BankListProperties destBankListProperties { destClutchPropertiesVT, BankListProperties::WrapperType::client, BankListProperties::EnableCallbacks::no };
+
+    // copy the exist flag in the SampleProperties for each sample from the unEditedBankListProperties to sample sample in the editedBankListProperties
+    sourceBankListProperties.forEachBank ([&destBankListProperties, copySamplesReference] (juce::ValueTree sourceBankVT, int bankIndex)
+    {
+        auto destBankVT = destBankListProperties.getBankVT (bankIndex);
+        BankProperties sourceBank { sourceBankVT, BankProperties::WrapperType::client, BankProperties::EnableCallbacks::no };
+        BankProperties destBank { destBankVT, BankProperties::WrapperType::client, BankProperties::EnableCallbacks::no };
+
+        sourceBank.forEachSamplePair ([&destBank, copySamplesReference] (juce::ValueTree sourceSamplePairVT, int samplePairIndex)
+        {
+            auto destSamplePairVT { destBank.getSamplePairVT (samplePairIndex) };
+            SamplePairProperties sourceSamplePair { sourceSamplePairVT, SamplePairProperties::WrapperType::client, SamplePairProperties::EnableCallbacks::no };
+            SamplePairProperties destSamplePair { destSamplePairVT, SamplePairProperties::WrapperType::client, SamplePairProperties::EnableCallbacks::no };
+
+            // open sample
+            SampleProperties sourceOpenProperties { sourceSamplePair.getOpenSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
+            SampleProperties destOpenProperties { destSamplePair.getOpenSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
+            destOpenProperties.setExists (sourceOpenProperties.getExists (), false);
+            destOpenProperties.setDeleted (sourceOpenProperties.getDeleted (), false);
+            if (copySamplesReference)
+                destOpenProperties.setFilename (sourceOpenProperties.getFilename (), false);
+
+            // closed sample
+            SampleProperties sourceClosedProperties { sourceSamplePair.getClosedSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
+            SampleProperties destClosedProperties { destSamplePair.getClosedSampleVT (), SampleProperties::WrapperType::client, SampleProperties::EnableCallbacks::no };
+            destClosedProperties.setExists (sourceClosedProperties.getExists (), false);
+            destClosedProperties.setDeleted (sourceClosedProperties.getDeleted (), false);
+            if (copySamplesReference)
+                destClosedProperties.setFilename (destClosedProperties.getFilename (), false);
+
+            return true;
+        });
+
+        return true;
+    });
+}
+
+void ProjectManager::copySettingsProperties (juce::ValueTree sourceClutchPropertiesVT, juce::ValueTree destClutchPropertiesVT)
+{
+    SettingsProperties sourceSettings { sourceClutchPropertiesVT, SettingsProperties::WrapperType::client, SettingsProperties::EnableCallbacks::no };
+    SettingsProperties destSettings { destClutchPropertiesVT, SettingsProperties::WrapperType::client, SettingsProperties::EnableCallbacks::no };
+
+    destSettings.setPitchLow (sourceSettings.getPitchLow (), false);
+    destSettings.setPitchHigh (sourceSettings.getPitchHigh (), false);
+    destSettings.setEnvelopeMaxRelease (sourceSettings.getEnvelopeMaxRelease (), false);
+    destSettings.setChokeRelease (sourceSettings.getChokeRelease (), false);
+    destSettings.setClsdReleaseMode (sourceSettings.getClsdReleaseMode (), false);
+    destSettings.setClsdRelOfstScale (sourceSettings.getClsdRelOfstScale (), false);
+    destSettings.setClsdMaxRelease (sourceSettings.getClsdMaxRelease (), false);
+    destSettings.setAccClRelMod (sourceSettings.getAccClRelMod (), false);
+    destSettings.setAccOpRelMod (sourceSettings.getAccOpRelMod (), false);
+    destSettings.setAccClAmpMod (sourceSettings.getAccClAmpMod (), false);
+    destSettings.setAccOpAmpMod (sourceSettings.getAccOpAmpMod (), false);
+    destSettings.setFxCvUnipolar (sourceSettings.getFxCvUnipolar (), false);
+    destSettings.setVelocityUnipolar (sourceSettings.getVelocityUnipolar (), false);
+    destSettings.setCvDisableVelocity (sourceSettings.getCvDisableVelocity (), false);
+    destSettings.setCvDisableFx (sourceSettings.getCvDisableFx (), false);
+    destSettings.setGateMode (sourceSettings.getGateMode (), false);
+    destSettings.setFeelAttackMod (sourceSettings.getFeelAttackMod (), false);
+    destSettings.setFeelReleaseMod (sourceSettings.getFeelReleaseMod (), false);
+    destSettings.setFeelAmpMod (sourceSettings.getFeelAmpMod (), false);
+    destSettings.setKnobPosTakeup (sourceSettings.getKnobPosTakeup (), false);
+    destSettings.setFltrHpfMinFreq (sourceSettings.getFltrHpfMinFreq (), false);
+    destSettings.setFltrHpfMaxFreq (sourceSettings.getFltrHpfMaxFreq (), false);
+    destSettings.setFltrLpfMinFreq (sourceSettings.getFltrLpfMinFreq (), false);
+    destSettings.setFltrLpfMaxFreq (sourceSettings.getFltrLpfMaxFreq (), false);
+    destSettings.setFltrHpfQ (sourceSettings.getFltrHpfQ (), false);
+    destSettings.setFltrLpfQ (sourceSettings.getFltrLpfQ (), false);
+    destSettings.setFxDjfilterHpfMin (sourceSettings.getFxDjfilterHpfMin (), false);
+    destSettings.setFxDjfilterHpfMax (sourceSettings.getFxDjfilterHpfMax (), false);
+    destSettings.setFxDjfilterLpfMin (sourceSettings.getFxDjfilterLpfMin (), false);
+    destSettings.setFxDjfilterLpfMax (sourceSettings.getFxDjfilterLpfMax (), false);
+    destSettings.setFxDjfilterQMin (sourceSettings.getFxDjfilterQMin (), false);
+    destSettings.setFxDjfilterQMax (sourceSettings.getFxDjfilterQMax (), false);
+    destSettings.setFxDjfilterQGainReduction (sourceSettings.getFxDjfilterQGainReduction (), false);
+    destSettings.setFxDubEchoTmin (sourceSettings.getFxDubEchoTmin (), false);
+    destSettings.setFxDubEchoHpf (sourceSettings.getFxDubEchoHpf (), false);
+    destSettings.setFxDubEchoLpf (sourceSettings.getFxDubEchoLpf (), false);
+    destSettings.setFxDubEchoMix (sourceSettings.getFxDubEchoMix (), false);
+    destSettings.setFxChorusCenter (sourceSettings.getFxChorusCenter (), false);
+    destSettings.setFxChorusDepth (sourceSettings.getFxChorusDepth (), false);
+    destSettings.setFxChorusMix (sourceSettings.getFxChorusMix (), false);
+    destSettings.setFxChorusSpread (sourceSettings.getFxChorusSpread (), false);
+    destSettings.setFxChorusTaps (sourceSettings.getFxChorusTaps (), false);
+    destSettings.setFxChorusLfoB (sourceSettings.getFxChorusLfoB (), false);
+    destSettings.setFxChorusLfoT (sourceSettings.getFxChorusLfoT (), false);
+    destSettings.setFxReverbLpf (sourceSettings.getFxReverbLpf (), false);
+    destSettings.setFxReverbHpf (sourceSettings.getFxReverbHpf (), false);
+    destSettings.setFxGlitchProbabilityMin (sourceSettings.getFxGlitchProbabilityMin (), false);
+    destSettings.setFxGlitchProbabilityMax (sourceSettings.getFxGlitchProbabilityMax (), false);
+    destSettings.setFxGlitchWeightHoldLow (sourceSettings.getFxGlitchWeightHoldLow (), false);
+    destSettings.setFxGlitchWeightStutterLow (sourceSettings.getFxGlitchWeightStutterLow (), false);
+    destSettings.setFxGlitchWeightCrushLow (sourceSettings.getFxGlitchWeightCrushLow (), false);
+    destSettings.setFxGlitchWeightDropLow (sourceSettings.getFxGlitchWeightDropLow (), false);
+    destSettings.setFxGlitchWeightHoldHigh (sourceSettings.getFxGlitchWeightHoldHigh (), false);
+    destSettings.setFxGlitchWeightStutterHigh (sourceSettings.getFxGlitchWeightStutterHigh (), false);
+    destSettings.setFxGlitchWeightCrushHigh (sourceSettings.getFxGlitchWeightCrushHigh (), false);
+    destSettings.setFxGlitchWeightDropHigh (sourceSettings.getFxGlitchWeightDropHigh (), false);
+    destSettings.setFxGlitchDropKeepLevelMin (sourceSettings.getFxGlitchDropKeepLevelMin (), false);
+    destSettings.setFxGlitchDropKeepLevelMax (sourceSettings.getFxGlitchDropKeepLevelMax (), false);
+    destSettings.setFxGlitchDropKeepTimeMin (sourceSettings.getFxGlitchDropKeepTimeMin (), false);
+    destSettings.setFxGlitchDropKeepTimeMax (sourceSettings.getFxGlitchDropKeepTimeMax (), false);
+    destSettings.setFxGlitchCrushTimeMin (sourceSettings.getFxGlitchCrushTimeMin (), false);
+    destSettings.setFxGlitchCrushTimeMax (sourceSettings.getFxGlitchCrushTimeMax (), false);
+    destSettings.setFxGlitchMicroloopSmplTMin (sourceSettings.getFxGlitchMicroloopSmplTMin (), false);
+    destSettings.setFxGlitchMicroloopSmplTMax (sourceSettings.getFxGlitchMicroloopSmplTMax (), false);
+    destSettings.setFxGlitchMicroloopPlayTMin (sourceSettings.getFxGlitchMicroloopPlayTMin (), false);
+    destSettings.setFxGlitchMicroloopPlayTMax (sourceSettings.getFxGlitchMicroloopPlayTMax (), false);
+    destSettings.setFxGlitchStutterSmplTMin (sourceSettings.getFxGlitchStutterSmplTMin (), false);
+    destSettings.setFxGlitchStutterSmplTMax (sourceSettings.getFxGlitchStutterSmplTMax (), false);
+    destSettings.setFxGlitchStutterNumMin (sourceSettings.getFxGlitchStutterNumMin (), false);
+    destSettings.setFxGlitchStutterNumMax (sourceSettings.getFxGlitchStutterNumMax (), false);
+    destSettings.setFxGlitchStutterWindow (sourceSettings.getFxGlitchStutterWindow (), false);
+}
+
+void ProjectManager::copyPatternListProperties (juce::ValueTree sourceClutchPropertiesVT, juce::ValueTree destClutchPropertiesVT)
+{
+    PatternListProperties sourcePatternList { sourceClutchPropertiesVT, PatternListProperties::WrapperType::client, PatternListProperties::EnableCallbacks::no };
+    PatternListProperties destPatternList { destClutchPropertiesVT, PatternListProperties::WrapperType::client, PatternListProperties::EnableCallbacks::no };
+
+    for (auto patternIndex { 0 }; patternIndex < sourcePatternList.getValueTree ().getNumChildren (); ++patternIndex)
+    {
+        PatternProperties sourcePattern { sourcePatternList.getPatternVT (patternIndex), PatternProperties::WrapperType::client, PatternProperties::EnableCallbacks::no };
+        PatternProperties destPattern { destPatternList.getPatternVT (patternIndex), PatternProperties::WrapperType::client, PatternProperties::EnableCallbacks::no };
+        destPattern.setPattern (sourcePattern.getPattern (), false);
+    }
+}
+
+void ProjectManager::copyEffectListProperties (juce::ValueTree sourceClutchPropertiesVT, juce::ValueTree destClutchPropertiesVT)
+{
+    EffectListProperties sourceEffectList { sourceClutchPropertiesVT, EffectListProperties::WrapperType::client, EffectListProperties::EnableCallbacks::no };
+    EffectListProperties destEffectList { destClutchPropertiesVT, EffectListProperties::WrapperType::client, EffectListProperties::EnableCallbacks::no };
+
+    for (auto effectIndex { 0 }; effectIndex < sourceEffectList.getValueTree ().getNumChildren (); ++effectIndex)
+    {
+        EffectProperties sourceEffect { sourceEffectList.getEffectVT (effectIndex), EffectProperties::WrapperType::client, EffectProperties::EnableCallbacks::no };
+        EffectProperties destEffect { destEffectList.getEffectVT (effectIndex), EffectProperties::WrapperType::client, EffectProperties::EnableCallbacks::no };
+        destEffect.setEffect (sourceEffect.getEffect (), false);
+    }
+}
+
+void ProjectManager::copy (juce::ValueTree sourceClutchPropertiesVT, juce::ValueTree destClutchPropertiesVT)
+{
+    // copy all the things
+    copySettingsProperties (sourceClutchPropertiesVT, destClutchPropertiesVT);
+    copyPatternListProperties (sourceClutchPropertiesVT, destClutchPropertiesVT);
+    copyEffectListProperties (sourceClutchPropertiesVT, destClutchPropertiesVT);
+    copySampleProperties (sourceClutchPropertiesVT, destClutchPropertiesVT, true);
 }

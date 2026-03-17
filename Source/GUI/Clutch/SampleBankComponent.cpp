@@ -1,5 +1,6 @@
 #include "SampleBankComponent.h"
 #include "../../Clutch/BankProperties.h"
+#include "../../Clutch/LedColorList.h"
 #include "../../Clutch/SamplePairProperties.h"
 #include "../../SRC/libsamplerate-0.1.9/src/samplerate.h"
 #include "../../Utility/PersistentRootProperties.h"
@@ -112,6 +113,7 @@ SampleBankComponent::SampleBankComponent ()
 
                 audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::stop, false);
                 audioPlayerProperties.setSampleSource (getBankAndFileName (hiHatSampleIndex, sampleType), false);
+                audioPlayerProperties.setSampleId ((getLedColorIndex (bankProperties.getName ()) * 32) + ((hiHatSampleIndex * 2) + (sampleType == SampleProperties::SampleType::open ? 0 : 1)) , false);
                 audioPlayerProperties.setPlayState (AudioPlayerProperties::PlayState::play, false);
             }
         };
@@ -400,9 +402,9 @@ void SampleBankComponent::paint (juce::Graphics& g)
                              hiHatSampleInfoList [0].openedNameLabel.getRight () + 2, hiHatSampleInfoList [15].openedNameLabel.getBottom () + 2 }.toFloat (), 1.0f);
 
     // draw box outline
-    g.drawRoundedRectangle (hiHatSampleInfoList [0].openedNameLabel.getX (), hiHatSampleInfoList [0].openedNameLabel.getY (),
+    g.drawRoundedRectangle (juce::Rectangle<int> { hiHatSampleInfoList [0].openedNameLabel.getX (), hiHatSampleInfoList [0].openedNameLabel.getY (),
                             hiHatSampleInfoList [0].closedNameLabel.getRight () - hiHatSampleInfoList [0].openedNameLabel.getX (),
-                            hiHatSampleInfoList [15].openedNameLabel.getBottom () - hiHatSampleInfoList [0].openedNameLabel.getY () + 2, kSectionCornerSize, kSectionOutlineThickness);
+                            hiHatSampleInfoList [15].openedNameLabel.getBottom () - hiHatSampleInfoList [0].openedNameLabel.getY () + 2}.toFloat (), kSectionCornerSize, kSectionOutlineThickness);
 }
 
 void SampleBankComponent::resized ()
@@ -425,7 +427,10 @@ void SampleBankComponent::timerCallback ()
     // stop auditioning after some time
     if (auditioningSampleLabelComponent != nullptr)
     {
-        if (audioPlayerProperties.getPlayState () != AudioPlayerProperties::PlayState::play)
+        const auto bankId { (getLedColorIndex (bankProperties.getName ()) * 32) };
+        const auto currentlyPlayingSampleId { audioPlayerProperties.getSampleId () };
+        if (audioPlayerProperties.getPlayState () != AudioPlayerProperties::PlayState::play ||
+            (audioPlayerProperties.getPlayState () == AudioPlayerProperties::PlayState::play && (currentlyPlayingSampleId < bankId || currentlyPlayingSampleId >= bankId + 32)))
         {
             auditioningSampleLabelComponent->enablePlayBlink (false);
             auditioningSampleLabelComponent = nullptr;
