@@ -2430,7 +2430,8 @@ void SettingsEditorComponent::resized ()
         positionRows (sectionArea,
                       {
                           { &chokeReleaseEditor, &chokeReleaseLabel },
-                          { &envelopeMaxReleaseEditor, &envelopeMaxReleaseLabel }
+                          { &envelopeMaxReleaseEditor, &envelopeMaxReleaseLabel },
+                          { &gateModeComboBox,& gateModeLabel },
                       },
                       kSectionContentIndent);
 
@@ -2541,7 +2542,6 @@ void SettingsEditorComponent::resized ()
         addVerticalGap (sectionArea, kMainHeaderToContentGap);
         positionRows (sectionArea,
                       {
-                          { &gateModeComboBox, &gateModeLabel },
                           { &knobPosTakeupComboBox, &knobPosTakeupLabel }
                       },
                       kSectionContentIndent);
