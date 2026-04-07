@@ -27,7 +27,7 @@ void EffectListProperties::forEachEffect (std::function<bool (juce::ValueTree ef
 {
     jassert (effectVTCallback != nullptr);
     auto curEffectIndex { 0 };
-    ValueTreeHelpers::forEachChildOfType (data, EffectProperties::BankTypeId, [this, &curEffectIndex, effectVTCallback] (juce::ValueTree effectVT)
+    ValueTreeHelpers::forEachChildOfType (data, EffectProperties::EffectTypeId, [this, &curEffectIndex, effectVTCallback] (juce::ValueTree effectVT)
     {
         auto keepIterating { effectVTCallback (effectVT, curEffectIndex) };
         ++curEffectIndex;

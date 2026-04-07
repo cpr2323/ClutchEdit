@@ -1,6 +1,4 @@
 #include "AudioPlayer.h"
-//#include "../../Assimil8or/PresetManagerProperties.h"
-//#include "../Bank/BankManagerProperties.h"
 #include "../../Utility/DebugLog.h"
 #include "../../Utility/PersistentRootProperties.h"
 #include "../../Utility/RuntimeRootProperties.h"
@@ -18,14 +16,7 @@ void AudioPlayer::init (juce::ValueTree rootPropertiesVT)
     RuntimeRootProperties runtimeRootProperties (rootPropertiesVT, RuntimeRootProperties::WrapperType::client, RuntimeRootProperties::EnableCallbacks::no);
 
     appProperties.wrap (persistentRootProperties.getValueTree (), AppProperties::WrapperType::client, AppProperties::EnableCallbacks::yes);
-
-    audioSettingsProperties.wrap (persistentRootProperties.getValueTree (), AudioSettingsProperties::WrapperType::owner, AudioSettingsProperties::EnableCallbacks::yes);
-    audioSettingsProperties.onConfigChange = [this] ([[maybe_unused]] juce::String config)
-    {
-        // TODO - do we need this callback?
-        //configureAudioDevice (deviceName);
-    };
-
+    audioSettingsProperties.wrap (persistentRootProperties.getValueTree (), AudioSettingsProperties::WrapperType::owner, AudioSettingsProperties::EnableCallbacks::no);
     audioPlayerProperties.wrap (runtimeRootProperties.getValueTree (), AudioPlayerProperties::WrapperType::owner, AudioPlayerProperties::EnableCallbacks::yes);
     audioPlayerProperties.onShowConfigDialog = [this] ()
     {
@@ -38,7 +29,7 @@ void AudioPlayer::init (juce::ValueTree rootPropertiesVT)
     };
     audioPlayerProperties.onPlayModeChange = [this] (AudioPlayerProperties::PlayMode newPlayMode)
     {
-        LogAudioPlayer ("init: audioPlayerProperties.onPlayStateChange");
+        LogAudioPlayer ("init: audioPlayerProperties.onPlayModeChange");
         handlePlayMode (newPlayMode);
     };
     // Clients call this to setup the sample source
@@ -198,7 +189,7 @@ void AudioPlayer::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferT
     auto cachedSampleLength { 0 };
     auto cachedSampleStart { 0 };
     auto cachedLocalSampleOffset { 0 };
-    auto chachedPlayMode { AudioPlayerProperties::PlayMode::once };
+    auto cachedPlayMode { AudioPlayerProperties::PlayMode::once };
     {
         // NOTE: I am using a lock in the audio callback ONLY BECAUSE the audio play back is a simple audition feature, not recording or performance playback
         juce::ScopedLock sl (dataCS);
@@ -207,7 +198,7 @@ void AudioPlayer::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferT
         originalSampleOffset =  curSampleOffset; // should be >= sampleStart and < sampleStart + sampleLength
         cachedSampleLength = sampleLength;
         cachedSampleStart = sampleStart;
-        chachedPlayMode = playMode;
+        cachedPlayMode = playMode;
         cachedLocalSampleOffset = curSampleOffset - sampleStart;
         LogAudioPlayer ("AudioPlayer::getNextAudioBlock - cachedSampleStart: " + juce::String (cachedSampleStart) + ", chachedSampleLength: " + juce::String (cachedSampleLength) +
                         ", curSampleOffset: " + juce::String (curSampleOffset) + ", cachedLocalSampleOffset: " + juce::String (cachedLocalSampleOffset));
@@ -238,7 +229,7 @@ void AudioPlayer::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferT
 
         outputBufferWritePos += numSamplesToCopy;
         cachedLocalSampleOffset += numSamplesToCopy;
-        if (chachedPlayMode == AudioPlayerProperties::PlayMode::loop)
+        if (cachedPlayMode == AudioPlayerProperties::PlayMode::loop)
         {
             if (cachedLocalSampleOffset >= cachedSampleLength)
                 cachedLocalSampleOffset = 0;

@@ -6,11 +6,11 @@
 class EffectProperties : public ValueTreeWrapper<EffectProperties>
 {
 public:
-    EffectProperties () noexcept : ValueTreeWrapper<EffectProperties> (BankTypeId)
+    EffectProperties () noexcept : ValueTreeWrapper<EffectProperties> (EffectTypeId)
     {
     }
     EffectProperties (juce::ValueTree vt, WrapperType wrapperType, EnableCallbacks shouldEnableCallbacks) noexcept
-        : ValueTreeWrapper<EffectProperties> (BankTypeId, vt, wrapperType, shouldEnableCallbacks)
+        : ValueTreeWrapper<EffectProperties> (EffectTypeId, vt, wrapperType, shouldEnableCallbacks)
     {
     }
 
@@ -21,7 +21,7 @@ public:
     std::function<void (juce::String id)> onIdChange;
     std::function<void (juce::String pattern)> onEffectChange;
 
-    static inline const juce::Identifier BankTypeId { "Effect" };
+    static inline const juce::Identifier EffectTypeId { "Effect" };
     static inline const juce::Identifier IdPropertyId { "id" };
     static inline const juce::Identifier EffectPropertyId { "effect" };
 

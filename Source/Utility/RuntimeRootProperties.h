@@ -51,18 +51,18 @@ public:
     std::function<void ()> onWindowMoved;
     // there is no onPreferredQuitStateChanged call because it doesn't cause anything to happen, just a change in state
 
-    static inline const juce::Identifier RuntimeRootPropertiesId  { "RuntimeRoot" };
-    static inline const juce::Identifier AppDataPathPropertyId    { "appDataPath" };
-    static inline const juce::Identifier AppResumedId             { "appResumed" };
-    static inline const juce::Identifier AppSuspendedId           { "appSuspended" };
-    static inline const juce::Identifier AppVersionPropertyId     { "appVersion" };
-    static inline const juce::Identifier LayoutPropertyId         { "layout" };
-    static inline const juce::Identifier MinimiseButtonPressedId  { "minimisedButtonPressed" };
-    static inline const juce::Identifier MaximiseButtonPressedId  { "maximiseButtonPressed" };
+    static inline const juce::Identifier RuntimeRootPropertiesId      { "RuntimeRoot" };
+    static inline const juce::Identifier AppDataPathPropertyId        { "appDataPath" };
+    static inline const juce::Identifier AppResumedId                 { "appResumed" };
+    static inline const juce::Identifier AppSuspendedId               { "appSuspended" };
+    static inline const juce::Identifier AppVersionPropertyId         { "appVersion" };
+    static inline const juce::Identifier LayoutPropertyId             { "layout" };
+    static inline const juce::Identifier MinimiseButtonPressedId      { "minimisedButtonPressed" };
+    static inline const juce::Identifier MaximiseButtonPressedId      { "maximiseButtonPressed" };
     static inline const juce::Identifier PreferredQuitStatePropertyId { "preferredQuitState" };
-    static inline const juce::Identifier QuitStatePropertyId      { "quitState" };
-    static inline const juce::Identifier SystemRequestedQuitId    { "systemRequestedQuit" };
-    static inline const juce::Identifier WindowMovedId            { "windowMoved" };
+    static inline const juce::Identifier QuitStatePropertyId          { "quitState" };
+    static inline const juce::Identifier SystemRequestedQuitId        { "systemRequestedQuit" };
+    static inline const juce::Identifier WindowMovedId                { "windowMoved" };
 
     static inline const juce::String LayoutUnknown    { "unknown" };
     static inline const juce::String LayoutFullscreen { "fullscreen" };

@@ -2140,7 +2140,7 @@ void SettingsEditorComponent::paint (juce::Graphics& g)
         [&] (const juce::Label& header)
         {
             const auto bounds { header.getBounds () };
-            const auto y { bounds.getBottom () /*+ kMainHeaderToSeparatorGap*/ };
+            const auto y { bounds.getBottom () };
 
             g.drawLine ((float) (bounds.getX () + kSeparatorInsetX),
                         (float) y,
@@ -2686,7 +2686,7 @@ void SettingsEditorComponent::resized ()
                 auto y { area.getY () };
                 const auto controlX { subColumnBounds.getRight () - kGlitchControlWidth };
                 const auto labelX { subColumnBounds.getX () + indent };
-                const auto labelWidth { juce::jmax (18, controlX - labelX/* - kGlitchControlGap*/) };
+                const auto labelWidth { juce::jmax (18, controlX - labelX) };
 
                 for (const auto& pair : pairs)
                 {

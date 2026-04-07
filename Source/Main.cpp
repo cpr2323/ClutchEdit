@@ -1,6 +1,5 @@
 #include <JuceHeader.h>
 #include "AppProperties.h"
-#include "SystemServices.h"
 #include "Clutch/BankListProperties.h"
 #include "Clutch/ClutchProperties.h"
 #include "Clutch/EffectListProperties.h"
@@ -48,7 +47,6 @@ public:
         initLogger ();
         initCrashHandler ();
         initPropertyRoots ();
-        initSystemServices ();
         initClutch();
         initAudio ();
         initUi ();
@@ -159,17 +157,6 @@ public:
     void initAudio ()
     {
         audioPlayer.init (rootProperties.getValueTree ());
-    }
-
-    void initSystemServices ()
-    {
-        // connect services to the SystemServices VTW
-        SystemServices systemServices (runtimeRootProperties.getValueTree (), SystemServices::WrapperType::owner, SystemServices::EnableCallbacks::no);
-
-        //audioManager.init (rootProperties.getValueTree ());
-        //systemServices.setAudioManager (&audioManager);
-
-        //systemServices.setEditManager (&editManager);
     }
 
     void initAppDirectory ()

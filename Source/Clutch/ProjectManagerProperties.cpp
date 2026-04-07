@@ -18,7 +18,7 @@ void ProjectManagerProperties::doCleanUpTempFiles (bool includeSelfCallback)
 
 void ProjectManagerProperties::doSaveProject (bool includeSelfCallback)
 {
-    setValue (! getValue<bool>(DoSaveProjectPropertyId), DoSaveProjectPropertyId, includeSelfCallback);
+    setValue (! getValue<bool> (DoSaveProjectPropertyId), DoSaveProjectPropertyId, includeSelfCallback);
 }
 
 bool ProjectManagerProperties::getProjectEdited ()

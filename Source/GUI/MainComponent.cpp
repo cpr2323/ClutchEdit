@@ -27,11 +27,6 @@ void MainComponent::saveLayoutChanges ()
 {
 }
 
-// void MainComponent::paint ([[maybe_unused]] juce::Graphics& g)
-// {
-//     g.setColour (juce::Colours::red);
-// }
-
 void MainComponent::resized ()
 {
     auto localBounds { getLocalBounds () };

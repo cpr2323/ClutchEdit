@@ -6,9 +6,9 @@
 class AudioPlayerProperties : public ValueTreeWrapper<AudioPlayerProperties>
 {
 public:
-    AudioPlayerProperties () noexcept : ValueTreeWrapper<AudioPlayerProperties> (AudioConfigTypeId) {}
+    AudioPlayerProperties () noexcept : ValueTreeWrapper<AudioPlayerProperties> (AudioPlayerTypeId) {}
     AudioPlayerProperties (juce::ValueTree vt, WrapperType wrapperType, EnableCallbacks shouldEnableCallbacks)
-        : ValueTreeWrapper<AudioPlayerProperties> (AudioConfigTypeId, vt, wrapperType, shouldEnableCallbacks) {}
+        : ValueTreeWrapper<AudioPlayerProperties> (AudioPlayerTypeId, vt, wrapperType, shouldEnableCallbacks) {}
 
     enum class PlayState { stop, play };
     enum class PlayMode { once, loop };
@@ -30,7 +30,7 @@ public:
     std::function<void (int id)> onSampleIdChanged;
     std::function<void ()> onShowConfigDialog;
 
-    static inline const juce::Identifier AudioConfigTypeId { "AudioPlayer" };
+    static inline const juce::Identifier AudioPlayerTypeId { "AudioPlayer" };
     static inline const juce::Identifier PlayStatePropertyId        { "playState" };
     static inline const juce::Identifier PlayModePropertyId         { "playMode" };
     static inline const juce::Identifier SampleSourcePropertyId     { "sampleSource" };

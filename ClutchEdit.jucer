@@ -185,10 +185,6 @@
             file="Source/AppProperties.cpp"/>
       <FILE id="qC9iXo" name="AppProperties.h" compile="0" resource="0" file="Source/AppProperties.h"/>
       <FILE id="Xj8a6L" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
-      <FILE id="iHwAgO" name="SystemServices.cpp" compile="1" resource="0"
-            file="Source/SystemServices.cpp"/>
-      <FILE id="fjzRYG" name="SystemServices.h" compile="0" resource="0"
-            file="Source/SystemServices.h"/>
     </GROUP>
   </MAINGROUP>
   <MODULES>

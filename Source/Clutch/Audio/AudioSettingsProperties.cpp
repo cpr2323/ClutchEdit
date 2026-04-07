@@ -21,7 +21,7 @@ void AudioSettingsProperties::valueTreePropertyChanged (juce::ValueTree& treeWho
     {
         if (property == AudioDeviceConfigPropertyId)
         {
-            if (onConfigChange!= nullptr)
+            if (onConfigChange != nullptr)
                 onConfigChange (getConfig ());
         }
     }

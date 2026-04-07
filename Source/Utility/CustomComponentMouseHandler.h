@@ -21,7 +21,6 @@ public:
     bool mouseExit (const juce::MouseEvent&);
     bool mouseDrag (const juce::MouseEvent& mouseEvent, OnDragCallback onDragCallback);
     bool mouseDoubleClick (const juce::MouseEvent&);
-    // TODO - also use for scrolling
     bool mouseWheelMove (const juce::MouseEvent&, const juce::MouseWheelDetails&, OnDragCallback onDragCallback);
 
 private:

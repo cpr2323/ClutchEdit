@@ -14,10 +14,6 @@ public:
     {
     }
 
-    // void setPitchLow (float value, bool includeSelfCallback);
-    // juce::String getPitchLowKey ();
-    // std::function<void (float value)> onPitchLowChange;
-
     void forEachEffect (std::function<bool (juce::ValueTree patternVT, int patternIndex)> patternVTCallback);
     juce::ValueTree getEffectVT (int patternIndex);
 
