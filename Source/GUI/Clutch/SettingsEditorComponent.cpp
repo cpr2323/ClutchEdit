@@ -750,7 +750,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return uneditedSettingsProperties.getFxChorusCenter (); });
 
     setupFloatEditor ({ &fxChorusDepthEditor, fxChorusDepthLabel, "Depth", "FX Chorus Depth", "FX Chorus Depth" },
-                         { []() { return kFxChorusDepthMin; }, []() { return kFxChorusDepthMax; } },
+                         { []() { return kFxChorusDepthMin; }, [this]() { return settingsProperties.getFxChorusCenter () / 2.0f; } },
                          { 1.0f, 3.0f, 10.0f },
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxChorusDepthUiChanged (value); },
@@ -992,7 +992,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                        [this] () { return uneditedSettingsProperties.getFxDubEchoTmin (); });
 
     setupFloatEditor ({ &fxGlitchCrushTimeMaxEditor, fxGlitchCrushTimeMaxLabel, "Time Max", "FX Glitch Crush Time Max", "FX Glitch Crush Time Max" },
-                         { []() { return 0.0f; }, []() { return kFxGlitchCrushTimeMaxMax; } },
+                         { [this]() { return settingsProperties.getFxGlitchCrushTimeMin (); }, []() { return kFxGlitchCrushTimeMaxMax; } },
                          { 0.1f, 5.0f, 25.0f },
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxGlitchCrushTimeMaxUiChanged (value); },
@@ -1045,7 +1045,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return uneditedSettingsProperties.getFxGlitchDropKeepLevelMin (); });
 
     setupFloatEditor ({ &fxGlitchDropKeepTimeMaxEditor, fxGlitchDropKeepTimeMaxLabel, "Time Max", "FX Glitch Drop Keep Time Max", "FX Glitch Drop Keep Time Max" },
-                         { []() { return 0.0f; }, []() { return kFxGlitchDropKeepTimeMaxMax; } },
+                         { [this]() { return settingsProperties.getFxGlitchDropKeepTimeMin (); }, []() { return kFxGlitchDropKeepTimeMaxMax; } },
                          { 0.1f, 10.0f, 25.0f },
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxGlitchDropKeepTimeMaxUiChanged (value); },
@@ -1071,7 +1071,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return uneditedSettingsProperties.getFxGlitchDropKeepTimeMin (); });
 
     setupFloatEditor ({ &fxGlitchMicroloopPlayTMaxEditor, fxGlitchMicroloopPlayTMaxLabel, "Play T Max", "FX Glitch Microloop Play T Max", "FX Glitch Microloop Play T Max" },
-                         { []() { return 0.0f; }, []() { return kFxGlitchMicroloopPlayTMaxMax; } },
+                         { [this]() { return settingsProperties.getFxGlitchMicroloopPlayTMin (); }, []() { return kFxGlitchMicroloopPlayTMaxMax; } },
                          { 0.1f, 10.0f, 25.0f },
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxGlitchMicroloopPlayTMaxUiChanged (value); },
@@ -1097,7 +1097,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return uneditedSettingsProperties.getFxGlitchMicroloopPlayTMin (); });
 
     setupFloatEditor ({ &fxGlitchMicroloopSmplTMaxEditor, fxGlitchMicroloopSmplTMaxLabel, "Smpl T Max", "FX Glitch Microloop Smpl T Max", "FX Glitch Microloop Smpl T Max" },
-                         { []() { return 0.0f; }, []() { return kFxGlitchMicroloopSmplTMaxMax; } },
+                         { [this]() { return settingsProperties.getFxGlitchMicroloopSmplTMin (); }, []() { return kFxGlitchMicroloopSmplTMaxMax; } },
                          { 0.1f, 10.0f, 25.0f },
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxGlitchMicroloopSmplTMaxUiChanged (value); },
@@ -1175,7 +1175,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                        [this] () { return uneditedSettingsProperties.getFxGlitchStutterNumMin (); });
 
     setupFloatEditor ({ &fxGlitchStutterSmplTMaxEditor, fxGlitchStutterSmplTMaxLabel, "Smpl T Max", "FX Glitch Stutter Smpl T Max", "FX Glitch Stutter Smpl T Max" },
-                         { []() { return 0.0f; }, []() { return kFxGlitchStutterSmplTMaxMax; } },
+                         { [this]() { return settingsProperties.getFxGlitchStutterSmplTMin (); }, []() { return kFxGlitchStutterSmplTMaxMax; } },
                          { 0.1f, 10.0f, 25.0f },
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxGlitchStutterSmplTMaxUiChanged (value); },
@@ -1421,13 +1421,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
                       [this] () { return uneditedSettingsProperties.getVelocityUnipolar () + 1; });
 
     auto setupHeaderLabel = [this] (juce::Label& label, const juce::String& text, float fontHeight)
-    {
-        label.setText (text, juce::dontSendNotification);
-        label.setJustificationType (juce::Justification::centredLeft);
-        label.setColour (juce::Label::textColourId, juce::Colours::white.withAlpha (0.92f));
-        label.setFont (juce::Font (fontHeight, juce::Font::bold));
-        addAndMakeVisible (label);
-    };
+        {
+            label.setText (text, juce::dontSendNotification);
+            label.setJustificationType (juce::Justification::centredLeft);
+            label.setColour (juce::Label::textColourId, juce::Colours::white.withAlpha (0.92f));
+            label.setFont (juce::Font (fontHeight, juce::Font::bold));
+            addAndMakeVisible (label);
+        };
 
     setupHeaderLabel (accentHeaderLabel, "Accent", 16.0f);
     setupHeaderLabel (accentOpenedHeaderLabel, "Opened", 14.0f);
@@ -1466,6 +1466,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     setupHeaderLabel (glitchStutterHeaderLabel, "Stutter", 14.0f);
     setupHeaderLabel (glitchWeightsHeaderLabel, "Weights", 14.0f);
 }
+
 SettingsEditorComponent::~SettingsEditorComponent ()
 {
 }
