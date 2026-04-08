@@ -399,7 +399,6 @@ SettingsEditorComponent::SettingsEditorComponent ()
 		addAndMakeVisible (editorData.editor);
 	};
 
-
 	struct ComboBoxData
 	{
 		CustomComboBox& comboBox;
