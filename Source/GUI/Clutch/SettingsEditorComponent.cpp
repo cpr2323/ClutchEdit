@@ -2213,11 +2213,15 @@ void SettingsEditorComponent::fxGlitchDropKeepLevelMaxUiChanged (float value)
 void SettingsEditorComponent::fxGlitchDropKeepTimeMinDataChanged (float value)
 {
     fxGlitchDropKeepTimeMinEditor.setText (juce::String (value), juce::dontSendNotification);
+    if (value > settingsProperties.getFxGlitchDropKeepTimeMax ())
+        settingsProperties.setFxGlitchDropKeepTimeMax (value, true);
 }
 
 void SettingsEditorComponent::fxGlitchDropKeepTimeMinUiChanged (float value)
 {
     settingsProperties.setFxGlitchDropKeepTimeMin (value, false);
+    if (value > settingsProperties.getFxGlitchDropKeepTimeMax ())
+        settingsProperties.setFxGlitchDropKeepTimeMax (value, true);
 }
 
 void SettingsEditorComponent::fxGlitchDropKeepTimeMaxDataChanged (float value)
@@ -2233,11 +2237,15 @@ void SettingsEditorComponent::fxGlitchDropKeepTimeMaxUiChanged (float value)
 void SettingsEditorComponent::fxGlitchCrushTimeMinDataChanged (float value)
 {
     fxGlitchCrushTimeMinEditor.setText (juce::String (value), juce::dontSendNotification);
+    if (value > settingsProperties.getFxGlitchCrushTimeMax ())
+        settingsProperties.setFxGlitchCrushTimeMax (value, true);
 }
 
 void SettingsEditorComponent::fxGlitchCrushTimeMinUiChanged (float value)
 {
     settingsProperties.setFxGlitchCrushTimeMin (value, false);
+    if (value > settingsProperties.getFxGlitchCrushTimeMax ())
+        settingsProperties.setFxGlitchCrushTimeMax (value, true);
 }
 
 void SettingsEditorComponent::fxGlitchCrushTimeMaxDataChanged (float value)
@@ -2253,11 +2261,15 @@ void SettingsEditorComponent::fxGlitchCrushTimeMaxUiChanged (float value)
 void SettingsEditorComponent::fxGlitchMicroloopSmplTMinDataChanged (float value)
 {
     fxGlitchMicroloopSmplTMinEditor.setText (juce::String (value), juce::dontSendNotification);
+    if (value > settingsProperties.getFxGlitchMicroloopSmplTMax ())
+        settingsProperties.setFxGlitchMicroloopSmplTMax (value, true);
 }
 
 void SettingsEditorComponent::fxGlitchMicroloopSmplTMinUiChanged (float value)
 {
     settingsProperties.setFxGlitchMicroloopSmplTMin (value, false);
+    if (value > settingsProperties.getFxGlitchMicroloopSmplTMax ())
+        settingsProperties.setFxGlitchMicroloopSmplTMax (value, true);
 }
 
 void SettingsEditorComponent::fxGlitchMicroloopSmplTMaxDataChanged (float value)
@@ -2273,11 +2285,15 @@ void SettingsEditorComponent::fxGlitchMicroloopSmplTMaxUiChanged (float value)
 void SettingsEditorComponent::fxGlitchMicroloopPlayTMinDataChanged (float value)
 {
     fxGlitchMicroloopPlayTMinEditor.setText (juce::String (value), juce::dontSendNotification);
+    if (value > settingsProperties.getFxGlitchMicroloopPlayTMax ())
+        settingsProperties.setFxGlitchMicroloopPlayTMax (value, true);
 }
 
 void SettingsEditorComponent::fxGlitchMicroloopPlayTMinUiChanged (float value)
 {
     settingsProperties.setFxGlitchMicroloopPlayTMin (value, false);
+    if (value > settingsProperties.getFxGlitchMicroloopPlayTMax ())
+        settingsProperties.setFxGlitchMicroloopPlayTMax (value, true);
 }
 
 void SettingsEditorComponent::fxGlitchMicroloopPlayTMaxDataChanged (float value)
@@ -2293,11 +2309,15 @@ void SettingsEditorComponent::fxGlitchMicroloopPlayTMaxUiChanged (float value)
 void SettingsEditorComponent::fxGlitchStutterSmplTMinDataChanged (float value)
 {
     fxGlitchStutterSmplTMinEditor.setText (juce::String (value), juce::dontSendNotification);
+    if (value > settingsProperties.getFxGlitchStutterSmplTMax ())
+        settingsProperties.setFxGlitchStutterSmplTMax (value, true);
 }
 
 void SettingsEditorComponent::fxGlitchStutterSmplTMinUiChanged (float value)
 {
     settingsProperties.setFxGlitchStutterSmplTMin (value, false);
+    if (value > settingsProperties.getFxGlitchStutterSmplTMax ())
+        settingsProperties.setFxGlitchStutterSmplTMax (value, true);
 }
 
 void SettingsEditorComponent::fxGlitchStutterSmplTMaxDataChanged (float value)
