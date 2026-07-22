@@ -110,7 +110,7 @@ bool ProjectManager::areEntireClutchPropertiesEqual (juce::ValueTree clutchPrope
         settingsProperties1.getPitchHigh () != settingsProperties2.getPitchHigh () ||
         settingsProperties1.getEnvelopeMaxRelease () != settingsProperties2.getEnvelopeMaxRelease () ||
         settingsProperties1.getChokeRelease () != settingsProperties2.getChokeRelease () ||
-        settingsProperties1.getClsdReleaseMode () != settingsProperties2.getClsdReleaseMode () ||
+        settingsProperties1.getReleaseMode () != settingsProperties2.getReleaseMode () ||
         settingsProperties1.getClsdRelOfstScale () != settingsProperties2.getClsdRelOfstScale () ||
         settingsProperties1.getClsdMaxRelease () != settingsProperties2.getClsdMaxRelease () ||
         settingsProperties1.getAccClRelMod () != settingsProperties2.getAccClRelMod () ||
@@ -150,8 +150,18 @@ bool ProjectManager::areEntireClutchPropertiesEqual (juce::ValueTree clutchPrope
         settingsProperties1.getFxChorusTaps () != settingsProperties2.getFxChorusTaps () ||
         settingsProperties1.getFxChorusLfoB () != settingsProperties2.getFxChorusLfoB () ||
         settingsProperties1.getFxChorusLfoT () != settingsProperties2.getFxChorusLfoT () ||
+        settingsProperties1.getFxChorusType () != settingsProperties2.getFxChorusType () ||
+        settingsProperties1.getFxChorusStagger () != settingsProperties2.getFxChorusStagger () ||
         settingsProperties1.getFxReverbLpf () != settingsProperties2.getFxReverbLpf () ||
         settingsProperties1.getFxReverbHpf () != settingsProperties2.getFxReverbHpf () ||
+        settingsProperties1.getFxReverbType () != settingsProperties2.getFxReverbType () ||
+        settingsProperties1.getFxReverbSizeMin () != settingsProperties2.getFxReverbSizeMin () ||
+        settingsProperties1.getFxReverbSizeMax () != settingsProperties2.getFxReverbSizeMax () ||
+        settingsProperties1.getFxReverbPredelay () != settingsProperties2.getFxReverbPredelay () ||
+        settingsProperties1.getFxReverbModDepth () != settingsProperties2.getFxReverbModDepth () ||
+        settingsProperties1.getFxReverbModRate () != settingsProperties2.getFxReverbModRate () ||
+        settingsProperties1.getFxReverbDiffusion () != settingsProperties2.getFxReverbDiffusion () ||
+        settingsProperties1.getFxReverbMix () != settingsProperties2.getFxReverbMix () ||
         settingsProperties1.getFxGlitchProbabilityMin () != settingsProperties2.getFxGlitchProbabilityMin () ||
         settingsProperties1.getFxGlitchProbabilityMax () != settingsProperties2.getFxGlitchProbabilityMax () ||
         settingsProperties1.getFxGlitchWeightHoldLow () != settingsProperties2.getFxGlitchWeightHoldLow () ||
@@ -460,7 +470,7 @@ void ProjectManager::copySettingsProperties (juce::ValueTree sourceClutchPropert
     destSettings.setPitchHigh (sourceSettings.getPitchHigh (), false);
     destSettings.setEnvelopeMaxRelease (sourceSettings.getEnvelopeMaxRelease (), false);
     destSettings.setChokeRelease (sourceSettings.getChokeRelease (), false);
-    destSettings.setClsdReleaseMode (sourceSettings.getClsdReleaseMode (), false);
+    destSettings.setReleaseMode (sourceSettings.getReleaseMode (), false);
     destSettings.setClsdRelOfstScale (sourceSettings.getClsdRelOfstScale (), false);
     destSettings.setClsdMaxRelease (sourceSettings.getClsdMaxRelease (), false);
     destSettings.setAccClRelMod (sourceSettings.getAccClRelMod (), false);
@@ -500,8 +510,18 @@ void ProjectManager::copySettingsProperties (juce::ValueTree sourceClutchPropert
     destSettings.setFxChorusTaps (sourceSettings.getFxChorusTaps (), false);
     destSettings.setFxChorusLfoB (sourceSettings.getFxChorusLfoB (), false);
     destSettings.setFxChorusLfoT (sourceSettings.getFxChorusLfoT (), false);
+    destSettings.setFxChorusType (sourceSettings.getFxChorusType (), false);
+    destSettings.setFxChorusStagger (sourceSettings.getFxChorusStagger (), false);
     destSettings.setFxReverbLpf (sourceSettings.getFxReverbLpf (), false);
     destSettings.setFxReverbHpf (sourceSettings.getFxReverbHpf (), false);
+    destSettings.setFxReverbType (sourceSettings.getFxReverbType (), false);
+    destSettings.setFxReverbSizeMin (sourceSettings.getFxReverbSizeMin (), false);
+    destSettings.setFxReverbSizeMax (sourceSettings.getFxReverbSizeMax (), false);
+    destSettings.setFxReverbPredelay (sourceSettings.getFxReverbPredelay (), false);
+    destSettings.setFxReverbModDepth (sourceSettings.getFxReverbModDepth (), false);
+    destSettings.setFxReverbModRate (sourceSettings.getFxReverbModRate (), false);
+    destSettings.setFxReverbDiffusion (sourceSettings.getFxReverbDiffusion (), false);
+    destSettings.setFxReverbMix (sourceSettings.getFxReverbMix (), false);
     destSettings.setFxGlitchProbabilityMin (sourceSettings.getFxGlitchProbabilityMin (), false);
     destSettings.setFxGlitchProbabilityMax (sourceSettings.getFxGlitchProbabilityMax (), false);
     destSettings.setFxGlitchWeightHoldLow (sourceSettings.getFxGlitchWeightHoldLow (), false);

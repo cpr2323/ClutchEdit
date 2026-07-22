@@ -1,4 +1,5 @@
 #include "PatternEditorComponent.h"
+#include "../../Clutch/HiHatIniKeys.h"
 
 constexpr auto kEnabledStepColor { 0.8f };
 constexpr auto kDisabledStepColor { 0.15f };
@@ -9,14 +10,14 @@ constexpr auto kSpaceBetweenStepEditors { 2 };
 
 static const std::array<std::pair<const juce::String, const juce::String>, 8> gDefaultPatterns
 {{
-    { "PTN_WHITE",  "6, 5, 7, 5, 0" },
-    { "PTN_RED",    "6, 5, 5, 7, 5, 6, 5, 6, 4, 0" },
-    { "PTN_GREEN",  "4, 3, 6, 3, 4, 7, 1, 2, 6, 4, 3, 6, 3, 6, 4, 5, 0" },
-    { "PTN_BLUE",   "5, 2, 3, 5, 1, 5, 1, 0" },
-    { "PTN_ORANGE", "3, 2, 8, 5, 2, 6, 2, 2, 0" },
-    { "PTN_CYAN",   "5, 5, 5, 7, 0" },
-    { "PTN_VIOLET", "5, 4, 5, 5, 9, 5, 5, 4, 5, 5, 7, 4, 6, 4, 5, 3, 0" },
-    { "PTN_YELLOW", "7, 3, 5, 7, 3, 5, 2, 5, 7, 3, 5, 3, 2, 8, 3, 2, 0" }
+    { kPtnWhiteKey,  "6, 5, 7, 5, 0" },
+    { kPtnRedKey,    "6, 5, 5, 7, 5, 6, 5, 6, 4, 0" },
+    { kPtnGreenKey,  "4, 3, 6, 3, 4, 7, 1, 2, 6, 4, 3, 6, 3, 6, 4, 5, 0" },
+    { kPtnBlueKey,   "5, 2, 3, 5, 1, 5, 1, 0" },
+    { kPtnOrangeKey, "3, 2, 8, 5, 2, 6, 2, 2, 0" },
+    { kPtnCyanKey,   "5, 5, 5, 7, 0" },
+    { kPtnVioletKey, "5, 4, 5, 5, 9, 5, 5, 4, 5, 5, 7, 4, 6, 4, 5, 3, 0" },
+    { kPtnYellowKey, "7, 3, 5, 7, 3, 5, 2, 5, 7, 3, 5, 3, 2, 8, 3, 2, 0" }
 }};
 
 PatternEditorComponent::PatternEditorComponent ()
@@ -95,6 +96,11 @@ PatternEditorComponent::PatternEditorComponent ()
     numberOfStepsEditor.onReturnKey = [this] () { updateUiFromLengthChange (numberOfStepsEditor.getText ().getIntValue ()); };
     numberOfStepsEditor.onTextChange = [this] () { updateUiFromLengthChange (numberOfStepsEditor.getText ().getIntValue ()); };
     addAndMakeVisible (numberOfStepsEditor);
+
+    numberOfStepsLabel.setText ("Steps", juce::NotificationType::dontSendNotification);
+    numberOfStepsLabel.setJustificationType (juce::Justification::centredTop);
+    numberOfStepsLabel.setColour (juce::Label::ColourIds::textColourId, juce::Colours::white.darker (0.4f));
+    addAndMakeVisible (numberOfStepsLabel);
 
     for (auto curStepIndex { 0 }; curStepIndex < 32; ++curStepIndex)
     {
@@ -188,7 +194,17 @@ void PatternEditorComponent::updateUiFromLengthChange (int length)
 void PatternEditorComponent::resized ()
 {
     const auto numberOfStepsWidth { static_cast<int>((getHeight () / 2.0f) * 0.75f) };
-    numberOfStepsEditor.setBounds (0, 21, numberOfStepsWidth, getHeight () / 2);
+
+    // "Steps" is wider than the (narrow) editor, so inset the editor from the
+    // left by the label's overhang. This lets the wider label sit centered
+    // under the editor without being clipped at the component's left edge.
+    const auto stepsLabelWidth { juce::jmax (numberOfStepsWidth,
+                                             numberOfStepsLabel.getFont ().getStringWidth ("Steps") + 8) };
+    const auto numberOfStepsX { juce::jmax (0, (stepsLabelWidth - numberOfStepsWidth) / 2) };
+
+    numberOfStepsEditor.setBounds (numberOfStepsX, 21, numberOfStepsWidth, getHeight () / 2);
+    numberOfStepsLabel.setBounds (numberOfStepsEditor.getX () + (numberOfStepsWidth - stepsLabelWidth) / 2,
+                                  numberOfStepsEditor.getBottom (), stepsLabelWidth, 15);
 
     const auto initialStepsOffset { numberOfStepsEditor.getRight () };
     auto curButtonX { initialStepsOffset };

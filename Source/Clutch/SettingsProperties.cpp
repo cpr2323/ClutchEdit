@@ -7,13 +7,13 @@ void SettingsProperties::initValueTree ()
     setPitchHigh (2.5f, false);
     setEnvelopeMaxRelease (4.0f, false);
     setChokeRelease (0.08f, false);
-    setClsdReleaseMode (1, false);
     setClsdRelOfstScale (0.5f, false);
     setClsdMaxRelease (0.8f, false);
     setAccClRelMod (1.18f, false);
     setAccOpRelMod (1.25f, false);
     setAccClAmpMod (1.3f, false);
     setAccOpAmpMod (1.25f, false);
+    setReleaseMode (1, false);
 
     // CV / control
     setFxCvUnipolar (1, false);
@@ -57,10 +57,20 @@ void SettingsProperties::initValueTree ()
     setFxChorusTaps (4, false);
     setFxChorusLfoB (0.002f, false);
     setFxChorusLfoT (3.0f, false);
+    setFxChorusType (1, false);
+    setFxChorusStagger (0.5f, false);
 
     // Reverb
     setFxReverbLpf (9000, false);
     setFxReverbHpf (700, false);
+    setFxReverbType (1, false);
+    setFxReverbSizeMin (0.6f, false);
+    setFxReverbSizeMax (0.9f, false);
+    setFxReverbPredelay (21, false);
+    setFxReverbModDepth (0.6f, false);
+    setFxReverbModRate (1.0f, false);
+    setFxReverbDiffusion (0.75f, false);
+    setFxReverbMix (0.6f, false);
 
     // Glitch – probability
     setFxGlitchProbabilityMin (0.00005f, false);
@@ -102,39 +112,9 @@ void SettingsProperties::initValueTree ()
     setFxGlitchStutterWindow (20, false);
 }
 
-void SettingsProperties::setPitchLow (float value, bool includeSelfCallback)
+void SettingsProperties::setAccClAmpMod (float value, bool includeSelfCallback)
 {
-    setValue (value, PitchLowPropertyId, includeSelfCallback);
-}
-
-void SettingsProperties::setPitchHigh (float value, bool includeSelfCallback)
-{
-    setValue (value, PitchHighPropertyId, includeSelfCallback);
-}
-
-void SettingsProperties::setEnvelopeMaxRelease (float value, bool includeSelfCallback)
-{
-    setValue (value, EnvelopeMaxReleasePropertyId, includeSelfCallback);
-}
-
-void SettingsProperties::setChokeRelease (float value, bool includeSelfCallback)
-{
-    setValue (value, ChokeReleasePropertyId, includeSelfCallback);
-}
-
-void SettingsProperties::setClsdReleaseMode (int value, bool includeSelfCallback)
-{
-    setValue (value, ClsdReleaseModePropertyId, includeSelfCallback);
-}
-
-void SettingsProperties::setClsdRelOfstScale (float value, bool includeSelfCallback)
-{
-    setValue (value, ClsdRelOfstScalePropertyId, includeSelfCallback);
-}
-
-void SettingsProperties::setClsdMaxRelease (float value, bool includeSelfCallback)
-{
-    setValue (value, ClsdMaxReleasePropertyId, includeSelfCallback);
+    setValue (value, AccClAmpModPropertyId, includeSelfCallback);
 }
 
 void SettingsProperties::setAccClRelMod (float value, bool includeSelfCallback)
@@ -142,34 +122,29 @@ void SettingsProperties::setAccClRelMod (float value, bool includeSelfCallback)
     setValue (value, AccClRelModPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setAccOpRelMod (float value, bool includeSelfCallback)
-{
-    setValue (value, AccOpRelModPropertyId, includeSelfCallback);
-}
-
-void SettingsProperties::setAccClAmpMod (float value, bool includeSelfCallback)
-{
-    setValue (value, AccClAmpModPropertyId, includeSelfCallback);
-}
-
 void SettingsProperties::setAccOpAmpMod (float value, bool includeSelfCallback)
 {
     setValue (value, AccOpAmpModPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxCvUnipolar (int value, bool includeSelfCallback)
+void SettingsProperties::setAccOpRelMod (float value, bool includeSelfCallback)
 {
-    setValue (value, FxCvUnipolarPropertyId, includeSelfCallback);
+    setValue (value, AccOpRelModPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setVelocityUnipolar (int value, bool includeSelfCallback)
+void SettingsProperties::setChokeRelease (float value, bool includeSelfCallback)
 {
-    setValue (value, VelocityUnipolarPropertyId, includeSelfCallback);
+    setValue (value, ChokeReleasePropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setCvDisableVelocity (int value, bool includeSelfCallback)
+void SettingsProperties::setClsdMaxRelease (float value, bool includeSelfCallback)
 {
-    setValue (value, CvDisableVelocityPropertyId, includeSelfCallback);
+    setValue (value, ClsdMaxReleasePropertyId, includeSelfCallback);
+}
+
+void SettingsProperties::setClsdRelOfstScale (float value, bool includeSelfCallback)
+{
+    setValue (value, ClsdRelOfstScalePropertyId, includeSelfCallback);
 }
 
 void SettingsProperties::setCvDisableFx (int value, bool includeSelfCallback)
@@ -177,9 +152,19 @@ void SettingsProperties::setCvDisableFx (int value, bool includeSelfCallback)
     setValue (value, CvDisableFxPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setGateMode (int value, bool includeSelfCallback)
+void SettingsProperties::setCvDisableVelocity (int value, bool includeSelfCallback)
 {
-    setValue (value, GateModePropertyId, includeSelfCallback);
+    setValue (value, CvDisableVelocityPropertyId, includeSelfCallback);
+}
+
+void SettingsProperties::setEnvelopeMaxRelease (float value, bool includeSelfCallback)
+{
+    setValue (value, EnvelopeMaxReleasePropertyId, includeSelfCallback);
+}
+
+void SettingsProperties::setFeelAmpMod (float value, bool includeSelfCallback)
+{
+    setValue (value, FeelAmpModPropertyId, includeSelfCallback);
 }
 
 void SettingsProperties::setFeelAttackMod (float value, bool includeSelfCallback)
@@ -192,14 +177,9 @@ void SettingsProperties::setFeelReleaseMod (float value, bool includeSelfCallbac
     setValue (value, FeelReleaseModPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFeelAmpMod (float value, bool includeSelfCallback)
+void SettingsProperties::setFltrHpfMaxFreq (int value, bool includeSelfCallback)
 {
-    setValue (value, FeelAmpModPropertyId, includeSelfCallback);
-}
-
-void SettingsProperties::setKnobPosTakeup (int value, bool includeSelfCallback)
-{
-    setValue (value, KnobPosTakeupPropertyId, includeSelfCallback);
+    setValue (value, FltrHpfMaxFreqPropertyId, includeSelfCallback);
 }
 
 void SettingsProperties::setFltrHpfMinFreq (int value, bool includeSelfCallback)
@@ -207,14 +187,9 @@ void SettingsProperties::setFltrHpfMinFreq (int value, bool includeSelfCallback)
     setValue (value, FltrHpfMinFreqPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFltrHpfMaxFreq (int value, bool includeSelfCallback)
+void SettingsProperties::setFltrHpfQ (float value, bool includeSelfCallback)
 {
-    setValue (value, FltrHpfMaxFreqPropertyId, includeSelfCallback);
-}
-
-void SettingsProperties::setFltrLpfMinFreq (int value, bool includeSelfCallback)
-{
-    setValue (value, FltrLpfMinFreqPropertyId, includeSelfCallback);
+    setValue (value, FltrHpfQPropertyId, includeSelfCallback);
 }
 
 void SettingsProperties::setFltrLpfMaxFreq (int value, bool includeSelfCallback)
@@ -222,9 +197,9 @@ void SettingsProperties::setFltrLpfMaxFreq (int value, bool includeSelfCallback)
     setValue (value, FltrLpfMaxFreqPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFltrHpfQ (float value, bool includeSelfCallback)
+void SettingsProperties::setFltrLpfMinFreq (int value, bool includeSelfCallback)
 {
-    setValue (value, FltrHpfQPropertyId, includeSelfCallback);
+    setValue (value, FltrLpfMinFreqPropertyId, includeSelfCallback);
 }
 
 void SettingsProperties::setFltrLpfQ (float value, bool includeSelfCallback)
@@ -232,9 +207,54 @@ void SettingsProperties::setFltrLpfQ (float value, bool includeSelfCallback)
     setValue (value, FltrLpfQPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxDjfilterHpfMin (int value, bool includeSelfCallback)
+void SettingsProperties::setFxChorusCenter (float value, bool includeSelfCallback)
 {
-    setValue (value, FxDjfilterHpfMinPropertyId, includeSelfCallback);
+    setValue (value, FxChorusCenterPropertyId, includeSelfCallback);
+}
+
+void SettingsProperties::setFxChorusDepth (float value, bool includeSelfCallback)
+{
+    setValue (value, FxChorusDepthPropertyId, includeSelfCallback);
+}
+
+void SettingsProperties::setFxChorusLfoB (float value, bool includeSelfCallback)
+{
+    setValue (value, FxChorusLfoBPropertyId, includeSelfCallback);
+}
+
+void SettingsProperties::setFxChorusLfoT (float value, bool includeSelfCallback)
+{
+    setValue (value, FxChorusLfoTPropertyId, includeSelfCallback);
+}
+
+void SettingsProperties::setFxChorusMix (float value, bool includeSelfCallback)
+{
+    setValue (value, FxChorusMixPropertyId, includeSelfCallback);
+}
+
+void SettingsProperties::setFxChorusSpread (float value, bool includeSelfCallback)
+{
+    setValue (value, FxChorusSpreadPropertyId, includeSelfCallback);
+}
+
+void SettingsProperties::setFxChorusStagger (float value, bool includeSelfCallback)
+{
+    setValue (value, FxChorusStaggerPropertyId, includeSelfCallback);
+}
+
+void SettingsProperties::setFxChorusTaps (int value, bool includeSelfCallback)
+{
+    setValue (value, FxChorusTapsPropertyId, includeSelfCallback);
+}
+
+void SettingsProperties::setFxChorusType (int value, bool includeSelfCallback)
+{
+    setValue (value, FxChorusTypePropertyId, includeSelfCallback);
+}
+
+void SettingsProperties::setFxCvUnipolar (int value, bool includeSelfCallback)
+{
+    setValue (value, FxCvUnipolarPropertyId, includeSelfCallback);
 }
 
 void SettingsProperties::setFxDjfilterHpfMax (int value, bool includeSelfCallback)
@@ -242,9 +262,9 @@ void SettingsProperties::setFxDjfilterHpfMax (int value, bool includeSelfCallbac
     setValue (value, FxDjfilterHpfMaxPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxDjfilterLpfMin (int value, bool includeSelfCallback)
+void SettingsProperties::setFxDjfilterHpfMin (int value, bool includeSelfCallback)
 {
-    setValue (value, FxDjfilterLpfMinPropertyId, includeSelfCallback);
+    setValue (value, FxDjfilterHpfMinPropertyId, includeSelfCallback);
 }
 
 void SettingsProperties::setFxDjfilterLpfMax (int value, bool includeSelfCallback)
@@ -252,14 +272,9 @@ void SettingsProperties::setFxDjfilterLpfMax (int value, bool includeSelfCallbac
     setValue (value, FxDjfilterLpfMaxPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxDjfilterQMin (float value, bool includeSelfCallback)
+void SettingsProperties::setFxDjfilterLpfMin (int value, bool includeSelfCallback)
 {
-    setValue (value, FxDjfilterQMinPropertyId, includeSelfCallback);
-}
-
-void SettingsProperties::setFxDjfilterQMax (float value, bool includeSelfCallback)
-{
-    setValue (value, FxDjfilterQMaxPropertyId, includeSelfCallback);
+    setValue (value, FxDjfilterLpfMinPropertyId, includeSelfCallback);
 }
 
 void SettingsProperties::setFxDjfilterQGainReduction (float value, bool includeSelfCallback)
@@ -267,9 +282,14 @@ void SettingsProperties::setFxDjfilterQGainReduction (float value, bool includeS
     setValue (value, FxDjfilterQGainReductionPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxDubEchoTmin (int value, bool includeSelfCallback)
+void SettingsProperties::setFxDjfilterQMax (float value, bool includeSelfCallback)
 {
-    setValue (value, FxDubEchoTminPropertyId, includeSelfCallback);
+    setValue (value, FxDjfilterQMaxPropertyId, includeSelfCallback);
+}
+
+void SettingsProperties::setFxDjfilterQMin (float value, bool includeSelfCallback)
+{
+    setValue (value, FxDjfilterQMinPropertyId, includeSelfCallback);
 }
 
 void SettingsProperties::setFxDubEchoHpf (int value, bool includeSelfCallback)
@@ -287,54 +307,59 @@ void SettingsProperties::setFxDubEchoMix (float value, bool includeSelfCallback)
     setValue (value, FxDubEchoMixPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxChorusCenter (float value, bool includeSelfCallback)
+void SettingsProperties::setFxDubEchoTmin (int value, bool includeSelfCallback)
 {
-    setValue (value, FxChorusCenterPropertyId, includeSelfCallback);
+    setValue (value, FxDubEchoTminPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxChorusDepth (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchCrushTimeMax (float value, bool includeSelfCallback)
 {
-    setValue (value, FxChorusDepthPropertyId, includeSelfCallback);
+    setValue (value, FxGlitchCrushTimeMaxPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxChorusMix (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchCrushTimeMin (float value, bool includeSelfCallback)
 {
-    setValue (value, FxChorusMixPropertyId, includeSelfCallback);
+    setValue (value, FxGlitchCrushTimeMinPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxChorusSpread (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchDropKeepLevelMax (float value, bool includeSelfCallback)
 {
-    setValue (value, FxChorusSpreadPropertyId, includeSelfCallback);
+    setValue (value, FxGlitchDropKeepLevelMaxPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxChorusTaps (int value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchDropKeepLevelMin (float value, bool includeSelfCallback)
 {
-    setValue (value, FxChorusTapsPropertyId, includeSelfCallback);
+    setValue (value, FxGlitchDropKeepLevelMinPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxChorusLfoB (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchDropKeepTimeMax (float value, bool includeSelfCallback)
 {
-    setValue (value, FxChorusLfoBPropertyId, includeSelfCallback);
+    setValue (value, FxGlitchDropKeepTimeMaxPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxChorusLfoT (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchDropKeepTimeMin (float value, bool includeSelfCallback)
 {
-    setValue (value, FxChorusLfoTPropertyId, includeSelfCallback);
+    setValue (value, FxGlitchDropKeepTimeMinPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxReverbLpf (int value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchMicroloopPlayTMax (float value, bool includeSelfCallback)
 {
-    setValue (value, FxReverbLpfPropertyId, includeSelfCallback);
+    setValue (value, FxGlitchMicroloopPlayTMaxPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxReverbHpf (int value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchMicroloopPlayTMin (float value, bool includeSelfCallback)
 {
-    setValue (value, FxReverbHpfPropertyId, includeSelfCallback);
+    setValue (value, FxGlitchMicroloopPlayTMinPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxGlitchProbabilityMin (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchMicroloopSmplTMax (float value, bool includeSelfCallback)
 {
-    setValue (value, FxGlitchProbabilityMinPropertyId, includeSelfCallback);
+    setValue (value, FxGlitchMicroloopSmplTMaxPropertyId, includeSelfCallback);
+}
+
+void SettingsProperties::setFxGlitchMicroloopSmplTMin (float value, bool includeSelfCallback)
+{
+    setValue (value, FxGlitchMicroloopSmplTMinPropertyId, includeSelfCallback);
 }
 
 void SettingsProperties::setFxGlitchProbabilityMax (float value, bool includeSelfCallback)
@@ -342,19 +367,49 @@ void SettingsProperties::setFxGlitchProbabilityMax (float value, bool includeSel
     setValue (value, FxGlitchProbabilityMaxPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxGlitchWeightHoldLow (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchProbabilityMin (float value, bool includeSelfCallback)
 {
-    setValue (value, FxGlitchWeightHoldLowPropertyId, includeSelfCallback);
+    setValue (value, FxGlitchProbabilityMinPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxGlitchWeightStutterLow (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchStutterNumMax (int value, bool includeSelfCallback)
 {
-    setValue (value, FxGlitchWeightStutterLowPropertyId, includeSelfCallback);
+    setValue (value, FxGlitchStutterNumMaxPropertyId, includeSelfCallback);
+}
+
+void SettingsProperties::setFxGlitchStutterNumMin (int value, bool includeSelfCallback)
+{
+    setValue (value, FxGlitchStutterNumMinPropertyId, includeSelfCallback);
+}
+
+void SettingsProperties::setFxGlitchStutterSmplTMax (float value, bool includeSelfCallback)
+{
+    setValue (value, FxGlitchStutterSmplTMaxPropertyId, includeSelfCallback);
+}
+
+void SettingsProperties::setFxGlitchStutterSmplTMin (float value, bool includeSelfCallback)
+{
+    setValue (value, FxGlitchStutterSmplTMinPropertyId, includeSelfCallback);
+}
+
+void SettingsProperties::setFxGlitchStutterWindow (int value, bool includeSelfCallback)
+{
+    setValue (value, FxGlitchStutterWindowPropertyId, includeSelfCallback);
+}
+
+void SettingsProperties::setFxGlitchWeightCrushHigh (float value, bool includeSelfCallback)
+{
+    setValue (value, FxGlitchWeightCrushHighPropertyId, includeSelfCallback);
 }
 
 void SettingsProperties::setFxGlitchWeightCrushLow (float value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchWeightCrushLowPropertyId, includeSelfCallback);
+}
+
+void SettingsProperties::setFxGlitchWeightDropHigh (float value, bool includeSelfCallback)
+{
+    setValue (value, FxGlitchWeightDropHighPropertyId, includeSelfCallback);
 }
 
 void SettingsProperties::setFxGlitchWeightDropLow (float value, bool includeSelfCallback)
@@ -367,139 +422,99 @@ void SettingsProperties::setFxGlitchWeightHoldHigh (float value, bool includeSel
     setValue (value, FxGlitchWeightHoldHighPropertyId, includeSelfCallback);
 }
 
+void SettingsProperties::setFxGlitchWeightHoldLow (float value, bool includeSelfCallback)
+{
+    setValue (value, FxGlitchWeightHoldLowPropertyId, includeSelfCallback);
+}
+
 void SettingsProperties::setFxGlitchWeightStutterHigh (float value, bool includeSelfCallback)
 {
     setValue (value, FxGlitchWeightStutterHighPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxGlitchWeightCrushHigh (float value, bool includeSelfCallback)
+void SettingsProperties::setFxGlitchWeightStutterLow (float value, bool includeSelfCallback)
 {
-    setValue (value, FxGlitchWeightCrushHighPropertyId, includeSelfCallback);
+    setValue (value, FxGlitchWeightStutterLowPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxGlitchWeightDropHigh (float value, bool includeSelfCallback)
+void SettingsProperties::setFxReverbDiffusion (float value, bool includeSelfCallback)
 {
-    setValue (value, FxGlitchWeightDropHighPropertyId, includeSelfCallback);
+    setValue (value, FxReverbDiffusionPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxGlitchDropKeepLevelMin (float value, bool includeSelfCallback)
+void SettingsProperties::setFxReverbHpf (int value, bool includeSelfCallback)
 {
-    setValue (value, FxGlitchDropKeepLevelMinPropertyId, includeSelfCallback);
+    setValue (value, FxReverbHpfPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxGlitchDropKeepLevelMax (float value, bool includeSelfCallback)
+void SettingsProperties::setFxReverbLpf (int value, bool includeSelfCallback)
 {
-    setValue (value, FxGlitchDropKeepLevelMaxPropertyId, includeSelfCallback);
+    setValue (value, FxReverbLpfPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxGlitchDropKeepTimeMin (float value, bool includeSelfCallback)
+void SettingsProperties::setFxReverbMix (float value, bool includeSelfCallback)
 {
-    setValue (value, FxGlitchDropKeepTimeMinPropertyId, includeSelfCallback);
+    setValue (value, FxReverbMixPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxGlitchDropKeepTimeMax (float value, bool includeSelfCallback)
+void SettingsProperties::setFxReverbModDepth (float value, bool includeSelfCallback)
 {
-    setValue (value, FxGlitchDropKeepTimeMaxPropertyId, includeSelfCallback);
+    setValue (value, FxReverbModDepthPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxGlitchCrushTimeMin (float value, bool includeSelfCallback)
+void SettingsProperties::setFxReverbModRate (float value, bool includeSelfCallback)
 {
-    setValue (value, FxGlitchCrushTimeMinPropertyId, includeSelfCallback);
+    setValue (value, FxReverbModRatePropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxGlitchCrushTimeMax (float value, bool includeSelfCallback)
+void SettingsProperties::setFxReverbPredelay (int value, bool includeSelfCallback)
 {
-    setValue (value, FxGlitchCrushTimeMaxPropertyId, includeSelfCallback);
+    setValue (value, FxReverbPredelayPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxGlitchMicroloopSmplTMin (float value, bool includeSelfCallback)
+void SettingsProperties::setFxReverbSizeMax (float value, bool includeSelfCallback)
 {
-    setValue (value, FxGlitchMicroloopSmplTMinPropertyId, includeSelfCallback);
+    setValue (value, FxReverbSizeMaxPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxGlitchMicroloopSmplTMax (float value, bool includeSelfCallback)
+void SettingsProperties::setFxReverbSizeMin (float value, bool includeSelfCallback)
 {
-    setValue (value, FxGlitchMicroloopSmplTMaxPropertyId, includeSelfCallback);
+    setValue (value, FxReverbSizeMinPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxGlitchMicroloopPlayTMin (float value, bool includeSelfCallback)
+void SettingsProperties::setFxReverbType (int value, bool includeSelfCallback)
 {
-    setValue (value, FxGlitchMicroloopPlayTMinPropertyId, includeSelfCallback);
+    setValue (value, FxReverbTypePropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxGlitchMicroloopPlayTMax (float value, bool includeSelfCallback)
+void SettingsProperties::setGateMode (int value, bool includeSelfCallback)
 {
-    setValue (value, FxGlitchMicroloopPlayTMaxPropertyId, includeSelfCallback);
+    setValue (value, GateModePropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxGlitchStutterSmplTMin (float value, bool includeSelfCallback)
+void SettingsProperties::setKnobPosTakeup (int value, bool includeSelfCallback)
 {
-    setValue (value, FxGlitchStutterSmplTMinPropertyId, includeSelfCallback);
+    setValue (value, KnobPosTakeupPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxGlitchStutterSmplTMax (float value, bool includeSelfCallback)
+void SettingsProperties::setPitchHigh (float value, bool includeSelfCallback)
 {
-    setValue (value, FxGlitchStutterSmplTMaxPropertyId, includeSelfCallback);
+    setValue (value, PitchHighPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxGlitchStutterNumMin (int value, bool includeSelfCallback)
+void SettingsProperties::setPitchLow (float value, bool includeSelfCallback)
 {
-    setValue (value, FxGlitchStutterNumMinPropertyId, includeSelfCallback);
+    setValue (value, PitchLowPropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxGlitchStutterNumMax (int value, bool includeSelfCallback)
+void SettingsProperties::setReleaseMode (int value, bool includeSelfCallback)
 {
-    setValue (value, FxGlitchStutterNumMaxPropertyId, includeSelfCallback);
+    setValue (value, ReleaseModePropertyId, includeSelfCallback);
 }
 
-void SettingsProperties::setFxGlitchStutterWindow (int value, bool includeSelfCallback)
+void SettingsProperties::setVelocityUnipolar (int value, bool includeSelfCallback)
 {
-    setValue (value, FxGlitchStutterWindowPropertyId, includeSelfCallback);
-}
-
-float SettingsProperties::getPitchLow ()
-{
-    return getValue<float> (PitchLowPropertyId);
-}
-
-float SettingsProperties::getPitchHigh ()
-{
-    return getValue<float> (PitchHighPropertyId);
-}
-
-float SettingsProperties::getEnvelopeMaxRelease ()
-{
-    return getValue<float> (EnvelopeMaxReleasePropertyId);
-}
-
-float SettingsProperties::getChokeRelease ()
-{
-    return getValue<float> (ChokeReleasePropertyId);
-}
-
-int SettingsProperties::getClsdReleaseMode ()
-{
-    return getValue<int> (ClsdReleaseModePropertyId);
-}
-
-float SettingsProperties::getClsdRelOfstScale ()
-{
-    return getValue<float> (ClsdRelOfstScalePropertyId);
-}
-
-float SettingsProperties::getClsdMaxRelease ()
-{
-    return getValue<float> (ClsdMaxReleasePropertyId);
-}
-
-float SettingsProperties::getAccClRelMod ()
-{
-    return getValue<float> (AccClRelModPropertyId);
-}
-
-float SettingsProperties::getAccOpRelMod ()
-{
-    return getValue<float> (AccOpRelModPropertyId);
+    setValue (value, VelocityUnipolarPropertyId, includeSelfCallback);
 }
 
 float SettingsProperties::getAccClAmpMod ()
@@ -507,24 +522,34 @@ float SettingsProperties::getAccClAmpMod ()
     return getValue<float> (AccClAmpModPropertyId);
 }
 
+float SettingsProperties::getAccClRelMod ()
+{
+    return getValue<float> (AccClRelModPropertyId);
+}
+
 float SettingsProperties::getAccOpAmpMod ()
 {
     return getValue<float> (AccOpAmpModPropertyId);
 }
 
-int SettingsProperties::getFxCvUnipolar ()
+float SettingsProperties::getAccOpRelMod ()
 {
-    return getValue<int> (FxCvUnipolarPropertyId);
+    return getValue<float> (AccOpRelModPropertyId);
 }
 
-int SettingsProperties::getVelocityUnipolar ()
+float SettingsProperties::getChokeRelease ()
 {
-    return getValue<int> (VelocityUnipolarPropertyId);
+    return getValue<float> (ChokeReleasePropertyId);
 }
 
-int SettingsProperties::getCvDisableVelocity ()
+float SettingsProperties::getClsdMaxRelease ()
 {
-    return getValue<int> (CvDisableVelocityPropertyId);
+    return getValue<float> (ClsdMaxReleasePropertyId);
+}
+
+float SettingsProperties::getClsdRelOfstScale ()
+{
+    return getValue<float> (ClsdRelOfstScalePropertyId);
 }
 
 int SettingsProperties::getCvDisableFx ()
@@ -532,9 +557,19 @@ int SettingsProperties::getCvDisableFx ()
     return getValue<int> (CvDisableFxPropertyId);
 }
 
-int SettingsProperties::getGateMode ()
+int SettingsProperties::getCvDisableVelocity ()
 {
-    return getValue<int> (GateModePropertyId);
+    return getValue<int> (CvDisableVelocityPropertyId);
+}
+
+float SettingsProperties::getEnvelopeMaxRelease ()
+{
+    return getValue<float> (EnvelopeMaxReleasePropertyId);
+}
+
+float SettingsProperties::getFeelAmpMod ()
+{
+    return getValue<float> (FeelAmpModPropertyId);
 }
 
 float SettingsProperties::getFeelAttackMod ()
@@ -547,14 +582,9 @@ float SettingsProperties::getFeelReleaseMod ()
     return getValue<float> (FeelReleaseModPropertyId);
 }
 
-float SettingsProperties::getFeelAmpMod ()
+int SettingsProperties::getFltrHpfMaxFreq ()
 {
-    return getValue<float> (FeelAmpModPropertyId);
-}
-
-int SettingsProperties::getKnobPosTakeup ()
-{
-    return getValue<int> (KnobPosTakeupPropertyId);
+    return getValue<int> (FltrHpfMaxFreqPropertyId);
 }
 
 int SettingsProperties::getFltrHpfMinFreq ()
@@ -562,14 +592,9 @@ int SettingsProperties::getFltrHpfMinFreq ()
     return getValue<int> (FltrHpfMinFreqPropertyId);
 }
 
-int SettingsProperties::getFltrHpfMaxFreq ()
+float SettingsProperties::getFltrHpfQ ()
 {
-    return getValue<int> (FltrHpfMaxFreqPropertyId);
-}
-
-int SettingsProperties::getFltrLpfMinFreq ()
-{
-    return getValue<int> (FltrLpfMinFreqPropertyId);
+    return getValue<float> (FltrHpfQPropertyId);
 }
 
 int SettingsProperties::getFltrLpfMaxFreq ()
@@ -577,9 +602,9 @@ int SettingsProperties::getFltrLpfMaxFreq ()
     return getValue<int> (FltrLpfMaxFreqPropertyId);
 }
 
-float SettingsProperties::getFltrHpfQ ()
+int SettingsProperties::getFltrLpfMinFreq ()
 {
-    return getValue<float> (FltrHpfQPropertyId);
+    return getValue<int> (FltrLpfMinFreqPropertyId);
 }
 
 float SettingsProperties::getFltrLpfQ ()
@@ -587,9 +612,54 @@ float SettingsProperties::getFltrLpfQ ()
     return getValue<float> (FltrLpfQPropertyId);
 }
 
-int SettingsProperties::getFxDjfilterHpfMin ()
+float SettingsProperties::getFxChorusCenter ()
 {
-    return getValue<int> (FxDjfilterHpfMinPropertyId);
+    return getValue<float> (FxChorusCenterPropertyId);
+}
+
+float SettingsProperties::getFxChorusDepth ()
+{
+    return getValue<float> (FxChorusDepthPropertyId);
+}
+
+float SettingsProperties::getFxChorusLfoB ()
+{
+    return getValue<float> (FxChorusLfoBPropertyId);
+}
+
+float SettingsProperties::getFxChorusLfoT ()
+{
+    return getValue<float> (FxChorusLfoTPropertyId);
+}
+
+float SettingsProperties::getFxChorusMix ()
+{
+    return getValue<float> (FxChorusMixPropertyId);
+}
+
+float SettingsProperties::getFxChorusSpread ()
+{
+    return getValue<float> (FxChorusSpreadPropertyId);
+}
+
+float SettingsProperties::getFxChorusStagger ()
+{
+    return getValue<float> (FxChorusStaggerPropertyId);
+}
+
+int SettingsProperties::getFxChorusTaps ()
+{
+    return getValue<int> (FxChorusTapsPropertyId);
+}
+
+int SettingsProperties::getFxChorusType ()
+{
+    return getValue<int> (FxChorusTypePropertyId);
+}
+
+int SettingsProperties::getFxCvUnipolar ()
+{
+    return getValue<int> (FxCvUnipolarPropertyId);
 }
 
 int SettingsProperties::getFxDjfilterHpfMax ()
@@ -597,9 +667,9 @@ int SettingsProperties::getFxDjfilterHpfMax ()
     return getValue<int> (FxDjfilterHpfMaxPropertyId);
 }
 
-int SettingsProperties::getFxDjfilterLpfMin ()
+int SettingsProperties::getFxDjfilterHpfMin ()
 {
-    return getValue<int> (FxDjfilterLpfMinPropertyId);
+    return getValue<int> (FxDjfilterHpfMinPropertyId);
 }
 
 int SettingsProperties::getFxDjfilterLpfMax ()
@@ -607,14 +677,9 @@ int SettingsProperties::getFxDjfilterLpfMax ()
     return getValue<int> (FxDjfilterLpfMaxPropertyId);
 }
 
-float SettingsProperties::getFxDjfilterQMin ()
+int SettingsProperties::getFxDjfilterLpfMin ()
 {
-    return getValue<float> (FxDjfilterQMinPropertyId);
-}
-
-float SettingsProperties::getFxDjfilterQMax ()
-{
-    return getValue<float> (FxDjfilterQMaxPropertyId);
+    return getValue<int> (FxDjfilterLpfMinPropertyId);
 }
 
 float SettingsProperties::getFxDjfilterQGainReduction ()
@@ -622,9 +687,14 @@ float SettingsProperties::getFxDjfilterQGainReduction ()
     return getValue<float> (FxDjfilterQGainReductionPropertyId);
 }
 
-int SettingsProperties::getFxDubEchoTmin ()
+float SettingsProperties::getFxDjfilterQMax ()
 {
-    return getValue<int> (FxDubEchoTminPropertyId);
+    return getValue<float> (FxDjfilterQMaxPropertyId);
+}
+
+float SettingsProperties::getFxDjfilterQMin ()
+{
+    return getValue<float> (FxDjfilterQMinPropertyId);
 }
 
 int SettingsProperties::getFxDubEchoHpf ()
@@ -642,54 +712,59 @@ float SettingsProperties::getFxDubEchoMix ()
     return getValue<float> (FxDubEchoMixPropertyId);
 }
 
-float SettingsProperties::getFxChorusCenter ()
+int SettingsProperties::getFxDubEchoTmin ()
 {
-    return getValue<float> (FxChorusCenterPropertyId);
+    return getValue<int> (FxDubEchoTminPropertyId);
 }
 
-float SettingsProperties::getFxChorusDepth ()
+float SettingsProperties::getFxGlitchCrushTimeMax ()
 {
-    return getValue<float> (FxChorusDepthPropertyId);
+    return getValue<float> (FxGlitchCrushTimeMaxPropertyId);
 }
 
-float SettingsProperties::getFxChorusMix ()
+float SettingsProperties::getFxGlitchCrushTimeMin ()
 {
-    return getValue<float> (FxChorusMixPropertyId);
+    return getValue<float> (FxGlitchCrushTimeMinPropertyId);
 }
 
-float SettingsProperties::getFxChorusSpread ()
+float SettingsProperties::getFxGlitchDropKeepLevelMax ()
 {
-    return getValue<float> (FxChorusSpreadPropertyId);
+    return getValue<float> (FxGlitchDropKeepLevelMaxPropertyId);
 }
 
-int SettingsProperties::getFxChorusTaps ()
+float SettingsProperties::getFxGlitchDropKeepLevelMin ()
 {
-    return getValue<int> (FxChorusTapsPropertyId);
+    return getValue<float> (FxGlitchDropKeepLevelMinPropertyId);
 }
 
-float SettingsProperties::getFxChorusLfoB ()
+float SettingsProperties::getFxGlitchDropKeepTimeMax ()
 {
-    return getValue<float> (FxChorusLfoBPropertyId);
+    return getValue<float> (FxGlitchDropKeepTimeMaxPropertyId);
 }
 
-float SettingsProperties::getFxChorusLfoT ()
+float SettingsProperties::getFxGlitchDropKeepTimeMin ()
 {
-    return getValue<float> (FxChorusLfoTPropertyId);
+    return getValue<float> (FxGlitchDropKeepTimeMinPropertyId);
 }
 
-int SettingsProperties::getFxReverbLpf ()
+float SettingsProperties::getFxGlitchMicroloopPlayTMax ()
 {
-    return getValue<int> (FxReverbLpfPropertyId);
+    return getValue<float> (FxGlitchMicroloopPlayTMaxPropertyId);
 }
 
-int SettingsProperties::getFxReverbHpf ()
+float SettingsProperties::getFxGlitchMicroloopPlayTMin ()
 {
-    return getValue<int> (FxReverbHpfPropertyId);
+    return getValue<float> (FxGlitchMicroloopPlayTMinPropertyId);
 }
 
-float SettingsProperties::getFxGlitchProbabilityMin ()
+float SettingsProperties::getFxGlitchMicroloopSmplTMax ()
 {
-    return getValue<float> (FxGlitchProbabilityMinPropertyId);
+    return getValue<float> (FxGlitchMicroloopSmplTMaxPropertyId);
+}
+
+float SettingsProperties::getFxGlitchMicroloopSmplTMin ()
+{
+    return getValue<float> (FxGlitchMicroloopSmplTMinPropertyId);
 }
 
 float SettingsProperties::getFxGlitchProbabilityMax ()
@@ -697,19 +772,49 @@ float SettingsProperties::getFxGlitchProbabilityMax ()
     return getValue<float> (FxGlitchProbabilityMaxPropertyId);
 }
 
-float SettingsProperties::getFxGlitchWeightHoldLow ()
+float SettingsProperties::getFxGlitchProbabilityMin ()
 {
-    return getValue<float> (FxGlitchWeightHoldLowPropertyId);
+    return getValue<float> (FxGlitchProbabilityMinPropertyId);
 }
 
-float SettingsProperties::getFxGlitchWeightStutterLow ()
+int SettingsProperties::getFxGlitchStutterNumMax ()
 {
-    return getValue<float> (FxGlitchWeightStutterLowPropertyId);
+    return getValue<int> (FxGlitchStutterNumMaxPropertyId);
+}
+
+int SettingsProperties::getFxGlitchStutterNumMin ()
+{
+    return getValue<int> (FxGlitchStutterNumMinPropertyId);
+}
+
+float SettingsProperties::getFxGlitchStutterSmplTMax ()
+{
+    return getValue<float> (FxGlitchStutterSmplTMaxPropertyId);
+}
+
+float SettingsProperties::getFxGlitchStutterSmplTMin ()
+{
+    return getValue<float> (FxGlitchStutterSmplTMinPropertyId);
+}
+
+int SettingsProperties::getFxGlitchStutterWindow ()
+{
+    return getValue<int> (FxGlitchStutterWindowPropertyId);
+}
+
+float SettingsProperties::getFxGlitchWeightCrushHigh ()
+{
+    return getValue<float> (FxGlitchWeightCrushHighPropertyId);
 }
 
 float SettingsProperties::getFxGlitchWeightCrushLow ()
 {
     return getValue<float> (FxGlitchWeightCrushLowPropertyId);
+}
+
+float SettingsProperties::getFxGlitchWeightDropHigh ()
+{
+    return getValue<float> (FxGlitchWeightDropHighPropertyId);
 }
 
 float SettingsProperties::getFxGlitchWeightDropLow ()
@@ -722,179 +827,159 @@ float SettingsProperties::getFxGlitchWeightHoldHigh ()
     return getValue<float> (FxGlitchWeightHoldHighPropertyId);
 }
 
+float SettingsProperties::getFxGlitchWeightHoldLow ()
+{
+    return getValue<float> (FxGlitchWeightHoldLowPropertyId);
+}
+
 float SettingsProperties::getFxGlitchWeightStutterHigh ()
 {
     return getValue<float> (FxGlitchWeightStutterHighPropertyId);
 }
 
-float SettingsProperties::getFxGlitchWeightCrushHigh ()
+float SettingsProperties::getFxGlitchWeightStutterLow ()
 {
-    return getValue<float> (FxGlitchWeightCrushHighPropertyId);
+    return getValue<float> (FxGlitchWeightStutterLowPropertyId);
 }
 
-float SettingsProperties::getFxGlitchWeightDropHigh ()
+float SettingsProperties::getFxReverbDiffusion ()
 {
-    return getValue<float> (FxGlitchWeightDropHighPropertyId);
+    return getValue<float> (FxReverbDiffusionPropertyId);
 }
 
-float SettingsProperties::getFxGlitchDropKeepLevelMin ()
+int SettingsProperties::getFxReverbHpf ()
 {
-    return getValue<float> (FxGlitchDropKeepLevelMinPropertyId);
+    return getValue<int> (FxReverbHpfPropertyId);
 }
 
-float SettingsProperties::getFxGlitchDropKeepLevelMax ()
+int SettingsProperties::getFxReverbLpf ()
 {
-    return getValue<float> (FxGlitchDropKeepLevelMaxPropertyId);
+    return getValue<int> (FxReverbLpfPropertyId);
 }
 
-float SettingsProperties::getFxGlitchDropKeepTimeMin ()
+float SettingsProperties::getFxReverbMix ()
 {
-    return getValue<float> (FxGlitchDropKeepTimeMinPropertyId);
+    return getValue<float> (FxReverbMixPropertyId);
 }
 
-float SettingsProperties::getFxGlitchDropKeepTimeMax ()
+float SettingsProperties::getFxReverbModDepth ()
 {
-    return getValue<float> (FxGlitchDropKeepTimeMaxPropertyId);
+    return getValue<float> (FxReverbModDepthPropertyId);
 }
 
-float SettingsProperties::getFxGlitchCrushTimeMin ()
+float SettingsProperties::getFxReverbModRate ()
 {
-    return getValue<float> (FxGlitchCrushTimeMinPropertyId);
+    return getValue<float> (FxReverbModRatePropertyId);
 }
 
-float SettingsProperties::getFxGlitchCrushTimeMax ()
+int SettingsProperties::getFxReverbPredelay ()
 {
-    return getValue<float> (FxGlitchCrushTimeMaxPropertyId);
+    return getValue<int> (FxReverbPredelayPropertyId);
 }
 
-float SettingsProperties::getFxGlitchMicroloopSmplTMin ()
+float SettingsProperties::getFxReverbSizeMax ()
 {
-    return getValue<float> (FxGlitchMicroloopSmplTMinPropertyId);
+    return getValue<float> (FxReverbSizeMaxPropertyId);
 }
 
-float SettingsProperties::getFxGlitchMicroloopSmplTMax ()
+float SettingsProperties::getFxReverbSizeMin ()
 {
-    return getValue<float> (FxGlitchMicroloopSmplTMaxPropertyId);
+    return getValue<float> (FxReverbSizeMinPropertyId);
 }
 
-float SettingsProperties::getFxGlitchMicroloopPlayTMin ()
+int SettingsProperties::getFxReverbType ()
 {
-    return getValue<float> (FxGlitchMicroloopPlayTMinPropertyId);
+    return getValue<int> (FxReverbTypePropertyId);
 }
 
-float SettingsProperties::getFxGlitchMicroloopPlayTMax ()
+int SettingsProperties::getGateMode ()
 {
-    return getValue<float> (FxGlitchMicroloopPlayTMaxPropertyId);
+    return getValue<int> (GateModePropertyId);
 }
 
-float SettingsProperties::getFxGlitchStutterSmplTMin ()
+int SettingsProperties::getKnobPosTakeup ()
 {
-    return getValue<float> (FxGlitchStutterSmplTMinPropertyId);
+    return getValue<int> (KnobPosTakeupPropertyId);
 }
 
-float SettingsProperties::getFxGlitchStutterSmplTMax ()
+float SettingsProperties::getPitchHigh ()
 {
-    return getValue<float> (FxGlitchStutterSmplTMaxPropertyId);
+    return getValue<float> (PitchHighPropertyId);
 }
 
-int SettingsProperties::getFxGlitchStutterNumMin ()
+float SettingsProperties::getPitchLow ()
 {
-    return getValue<int> (FxGlitchStutterNumMinPropertyId);
+    return getValue<float> (PitchLowPropertyId);
 }
 
-int SettingsProperties::getFxGlitchStutterNumMax ()
+int SettingsProperties::getReleaseMode ()
 {
-    return getValue<int> (FxGlitchStutterNumMaxPropertyId);
+    return getValue<int> (ReleaseModePropertyId);
 }
 
-int SettingsProperties::getFxGlitchStutterWindow ()
+int SettingsProperties::getVelocityUnipolar ()
 {
-    return getValue<int> (FxGlitchStutterWindowPropertyId);
+    return getValue<int> (VelocityUnipolarPropertyId);
 }
 
 void SettingsProperties::valueTreePropertyChanged (juce::ValueTree& vt, const juce::Identifier& property)
 {
     if (data == vt)
     {
-        if (property == PitchLowPropertyId)
+        if (property == AccClAmpModPropertyId)
         {
-            if (onPitchLowChange != nullptr)
-                onPitchLowChange (getPitchLow ());
-        }
-        else if (property == PitchHighPropertyId)
-        {
-            if (onPitchHighChange != nullptr)
-                onPitchHighChange (getPitchHigh ());
-        }
-        else if (property == EnvelopeMaxReleasePropertyId)
-        {
-            if (onEnvelopeMaxReleaseChange != nullptr)
-                onEnvelopeMaxReleaseChange (getEnvelopeMaxRelease ());
-        }
-        else if (property == ChokeReleasePropertyId)
-        {
-            if (onChokeReleaseChange != nullptr)
-                onChokeReleaseChange (getChokeRelease ());
-        }
-        else if (property == ClsdReleaseModePropertyId)
-        {
-            if (onClsdReleaseModeChange != nullptr)
-                onClsdReleaseModeChange (getClsdReleaseMode ());
-        }
-        else if (property == ClsdRelOfstScalePropertyId)
-        {
-            if (onClsdRelOfstScaleChange != nullptr)
-                onClsdRelOfstScaleChange (getClsdRelOfstScale ());
-        }
-        else if (property == ClsdMaxReleasePropertyId)
-        {
-            if (onClsdMaxReleaseChange != nullptr)
-                onClsdMaxReleaseChange (getClsdMaxRelease ());
+            if (onAccClAmpModChange != nullptr)
+                onAccClAmpModChange (getAccClAmpMod ());
         }
         else if (property == AccClRelModPropertyId)
         {
             if (onAccClRelModChange != nullptr)
                 onAccClRelModChange (getAccClRelMod ());
         }
-        else if (property == AccOpRelModPropertyId)
-        {
-            if (onAccOpRelModChange != nullptr)
-                onAccOpRelModChange (getAccOpRelMod ());
-        }
-        else if (property == AccClAmpModPropertyId)
-        {
-            if (onAccClAmpModChange != nullptr)
-                onAccClAmpModChange (getAccClAmpMod ());
-        }
         else if (property == AccOpAmpModPropertyId)
         {
             if (onAccOpAmpModChange != nullptr)
                 onAccOpAmpModChange (getAccOpAmpMod ());
         }
-        else if (property == FxCvUnipolarPropertyId)
+        else if (property == AccOpRelModPropertyId)
         {
-            if (onFxCvUnipolarChange != nullptr)
-                onFxCvUnipolarChange (getFxCvUnipolar ());
+            if (onAccOpRelModChange != nullptr)
+                onAccOpRelModChange (getAccOpRelMod ());
         }
-        else if (property == VelocityUnipolarPropertyId)
+        else if (property == ChokeReleasePropertyId)
         {
-            if (onVelocityUnipolarChange != nullptr)
-                onVelocityUnipolarChange (getVelocityUnipolar ());
+            if (onChokeReleaseChange != nullptr)
+                onChokeReleaseChange (getChokeRelease ());
         }
-        else if (property == CvDisableVelocityPropertyId)
+        else if (property == ClsdMaxReleasePropertyId)
         {
-            if (onCvDisableVelocityChange != nullptr)
-                onCvDisableVelocityChange (getCvDisableVelocity ());
+            if (onClsdMaxReleaseChange != nullptr)
+                onClsdMaxReleaseChange (getClsdMaxRelease ());
+        }
+        else if (property == ClsdRelOfstScalePropertyId)
+        {
+            if (onClsdRelOfstScaleChange != nullptr)
+                onClsdRelOfstScaleChange (getClsdRelOfstScale ());
         }
         else if (property == CvDisableFxPropertyId)
         {
             if (onCvDisableFxChange != nullptr)
                 onCvDisableFxChange (getCvDisableFx ());
         }
-        else if (property == GateModePropertyId)
+        else if (property == CvDisableVelocityPropertyId)
         {
-            if (onGateModeChange != nullptr)
-                onGateModeChange (getGateMode ());
+            if (onCvDisableVelocityChange != nullptr)
+                onCvDisableVelocityChange (getCvDisableVelocity ());
+        }
+        else if (property == EnvelopeMaxReleasePropertyId)
+        {
+            if (onEnvelopeMaxReleaseChange != nullptr)
+                onEnvelopeMaxReleaseChange (getEnvelopeMaxRelease ());
+        }
+        else if (property == FeelAmpModPropertyId)
+        {
+            if (onFeelAmpModChange != nullptr)
+                onFeelAmpModChange (getFeelAmpMod ());
         }
         else if (property == FeelAttackModPropertyId)
         {
@@ -906,85 +991,120 @@ void SettingsProperties::valueTreePropertyChanged (juce::ValueTree& vt, const ju
             if (onFeelReleaseModChange != nullptr)
                 onFeelReleaseModChange (getFeelReleaseMod ());
         }
-        else if (property == FeelAmpModPropertyId)
+        else if (property == FltrHpfMaxFreqPropertyId)
         {
-            if (onFeelAmpModChange != nullptr)
-                onFeelAmpModChange (getFeelAmpMod ());
-        }
-        else if (property == KnobPosTakeupPropertyId)
-        {
-            if (onKnobPosTakeupChange != nullptr)
-                onKnobPosTakeupChange (getKnobPosTakeup ());
+            if (onFltrHpfMaxFreqChange != nullptr)
+                onFltrHpfMaxFreqChange (getFltrHpfMaxFreq ());
         }
         else if (property == FltrHpfMinFreqPropertyId)
         {
             if (onFltrHpfMinFreqChange != nullptr)
                 onFltrHpfMinFreqChange (getFltrHpfMinFreq ());
         }
-        else if (property == FltrHpfMaxFreqPropertyId)
+        else if (property == FltrHpfQPropertyId)
         {
-            if (onFltrHpfMaxFreqChange != nullptr)
-                onFltrHpfMaxFreqChange (getFltrHpfMaxFreq ());
-        }
-        else if (property == FltrLpfMinFreqPropertyId)
-        {
-            if (onFltrLpfMinFreqChange != nullptr)
-                onFltrLpfMinFreqChange (getFltrLpfMinFreq ());
+            if (onFltrHpfQChange != nullptr)
+                onFltrHpfQChange (getFltrHpfQ ());
         }
         else if (property == FltrLpfMaxFreqPropertyId)
         {
             if (onFltrLpfMaxFreqChange != nullptr)
                 onFltrLpfMaxFreqChange (getFltrLpfMaxFreq ());
         }
-        else if (property == FltrHpfQPropertyId)
+        else if (property == FltrLpfMinFreqPropertyId)
         {
-            if (onFltrHpfQChange != nullptr)
-                onFltrHpfQChange (getFltrHpfQ ());
+            if (onFltrLpfMinFreqChange != nullptr)
+                onFltrLpfMinFreqChange (getFltrLpfMinFreq ());
         }
         else if (property == FltrLpfQPropertyId)
         {
             if (onFltrLpfQChange != nullptr)
                 onFltrLpfQChange (getFltrLpfQ ());
         }
-        else if (property == FxDjfilterHpfMinPropertyId)
+        else if (property == FxChorusCenterPropertyId)
         {
-            if (onFxDjfilterHpfMinChange != nullptr)
-                onFxDjfilterHpfMinChange (getFxDjfilterHpfMin ());
+            if (onFxChorusCenterChange != nullptr)
+                onFxChorusCenterChange (getFxChorusCenter ());
+        }
+        else if (property == FxChorusDepthPropertyId)
+        {
+            if (onFxChorusDepthChange != nullptr)
+                onFxChorusDepthChange (getFxChorusDepth ());
+        }
+        else if (property == FxChorusLfoBPropertyId)
+        {
+            if (onFxChorusLfoBChange != nullptr)
+                onFxChorusLfoBChange (getFxChorusLfoB ());
+        }
+        else if (property == FxChorusLfoTPropertyId)
+        {
+            if (onFxChorusLfoTChange != nullptr)
+                onFxChorusLfoTChange (getFxChorusLfoT ());
+        }
+        else if (property == FxChorusMixPropertyId)
+        {
+            if (onFxChorusMixChange != nullptr)
+                onFxChorusMixChange (getFxChorusMix ());
+        }
+        else if (property == FxChorusSpreadPropertyId)
+        {
+            if (onFxChorusSpreadChange != nullptr)
+                onFxChorusSpreadChange (getFxChorusSpread ());
+        }
+        else if (property == FxChorusStaggerPropertyId)
+        {
+            if (onFxChorusStaggerChange != nullptr)
+                onFxChorusStaggerChange (getFxChorusStagger ());
+        }
+        else if (property == FxChorusTapsPropertyId)
+        {
+            if (onFxChorusTapsChange != nullptr)
+                onFxChorusTapsChange (getFxChorusTaps ());
+        }
+        else if (property == FxChorusTypePropertyId)
+        {
+            if (onFxChorusTypeChange != nullptr)
+                onFxChorusTypeChange (getFxChorusType ());
+        }
+        else if (property == FxCvUnipolarPropertyId)
+        {
+            if (onFxCvUnipolarChange != nullptr)
+                onFxCvUnipolarChange (getFxCvUnipolar ());
         }
         else if (property == FxDjfilterHpfMaxPropertyId)
         {
             if (onFxDjfilterHpfMaxChange != nullptr)
                 onFxDjfilterHpfMaxChange (getFxDjfilterHpfMax ());
         }
-        else if (property == FxDjfilterLpfMinPropertyId)
+        else if (property == FxDjfilterHpfMinPropertyId)
         {
-            if (onFxDjfilterLpfMinChange != nullptr)
-                onFxDjfilterLpfMinChange (getFxDjfilterLpfMin ());
+            if (onFxDjfilterHpfMinChange != nullptr)
+                onFxDjfilterHpfMinChange (getFxDjfilterHpfMin ());
         }
         else if (property == FxDjfilterLpfMaxPropertyId)
         {
             if (onFxDjfilterLpfMaxChange != nullptr)
                 onFxDjfilterLpfMaxChange (getFxDjfilterLpfMax ());
         }
-        else if (property == FxDjfilterQMinPropertyId)
+        else if (property == FxDjfilterLpfMinPropertyId)
         {
-            if (onFxDjfilterQMinChange != nullptr)
-                onFxDjfilterQMinChange (getFxDjfilterQMin ());
-        }
-        else if (property == FxDjfilterQMaxPropertyId)
-        {
-            if (onFxDjfilterQMaxChange != nullptr)
-                onFxDjfilterQMaxChange (getFxDjfilterQMax ());
+            if (onFxDjfilterLpfMinChange != nullptr)
+                onFxDjfilterLpfMinChange (getFxDjfilterLpfMin ());
         }
         else if (property == FxDjfilterQGainReductionPropertyId)
         {
             if (onFxDjfilterQGainReductionChange != nullptr)
                 onFxDjfilterQGainReductionChange (getFxDjfilterQGainReduction ());
         }
-        else if (property == FxDubEchoTminPropertyId)
+        else if (property == FxDjfilterQMaxPropertyId)
         {
-            if (onFxDubEchoTminChange != nullptr)
-                onFxDubEchoTminChange (getFxDubEchoTmin ());
+            if (onFxDjfilterQMaxChange != nullptr)
+                onFxDjfilterQMaxChange (getFxDjfilterQMax ());
+        }
+        else if (property == FxDjfilterQMinPropertyId)
+        {
+            if (onFxDjfilterQMinChange != nullptr)
+                onFxDjfilterQMinChange (getFxDjfilterQMin ());
         }
         else if (property == FxDubEchoHpfPropertyId)
         {
@@ -1001,75 +1121,110 @@ void SettingsProperties::valueTreePropertyChanged (juce::ValueTree& vt, const ju
             if (onFxDubEchoMixChange != nullptr)
                 onFxDubEchoMixChange (getFxDubEchoMix ());
         }
-        else if (property == FxChorusCenterPropertyId)
+        else if (property == FxDubEchoTminPropertyId)
         {
-            if (onFxChorusCenterChange != nullptr)
-                onFxChorusCenterChange (getFxChorusCenter ());
+            if (onFxDubEchoTminChange != nullptr)
+                onFxDubEchoTminChange (getFxDubEchoTmin ());
         }
-        else if (property == FxChorusDepthPropertyId)
+        else if (property == FxGlitchCrushTimeMaxPropertyId)
         {
-            if (onFxChorusDepthChange != nullptr)
-                onFxChorusDepthChange (getFxChorusDepth ());
+            if (onFxGlitchCrushTimeMaxChange != nullptr)
+                onFxGlitchCrushTimeMaxChange (getFxGlitchCrushTimeMax ());
         }
-        else if (property == FxChorusMixPropertyId)
+        else if (property == FxGlitchCrushTimeMinPropertyId)
         {
-            if (onFxChorusMixChange != nullptr)
-                onFxChorusMixChange (getFxChorusMix ());
+            if (onFxGlitchCrushTimeMinChange != nullptr)
+                onFxGlitchCrushTimeMinChange (getFxGlitchCrushTimeMin ());
         }
-        else if (property == FxChorusSpreadPropertyId)
+        else if (property == FxGlitchDropKeepLevelMaxPropertyId)
         {
-            if (onFxChorusSpreadChange != nullptr)
-                onFxChorusSpreadChange (getFxChorusSpread ());
+            if (onFxGlitchDropKeepLevelMaxChange != nullptr)
+                onFxGlitchDropKeepLevelMaxChange (getFxGlitchDropKeepLevelMax ());
         }
-        else if (property == FxChorusTapsPropertyId)
+        else if (property == FxGlitchDropKeepLevelMinPropertyId)
         {
-            if (onFxChorusTapsChange != nullptr)
-                onFxChorusTapsChange (getFxChorusTaps ());
+            if (onFxGlitchDropKeepLevelMinChange != nullptr)
+                onFxGlitchDropKeepLevelMinChange (getFxGlitchDropKeepLevelMin ());
         }
-        else if (property == FxChorusLfoBPropertyId)
+        else if (property == FxGlitchDropKeepTimeMaxPropertyId)
         {
-            if (onFxChorusLfoBChange != nullptr)
-                onFxChorusLfoBChange (getFxChorusLfoB ());
+            if (onFxGlitchDropKeepTimeMaxChange != nullptr)
+                onFxGlitchDropKeepTimeMaxChange (getFxGlitchDropKeepTimeMax ());
         }
-        else if (property == FxChorusLfoTPropertyId)
+        else if (property == FxGlitchDropKeepTimeMinPropertyId)
         {
-            if (onFxChorusLfoTChange != nullptr)
-                onFxChorusLfoTChange (getFxChorusLfoT ());
+            if (onFxGlitchDropKeepTimeMinChange != nullptr)
+                onFxGlitchDropKeepTimeMinChange (getFxGlitchDropKeepTimeMin ());
         }
-        else if (property == FxReverbLpfPropertyId)
+        else if (property == FxGlitchMicroloopPlayTMaxPropertyId)
         {
-            if (onFxReverbLpfChange != nullptr)
-                onFxReverbLpfChange (getFxReverbLpf ());
+            if (onFxGlitchMicroloopPlayTMaxChange != nullptr)
+                onFxGlitchMicroloopPlayTMaxChange (getFxGlitchMicroloopPlayTMax ());
         }
-        else if (property == FxReverbHpfPropertyId)
+        else if (property == FxGlitchMicroloopPlayTMinPropertyId)
         {
-            if (onFxReverbHpfChange != nullptr)
-                onFxReverbHpfChange (getFxReverbHpf ());
+            if (onFxGlitchMicroloopPlayTMinChange != nullptr)
+                onFxGlitchMicroloopPlayTMinChange (getFxGlitchMicroloopPlayTMin ());
         }
-        else if (property == FxGlitchProbabilityMinPropertyId)
+        else if (property == FxGlitchMicroloopSmplTMaxPropertyId)
         {
-            if (onFxGlitchProbabilityMinChange != nullptr)
-                onFxGlitchProbabilityMinChange (getFxGlitchProbabilityMin ());
+            if (onFxGlitchMicroloopSmplTMaxChange != nullptr)
+                onFxGlitchMicroloopSmplTMaxChange (getFxGlitchMicroloopSmplTMax ());
+        }
+        else if (property == FxGlitchMicroloopSmplTMinPropertyId)
+        {
+            if (onFxGlitchMicroloopSmplTMinChange != nullptr)
+                onFxGlitchMicroloopSmplTMinChange (getFxGlitchMicroloopSmplTMin ());
         }
         else if (property == FxGlitchProbabilityMaxPropertyId)
         {
             if (onFxGlitchProbabilityMaxChange != nullptr)
                 onFxGlitchProbabilityMaxChange (getFxGlitchProbabilityMax ());
         }
-        else if (property == FxGlitchWeightHoldLowPropertyId)
+        else if (property == FxGlitchProbabilityMinPropertyId)
         {
-            if (onFxGlitchWeightHoldLowChange != nullptr)
-                onFxGlitchWeightHoldLowChange (getFxGlitchWeightHoldLow ());
+            if (onFxGlitchProbabilityMinChange != nullptr)
+                onFxGlitchProbabilityMinChange (getFxGlitchProbabilityMin ());
         }
-        else if (property == FxGlitchWeightStutterLowPropertyId)
+        else if (property == FxGlitchStutterNumMaxPropertyId)
         {
-            if (onFxGlitchWeightStutterLowChange != nullptr)
-                onFxGlitchWeightStutterLowChange (getFxGlitchWeightStutterLow ());
+            if (onFxGlitchStutterNumMaxChange != nullptr)
+                onFxGlitchStutterNumMaxChange (getFxGlitchStutterNumMax ());
+        }
+        else if (property == FxGlitchStutterNumMinPropertyId)
+        {
+            if (onFxGlitchStutterNumMinChange != nullptr)
+                onFxGlitchStutterNumMinChange (getFxGlitchStutterNumMin ());
+        }
+        else if (property == FxGlitchStutterSmplTMaxPropertyId)
+        {
+            if (onFxGlitchStutterSmplTMaxChange != nullptr)
+                onFxGlitchStutterSmplTMaxChange (getFxGlitchStutterSmplTMax ());
+        }
+        else if (property == FxGlitchStutterSmplTMinPropertyId)
+        {
+            if (onFxGlitchStutterSmplTMinChange != nullptr)
+                onFxGlitchStutterSmplTMinChange (getFxGlitchStutterSmplTMin ());
+        }
+        else if (property == FxGlitchStutterWindowPropertyId)
+        {
+            if (onFxGlitchStutterWindowChange != nullptr)
+                onFxGlitchStutterWindowChange (getFxGlitchStutterWindow ());
+        }
+        else if (property == FxGlitchWeightCrushHighPropertyId)
+        {
+            if (onFxGlitchWeightCrushHighChange != nullptr)
+                onFxGlitchWeightCrushHighChange (getFxGlitchWeightCrushHigh ());
         }
         else if (property == FxGlitchWeightCrushLowPropertyId)
         {
             if (onFxGlitchWeightCrushLowChange != nullptr)
                 onFxGlitchWeightCrushLowChange (getFxGlitchWeightCrushLow ());
+        }
+        else if (property == FxGlitchWeightDropHighPropertyId)
+        {
+            if (onFxGlitchWeightDropHighChange != nullptr)
+                onFxGlitchWeightDropHighChange (getFxGlitchWeightDropHigh ());
         }
         else if (property == FxGlitchWeightDropLowPropertyId)
         {
@@ -1081,450 +1236,505 @@ void SettingsProperties::valueTreePropertyChanged (juce::ValueTree& vt, const ju
             if (onFxGlitchWeightHoldHighChange != nullptr)
                 onFxGlitchWeightHoldHighChange (getFxGlitchWeightHoldHigh ());
         }
+        else if (property == FxGlitchWeightHoldLowPropertyId)
+        {
+            if (onFxGlitchWeightHoldLowChange != nullptr)
+                onFxGlitchWeightHoldLowChange (getFxGlitchWeightHoldLow ());
+        }
         else if (property == FxGlitchWeightStutterHighPropertyId)
         {
             if (onFxGlitchWeightStutterHighChange != nullptr)
                 onFxGlitchWeightStutterHighChange (getFxGlitchWeightStutterHigh ());
         }
-        else if (property == FxGlitchWeightCrushHighPropertyId)
+        else if (property == FxGlitchWeightStutterLowPropertyId)
         {
-            if (onFxGlitchWeightCrushHighChange != nullptr)
-                onFxGlitchWeightCrushHighChange (getFxGlitchWeightCrushHigh ());
+            if (onFxGlitchWeightStutterLowChange != nullptr)
+                onFxGlitchWeightStutterLowChange (getFxGlitchWeightStutterLow ());
         }
-        else if (property == FxGlitchWeightDropHighPropertyId)
+        else if (property == FxReverbDiffusionPropertyId)
         {
-            if (onFxGlitchWeightDropHighChange != nullptr)
-                onFxGlitchWeightDropHighChange (getFxGlitchWeightDropHigh ());
+            if (onFxReverbDiffusionChange != nullptr)
+                onFxReverbDiffusionChange (getFxReverbDiffusion ());
         }
-        else if (property == FxGlitchDropKeepLevelMinPropertyId)
+        else if (property == FxReverbHpfPropertyId)
         {
-            if (onFxGlitchDropKeepLevelMinChange != nullptr)
-                onFxGlitchDropKeepLevelMinChange (getFxGlitchDropKeepLevelMin ());
+            if (onFxReverbHpfChange != nullptr)
+                onFxReverbHpfChange (getFxReverbHpf ());
         }
-        else if (property == FxGlitchDropKeepLevelMaxPropertyId)
+        else if (property == FxReverbLpfPropertyId)
         {
-            if (onFxGlitchDropKeepLevelMaxChange != nullptr)
-                onFxGlitchDropKeepLevelMaxChange (getFxGlitchDropKeepLevelMax ());
+            if (onFxReverbLpfChange != nullptr)
+                onFxReverbLpfChange (getFxReverbLpf ());
         }
-        else if (property == FxGlitchDropKeepTimeMinPropertyId)
+        else if (property == FxReverbMixPropertyId)
         {
-            if (onFxGlitchDropKeepTimeMinChange != nullptr)
-                onFxGlitchDropKeepTimeMinChange (getFxGlitchDropKeepTimeMin ());
+            if (onFxReverbMixChange != nullptr)
+                onFxReverbMixChange (getFxReverbMix ());
         }
-        else if (property == FxGlitchDropKeepTimeMaxPropertyId)
+        else if (property == FxReverbModDepthPropertyId)
         {
-            if (onFxGlitchDropKeepTimeMaxChange != nullptr)
-                onFxGlitchDropKeepTimeMaxChange (getFxGlitchDropKeepTimeMax ());
+            if (onFxReverbModDepthChange != nullptr)
+                onFxReverbModDepthChange (getFxReverbModDepth ());
         }
-        else if (property == FxGlitchCrushTimeMinPropertyId)
+        else if (property == FxReverbModRatePropertyId)
         {
-            if (onFxGlitchCrushTimeMinChange != nullptr)
-                onFxGlitchCrushTimeMinChange (getFxGlitchCrushTimeMin ());
+            if (onFxReverbModRateChange != nullptr)
+                onFxReverbModRateChange (getFxReverbModRate ());
         }
-        else if (property == FxGlitchCrushTimeMaxPropertyId)
+        else if (property == FxReverbPredelayPropertyId)
         {
-            if (onFxGlitchCrushTimeMaxChange != nullptr)
-                onFxGlitchCrushTimeMaxChange (getFxGlitchCrushTimeMax ());
+            if (onFxReverbPredelayChange != nullptr)
+                onFxReverbPredelayChange (getFxReverbPredelay ());
         }
-        else if (property == FxGlitchMicroloopSmplTMinPropertyId)
+        else if (property == FxReverbSizeMaxPropertyId)
         {
-            if (onFxGlitchMicroloopSmplTMinChange != nullptr)
-                onFxGlitchMicroloopSmplTMinChange (getFxGlitchMicroloopSmplTMin ());
+            if (onFxReverbSizeMaxChange != nullptr)
+                onFxReverbSizeMaxChange (getFxReverbSizeMax ());
         }
-        else if (property == FxGlitchMicroloopSmplTMaxPropertyId)
+        else if (property == FxReverbSizeMinPropertyId)
         {
-            if (onFxGlitchMicroloopSmplTMaxChange != nullptr)
-                onFxGlitchMicroloopSmplTMaxChange (getFxGlitchMicroloopSmplTMax ());
+            if (onFxReverbSizeMinChange != nullptr)
+                onFxReverbSizeMinChange (getFxReverbSizeMin ());
         }
-        else if (property == FxGlitchMicroloopPlayTMinPropertyId)
+        else if (property == FxReverbTypePropertyId)
         {
-            if (onFxGlitchMicroloopPlayTMinChange != nullptr)
-                onFxGlitchMicroloopPlayTMinChange (getFxGlitchMicroloopPlayTMin ());
+            if (onFxReverbTypeChange != nullptr)
+                onFxReverbTypeChange (getFxReverbType ());
         }
-        else if (property == FxGlitchMicroloopPlayTMaxPropertyId)
+        else if (property == GateModePropertyId)
         {
-            if (onFxGlitchMicroloopPlayTMaxChange != nullptr)
-                onFxGlitchMicroloopPlayTMaxChange (getFxGlitchMicroloopPlayTMax ());
+            if (onGateModeChange != nullptr)
+                onGateModeChange (getGateMode ());
         }
-        else if (property == FxGlitchStutterSmplTMinPropertyId)
+        else if (property == KnobPosTakeupPropertyId)
         {
-            if (onFxGlitchStutterSmplTMinChange != nullptr)
-                onFxGlitchStutterSmplTMinChange (getFxGlitchStutterSmplTMin ());
+            if (onKnobPosTakeupChange != nullptr)
+                onKnobPosTakeupChange (getKnobPosTakeup ());
         }
-        else if (property == FxGlitchStutterSmplTMaxPropertyId)
+        else if (property == PitchHighPropertyId)
         {
-            if (onFxGlitchStutterSmplTMaxChange != nullptr)
-                onFxGlitchStutterSmplTMaxChange (getFxGlitchStutterSmplTMax ());
+            if (onPitchHighChange != nullptr)
+                onPitchHighChange (getPitchHigh ());
         }
-        else if (property == FxGlitchStutterNumMinPropertyId)
+        else if (property == PitchLowPropertyId)
         {
-            if (onFxGlitchStutterNumMinChange != nullptr)
-                onFxGlitchStutterNumMinChange (getFxGlitchStutterNumMin ());
+            if (onPitchLowChange != nullptr)
+                onPitchLowChange (getPitchLow ());
         }
-        else if (property == FxGlitchStutterNumMaxPropertyId)
+        else if (property == ReleaseModePropertyId)
         {
-            if (onFxGlitchStutterNumMaxChange != nullptr)
-                onFxGlitchStutterNumMaxChange (getFxGlitchStutterNumMax ());
+            if (onReleaseModeChange != nullptr)
+                onReleaseModeChange (getReleaseMode ());
         }
-        else if (property == FxGlitchStutterWindowPropertyId)
+        else if (property == VelocityUnipolarPropertyId)
         {
-            if (onFxGlitchStutterWindowChange != nullptr)
-                onFxGlitchStutterWindowChange (getFxGlitchStutterWindow ());
+            if (onVelocityUnipolarChange != nullptr)
+                onVelocityUnipolarChange (getVelocityUnipolar ());
         }
     }
 }
 
-juce::String SettingsProperties::getPitchLowKey ()
+juce::String SettingsProperties::getAccClAmpModKey ()
 {
-    return "PITCH_LOW";
-}
-
-juce::String SettingsProperties::getPitchHighKey ()
-{
-    return "PITCH_HIGH";
-}
-
-juce::String SettingsProperties::getEnvelopeMaxReleaseKey ()
-{
-    return "ENVELOPE_MAX_RELEASE";
-}
-
-juce::String SettingsProperties::getChokeReleaseKey ()
-{
-    return "CHOKE_RELEASE";
-}
-
-juce::String SettingsProperties::getClsdReleaseModeKey ()
-{
-    return "CLSD_RELEASE_MODE";
-}
-
-juce::String SettingsProperties::getClsdRelOfstScaleKey ()
-{
-    return "CLSD_REL_OFST_SCALE";
-}
-
-juce::String SettingsProperties::getClsdMaxReleaseKey ()
-{
-    return "CLSD_MAX_RELEASE";
+    return kAccClAmpModKey;
 }
 
 juce::String SettingsProperties::getAccClRelModKey ()
 {
-    return "ACC_CL_REL_MOD";
-}
-
-juce::String SettingsProperties::getAccOpRelModKey ()
-{
-    return "ACC_OP_REL_MOD";
-}
-
-juce::String SettingsProperties::getAccClAmpModKey ()
-{
-    return "ACC_CL_AMP_MOD";
+    return kAccClRelModKey;
 }
 
 juce::String SettingsProperties::getAccOpAmpModKey ()
 {
-    return "ACC_OP_AMP_MOD";
+    return kAccOpAmpModKey;
 }
 
-juce::String SettingsProperties::getFxCvUnipolarKey ()
+juce::String SettingsProperties::getAccOpRelModKey ()
 {
-    return "FX_CV_UNIPOLAR";
+    return kAccOpRelModKey;
 }
 
-juce::String SettingsProperties::getVelocityUnipolarKey ()
+juce::String SettingsProperties::getChokeReleaseKey ()
 {
-    return "VELOCITY_UNIPOLAR";
+    return kChokeReleaseKey;
 }
 
-juce::String SettingsProperties::getCvDisableVelocityKey ()
+juce::String SettingsProperties::getClsdMaxReleaseKey ()
 {
-    return "CV_DISABLE_VELOCITY";
+    return kClsdMaxReleaseKey;
+}
+
+juce::String SettingsProperties::getClsdRelOfstScaleKey ()
+{
+    return kClsdRelOfstScaleKey;
 }
 
 juce::String SettingsProperties::getCvDisableFxKey ()
 {
-    return "CV_DISABLE_FX";
+    return kCvDisableFxKey;
 }
 
-juce::String SettingsProperties::getGateModeKey ()
+juce::String SettingsProperties::getCvDisableVelocityKey ()
 {
-    return "GATE_MODE";
+    return kCvDisableVelocityKey;
 }
 
-juce::String SettingsProperties::getFeelAttackModKey ()
+juce::String SettingsProperties::getEnvelopeMaxReleaseKey ()
 {
-    return "FEEL_ATTACK_MOD";
-}
-
-juce::String SettingsProperties::getFeelReleaseModKey ()
-{
-    return "FEEL_RELEASE_MOD";
+    return kEnvelopeMaxReleaseKey;
 }
 
 juce::String SettingsProperties::getFeelAmpModKey ()
 {
-    return "FEEL_AMP_MOD";
+    return kFeelAmpModKey;
 }
 
-juce::String SettingsProperties::getKnobPosTakeupKey ()
+juce::String SettingsProperties::getFeelAttackModKey ()
 {
-    return "KNOB_POS_TAKEUP";
+    return kFeelAttackModKey;
 }
 
-juce::String SettingsProperties::getFltrHpfMinFreqKey ()
+juce::String SettingsProperties::getFeelReleaseModKey ()
 {
-    return "FLTR_HPF_MIN_FREQ";
+    return kFeelReleaseModKey;
 }
 
 juce::String SettingsProperties::getFltrHpfMaxFreqKey ()
 {
-    return "FLTR_HPF_MAX_FREQ";
+    return kFltrHpfMaxFreqKey;
 }
 
-juce::String SettingsProperties::getFltrLpfMinFreqKey ()
+juce::String SettingsProperties::getFltrHpfMinFreqKey ()
 {
-    return "FLTR_LPF_MIN_FREQ";
-}
-
-juce::String SettingsProperties::getFltrLpfMaxFreqKey ()
-{
-    return "FLTR_LPF_MAX_FREQ";
+    return kFltrHpfMinFreqKey;
 }
 
 juce::String SettingsProperties::getFltrHpfQKey ()
 {
-    return "FLTR_HPF_Q";
+    return kFltrHpfQKey;
+}
+
+juce::String SettingsProperties::getFltrLpfMaxFreqKey ()
+{
+    return kFltrLpfMaxFreqKey;
+}
+
+juce::String SettingsProperties::getFltrLpfMinFreqKey ()
+{
+    return kFltrLpfMinFreqKey;
 }
 
 juce::String SettingsProperties::getFltrLpfQKey ()
 {
-    return "FLTR_LPF_Q";
-}
-
-juce::String SettingsProperties::getFxDjfilterHpfMinKey ()
-{
-    return "FX_DJFILTER_HPF_MIN";
-}
-
-juce::String SettingsProperties::getFxDjfilterHpfMaxKey ()
-{
-    return "FX_DJFILTER_HPF_MAX";
-}
-
-juce::String SettingsProperties::getFxDjfilterLpfMinKey ()
-{
-    return "FX_DJFILTER_LPF_MIN";
-}
-
-juce::String SettingsProperties::getFxDjfilterLpfMaxKey ()
-{
-    return "FX_DJFILTER_LPF_MAX";
-}
-
-juce::String SettingsProperties::getFxDjfilterQMinKey ()
-{
-    return "FX_DJFILTER_Q_MIN";
-}
-
-juce::String SettingsProperties::getFxDjfilterQMaxKey ()
-{
-    return "FX_DJFILTER_Q_MAX";
-}
-
-juce::String SettingsProperties::getFxDjfilterQGainReductionKey ()
-{
-    return "FX_DJFILTER_Q_GAIN_REDUCTION";
-}
-
-juce::String SettingsProperties::getFxDubEchoTminKey ()
-{
-    return "FX_DUB_ECHO_TMIN";
-}
-
-juce::String SettingsProperties::getFxDubEchoHpfKey ()
-{
-    return "FX_DUB_ECHO_HPF";
-}
-
-juce::String SettingsProperties::getFxDubEchoLpfKey ()
-{
-    return "FX_DUB_ECHO_LPF";
-}
-
-juce::String SettingsProperties::getFxDubEchoMixKey ()
-{
-    return "FX_DUB_ECHO_MIX";
+    return kFltrLpfQKey;
 }
 
 juce::String SettingsProperties::getFxChorusCenterKey ()
 {
-    return "FX_CHORUS_CENTER";
+    return kFxChorusCenterKey;
 }
 
 juce::String SettingsProperties::getFxChorusDepthKey ()
 {
-    return "FX_CHORUS_DEPTH";
-}
-
-juce::String SettingsProperties::getFxChorusMixKey ()
-{
-    return "FX_CHORUS_MIX";
-}
-
-juce::String SettingsProperties::getFxChorusSpreadKey ()
-{
-    return "FX_CHORUS_SPREAD";
-}
-
-juce::String SettingsProperties::getFxChorusTapsKey ()
-{
-    return "FX_CHORUS_TAPS";
+    return kFxChorusDepthKey;
 }
 
 juce::String SettingsProperties::getFxChorusLfoBKey ()
 {
-    return "FX_CHORUS_LFO_B";
+    return kFxChorusLfoBKey;
 }
 
 juce::String SettingsProperties::getFxChorusLfoTKey ()
 {
-    return "FX_CHORUS_LFO_T";
+    return kFxChorusLfoTKey;
 }
 
-juce::String SettingsProperties::getFxReverbLpfKey ()
+juce::String SettingsProperties::getFxChorusMixKey ()
 {
-    return "FX_REVERB_LPF";
+    return kFxChorusMixKey;
 }
 
-juce::String SettingsProperties::getFxReverbHpfKey ()
+juce::String SettingsProperties::getFxChorusSpreadKey ()
 {
-    return "FX_REVERB_HPF";
+    return kFxChorusSpreadKey;
 }
 
-juce::String SettingsProperties::getFxGlitchProbabilityMinKey ()
+juce::String SettingsProperties::getFxChorusStaggerKey ()
 {
-    return "FX_GLITCH_PROBABILITY_MIN";
+    return kFxChorusStaggerKey;
 }
 
-juce::String SettingsProperties::getFxGlitchProbabilityMaxKey ()
+juce::String SettingsProperties::getFxChorusTapsKey ()
 {
-    return "FX_GLITCH_PROBABILITY_MAX";
+    return kFxChorusTapsKey;
 }
 
-juce::String SettingsProperties::getFxGlitchWeightHoldLowKey ()
+juce::String SettingsProperties::getFxChorusTypeKey ()
 {
-    return "FX_GLITCH_WEIGHT_HOLD_LOW";
+    return kFxChorusTypeKey;
 }
 
-juce::String SettingsProperties::getFxGlitchWeightStutterLowKey ()
+juce::String SettingsProperties::getFxCvUnipolarKey ()
 {
-    return "FX_GLITCH_WEIGHT_STUTTER_LOW";
+    return kFxCvUnipolarKey;
 }
 
-juce::String SettingsProperties::getFxGlitchWeightCrushLowKey ()
+juce::String SettingsProperties::getFxDjfilterHpfMaxKey ()
 {
-    return "FX_GLITCH_WEIGHT_CRUSH_LOW";
+    return kFxDjfilterHpfMaxKey;
 }
 
-juce::String SettingsProperties::getFxGlitchWeightDropLowKey ()
+juce::String SettingsProperties::getFxDjfilterHpfMinKey ()
 {
-    return "FX_GLITCH_WEIGHT_DROP_LOW";
+    return kFxDjfilterHpfMinKey;
 }
 
-juce::String SettingsProperties::getFxGlitchWeightHoldHighKey ()
+juce::String SettingsProperties::getFxDjfilterLpfMaxKey ()
 {
-    return "FX_GLITCH_WEIGHT_HOLD_HIGH";
+    return kFxDjfilterLpfMaxKey;
 }
 
-juce::String SettingsProperties::getFxGlitchWeightStutterHighKey ()
+juce::String SettingsProperties::getFxDjfilterLpfMinKey ()
 {
-    return "FX_GLITCH_WEIGHT_STUTTER_HIGH";
+    return kFxDjfilterLpfMinKey;
 }
 
-juce::String SettingsProperties::getFxGlitchWeightCrushHighKey ()
+juce::String SettingsProperties::getFxDjfilterQGainReductionKey ()
 {
-    return "FX_GLITCH_WEIGHT_CRUSH_HIGH";
+    return kFxDjfilterQGainReductionKey;
 }
 
-juce::String SettingsProperties::getFxGlitchWeightDropHighKey ()
+juce::String SettingsProperties::getFxDjfilterQMaxKey ()
 {
-    return "FX_GLITCH_WEIGHT_DROP_HIGH";
+    return kFxDjfilterQMaxKey;
 }
 
-juce::String SettingsProperties::getFxGlitchDropKeepLevelMinKey ()
+juce::String SettingsProperties::getFxDjfilterQMinKey ()
 {
-    return "FX_GLITCH_DROP_KEEP_LEVEL_MIN";
+    return kFxDjfilterQMinKey;
 }
 
-juce::String SettingsProperties::getFxGlitchDropKeepLevelMaxKey ()
+juce::String SettingsProperties::getFxDubEchoHpfKey ()
 {
-    return "FX_GLITCH_DROP_KEEP_LEVEL_MAX";
+    return kFxDubEchoHpfKey;
 }
 
-juce::String SettingsProperties::getFxGlitchDropKeepTimeMinKey ()
+juce::String SettingsProperties::getFxDubEchoLpfKey ()
 {
-    return "FX_GLITCH_DROP_KEEP_TIME_MIN";
+    return kFxDubEchoLpfKey;
 }
 
-juce::String SettingsProperties::getFxGlitchDropKeepTimeMaxKey ()
+juce::String SettingsProperties::getFxDubEchoMixKey ()
 {
-    return "FX_GLITCH_DROP_KEEP_TIME_MAX";
+    return kFxDubEchoMixKey;
 }
 
-juce::String SettingsProperties::getFxGlitchCrushTimeMinKey ()
+juce::String SettingsProperties::getFxDubEchoTminKey ()
 {
-    return "FX_GLITCH_CRUSH_TIME_MIN";
+    return kFxDubEchoTminKey;
 }
 
 juce::String SettingsProperties::getFxGlitchCrushTimeMaxKey ()
 {
-    return "FX_GLITCH_CRUSH_TIME_MAX";
+    return kFxGlitchCrushTimeMaxKey;
 }
 
-juce::String SettingsProperties::getFxGlitchMicroloopSmplTMinKey ()
+juce::String SettingsProperties::getFxGlitchCrushTimeMinKey ()
 {
-    return "FX_GLITCH_MICROLOOP_SMPL_T_MIN";
+    return kFxGlitchCrushTimeMinKey;
 }
 
-juce::String SettingsProperties::getFxGlitchMicroloopSmplTMaxKey ()
+juce::String SettingsProperties::getFxGlitchDropKeepLevelMaxKey ()
 {
-    return "FX_GLITCH_MICROLOOP_SMPL_T_MAX";
+    return kFxGlitchDropKeepLevelMaxKey;
 }
 
-juce::String SettingsProperties::getFxGlitchMicroloopPlayTMinKey ()
+juce::String SettingsProperties::getFxGlitchDropKeepLevelMinKey ()
 {
-    return "FX_GLITCH_MICROLOOP_PLAY_T_MIN";
+    return kFxGlitchDropKeepLevelMinKey;
+}
+
+juce::String SettingsProperties::getFxGlitchDropKeepTimeMaxKey ()
+{
+    return kFxGlitchDropKeepTimeMaxKey;
+}
+
+juce::String SettingsProperties::getFxGlitchDropKeepTimeMinKey ()
+{
+    return kFxGlitchDropKeepTimeMinKey;
 }
 
 juce::String SettingsProperties::getFxGlitchMicroloopPlayTMaxKey ()
 {
-    return "FX_GLITCH_MICROLOOP_PLAY_T_MAX";
+    return kFxGlitchMicroloopPlayTMaxKey;
 }
 
-juce::String SettingsProperties::getFxGlitchStutterSmplTMinKey ()
+juce::String SettingsProperties::getFxGlitchMicroloopPlayTMinKey ()
 {
-    return "FX_GLITCH_STUTTER_SMPL_T_MIN";
+    return kFxGlitchMicroloopPlayTMinKey;
 }
 
-juce::String SettingsProperties::getFxGlitchStutterSmplTMaxKey ()
+juce::String SettingsProperties::getFxGlitchMicroloopSmplTMaxKey ()
 {
-    return "FX_GLITCH_STUTTER_SMPL_T_MAX";
+    return kFxGlitchMicroloopSmplTMaxKey;
 }
 
-juce::String SettingsProperties::getFxGlitchStutterNumMinKey ()
+juce::String SettingsProperties::getFxGlitchMicroloopSmplTMinKey ()
 {
-    return "FX_GLITCH_STUTTER_NUM_MIN";
+    return kFxGlitchMicroloopSmplTMinKey;
+}
+
+juce::String SettingsProperties::getFxGlitchProbabilityMaxKey ()
+{
+    return kFxGlitchProbabilityMaxKey;
+}
+
+juce::String SettingsProperties::getFxGlitchProbabilityMinKey ()
+{
+    return kFxGlitchProbabilityMinKey;
 }
 
 juce::String SettingsProperties::getFxGlitchStutterNumMaxKey ()
 {
-    return "FX_GLITCH_STUTTER_NUM_MAX";
+    return kFxGlitchStutterNumMaxKey;
+}
+
+juce::String SettingsProperties::getFxGlitchStutterNumMinKey ()
+{
+    return kFxGlitchStutterNumMinKey;
+}
+
+juce::String SettingsProperties::getFxGlitchStutterSmplTMaxKey ()
+{
+    return kFxGlitchStutterSmplTMaxKey;
+}
+
+juce::String SettingsProperties::getFxGlitchStutterSmplTMinKey ()
+{
+    return kFxGlitchStutterSmplTMinKey;
 }
 
 juce::String SettingsProperties::getFxGlitchStutterWindowKey ()
 {
-    return "FX_GLITCH_STUTTER_WINDOW";
+    return kFxGlitchStutterWindowKey;
+}
+
+juce::String SettingsProperties::getFxGlitchWeightCrushHighKey ()
+{
+    return kFxGlitchWeightCrushHighKey;
+}
+
+juce::String SettingsProperties::getFxGlitchWeightCrushLowKey ()
+{
+    return kFxGlitchWeightCrushLowKey;
+}
+
+juce::String SettingsProperties::getFxGlitchWeightDropHighKey ()
+{
+    return kFxGlitchWeightDropHighKey;
+}
+
+juce::String SettingsProperties::getFxGlitchWeightDropLowKey ()
+{
+    return kFxGlitchWeightDropLowKey;
+}
+
+juce::String SettingsProperties::getFxGlitchWeightHoldHighKey ()
+{
+    return kFxGlitchWeightHoldHighKey;
+}
+
+juce::String SettingsProperties::getFxGlitchWeightHoldLowKey ()
+{
+    return kFxGlitchWeightHoldLowKey;
+}
+
+juce::String SettingsProperties::getFxGlitchWeightStutterHighKey ()
+{
+    return kFxGlitchWeightStutterHighKey;
+}
+
+juce::String SettingsProperties::getFxGlitchWeightStutterLowKey ()
+{
+    return kFxGlitchWeightStutterLowKey;
+}
+
+juce::String SettingsProperties::getFxReverbDiffusionKey ()
+{
+    return kFxReverbDiffusionKey;
+}
+
+juce::String SettingsProperties::getFxReverbHpfKey ()
+{
+    return kFxReverbHpfKey;
+}
+
+juce::String SettingsProperties::getFxReverbLpfKey ()
+{
+    return kFxReverbLpfKey;
+}
+
+juce::String SettingsProperties::getFxReverbMixKey ()
+{
+    return kFxReverbMixKey;
+}
+
+juce::String SettingsProperties::getFxReverbModDepthKey ()
+{
+    return kFxReverbModDepthKey;
+}
+
+juce::String SettingsProperties::getFxReverbModRateKey ()
+{
+    return kFxReverbModRateKey;
+}
+
+juce::String SettingsProperties::getFxReverbPredelayKey ()
+{
+    return kFxReverbPredelayKey;
+}
+
+juce::String SettingsProperties::getFxReverbSizeMaxKey ()
+{
+    return kFxReverbSizeMaxKey;
+}
+
+juce::String SettingsProperties::getFxReverbSizeMinKey ()
+{
+    return kFxReverbSizeMinKey;
+}
+
+juce::String SettingsProperties::getFxReverbTypeKey ()
+{
+    return kFxReverbTypeKey;
+}
+
+juce::String SettingsProperties::getGateModeKey ()
+{
+    return kGateModeKey;
+}
+
+juce::String SettingsProperties::getKnobPosTakeupKey ()
+{
+    return kKnobPosTakeupKey;
+}
+
+juce::String SettingsProperties::getPitchHighKey ()
+{
+    return kPitchHighKey;
+}
+
+juce::String SettingsProperties::getPitchLowKey ()
+{
+    return kPitchLowKey;
+}
+
+juce::String SettingsProperties::getReleaseModeKey ()
+{
+    return kClsdReleaseModeKey;
+}
+
+juce::String SettingsProperties::getVelocityUnipolarKey ()
+{
+    return kVelocityUnipolarKey;
 }

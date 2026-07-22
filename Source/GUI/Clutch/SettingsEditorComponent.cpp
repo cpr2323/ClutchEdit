@@ -25,7 +25,7 @@ constexpr float kClsdRelOfstScaleDefault  { 0.5f };
 constexpr float kClsdMaxReleaseMin        { 0.3f };
 constexpr float kClsdMaxReleaseMax        { 2.0f };
 constexpr float kClsdMaxReleaseDefault    { 0.8f };
-constexpr int   kClsdReleaseModeDefault   { 1 };
+constexpr int   kReleaseModeDefault       { 1 };
 
 // Accent
 constexpr float kAccClAmpModMin           { 0.5f };
@@ -128,7 +128,6 @@ constexpr float kFxChorusCenterMin        { 1.0f };
 constexpr float kFxChorusCenterMax        { 120.0f };
 constexpr float kFxChorusCenterDefault    { 12.0f };
 constexpr float kFxChorusDepthMin         { 1.0f };
-constexpr float kFxChorusDepthMax         { 60.0f };
 constexpr float kFxChorusDepthDefault     { 5.0f };
 constexpr float kFxChorusMixMin           { 0.1f };
 constexpr float kFxChorusMixMax           { 1.0f };
@@ -136,13 +135,21 @@ constexpr float kFxChorusMixDefault       { 1.0f };
 constexpr float kFxChorusSpreadMin        { 0.001f };
 constexpr float kFxChorusSpreadMax        { 0.1f };
 constexpr float kFxChorusSpreadDefault    { 0.01f };
-constexpr int   kFxChorusTapsDefault      { 4 };
+constexpr int   kFxChorusTapsDefault      { 6 };
 constexpr float kFxChorusLfoBMin          { 0.0001f };
 constexpr float kFxChorusLfoBMax          { 0.1f };
 constexpr float kFxChorusLfoBDefault      { 0.002f };
 constexpr float kFxChorusLfoTMin          { 0.1f };
 constexpr float kFxChorusLfoTMax          { 20.0f };
 constexpr float kFxChorusLfoTDefault      { 3.0f };
+// 0: Vintage (thin), 1: Thick (multi-voice)
+constexpr int   kFxChorusTypeDefault      { 1 };
+constexpr float kFxChorusStaggerMin       { 0.0f };
+constexpr float kFxChorusStaggerMax       { 1.0f };
+constexpr float kFxChorusStaggerDefault   { 0.5f };
+// Voices: 1 to 4 for Vintage, 1 to 6 for Thick
+constexpr int   kFxChorusVoicesMin        { 1 };
+constexpr int   kFxChorusVoicesMax        { 6 };
 
 // Reverb
 constexpr int   kFxReverbLpfMin           { 1000 };
@@ -151,6 +158,29 @@ constexpr int   kFxReverbLpfDefault       { 9000 };
 constexpr int   kFxReverbHpfMin           { 20 };
 constexpr int   kFxReverbHpfMax           { 8000 };
 constexpr int   kFxReverbHpfDefault       { 700 };
+// 0: Vintage (echoey), 1: Plate (smooth)
+constexpr int   kFxReverbTypeDefault      { 1 };
+// Plate size at PARAM CCW; SizeMax min is derived from the current SizeMin.
+constexpr float kFxReverbSizeMinMin       { 0.10f };
+constexpr float kFxReverbSizeMinMax       { 1.1f };
+constexpr float kFxReverbSizeMinDefault   { 0.6f };
+constexpr float kFxReverbSizeMaxMax       { 1.1f };
+constexpr float kFxReverbSizeMaxDefault   { 0.9f };
+constexpr int   kFxReverbPredelayMin      { 0 };
+constexpr int   kFxReverbPredelayMax      { 80 };
+constexpr int   kFxReverbPredelayDefault  { 21 };
+constexpr float kFxReverbModDepthMin      { 0.0f };
+constexpr float kFxReverbModDepthMax      { 2.0f };
+constexpr float kFxReverbModDepthDefault  { 0.6f };
+constexpr float kFxReverbModRateMin       { 0.05f };
+constexpr float kFxReverbModRateMax       { 5.0f };
+constexpr float kFxReverbModRateDefault   { 1.0f };
+constexpr float kFxReverbDiffusionMin     { 0.10f };
+constexpr float kFxReverbDiffusionMax     { 0.99f };
+constexpr float kFxReverbDiffusionDefault { 0.75f };
+constexpr float kFxReverbMixMin           { 0.05f };
+constexpr float kFxReverbMixMax           { 1.0f };
+constexpr float kFxReverbMixDefault       { 0.6f };
 
 // Glitch Probability
 constexpr float kFxGlitchProbabilityMinMin     { 0.0000001f };
@@ -554,26 +584,28 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kClsdRelOfstScaleDefault; },
                          [this] () { return uneditedSettingsProperties.getClsdRelOfstScale (); });
 
-    // 0: Independent Release for Closed
-    // 1: Release Offset mode
-    setupComboBox ({ clsdReleaseModeComboBox, clsdReleaseModeLabel, "Release Mode", "", "Clsd Release Mode" },
-                      { { "Independent", 1 },
-                        { "Offset", 2 } },
+    // 0: RELEASE OFFSET sets a fixed CLOSED release, RELEASE control/CV sets the OPEN release
+    // 1: Release Offset mode (default)
+    // 2: RELEASE OFFSET sets a fixed OPEN release, RELEASE control/CV sets the CLOSED release
+    setupComboBox ({ releaseModeComboBox, releaseModeLabel, "Release Mode", "How RELEASE OFFSET and the RELEASE control apply to the CLOSED vs OPEN hit release", "Release Mode" },
+                      { { "Fixed Closed", 1 },
+                        { "Offset", 2 },
+                        { "Fixed Open", 3 } },
                       [this] ()
                       {
-                          clsdReleaseModeUiChanged (clsdReleaseModeComboBox.getSelectedId () - 1);
+                          releaseModeUiChanged (releaseModeComboBox.getSelectedId () - 1);
                       },
                       [this] (int valueOffset)
                       {
-                          const auto clsdReleaseMode { clsdReleaseModeComboBox.getSelectedId () - 1 };
-                          settingsProperties.setClsdReleaseMode (std::clamp (clsdReleaseMode + valueOffset, 0, 1), true);
+                          const auto releaseMode { releaseModeComboBox.getSelectedId () - 1 };
+                          settingsProperties.setReleaseMode (std::clamp (releaseMode + valueOffset, 0, 2), true);
                       },
-                      [this] () { return kClsdReleaseModeDefault; },
-                      [this] () { return uneditedSettingsProperties.getClsdReleaseMode () + 1; });
+                      [this] () { return kReleaseModeDefault + 1; },
+                      [this] () { return uneditedSettingsProperties.getReleaseMode () + 1; });
 
     // 0: FX CV Always On
     // 1: CV Disable : Freeze FX CV
-    setupComboBox ({ cvDisableFxComboBox, cvDisableFxLabel, "CV Disable FX", "", "CV Disable FX" },
+    setupComboBox ({ cvDisableFxComboBox, cvDisableFxLabel, "CV Disable FX", "Whether the CV OFF switch freezes the FX CV, or leaves it always on", "CV Disable FX" },
                       { { "FX CV On", 1 },
                         { "FX CV Off", 2 } },
                       [this] ()
@@ -585,12 +617,12 @@ SettingsEditorComponent::SettingsEditorComponent ()
                           const auto cvDisableFx { cvDisableFxComboBox.getSelectedId () - 1 };
                           settingsProperties.setCvDisableFx (std::clamp (cvDisableFx + valueOffset, 0, 1), true);
                       },
-                      [this] () { return kCvDisableFxDefault; },
+                      [this] () { return kCvDisableFxDefault + 1; },
                       [this] () { return uneditedSettingsProperties.getCvDisableFx () + 1; });
 
     // 0: Velocity always enabled
     // 1: CV Off SW affects velocity
-    setupComboBox ({ cvDisableVelocityComboBox, cvDisableVelocityLabel, "CV Disable Velocity", "", "CV Disable Velocity" },
+    setupComboBox ({ cvDisableVelocityComboBox, cvDisableVelocityLabel, "CV Disable Velocity", "Whether the CV OFF switch also disables velocity, or leaves it always enabled", "CV Disable Velocity" },
                       { { "Always On", 1 },
                         { "CV Off", 2 } },
                       [this] ()
@@ -602,7 +634,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                           const auto cvDisableVelocity { cvDisableVelocityComboBox.getSelectedId () - 1 };
                           settingsProperties.setCvDisableVelocity (std::clamp (cvDisableVelocity + valueOffset, 0, 1), true);
                       },
-                      [this] () { return kCvDisableVelocityDefault; },
+                      [this] () { return kCvDisableVelocityDefault + 1; },
                       [this] () { return uneditedSettingsProperties.getCvDisableVelocity () + 1; });
 
     setupFloatEditor ({ &envelopeMaxReleaseEditor, envelopeMaxReleaseLabel, "Max Release", "Envelope Max Release", "Envelope Max Release" },
@@ -761,7 +793,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxChorusDepthDefault; },
                          [this] () { return uneditedSettingsProperties.getFxChorusDepth (); });
 
-    setupFloatEditor ({ &fxChorusLfoBEditor, fxChorusLfoBLabel, "LFO B", "FX Chorus LFO B", "FX Chorus LFO B" },
+    setupFloatEditor ({ &fxChorusLfoBEditor, fxChorusLfoBLabel, "LFO B (Thick)", "FX Chorus LFO B", "FX Chorus LFO B" },
                          { []() { return kFxChorusLfoBMin; }, []() { return kFxChorusLfoBMax; } },
                          { 0.001f, 0.1f, 0.5f },
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -774,7 +806,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxChorusLfoBDefault; },
                          [this] () { return uneditedSettingsProperties.getFxChorusLfoB (); });
 
-    setupFloatEditor ({ &fxChorusLfoTEditor, fxChorusLfoTLabel, "LFO T", "FX Chorus LFO T", "FX Chorus LFO T" },
+    setupFloatEditor ({ &fxChorusLfoTEditor, fxChorusLfoTLabel, "LFO T (Thick)", "FX Chorus LFO T", "FX Chorus LFO T" },
                          { []() { return kFxChorusLfoTMin; }, []() { return kFxChorusLfoTMax; } },
                          { 0.001f, 0.1f, 0.5f },
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -813,12 +845,28 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxChorusSpreadDefault; },
                          [this] () { return uneditedSettingsProperties.getFxChorusSpread (); });
 
+    setupFloatEditor ({ &fxChorusStaggerEditor, fxChorusStaggerLabel, "Stagger (Thick)", "FX Chorus Stagger", "FX Chorus Stagger" },
+                         { []() { return kFxChorusStaggerMin; }, []() { return kFxChorusStaggerMax; } },
+                         { 0.01f, 0.1f, 0.3f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxChorusStaggerUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxChorusStagger () + valueOffset };
+                             fxChorusStaggerEditor.setValue (newValue);
+                         },
+                         [this] () { return kFxChorusStaggerDefault; },
+                         [this] () { return uneditedSettingsProperties.getFxChorusStagger (); });
+
     // Integer # of Taps (1–4)
-    setupComboBox ({ fxChorusTapsComboBox, fxChorusTapsLabel, "Taps", "", "FX Chorus Taps" },
+    // Voices: 1 to 4 for Vintage, 1 to 6 for Thick
+    setupComboBox ({ fxChorusTapsComboBox, fxChorusTapsLabel, "Voices", "Number of chorus voices (1 to 4 for Vintage, 1 to 6 for Thick)", "FX Chorus Voices" },
                       { { "1", 1 },
                         { "2", 2 },
                         { "3", 3 },
-                        { "4", 4 } },
+                        { "4", 4 },
+                        { "5", 5 },
+                        { "6", 6 } },
                       [this] ()
                       {
                           fxChorusTapsUiChanged (fxChorusTapsComboBox.getSelectedId ());
@@ -826,25 +874,41 @@ SettingsEditorComponent::SettingsEditorComponent ()
                       [this] (int valueOffset)
                       {
                           const auto fxChorusTaps { fxChorusTapsComboBox.getSelectedId () };
-                          settingsProperties.setFxChorusTaps (std::clamp (fxChorusTaps + valueOffset, 1, 4), true);
+                          settingsProperties.setFxChorusTaps (std::clamp (fxChorusTaps + valueOffset, kFxChorusVoicesMin, kFxChorusVoicesMax), true);
                       },
                       [this] () { return kFxChorusTapsDefault; },
-                      [this] () { return uneditedSettingsProperties.getFxChorusTaps () + 1; });
+                      [this] () { return uneditedSettingsProperties.getFxChorusTaps (); });
+
+    // 0: Vintage (thin), 1: Thick (multi-voice)
+    setupComboBox ({ fxChorusTypeComboBox, fxChorusTypeLabel, "Type", "Chorus algorithm: Vintage (thin) or Thick (multi-voice)", "FX Chorus Type" },
+                      { { "Vintage", 1 },
+                        { "Thick", 2 } },
+                      [this] ()
+                      {
+                          fxChorusTypeUiChanged (fxChorusTypeComboBox.getSelectedId () - 1);
+                      },
+                      [this] (int valueOffset)
+                      {
+                          const auto fxChorusType { fxChorusTypeComboBox.getSelectedId () - 1 };
+                          settingsProperties.setFxChorusType (std::clamp (fxChorusType + valueOffset, 0, 1), true);
+                      },
+                      [this] () { return kFxChorusTypeDefault + 1; },
+                      [this] () { return uneditedSettingsProperties.getFxChorusType () + 1; });
 
     // 0: -5 to 5V, 1: 0 to 5V 
-    setupComboBox ({ fxCvUnipolarComboBox, fxCvUnipolarLabel, "FX CV Unipolar", "", "FX CV Unipolar" },
+    setupComboBox ({ fxCvUnipolarComboBox, fxCvUnipolarLabel, "FX CV Unipolar", "FX CV input range: -5 to 5V (bipolar) or 0 to 5V (unipolar)", "FX CV Unipolar" },
                       { { "-5v to 5v", 1 },
                         { "0v to 5v", 2 } },
                       [this] ()
                       {
-                          fxCvUnipolarUiChanged (fxCvUnipolarComboBox.getSelectedId ());
+                          fxCvUnipolarUiChanged (fxCvUnipolarComboBox.getSelectedId () - 1);
                       },
                       [this] (int valueOffset)
                       {
                           const auto fxCvUnipolar { fxCvUnipolarComboBox.getSelectedId () - 1 };
                           settingsProperties.setFxCvUnipolar (std::clamp (fxCvUnipolar + valueOffset, 0, 1), true);
                       },
-                      [this] () { return kFxCvUnipolarDefault; },
+                      [this] () { return kFxCvUnipolarDefault + 1; },
                       [this] () { return uneditedSettingsProperties.getFxCvUnipolar () + 1; });
 
     setupIntEditor ({ &fxDjfilterHpfMaxEditor, fxDjfilterHpfMaxLabel, "Max", "FX DJ Filter HPF Max", "FX DJ Filter HPF Max" },
@@ -1342,9 +1406,117 @@ SettingsEditorComponent::SettingsEditorComponent ()
                        [this] () { return kFxReverbLpfDefault; },
                        [this] () { return uneditedSettingsProperties.getFxReverbLpf (); });
 
-    // 0: 0V = 100 % -5 = 0 % +5 = 200 %
-    // 1: 0V = 10 % +5 = 100 %
-    setupComboBox ({ gateModeComboBox, gateModeLabel, "Gate Mode", "", "Gate Mode" },
+    // 0: Vintage (echoey), 1: Plate (smooth). Params below apply to Plate only.
+    setupComboBox ({ fxReverbTypeComboBox, fxReverbTypeLabel, "Type", "Reverb algorithm: Vintage (echoey) or Plate (smooth)", "FX Reverb Type" },
+                      { { "Vintage", 1 },
+                        { "Plate", 2 } },
+                      [this] ()
+                      {
+                          fxReverbTypeUiChanged (fxReverbTypeComboBox.getSelectedId () - 1);
+                      },
+                      [this] (int valueOffset)
+                      {
+                          const auto fxReverbType { fxReverbTypeComboBox.getSelectedId () - 1 };
+                          settingsProperties.setFxReverbType (std::clamp (fxReverbType + valueOffset, 0, 1), true);
+                      },
+                      [this] () { return kFxReverbTypeDefault + 1; },
+                      [this] () { return uneditedSettingsProperties.getFxReverbType () + 1; });
+
+    setupFloatEditor ({ &fxReverbSizeMinEditor, fxReverbSizeMinLabel, "Size Min (Plate)", "FX Reverb Size Min", "FX Reverb Size Min" },
+                         { []() { return kFxReverbSizeMinMin; }, []() { return kFxReverbSizeMinMax; } },
+                         { 0.01f, 0.1f, 0.25f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxReverbSizeMinUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxReverbSizeMin () + valueOffset };
+                             fxReverbSizeMinEditor.setValue (newValue);
+                         },
+                         [this] () { return kFxReverbSizeMinDefault; },
+                         [this] () { return uneditedSettingsProperties.getFxReverbSizeMin (); });
+
+    setupFloatEditor ({ &fxReverbSizeMaxEditor, fxReverbSizeMaxLabel, "Size Max (Plate)", "FX Reverb Size Max", "FX Reverb Size Max" },
+                         { [this]() { return settingsProperties.getFxReverbSizeMin (); }, []() { return kFxReverbSizeMaxMax; } },
+                         { 0.01f, 0.1f, 0.25f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxReverbSizeMaxUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxReverbSizeMax () + valueOffset };
+                             fxReverbSizeMaxEditor.setValue (newValue);
+                         },
+                         [this] () { return kFxReverbSizeMaxDefault; },
+                         [this] () { return uneditedSettingsProperties.getFxReverbSizeMax (); });
+    fxReverbSizeMaxEditor.getMinValueCallback = [this] () { return settingsProperties.getFxReverbSizeMin (); };
+
+    setupIntEditor ({ &fxReverbPredelayEditor, fxReverbPredelayLabel, "Predelay (Plate)", "FX Reverb Predelay", "FX Reverb Predelay" },
+                       { kFxReverbPredelayMin, kFxReverbPredelayMax },
+                       { 1, 5, 10 },
+                       [this] (int value) { return juce::String (value); },
+                       [this] (int value) { fxReverbPredelayUiChanged (value); },
+                       [this] (int valueOffset)
+                       {
+                           const auto newValue { settingsProperties.getFxReverbPredelay () + valueOffset };
+                           fxReverbPredelayEditor.setValue (newValue);
+                       },
+                       [this] () { return kFxReverbPredelayDefault; },
+                       [this] () { return uneditedSettingsProperties.getFxReverbPredelay (); });
+
+    setupFloatEditor ({ &fxReverbModDepthEditor, fxReverbModDepthLabel, "Mod Depth (Plate)", "FX Reverb Mod Depth", "FX Reverb Mod Depth" },
+                         { []() { return kFxReverbModDepthMin; }, []() { return kFxReverbModDepthMax; } },
+                         { 0.01f, 0.1f, 0.5f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxReverbModDepthUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxReverbModDepth () + valueOffset };
+                             fxReverbModDepthEditor.setValue (newValue);
+                         },
+                         [this] () { return kFxReverbModDepthDefault; },
+                         [this] () { return uneditedSettingsProperties.getFxReverbModDepth (); });
+
+    setupFloatEditor ({ &fxReverbModRateEditor, fxReverbModRateLabel, "Mod Rate (Plate)", "FX Reverb Mod Rate", "FX Reverb Mod Rate" },
+                         { []() { return kFxReverbModRateMin; }, []() { return kFxReverbModRateMax; } },
+                         { 0.05f, 0.5f, 1.0f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxReverbModRateUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxReverbModRate () + valueOffset };
+                             fxReverbModRateEditor.setValue (newValue);
+                         },
+                         [this] () { return kFxReverbModRateDefault; },
+                         [this] () { return uneditedSettingsProperties.getFxReverbModRate (); });
+
+    setupFloatEditor ({ &fxReverbDiffusionEditor, fxReverbDiffusionLabel, "Diffusion (Plate)", "FX Reverb Diffusion", "FX Reverb Diffusion" },
+                         { []() { return kFxReverbDiffusionMin; }, []() { return kFxReverbDiffusionMax; } },
+                         { 0.01f, 0.1f, 0.25f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxReverbDiffusionUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxReverbDiffusion () + valueOffset };
+                             fxReverbDiffusionEditor.setValue (newValue);
+                         },
+                         [this] () { return kFxReverbDiffusionDefault; },
+                         [this] () { return uneditedSettingsProperties.getFxReverbDiffusion (); });
+
+    setupFloatEditor ({ &fxReverbMixEditor, fxReverbMixLabel, "Mix (Plate)", "FX Reverb Mix", "FX Reverb Mix" },
+                         { []() { return kFxReverbMixMin; }, []() { return kFxReverbMixMax; } },
+                         { 0.01f, 0.1f, 0.25f },
+                         [this] (float value) { return getRoundedFloatString (value, 4); },
+                         [this] (float value) { fxReverbMixUiChanged (value); },
+                         [this] (float valueOffset)
+                         {
+                             const auto newValue { settingsProperties.getFxReverbMix () + valueOffset };
+                             fxReverbMixEditor.setValue (newValue);
+                         },
+                         [this] () { return kFxReverbMixDefault; },
+                         [this] () { return uneditedSettingsProperties.getFxReverbMix (); });
+
+    // 0: Release immediately (TRIGGER MODE)
+    // 1: Release after gate falls
+    setupComboBox ({ gateModeComboBox, gateModeLabel, "Gate Mode", "Gate behavior: release immediately (trigger mode) or after the gate falls", "Gate Mode" },
                       { { "Immediate", 1 },
                         { "After Gate Falls", 2 } },
                       [this] ()
@@ -1356,12 +1528,12 @@ SettingsEditorComponent::SettingsEditorComponent ()
                           const auto gateMode { gateModeComboBox.getSelectedId () - 1 };
                           settingsProperties.setGateMode (std::clamp (gateMode + valueOffset, 0, 1), true);
                       },
-                      [this] () { return kGateModeDefault; },
+                      [this] () { return kGateModeDefault + 1; },
                       [this] () { return uneditedSettingsProperties.getGateMode () + 1; });
 
     // 0 to sense small movement (wiggle)
     // 1 to require passing old value
-    setupComboBox ({ knobPosTakeupComboBox, knobPosTakeupLabel, "Knob Pos Takeup", "", "Knob Pos Takeup" },
+    setupComboBox ({ knobPosTakeupComboBox, knobPosTakeupLabel, "Knob Pos Takeup", "Knob takeup: sense small movement (wiggle) or require passing the stored value", "Knob Pos Takeup" },
                       { { "Small Movement", 1 },
                         { "Pass Old Value", 2 } },
                       [this] ()
@@ -1373,7 +1545,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                           const auto knobsPosTakeUp { knobPosTakeupComboBox.getSelectedId () - 1 };
                           settingsProperties.setKnobPosTakeup (std::clamp (knobsPosTakeUp + valueOffset, 0, 1), true);
                       },
-                      [this] () { return kKnobPosTakeupDefault; },
+                      [this] () { return kKnobPosTakeupDefault + 1; },
                       [this] () { return uneditedSettingsProperties.getKnobPosTakeup () + 1; });
 
     setupFloatEditor ({ &pitchHighEditor, pitchHighLabel, "Pitch High", "Pitch High", "Pitch High" },
@@ -1404,7 +1576,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     // 0: 0V = 100 % -5 = 0 % +5 = 200 %
     // 1: 0V = 10 % +5 = 100 %
-    setupComboBox ({ velocityUnipolarComboBox, velocityUnipolarLabel, "Velocity Unipolar", "", "Velocity Unipolar" },
+    setupComboBox ({ velocityUnipolarComboBox, velocityUnipolarLabel, "Velocity Unipolar", "Velocity CV response: bipolar (0V=100%, +/-5V spans 0 to 200%) or unipolar (0V=10%, +5V=100%)", "Velocity Unipolar" },
                       { { "0%-100%-200%", 1 },
                         { "0%-100%", 2 } },
                       [this] ()
@@ -1416,7 +1588,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                           const auto velocityUnipolar { velocityUnipolarComboBox.getSelectedId () - 1 };
                           settingsProperties.setVelocityUnipolar (std::clamp (velocityUnipolar + valueOffset, 0, 1), true);
                       },
-                      [this] () { return kVelocityUnipolarDefault; },
+                      [this] () { return kVelocityUnipolarDefault + 1; },
                       [this] () { return uneditedSettingsProperties.getVelocityUnipolar () + 1; });
 
     auto setupHeaderLabel = [this] (juce::Label& label, const juce::String& text, float fontHeight)
@@ -1483,7 +1655,7 @@ void SettingsEditorComponent::init (juce::ValueTree rootPropertiesVT)
     pitchHighDataChanged (settingsProperties.getPitchHigh ());
     envelopeMaxReleaseDataChanged (settingsProperties.getEnvelopeMaxRelease ());
     chokeReleaseDataChanged (settingsProperties.getChokeRelease ());
-    clsdReleaseModeDataChanged (settingsProperties.getClsdReleaseMode ());
+    releaseModeDataChanged (settingsProperties.getReleaseMode ());
     clsdRelOfstScaleDataChanged (settingsProperties.getClsdRelOfstScale ());
     clsdMaxReleaseDataChanged (settingsProperties.getClsdMaxRelease ());
     accClRelModDataChanged (settingsProperties.getAccClRelMod ());
@@ -1520,11 +1692,21 @@ void SettingsEditorComponent::init (juce::ValueTree rootPropertiesVT)
     fxChorusDepthDataChanged (settingsProperties.getFxChorusDepth ());
     fxChorusMixDataChanged (settingsProperties.getFxChorusMix ());
     fxChorusSpreadDataChanged (settingsProperties.getFxChorusSpread ());
+    fxChorusStaggerDataChanged (settingsProperties.getFxChorusStagger ());
     fxChorusTapsDataChanged (settingsProperties.getFxChorusTaps ());
+    fxChorusTypeDataChanged (settingsProperties.getFxChorusType ());
     fxChorusLfoBDataChanged (settingsProperties.getFxChorusLfoB ());
     fxChorusLfoTDataChanged (settingsProperties.getFxChorusLfoT ());
     fxReverbLpfDataChanged (settingsProperties.getFxReverbLpf ());
     fxReverbHpfDataChanged (settingsProperties.getFxReverbHpf ());
+    fxReverbTypeDataChanged (settingsProperties.getFxReverbType ());
+    fxReverbSizeMinDataChanged (settingsProperties.getFxReverbSizeMin ());
+    fxReverbSizeMaxDataChanged (settingsProperties.getFxReverbSizeMax ());
+    fxReverbPredelayDataChanged (settingsProperties.getFxReverbPredelay ());
+    fxReverbModDepthDataChanged (settingsProperties.getFxReverbModDepth ());
+    fxReverbModRateDataChanged (settingsProperties.getFxReverbModRate ());
+    fxReverbDiffusionDataChanged (settingsProperties.getFxReverbDiffusion ());
+    fxReverbMixDataChanged (settingsProperties.getFxReverbMix ());
     fxGlitchProbabilityMinDataChanged (settingsProperties.getFxGlitchProbabilityMin ());
     fxGlitchProbabilityMaxDataChanged (settingsProperties.getFxGlitchProbabilityMax ());
     fxGlitchWeightHoldLowDataChanged (settingsProperties.getFxGlitchWeightHoldLow ());
@@ -1561,7 +1743,7 @@ void SettingsEditorComponent::initializeCallbacks ()
     settingsProperties.onPitchHighChange = [this] (float value) { pitchHighDataChanged (value); };
     settingsProperties.onEnvelopeMaxReleaseChange = [this] (float value) { envelopeMaxReleaseDataChanged (value); };
     settingsProperties.onChokeReleaseChange = [this] (float value) { chokeReleaseDataChanged (value); };
-    settingsProperties.onClsdReleaseModeChange = [this] (int value) { clsdReleaseModeDataChanged (value); };
+    settingsProperties.onReleaseModeChange = [this] (int value) { releaseModeDataChanged (value); };
     settingsProperties.onClsdRelOfstScaleChange = [this] (float value) { clsdRelOfstScaleDataChanged (value); };
     settingsProperties.onClsdMaxReleaseChange = [this] (float value) { clsdMaxReleaseDataChanged (value); };
     settingsProperties.onAccClRelModChange = [this] (float value) { accClRelModDataChanged (value); };
@@ -1598,11 +1780,21 @@ void SettingsEditorComponent::initializeCallbacks ()
     settingsProperties.onFxChorusDepthChange = [this] (float value) { fxChorusDepthDataChanged (value); };
     settingsProperties.onFxChorusMixChange = [this] (float value) { fxChorusMixDataChanged (value); };
     settingsProperties.onFxChorusSpreadChange = [this] (float value) { fxChorusSpreadDataChanged (value); };
+    settingsProperties.onFxChorusStaggerChange = [this] (float value) { fxChorusStaggerDataChanged (value); };
     settingsProperties.onFxChorusTapsChange = [this] (int value) { fxChorusTapsDataChanged (value); };
+    settingsProperties.onFxChorusTypeChange = [this] (int value) { fxChorusTypeDataChanged (value); };
     settingsProperties.onFxChorusLfoBChange = [this] (float value) { fxChorusLfoBDataChanged (value); };
     settingsProperties.onFxChorusLfoTChange = [this] (float value) { fxChorusLfoTDataChanged (value); };
     settingsProperties.onFxReverbLpfChange = [this] (int value) { fxReverbLpfDataChanged (value); };
     settingsProperties.onFxReverbHpfChange = [this] (int value) { fxReverbHpfDataChanged (value); };
+    settingsProperties.onFxReverbTypeChange = [this] (int value) { fxReverbTypeDataChanged (value); };
+    settingsProperties.onFxReverbSizeMinChange = [this] (float value) { fxReverbSizeMinDataChanged (value); };
+    settingsProperties.onFxReverbSizeMaxChange = [this] (float value) { fxReverbSizeMaxDataChanged (value); };
+    settingsProperties.onFxReverbPredelayChange = [this] (int value) { fxReverbPredelayDataChanged (value); };
+    settingsProperties.onFxReverbModDepthChange = [this] (float value) { fxReverbModDepthDataChanged (value); };
+    settingsProperties.onFxReverbModRateChange = [this] (float value) { fxReverbModRateDataChanged (value); };
+    settingsProperties.onFxReverbDiffusionChange = [this] (float value) { fxReverbDiffusionDataChanged (value); };
+    settingsProperties.onFxReverbMixChange = [this] (float value) { fxReverbMixDataChanged (value); };
     settingsProperties.onFxGlitchProbabilityMinChange = [this] (float value) { fxGlitchProbabilityMinDataChanged (value); };
     settingsProperties.onFxGlitchProbabilityMaxChange = [this] (float value) { fxGlitchProbabilityMaxDataChanged (value); };
     settingsProperties.onFxGlitchWeightHoldLowChange = [this] (float value) { fxGlitchWeightHoldLowDataChanged (value); };
@@ -1670,14 +1862,14 @@ void SettingsEditorComponent::chokeReleaseUiChanged (float value)
     settingsProperties.setChokeRelease (value, false);
 }
 
-void SettingsEditorComponent::clsdReleaseModeDataChanged (int value)
+void SettingsEditorComponent::releaseModeDataChanged (int value)
 {
-    clsdReleaseModeComboBox.setSelectedId (value + 1, juce::NotificationType::dontSendNotification);
+    releaseModeComboBox.setSelectedId (value + 1, juce::NotificationType::dontSendNotification);
 }
 
-void SettingsEditorComponent::clsdReleaseModeUiChanged (int value)
+void SettingsEditorComponent::releaseModeUiChanged (int value)
 {
-    settingsProperties.setClsdReleaseMode (value, false);
+    settingsProperties.setReleaseMode (value, false);
 }
 
 void SettingsEditorComponent::clsdRelOfstScaleDataChanged (float value)
@@ -2040,6 +2232,26 @@ void SettingsEditorComponent::fxChorusSpreadUiChanged (float value)
     settingsProperties.setFxChorusSpread (value, false);
 }
 
+void SettingsEditorComponent::fxChorusStaggerDataChanged (float value)
+{
+    fxChorusStaggerEditor.setText (juce::String (value), juce::dontSendNotification);
+}
+
+void SettingsEditorComponent::fxChorusStaggerUiChanged (float value)
+{
+    settingsProperties.setFxChorusStagger (value, false);
+}
+
+void SettingsEditorComponent::fxChorusTypeDataChanged (int value)
+{
+    fxChorusTypeComboBox.setSelectedId (value + 1, juce::NotificationType::dontSendNotification);
+}
+
+void SettingsEditorComponent::fxChorusTypeUiChanged (int value)
+{
+    settingsProperties.setFxChorusType (value, false);
+}
+
 void SettingsEditorComponent::fxChorusTapsDataChanged (int value)
 {
     fxChorusTapsComboBox.setSelectedId (value, juce::NotificationType::dontSendNotification);
@@ -2088,6 +2300,86 @@ void SettingsEditorComponent::fxReverbHpfDataChanged (int value)
 void SettingsEditorComponent::fxReverbHpfUiChanged (int value)
 {
     settingsProperties.setFxReverbHpf (value, false);
+}
+
+void SettingsEditorComponent::fxReverbTypeDataChanged (int value)
+{
+    fxReverbTypeComboBox.setSelectedId (value + 1, juce::NotificationType::dontSendNotification);
+}
+
+void SettingsEditorComponent::fxReverbTypeUiChanged (int value)
+{
+    settingsProperties.setFxReverbType (value, false);
+}
+
+void SettingsEditorComponent::fxReverbSizeMinDataChanged (float value)
+{
+    fxReverbSizeMinEditor.setText (juce::String (value), juce::dontSendNotification);
+}
+
+void SettingsEditorComponent::fxReverbSizeMinUiChanged (float value)
+{
+    settingsProperties.setFxReverbSizeMin (value, false);
+}
+
+void SettingsEditorComponent::fxReverbSizeMaxDataChanged (float value)
+{
+    fxReverbSizeMaxEditor.setText (juce::String (value), juce::dontSendNotification);
+}
+
+void SettingsEditorComponent::fxReverbSizeMaxUiChanged (float value)
+{
+    settingsProperties.setFxReverbSizeMax (value, false);
+}
+
+void SettingsEditorComponent::fxReverbPredelayDataChanged (int value)
+{
+    fxReverbPredelayEditor.setText (juce::String (value), juce::dontSendNotification);
+}
+
+void SettingsEditorComponent::fxReverbPredelayUiChanged (int value)
+{
+    settingsProperties.setFxReverbPredelay (value, false);
+}
+
+void SettingsEditorComponent::fxReverbModDepthDataChanged (float value)
+{
+    fxReverbModDepthEditor.setText (juce::String (value), juce::dontSendNotification);
+}
+
+void SettingsEditorComponent::fxReverbModDepthUiChanged (float value)
+{
+    settingsProperties.setFxReverbModDepth (value, false);
+}
+
+void SettingsEditorComponent::fxReverbModRateDataChanged (float value)
+{
+    fxReverbModRateEditor.setText (juce::String (value), juce::dontSendNotification);
+}
+
+void SettingsEditorComponent::fxReverbModRateUiChanged (float value)
+{
+    settingsProperties.setFxReverbModRate (value, false);
+}
+
+void SettingsEditorComponent::fxReverbDiffusionDataChanged (float value)
+{
+    fxReverbDiffusionEditor.setText (juce::String (value), juce::dontSendNotification);
+}
+
+void SettingsEditorComponent::fxReverbDiffusionUiChanged (float value)
+{
+    settingsProperties.setFxReverbDiffusion (value, false);
+}
+
+void SettingsEditorComponent::fxReverbMixDataChanged (float value)
+{
+    fxReverbMixEditor.setText (juce::String (value), juce::dontSendNotification);
+}
+
+void SettingsEditorComponent::fxReverbMixUiChanged (float value)
+{
+    settingsProperties.setFxReverbMix (value, false);
 }
 
 void SettingsEditorComponent::fxGlitchProbabilityMinDataChanged (float value)
@@ -2604,6 +2896,53 @@ void SettingsEditorComponent::resized ()
             area.setHeight (juce::jmax (0, area.getBottom () - y));
         };
 
+    // Places a Min/Max pair on a single row: Min hugs the left (after the
+    // indent), Max is right-aligned to the content edge.
+    // Positions up to two label/control pairs so both the labels and the
+    // controls line up exactly with the two columns of the FX Glitch section
+    // (which shares this column, so the section area has the same X/width). A
+    // single pair lands in the first (left) column.
+    auto positionGlitchAlignedRow =
+        [&] (juce::Rectangle<int>& area, std::initializer_list<CompLabelPair> pairs)
+        {
+            const auto y { area.getY () };
+            const auto glitchColumnWidth { (area.getWidth () - kGlitchColumnGap) / 2 };
+            const int columnX [2] { area.getX (),
+                                    area.getX () + glitchColumnWidth + kGlitchColumnGap };
+
+            int column { 0 };
+            for (const auto& pair : pairs)
+            {
+                const auto controlX { columnX [column] + glitchColumnWidth - kGlitchControlWidth };
+                const auto labelX { columnX [column] + kGlitchContentIndent };
+                const auto labelWidth { juce::jmax (18, controlX - labelX) };
+                pair.label->setBounds (labelX, y, labelWidth, kRowHeight);
+                pair.comp->setBounds (controlX, y, kGlitchControlWidth, kRowHeight);
+                ++column;
+            }
+
+            area.setY (y + kRowStride);
+            area.setHeight (juce::jmax (0, area.getBottom () - area.getY ()));
+        };
+
+    // Positions a single label/control pair using the standard (wider) editor,
+    // right-aligned to the right edge of the FX Glitch second (Max) column. The
+    // label stays in the first Glitch column.
+    auto positionGlitchWideRow =
+        [&] (juce::Rectangle<int>& area, const CompLabelPair& pair)
+        {
+            const auto y { area.getY () };
+            const auto glitchColumnWidth { (area.getWidth () - kGlitchColumnGap) / 2 };
+            const auto maxColumnRight { area.getX () + glitchColumnWidth + kGlitchColumnGap + glitchColumnWidth };
+            const auto controlX { maxColumnRight - kControlWidth };
+            const auto labelX { area.getX () + kGlitchContentIndent };
+            pair.label->setBounds (labelX, y, juce::jmax (18, controlX - labelX), kRowHeight);
+            pair.comp->setBounds (controlX, y, kControlWidth, kRowHeight);
+
+            area.setY (y + kRowStride);
+            area.setHeight (juce::jmax (0, area.getBottom () - area.getY ()));
+        };
+
     //==========================================================================
     // LEFT SIDE
     //==========================================================================
@@ -2652,7 +2991,7 @@ void SettingsEditorComponent::resized ()
                       {
                           { &clsdMaxReleaseEditor, &clsdMaxReleaseLabel },
                           { &clsdRelOfstScaleEditor, &clsdRelOfstScaleLabel },
-                          { &clsdReleaseModeComboBox, &clsdReleaseModeLabel }
+                          { &releaseModeComboBox, &releaseModeLabel }
                       },
                       kSectionContentIndent);
 
@@ -2805,13 +3144,15 @@ void SettingsEditorComponent::resized ()
         addVerticalGap (sectionArea, kMainHeaderToContentGap);
         positionRows (sectionArea,
                       {
+                          { &fxChorusTypeComboBox, &fxChorusTypeLabel },
+                          { &fxChorusTapsComboBox, &fxChorusTapsLabel },
                           { &fxChorusCenterEditor, &fxChorusCenterLabel },
                           { &fxChorusDepthEditor, &fxChorusDepthLabel },
                           { &fxChorusLfoBEditor, &fxChorusLfoBLabel },
                           { &fxChorusLfoTEditor, &fxChorusLfoTLabel },
                           { &fxChorusMixEditor, &fxChorusMixLabel },
                           { &fxChorusSpreadEditor, &fxChorusSpreadLabel },
-                          { &fxChorusTapsComboBox, &fxChorusTapsLabel }
+                          { &fxChorusStaggerEditor, &fxChorusStaggerLabel }
                       },
                       kSectionContentIndent);
 
@@ -2829,8 +3170,16 @@ void SettingsEditorComponent::resized ()
         addVerticalGap (sectionArea, kMainHeaderToContentGap);
         positionRows (sectionArea,
                       {
+                          { &fxReverbTypeComboBox, &fxReverbTypeLabel },
                           { &fxReverbHpfEditor, &fxReverbHpfLabel },
-                          { &fxReverbLpfEditor, &fxReverbLpfLabel }
+                          { &fxReverbLpfEditor, &fxReverbLpfLabel },
+                          { &fxReverbSizeMinEditor, &fxReverbSizeMinLabel },
+                          { &fxReverbSizeMaxEditor, &fxReverbSizeMaxLabel },
+                          { &fxReverbPredelayEditor, &fxReverbPredelayLabel },
+                          { &fxReverbModDepthEditor, &fxReverbModDepthLabel },
+                          { &fxReverbModRateEditor, &fxReverbModRateLabel },
+                          { &fxReverbDiffusionEditor, &fxReverbDiffusionLabel },
+                          { &fxReverbMixEditor, &fxReverbMixLabel }
                       },
                       kSectionContentIndent);
 
@@ -2839,8 +3188,8 @@ void SettingsEditorComponent::resized ()
 
     // DJ Filter
     {
-        auto& runningColumn { rightColumn0 };
-        const auto& columnBounds { rightColumn0Bounds };
+        auto& runningColumn { rightColumn1 };
+        const auto& columnBounds { rightColumn1Bounds };
         const auto startY { beginSection (runningColumn) };
         auto sectionArea { getSectionContentArea (columnBounds, runningColumn) };
 
@@ -2848,41 +3197,39 @@ void SettingsEditorComponent::resized ()
         addVerticalGap (sectionArea, kMainHeaderToContentGap);
 
         positionHeader (djFilterHpfHeaderLabel, sectionArea, kSubHeaderHeight, kSubHeaderIndent);
-        positionRows (sectionArea,
-                      {
-                          { &fxDjfilterHpfMinEditor, &fxDjfilterHpfMinLabel },
-                          { &fxDjfilterHpfMaxEditor, &fxDjfilterHpfMaxLabel }
-                      },
-                      kSubsectionContentIndent);
+        positionGlitchAlignedRow (sectionArea,
+                                  {
+                                      { &fxDjfilterHpfMinEditor, &fxDjfilterHpfMinLabel },
+                                      { &fxDjfilterHpfMaxEditor, &fxDjfilterHpfMaxLabel }
+                                  });
 
         addVerticalGap (sectionArea, kSubSectionGap);
 
         positionHeader (djFilterLpfHeaderLabel, sectionArea, kSubHeaderHeight, kSubHeaderIndent);
-        positionRows (sectionArea,
-                      {
-                          { &fxDjfilterLpfMinEditor, &fxDjfilterLpfMinLabel },
-                          { &fxDjfilterLpfMaxEditor, &fxDjfilterLpfMaxLabel }
-                      },
-                      kSubsectionContentIndent);
+        positionGlitchAlignedRow (sectionArea,
+                                  {
+                                      { &fxDjfilterLpfMinEditor, &fxDjfilterLpfMinLabel },
+                                      { &fxDjfilterLpfMaxEditor, &fxDjfilterLpfMaxLabel }
+                                  });
 
         addVerticalGap (sectionArea, kSubSectionGap);
 
         positionHeader (djFilterQHeaderLabel, sectionArea, kSubHeaderHeight, kSubHeaderIndent);
-        positionRows (sectionArea,
-                      {
-                          { &fxDjfilterQMinEditor, &fxDjfilterQMinLabel },
-                          { &fxDjfilterQMaxEditor, &fxDjfilterQMaxLabel },
-                          { &fxDjfilterQGainReductionEditor, &fxDjfilterQGainReductionLabel }
-                      },
-                      kSubsectionContentIndent);
+        positionGlitchAlignedRow (sectionArea,
+                                  {
+                                      { &fxDjfilterQMinEditor, &fxDjfilterQMinLabel },
+                                      { &fxDjfilterQMaxEditor, &fxDjfilterQMaxLabel }
+                                  });
+        positionGlitchWideRow (sectionArea,
+                               { &fxDjfilterQGainReductionEditor, &fxDjfilterQGainReductionLabel });
 
         finishSection (columnBounds, runningColumn, startY, sectionArea.getY ());
     }
 
     // Dub Echo
     {
-        auto& runningColumn { rightColumn1 };
-        const auto& columnBounds { rightColumn1Bounds };
+        auto& runningColumn { rightColumn0 };
+        const auto& columnBounds { rightColumn0Bounds };
         const auto startY { beginSection (runningColumn) };
         auto sectionArea { getSectionContentArea (columnBounds, runningColumn) };
 

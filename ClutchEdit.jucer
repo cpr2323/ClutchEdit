@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="YFOr6G" name="ClutchEdit" projectType="guiapp" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" displaySplashScreen="0" jucerFormatVersion="1">
+              addUsingNamespaceToJuceHeader="0" displaySplashScreen="0" jucerFormatVersion="1"
+              version="1.1">
   <MAINGROUP id="yofyvK" name="ClutchEdit">
     <GROUP id="{B4985F1C-C0B3-14FE-5BF5-BC3E89B7C97C}" name="Source">
       <GROUP id="{C33C0C59-ECFE-D357-BCF4-535A71D77EC9}" name="Clutch">
@@ -74,6 +75,7 @@
         <FILE id="hSYzQn" name="HiHatIniData.cpp" compile="1" resource="0"
               file="Source/Clutch/HiHatIniData.cpp"/>
         <FILE id="KOf0aI" name="HiHatIniData.h" compile="0" resource="0" file="Source/Clutch/HiHatIniData.h"/>
+        <FILE id="HhIKey" name="HiHatIniKeys.h" compile="0" resource="0" file="Source/Clutch/HiHatIniKeys.h"/>
       </GROUP>
       <GROUP id="{F84B9547-B9C5-0346-2143-1B0A6AFB5014}" name="GUI">
         <GROUP id="{6E3055B2-5C28-C545-AD81-3DAC2EA28786}" name="Clutch">

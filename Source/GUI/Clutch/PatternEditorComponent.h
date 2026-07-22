@@ -38,6 +38,7 @@ private:
     PatternProperties uneditedPatternProperties;
 
     CustomTextEditorInt numberOfStepsEditor;
+    juce::Label numberOfStepsLabel;
     std::array<CustomComboBox, 32> stepEditors;
     std::array<juce::Label, 32> stepNumbers;
 

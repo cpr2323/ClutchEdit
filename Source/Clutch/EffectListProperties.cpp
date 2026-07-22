@@ -1,18 +1,19 @@
 #include "EffectListProperties.h"
+#include "HiHatIniKeys.h"
 #include "EffectProperties.h"
 
 void EffectListProperties::initValueTree ()
 {
     std::pair<juce::String, juce::String> defaultEffects []
     {
-        {"FX_WHITE", "SPUTTER" },
-        {"FX_RED", "BITCRUSH" },
-        {"FX_GREEN", "COMBFILTER" },
-        {"FX_BLUE", "DJFILTER" },
-        {"FX_ORANGE", "DUBECHO" },
-        {"FX_CYAN", "CHORUS" },
-        {"FX_VIOLET", "REVERB" },
-        {"FX_YELLOW", "GLITCH" },
+        {kFxWhiteKey, "SPUTTER" },
+        {kFxRedKey, "BITCRUSH" },
+        {kFxGreenKey, "COMBFILTER" },
+        {kFxBlueKey, "DJFILTER" },
+        {kFxOrangeKey, "DUBECHO" },
+        {kFxCyanKey, "CHORUS" },
+        {kFxVioletKey, "REVERB" },
+        {kFxYellowKey, "GLITCH" },
     };
     for (auto& effect : defaultEffects)
     {
