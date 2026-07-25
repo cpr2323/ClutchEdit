@@ -1,115 +1,116 @@
 #include "SettingsProperties.h"
+#include "HiHatIniValues.h"
 
 void SettingsProperties::initValueTree ()
 {
     // Core
-    setPitchLow (0.125f, false);
-    setPitchHigh (2.5f, false);
-    setEnvelopeMaxRelease (4.0f, false);
-    setChokeRelease (0.08f, false);
-    setClsdRelOfstScale (0.5f, false);
-    setClsdMaxRelease (0.8f, false);
-    setAccClRelMod (1.18f, false);
-    setAccOpRelMod (1.25f, false);
-    setAccClAmpMod (1.3f, false);
-    setAccOpAmpMod (1.25f, false);
-    setReleaseMode (1, false);
+    setPitchLow (kPitchLowDefault, false);
+    setPitchHigh (kPitchHighDefault, false);
+    setEnvelopeMaxRelease (kEnvelopeMaxReleaseDefault, false);
+    setChokeRelease (kChokeReleaseDefault, false);
+    setClsdRelOfstScale (kClsdRelOfstScaleDefault, false);
+    setClsdMaxRelease (kClsdMaxReleaseDefault, false);
+    setAccClRelMod (kAccClRelModDefault, false);
+    setAccOpRelMod (kAccOpRelModDefault, false);
+    setAccClAmpMod (kAccClAmpModDefault, false);
+    setAccOpAmpMod (kAccOpAmpModDefault, false);
+    setReleaseMode (kReleaseModeDefault, false);
 
     // CV / control
-    setFxCvUnipolar (1, false);
-    setVelocityUnipolar (0, false);
-    setCvDisableVelocity (0, false);
-    setCvDisableFx (0, false);
-    setGateMode (0, false);
-    setFeelAttackMod (1.0f, false);
-    setFeelReleaseMod (1.0f, false);
-    setFeelAmpMod (1.0f, false);
-    setKnobPosTakeup (1, false);
+    setFxCvUnipolar (kFxCvUnipolarDefault, false);
+    setVelocityUnipolar (kVelocityUnipolarDefault, false);
+    setCvDisableVelocity (kCvDisableVelocityDefault, false);
+    setCvDisableFx (kCvDisableFxDefault, false);
+    setGateMode (kGateModeDefault, false);
+    setFeelAttackMod (kFeelAttackModDefault, false);
+    setFeelReleaseMod (kFeelReleaseModDefault, false);
+    setFeelAmpMod (kFeelAmpModDefault, false);
+    setKnobPosTakeup (kKnobPosTakeupDefault, false);
 
     // Filters
-    setFltrHpfMinFreq (100, false);
-    setFltrHpfMaxFreq (14000, false);
-    setFltrLpfMinFreq (200, false);
-    setFltrLpfMaxFreq (20000, false);
-    setFltrHpfQ (1.0f, false);
-    setFltrLpfQ (0.707f, false);
+    setFltrHpfMinFreq (kFltrHpfMinFreqDefault, false);
+    setFltrHpfMaxFreq (kFltrHpfMaxFreqDefault, false);
+    setFltrLpfMinFreq (kFltrLpfMinFreqDefault, false);
+    setFltrLpfMaxFreq (kFltrLpfMaxFreqDefault, false);
+    setFltrHpfQ (kFltrHpfQDefault, false);
+    setFltrLpfQ (kFltrLpfQDefault, false);
 
     // DJ Filter
-    setFxDjfilterHpfMin (100, false);
-    setFxDjfilterHpfMax (14000, false);
-    setFxDjfilterLpfMin (200, false);
-    setFxDjfilterLpfMax (20000, false);
-    setFxDjfilterQMin (0.5f, false);
-    setFxDjfilterQMax (4.0f, false);
-    setFxDjfilterQGainReduction (0.12f, false);
+    setFxDjfilterHpfMin (kFxDjfilterHpfMinDefault, false);
+    setFxDjfilterHpfMax (kFxDjfilterHpfMaxDefault, false);
+    setFxDjfilterLpfMin (kFxDjfilterLpfMinDefault, false);
+    setFxDjfilterLpfMax (kFxDjfilterLpfMaxDefault, false);
+    setFxDjfilterQMin (kFxDjfilterQMinDefault, false);
+    setFxDjfilterQMax (kFxDjfilterQMaxDefault, false);
+    setFxDjfilterQGainReduction (kFxDjfilterQGainReductionDefault, false);
 
     // Dub Echo
-    setFxDubEchoTmin (30, false);
-    setFxDubEchoHpf (400, false);
-    setFxDubEchoLpf (8400, false);
-    setFxDubEchoMix (0.38f, false);
+    setFxDubEchoTmin (kFxDubEchoTminDefault, false);
+    setFxDubEchoHpf (kFxDubEchoHpfDefault, false);
+    setFxDubEchoLpf (kFxDubEchoLpfDefault, false);
+    setFxDubEchoMix (kFxDubEchoMixDefault, false);
 
     // Chorus
-    setFxChorusCenter (12.0f, false);
-    setFxChorusDepth (5.0f, false);
-    setFxChorusMix (1.0f, false);
-    setFxChorusSpread (0.01f, false);
-    setFxChorusTaps (4, false);
-    setFxChorusLfoB (0.002f, false);
-    setFxChorusLfoT (3.0f, false);
-    setFxChorusType (1, false);
-    setFxChorusStagger (0.5f, false);
+    setFxChorusCenter (kFxChorusCenterDefault, false);
+    setFxChorusDepth (kFxChorusDepthDefault, false);
+    setFxChorusMix (kFxChorusMixDefault, false);
+    setFxChorusSpread (kFxChorusSpreadDefault, false);
+    setFxChorusTaps (kFxChorusTapsDefault, false);
+    setFxChorusLfoB (kFxChorusLfoBDefault, false);
+    setFxChorusLfoT (kFxChorusLfoTDefault, false);
+    setFxChorusType (kFxChorusTypeDefault, false);
+    setFxChorusStagger (kFxChorusStaggerDefault, false);
 
     // Reverb
-    setFxReverbLpf (9000, false);
-    setFxReverbHpf (700, false);
-    setFxReverbType (1, false);
-    setFxReverbSizeMin (0.6f, false);
-    setFxReverbSizeMax (0.9f, false);
-    setFxReverbPredelay (21, false);
-    setFxReverbModDepth (0.6f, false);
-    setFxReverbModRate (1.0f, false);
-    setFxReverbDiffusion (0.75f, false);
-    setFxReverbMix (0.6f, false);
+    setFxReverbLpf (kFxReverbLpfDefault, false);
+    setFxReverbHpf (kFxReverbHpfDefault, false);
+    setFxReverbType (kFxReverbTypeDefault, false);
+    setFxReverbSizeMin (kFxReverbSizeMinDefault, false);
+    setFxReverbSizeMax (kFxReverbSizeMaxDefault, false);
+    setFxReverbPredelay (kFxReverbPredelayDefault, false);
+    setFxReverbModDepth (kFxReverbModDepthDefault, false);
+    setFxReverbModRate (kFxReverbModRateDefault, false);
+    setFxReverbDiffusion (kFxReverbDiffusionDefault, false);
+    setFxReverbMix (kFxReverbMixDefault, false);
 
     // Glitch – probability
-    setFxGlitchProbabilityMin (0.00005f, false);
-    setFxGlitchProbabilityMax (0.003f, false);
+    setFxGlitchProbabilityMin (kFxGlitchProbabilityMinDefault, false);
+    setFxGlitchProbabilityMax (kFxGlitchProbabilityMaxDefault, false);
 
     // Glitch – weights (low)
-    setFxGlitchWeightHoldLow (0.15f, false);
-    setFxGlitchWeightStutterLow (0.05f, false);
-    setFxGlitchWeightCrushLow (0.30f, false);
-    setFxGlitchWeightDropLow (0.02f, false);
+    setFxGlitchWeightHoldLow (kFxGlitchWeightHoldLowDefault, false);
+    setFxGlitchWeightStutterLow (kFxGlitchWeightStutterLowDefault, false);
+    setFxGlitchWeightCrushLow (kFxGlitchWeightCrushLowDefault, false);
+    setFxGlitchWeightDropLow (kFxGlitchWeightDropLowDefault, false);
 
     // Glitch – weights (high)
-    setFxGlitchWeightHoldHigh (0.30f, false);
-    setFxGlitchWeightStutterHigh (0.20f, false);
-    setFxGlitchWeightCrushHigh (0.20f, false);
-    setFxGlitchWeightDropHigh (0.07f, false);
+    setFxGlitchWeightHoldHigh (kFxGlitchWeightHoldHighDefault, false);
+    setFxGlitchWeightStutterHigh (kFxGlitchWeightStutterHighDefault, false);
+    setFxGlitchWeightCrushHigh (kFxGlitchWeightCrushHighDefault, false);
+    setFxGlitchWeightDropHigh (kFxGlitchWeightDropHighDefault, false);
 
     // Glitch – drop
-    setFxGlitchDropKeepLevelMin (0.0f, false);
-    setFxGlitchDropKeepLevelMax (0.75f, false);
-    setFxGlitchDropKeepTimeMin (4.0f, false);
-    setFxGlitchDropKeepTimeMax (40.0f, false);
+    setFxGlitchDropKeepLevelMin (kFxGlitchDropKeepLevelMinDefault, false);
+    setFxGlitchDropKeepLevelMax (kFxGlitchDropKeepLevelMaxDefault, false);
+    setFxGlitchDropKeepTimeMin (kFxGlitchDropKeepTimeMinDefault, false);
+    setFxGlitchDropKeepTimeMax (kFxGlitchDropKeepTimeMaxDefault, false);
 
     // Glitch – crush
-    setFxGlitchCrushTimeMin (10.0f, false);
-    setFxGlitchCrushTimeMax (50.0f, false);
+    setFxGlitchCrushTimeMin (kFxGlitchCrushTimeMinDefault, false);
+    setFxGlitchCrushTimeMax (kFxGlitchCrushTimeMaxDefault, false);
 
     // Glitch – microloop
-    setFxGlitchMicroloopSmplTMin (0.2f, false);
-    setFxGlitchMicroloopSmplTMax (3.0f, false);
-    setFxGlitchMicroloopPlayTMin (5.0f, false);
-    setFxGlitchMicroloopPlayTMax (15.0f, false);
+    setFxGlitchMicroloopSmplTMin (kFxGlitchMicroloopSmplTMinDefault, false);
+    setFxGlitchMicroloopSmplTMax (kFxGlitchMicroloopSmplTMaxDefault, false);
+    setFxGlitchMicroloopPlayTMin (kFxGlitchMicroloopPlayTMinDefault, false);
+    setFxGlitchMicroloopPlayTMax (kFxGlitchMicroloopPlayTMaxDefault, false);
 
     // Glitch – stutter
-    setFxGlitchStutterSmplTMin (3.0f, false);
-    setFxGlitchStutterSmplTMax (10.0f, false);
-    setFxGlitchStutterNumMin (2, false);
-    setFxGlitchStutterNumMax (5, false);
-    setFxGlitchStutterWindow (20, false);
+    setFxGlitchStutterSmplTMin (kFxGlitchStutterSmplTMinDefault, false);
+    setFxGlitchStutterSmplTMax (kFxGlitchStutterSmplTMaxDefault, false);
+    setFxGlitchStutterNumMin (kFxGlitchStutterNumMinDefault, false);
+    setFxGlitchStutterNumMax (kFxGlitchStutterNumMaxDefault, false);
+    setFxGlitchStutterWindow (kFxGlitchStutterWindowDefault, false);
 }
 
 void SettingsProperties::setAccClAmpMod (float value, bool includeSelfCallback)
@@ -1731,7 +1732,7 @@ juce::String SettingsProperties::getPitchLowKey ()
 
 juce::String SettingsProperties::getReleaseModeKey ()
 {
-    return kClsdReleaseModeKey;
+    return kReleaseModeKey;
 }
 
 juce::String SettingsProperties::getVelocityUnipolarKey ()

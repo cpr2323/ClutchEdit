@@ -15,7 +15,7 @@ constexpr auto kPitchHighKey { "PITCH_HIGH" };
 constexpr auto kEnvelopeMaxReleaseKey { "ENVELOPE_MAX_RELEASE" };
 constexpr auto kChokeReleaseKey { "CHOKE_RELEASE" };
 constexpr auto kReleaseModeKey { "RELEASE_MODE" };
-constexpr auto kClsdReleaseModeKey { "CLSD_RELEASE_MODE" }; // legacy name for RELEASE_MODE, still accepted
+constexpr auto k_DEPRECATED_ClsdReleaseModeKey { "CLSD_RELEASE_MODE" }; // legacy name for RELEASE_MODE, still accepted
 constexpr auto kClsdRelOfstScaleKey { "CLSD_REL_OFST_SCALE" };
 constexpr auto kClsdMaxReleaseKey { "CLSD_MAX_RELEASE" };
 constexpr auto kAccClRelModKey { "ACC_CL_REL_MOD" };

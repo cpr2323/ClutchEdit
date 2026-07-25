@@ -6,14 +6,14 @@ void PatternListProperties::initValueTree ()
 {
     std::pair<juce::String, juce::String> defaultPatterns []
     {
-        { kPtnWhiteKey, "6, 5, 7, 5, 0" },
-        { kPtnRedKey, "6, 5, 5, 7, 5, 6, 5, 6, 4, 0" },
-        { kPtnGreenKey, "4, 3, 6, 3, 4, 7, 1, 2, 6, 4, 3, 6, 3, 6, 4, 5, 0" },
-        { kPtnBlueKey, "5, 2, 3, 5, 1, 5, 1, 0" },
-        { kPtnOrangeKey, "3, 2, 8, 5, 2, 6, 2, 2, 0" },
-        { kPtnCyanKey, "5, 5, 5, 7, 0" },
-        { kPtnVioletKey, "5, 4, 5, 5, 9, 5, 5, 4, 5, 5, 7, 4, 6, 4, 5, 3, 0" },
-        { kPtnYellowKey, "7, 3, 5, 7, 3, 5, 2, 5, 7, 3, 5, 3, 2, 8, 3, 2, 0" }
+        { kPtnWhiteKey, "6,5,7,5,0" },
+        { kPtnRedKey, "6,5,5,7,5,6,5,6,4,0" },
+        { kPtnGreenKey, "4,3,6,3,4,7,1,2,6,4,3,6,3,6,4,5,0" },
+        { kPtnBlueKey, "5,2,3,5,1,5,1,0" },
+        { kPtnOrangeKey, "3,2,8,5,2,6,2,2,0" },
+        { kPtnCyanKey, "5,5,5,7,0" },
+        { kPtnVioletKey, "5,4,5,5,9,5,5,4,5,5,7,4,6,4,5,3,0" },
+        { kPtnYellowKey, "7,3,5,7,3,5,2,5,7,3,5,3,2,8,3,2,0" }
     };
     for (auto& pattern : defaultPatterns)
     {

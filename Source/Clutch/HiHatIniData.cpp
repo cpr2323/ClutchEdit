@@ -1,5 +1,6 @@
 #include "HiHatIniData.h"
 #include "HiHatIniKeys.h"
+#include "HiHatIniValues.h"
 #include "EffectProperties.h"
 #include "EffectListProperties.h"
 #include "SettingsProperties.h"
@@ -31,7 +32,6 @@ void HiHatIniData::FillInDataFromProperties (const juce::ValueTree clutchVT)
     setFloatValue (kHiHatSection, kPitchHighKey, settingsProperties.getPitchHigh ());
     setFloatValue (kHiHatSection, kEnvelopeMaxReleaseKey, settingsProperties.getEnvelopeMaxRelease ());
     setFloatValue (kHiHatSection, kChokeReleaseKey, settingsProperties.getChokeRelease ());
-    //setIntValue (kHiHatSection, kClsdReleaseModeKey, settingsProperties.getClsdReleaseMode ());
     setIntValue (kHiHatSection, kReleaseModeKey, settingsProperties.getReleaseMode ());
     setFloatValue (kHiHatSection, kClsdRelOfstScaleKey, settingsProperties.getClsdRelOfstScale ());
     setFloatValue (kHiHatSection, kClsdMaxReleaseKey, settingsProperties.getClsdMaxRelease ());
@@ -169,118 +169,118 @@ void HiHatIniData::FillInPropertiesFromData (juce::ValueTree clutchVt)
             return valueString.getIntValue ();
         return defaultValue;
     };
-        // Core
-    settingsProperties.setPitchLow (getFloatValue (kHiHatSection, kPitchLowKey, 0.125f), false);
-    settingsProperties.setPitchHigh (getFloatValue (kHiHatSection, kPitchHighKey, 2.5f), false);
-    settingsProperties.setEnvelopeMaxRelease (getFloatValue (kHiHatSection, kEnvelopeMaxReleaseKey, 4.0f), false);
-    settingsProperties.setChokeRelease (getFloatValue (kHiHatSection, kChokeReleaseKey, 0.08f), false);
+    // Core
+    settingsProperties.setPitchLow (getFloatValue (kHiHatSection, kPitchLowKey, kPitchLowDefault), false);
+    settingsProperties.setPitchHigh (getFloatValue (kHiHatSection, kPitchHighKey, kPitchHighDefault), false);
+    settingsProperties.setEnvelopeMaxRelease (getFloatValue (kHiHatSection, kEnvelopeMaxReleaseKey, kEnvelopeMaxReleaseDefault), false);
+    settingsProperties.setChokeRelease (getFloatValue (kHiHatSection, kChokeReleaseKey, kChokeReleaseDefault), false);
     // RELEASE_MODE replaced CLSD_RELEASE_MODE, but the old key name is still accepted
     if (getValue (kHiHatSection, kReleaseModeKey).isNotEmpty ())
-        settingsProperties.setReleaseMode (getIntValue (kHiHatSection, kReleaseModeKey, 1), false);
+        settingsProperties.setReleaseMode (getIntValue (kHiHatSection, kReleaseModeKey, kReleaseModeDefault), false);
     else
-        settingsProperties.setReleaseMode (getIntValue (kHiHatSection, kClsdReleaseModeKey, 1), false);
-    settingsProperties.setClsdRelOfstScale (getFloatValue (kHiHatSection, kClsdRelOfstScaleKey, 0.5f), false);
-    settingsProperties.setClsdMaxRelease (getFloatValue (kHiHatSection, kClsdMaxReleaseKey, 0.8f), false);
-    settingsProperties.setAccClRelMod (getFloatValue (kHiHatSection, kAccClRelModKey, 1.18f), false);
-    settingsProperties.setAccOpRelMod (getFloatValue (kHiHatSection, kAccOpRelModKey, 1.25f), false);
-    settingsProperties.setAccClAmpMod (getFloatValue (kHiHatSection, kAccClAmpModKey, 1.3f), false);
-    settingsProperties.setAccOpAmpMod (getFloatValue (kHiHatSection, kAccOpAmpModKey, 1.25f), false);
+        settingsProperties.setReleaseMode (getIntValue (kHiHatSection, k_DEPRECATED_ClsdReleaseModeKey, kReleaseModeDefault), false);
+    settingsProperties.setClsdRelOfstScale (getFloatValue (kHiHatSection, kClsdRelOfstScaleKey, kClsdRelOfstScaleDefault), false);
+    settingsProperties.setClsdMaxRelease (getFloatValue (kHiHatSection, kClsdMaxReleaseKey, kClsdMaxReleaseDefault), false);
+    settingsProperties.setAccClRelMod (getFloatValue (kHiHatSection, kAccClRelModKey, kAccClRelModDefault), false);
+    settingsProperties.setAccOpRelMod (getFloatValue (kHiHatSection, kAccOpRelModKey, kAccOpRelModDefault), false);
+    settingsProperties.setAccClAmpMod (getFloatValue (kHiHatSection, kAccClAmpModKey, kAccClAmpModDefault), false);
+    settingsProperties.setAccOpAmpMod (getFloatValue (kHiHatSection, kAccOpAmpModKey, kAccOpAmpModDefault), false);
 
     // CV / control
-    settingsProperties.setFxCvUnipolar (getIntValue (kHiHatSection, kFxCvUnipolarKey, 1), false);
-    settingsProperties.setVelocityUnipolar (getIntValue (kHiHatSection, kVelocityUnipolarKey, 0), false);
-    settingsProperties.setCvDisableVelocity (getIntValue (kHiHatSection, kCvDisableVelocityKey, 0), false);
-    settingsProperties.setCvDisableFx (getIntValue (kHiHatSection, kCvDisableFxKey, 0), false);
-    settingsProperties.setGateMode (getIntValue (kHiHatSection, kGateModeKey, 0), false);
-    settingsProperties.setFeelAttackMod (getFloatValue (kHiHatSection, kFeelAttackModKey, 1.0f), false);
-    settingsProperties.setFeelReleaseMod (getFloatValue (kHiHatSection, kFeelReleaseModKey, 1.0f), false);
-    settingsProperties.setFeelAmpMod (getFloatValue (kHiHatSection, kFeelAmpModKey, 1.0f), false);
-    settingsProperties.setKnobPosTakeup (getIntValue (kHiHatSection, kKnobPosTakeupKey, 1), false);
+    settingsProperties.setFxCvUnipolar (getIntValue (kHiHatSection, kFxCvUnipolarKey, kFxCvUnipolarDefault), false);
+    settingsProperties.setVelocityUnipolar (getIntValue (kHiHatSection, kVelocityUnipolarKey, kVelocityUnipolarDefault), false);
+    settingsProperties.setCvDisableVelocity (getIntValue (kHiHatSection, kCvDisableVelocityKey, kCvDisableVelocityDefault), false);
+    settingsProperties.setCvDisableFx (getIntValue (kHiHatSection, kCvDisableFxKey, kCvDisableFxDefault), false);
+    settingsProperties.setGateMode (getIntValue (kHiHatSection, kGateModeKey, kGateModeDefault), false);
+    settingsProperties.setFeelAttackMod (getFloatValue (kHiHatSection, kFeelAttackModKey, kFeelAttackModDefault), false);
+    settingsProperties.setFeelReleaseMod (getFloatValue (kHiHatSection, kFeelReleaseModKey, kFeelReleaseModDefault), false);
+    settingsProperties.setFeelAmpMod (getFloatValue (kHiHatSection, kFeelAmpModKey, kFeelAmpModDefault), false);
+    settingsProperties.setKnobPosTakeup (getIntValue (kHiHatSection, kKnobPosTakeupKey, kKnobPosTakeupDefault), false);
 
     // Filters
-    settingsProperties.setFltrHpfMinFreq (getIntValue (kHiHatSection, kFltrHpfMinFreqKey, 100), false);
-    settingsProperties.setFltrHpfMaxFreq (getIntValue (kHiHatSection, kFltrHpfMaxFreqKey, 14000), false);
-    settingsProperties.setFltrLpfMinFreq (getIntValue (kHiHatSection, kFltrLpfMinFreqKey, 200), false);
-    settingsProperties.setFltrLpfMaxFreq (getIntValue (kHiHatSection, kFltrLpfMaxFreqKey, 20000), false);
-    settingsProperties.setFltrHpfQ (getFloatValue (kHiHatSection, kFltrHpfQKey, 1.0f), false);
-    settingsProperties.setFltrLpfQ (getFloatValue (kHiHatSection, kFltrLpfQKey, 0.707f), false);
+    settingsProperties.setFltrHpfMinFreq (getIntValue (kHiHatSection, kFltrHpfMinFreqKey, kFltrHpfMinFreqDefault), false);
+    settingsProperties.setFltrHpfMaxFreq (getIntValue (kHiHatSection, kFltrHpfMaxFreqKey, kFltrHpfMaxFreqDefault), false);
+    settingsProperties.setFltrLpfMinFreq (getIntValue (kHiHatSection, kFltrLpfMinFreqKey, kFltrLpfMinFreqDefault), false);
+    settingsProperties.setFltrLpfMaxFreq (getIntValue (kHiHatSection, kFltrLpfMaxFreqKey, kFltrLpfMaxFreqDefault), false);
+    settingsProperties.setFltrHpfQ (getFloatValue (kHiHatSection, kFltrHpfQKey, kFltrHpfQDefault), false);
+    settingsProperties.setFltrLpfQ (getFloatValue (kHiHatSection, kFltrLpfQKey, kFltrLpfQDefault), false);
 
     // DJ Filter
-    settingsProperties.setFxDjfilterHpfMin (getIntValue (kHiHatSection, kFxDjfilterHpfMinKey, 100), false);
-    settingsProperties.setFxDjfilterHpfMax (getIntValue (kHiHatSection, kFxDjfilterHpfMaxKey, 14000), false);
-    settingsProperties.setFxDjfilterLpfMin (getIntValue (kHiHatSection, kFxDjfilterLpfMinKey, 200), false);
-    settingsProperties.setFxDjfilterLpfMax (getIntValue (kHiHatSection, kFxDjfilterLpfMaxKey, 20000), false);
-    settingsProperties.setFxDjfilterQMin (getFloatValue (kHiHatSection, kFxDjfilterQMinKey, 0.5f), false);
-    settingsProperties.setFxDjfilterQMax (getFloatValue (kHiHatSection, kFxDjfilterQMaxKey, 4.0f), false);
-    settingsProperties.setFxDjfilterQGainReduction (getFloatValue (kHiHatSection, kFxDjfilterQGainReductionKey, 0.12f), false);
+    settingsProperties.setFxDjfilterHpfMin (getIntValue (kHiHatSection, kFxDjfilterHpfMinKey, kFxDjfilterHpfMinDefault), false);
+    settingsProperties.setFxDjfilterHpfMax (getIntValue (kHiHatSection, kFxDjfilterHpfMaxKey, kFxDjfilterHpfMaxDefault), false);
+    settingsProperties.setFxDjfilterLpfMin (getIntValue (kHiHatSection, kFxDjfilterLpfMinKey, kFxDjfilterLpfMinDefault), false);
+    settingsProperties.setFxDjfilterLpfMax (getIntValue (kHiHatSection, kFxDjfilterLpfMaxKey, kFxDjfilterLpfMaxDefault), false);
+    settingsProperties.setFxDjfilterQMin (getFloatValue (kHiHatSection, kFxDjfilterQMinKey, kFxDjfilterQMinDefault), false);
+    settingsProperties.setFxDjfilterQMax (getFloatValue (kHiHatSection, kFxDjfilterQMaxKey, kFxDjfilterQMaxDefault), false);
+    settingsProperties.setFxDjfilterQGainReduction (getFloatValue (kHiHatSection, kFxDjfilterQGainReductionKey, kFxDjfilterQGainReductionDefault), false);
 
     // Dub Echo
-    settingsProperties.setFxDubEchoTmin (getIntValue (kHiHatSection, kFxDubEchoTminKey, 30), false);
-    settingsProperties.setFxDubEchoHpf (getIntValue (kHiHatSection, kFxDubEchoHpfKey, 400), false);
-    settingsProperties.setFxDubEchoLpf (getIntValue (kHiHatSection, kFxDubEchoLpfKey, 8400), false);
-    settingsProperties.setFxDubEchoMix (getFloatValue (kHiHatSection, kFxDubEchoMixKey, 0.38f), false);
+    settingsProperties.setFxDubEchoTmin (getIntValue (kHiHatSection, kFxDubEchoTminKey, kFxDubEchoTminDefault), false);
+    settingsProperties.setFxDubEchoHpf (getIntValue (kHiHatSection, kFxDubEchoHpfKey, kFxDubEchoHpfDefault), false);
+    settingsProperties.setFxDubEchoLpf (getIntValue (kHiHatSection, kFxDubEchoLpfKey, kFxDubEchoLpfDefault), false);
+    settingsProperties.setFxDubEchoMix (getFloatValue (kHiHatSection, kFxDubEchoMixKey, kFxDubEchoMixDefault), false);
 
     // Chorus
-    settingsProperties.setFxChorusCenter (getFloatValue (kHiHatSection, kFxChorusCenterKey, 12.0f), false);
-    settingsProperties.setFxChorusDepth (getFloatValue (kHiHatSection, kFxChorusDepthKey, 5.0f), false);
-    settingsProperties.setFxChorusMix (getFloatValue (kHiHatSection, kFxChorusMixKey, 1.0f), false);
-    settingsProperties.setFxChorusSpread (getFloatValue (kHiHatSection, kFxChorusSpreadKey, 0.01f), false);
-    settingsProperties.setFxChorusTaps (getIntValue (kHiHatSection, kFxChorusTapsKey, 4), false);
-    settingsProperties.setFxChorusLfoB (getFloatValue (kHiHatSection, kFxChorusLfoBKey, 0.002f), false);
-    settingsProperties.setFxChorusLfoT (getFloatValue (kHiHatSection, kFxChorusLfoTKey, 3.0f), false);
-    settingsProperties.setFxChorusType (getIntValue (kHiHatSection, kFxChorusTypeKey, 1), false);
-    settingsProperties.setFxChorusStagger (getFloatValue (kHiHatSection, kFxChorusStaggerKey, 0.5f), false);
+    settingsProperties.setFxChorusCenter (getFloatValue (kHiHatSection, kFxChorusCenterKey, kFxChorusCenterDefault), false);
+    settingsProperties.setFxChorusDepth (getFloatValue (kHiHatSection, kFxChorusDepthKey, kFxChorusDepthDefault), false);
+    settingsProperties.setFxChorusMix (getFloatValue (kHiHatSection, kFxChorusMixKey, kFxChorusMixDefault), false);
+    settingsProperties.setFxChorusSpread (getFloatValue (kHiHatSection, kFxChorusSpreadKey, kFxChorusSpreadDefault), false);
+    settingsProperties.setFxChorusTaps (getIntValue (kHiHatSection, kFxChorusTapsKey, kFxChorusTapsDefault), false);
+    settingsProperties.setFxChorusLfoB (getFloatValue (kHiHatSection, kFxChorusLfoBKey, kFxChorusLfoBDefault), false);
+    settingsProperties.setFxChorusLfoT (getFloatValue (kHiHatSection, kFxChorusLfoTKey, kFxChorusLfoTDefault), false);
+    settingsProperties.setFxChorusType (getIntValue (kHiHatSection, kFxChorusTypeKey, kFxChorusTypeDefault), false);
+    settingsProperties.setFxChorusStagger (getFloatValue (kHiHatSection, kFxChorusStaggerKey, kFxChorusStaggerDefault), false);
 
     // Reverb
-    settingsProperties.setFxReverbLpf (getIntValue (kHiHatSection, kFxReverbLpfKey, 9000), false);
-    settingsProperties.setFxReverbHpf (getIntValue (kHiHatSection, kFxReverbHpfKey, 700), false);
-    settingsProperties.setFxReverbType (getIntValue (kHiHatSection, kFxReverbTypeKey, 1), false);
-    settingsProperties.setFxReverbSizeMin (getFloatValue (kHiHatSection, kFxReverbSizeMinKey, 0.6f), false);
-    settingsProperties.setFxReverbSizeMax (getFloatValue (kHiHatSection, kFxReverbSizeMaxKey, 0.9f), false);
-    settingsProperties.setFxReverbPredelay (getIntValue (kHiHatSection, kFxReverbPredelayKey, 21), false);
-    settingsProperties.setFxReverbModDepth (getFloatValue (kHiHatSection, kFxReverbModDepthKey, 0.6f), false);
-    settingsProperties.setFxReverbModRate (getFloatValue (kHiHatSection, kFxReverbModRateKey, 1.0f), false);
-    settingsProperties.setFxReverbDiffusion (getFloatValue (kHiHatSection, kFxReverbDiffusionKey, 0.75f), false);
-    settingsProperties.setFxReverbMix (getFloatValue (kHiHatSection, kFxReverbMixKey, 0.6f), false);
+    settingsProperties.setFxReverbLpf (getIntValue (kHiHatSection, kFxReverbLpfKey, kFxReverbLpfDefault), false);
+    settingsProperties.setFxReverbHpf (getIntValue (kHiHatSection, kFxReverbHpfKey, kFxReverbHpfDefault), false);
+    settingsProperties.setFxReverbType (getIntValue (kHiHatSection, kFxReverbTypeKey, kFxReverbTypeDefault), false);
+    settingsProperties.setFxReverbSizeMin (getFloatValue (kHiHatSection, kFxReverbSizeMinKey, kFxReverbSizeMinDefault), false);
+    settingsProperties.setFxReverbSizeMax (getFloatValue (kHiHatSection, kFxReverbSizeMaxKey, kFxReverbSizeMaxDefault), false);
+    settingsProperties.setFxReverbPredelay (getIntValue (kHiHatSection, kFxReverbPredelayKey, kFxReverbPredelayDefault), false);
+    settingsProperties.setFxReverbModDepth (getFloatValue (kHiHatSection, kFxReverbModDepthKey, kFxReverbModDepthDefault), false);
+    settingsProperties.setFxReverbModRate (getFloatValue (kHiHatSection, kFxReverbModRateKey, kFxReverbModRateDefault), false);
+    settingsProperties.setFxReverbDiffusion (getFloatValue (kHiHatSection, kFxReverbDiffusionKey, kFxReverbDiffusionDefault), false);
+    settingsProperties.setFxReverbMix (getFloatValue (kHiHatSection, kFxReverbMixKey, kFxReverbMixDefault), false);
 
     // Glitch � probability
-    settingsProperties.setFxGlitchProbabilityMin (getFloatValue (kHiHatSection, kFxGlitchProbabilityMinKey, 0.00005f), false);
-    settingsProperties.setFxGlitchProbabilityMax (getFloatValue (kHiHatSection, kFxGlitchProbabilityMaxKey, 0.003f), false);
+    settingsProperties.setFxGlitchProbabilityMin (getFloatValue (kHiHatSection, kFxGlitchProbabilityMinKey, kFxGlitchProbabilityMinDefault), false);
+    settingsProperties.setFxGlitchProbabilityMax (getFloatValue (kHiHatSection, kFxGlitchProbabilityMaxKey, kFxGlitchProbabilityMaxDefault), false);
 
     // Glitch � weights (low)
-    settingsProperties.setFxGlitchWeightHoldLow (getFloatValue (kHiHatSection, kFxGlitchWeightHoldLowKey, 0.15f), false);
-    settingsProperties.setFxGlitchWeightStutterLow (getFloatValue (kHiHatSection, kFxGlitchWeightStutterLowKey, 0.05f), false);
-    settingsProperties.setFxGlitchWeightCrushLow (getFloatValue (kHiHatSection, kFxGlitchWeightCrushLowKey, 0.30f), false);
-    settingsProperties.setFxGlitchWeightDropLow (getFloatValue (kHiHatSection, kFxGlitchWeightDropLowKey, 0.02f), false);
+    settingsProperties.setFxGlitchWeightHoldLow (getFloatValue (kHiHatSection, kFxGlitchWeightHoldLowKey, kFxGlitchWeightHoldLowDefault), false);
+    settingsProperties.setFxGlitchWeightStutterLow (getFloatValue (kHiHatSection, kFxGlitchWeightStutterLowKey, kFxGlitchWeightStutterLowDefault), false);
+    settingsProperties.setFxGlitchWeightCrushLow (getFloatValue (kHiHatSection, kFxGlitchWeightCrushLowKey, kFxGlitchWeightCrushLowDefault), false);
+    settingsProperties.setFxGlitchWeightDropLow (getFloatValue (kHiHatSection, kFxGlitchWeightDropLowKey, kFxGlitchWeightDropLowDefault), false);
 
     // Glitch � weights (high)
-    settingsProperties.setFxGlitchWeightHoldHigh (getFloatValue (kHiHatSection, kFxGlitchWeightHoldHighKey, 0.30f), false);
-    settingsProperties.setFxGlitchWeightStutterHigh (getFloatValue (kHiHatSection, kFxGlitchWeightStutterHighKey, 0.20f), false);
-    settingsProperties.setFxGlitchWeightCrushHigh (getFloatValue (kHiHatSection, kFxGlitchWeightCrushHighKey, 0.20f), false);
-    settingsProperties.setFxGlitchWeightDropHigh (getFloatValue (kHiHatSection, kFxGlitchWeightDropHighKey, 0.07f), false);
+    settingsProperties.setFxGlitchWeightHoldHigh (getFloatValue (kHiHatSection, kFxGlitchWeightHoldHighKey, kFxGlitchWeightHoldHighDefault), false);
+    settingsProperties.setFxGlitchWeightStutterHigh (getFloatValue (kHiHatSection, kFxGlitchWeightStutterHighKey, kFxGlitchWeightStutterHighDefault), false);
+    settingsProperties.setFxGlitchWeightCrushHigh (getFloatValue (kHiHatSection, kFxGlitchWeightCrushHighKey, kFxGlitchWeightCrushHighDefault), false);
+    settingsProperties.setFxGlitchWeightDropHigh (getFloatValue (kHiHatSection, kFxGlitchWeightDropHighKey, kFxGlitchWeightDropHighDefault), false);
 
     // Glitch � drop
-    settingsProperties.setFxGlitchDropKeepLevelMin (getFloatValue (kHiHatSection, kFxGlitchDropKeepLevelMinKey, 0.0f), false);
-    settingsProperties.setFxGlitchDropKeepLevelMax (getFloatValue (kHiHatSection, kFxGlitchDropKeepLevelMaxKey, 0.75f), false);
-    settingsProperties.setFxGlitchDropKeepTimeMin (getFloatValue (kHiHatSection, kFxGlitchDropKeepTimeMinKey, 4.0f), false);
-    settingsProperties.setFxGlitchDropKeepTimeMax (getFloatValue (kHiHatSection, kFxGlitchDropKeepTimeMaxKey, 40.0f), false);
+    settingsProperties.setFxGlitchDropKeepLevelMin (getFloatValue (kHiHatSection, kFxGlitchDropKeepLevelMinKey, kFxGlitchDropKeepLevelMinDefault), false);
+    settingsProperties.setFxGlitchDropKeepLevelMax (getFloatValue (kHiHatSection, kFxGlitchDropKeepLevelMaxKey, kFxGlitchDropKeepLevelMaxDefault), false);
+    settingsProperties.setFxGlitchDropKeepTimeMin (getFloatValue (kHiHatSection, kFxGlitchDropKeepTimeMinKey, kFxGlitchDropKeepTimeMinDefault), false);
+    settingsProperties.setFxGlitchDropKeepTimeMax (getFloatValue (kHiHatSection, kFxGlitchDropKeepTimeMaxKey, kFxGlitchDropKeepTimeMaxDefault), false);
 
     // Glitch � crush
-    settingsProperties.setFxGlitchCrushTimeMin (getFloatValue (kHiHatSection, kFxGlitchCrushTimeMinKey, 10.0f), false);
-    settingsProperties.setFxGlitchCrushTimeMax (getFloatValue (kHiHatSection, kFxGlitchCrushTimeMaxKey, 50.0f), false);
+    settingsProperties.setFxGlitchCrushTimeMin (getFloatValue (kHiHatSection, kFxGlitchCrushTimeMinKey, kFxGlitchCrushTimeMinDefault), false);
+    settingsProperties.setFxGlitchCrushTimeMax (getFloatValue (kHiHatSection, kFxGlitchCrushTimeMaxKey, kFxGlitchCrushTimeMaxDefault), false);
 
     // Glitch � microloop
-    settingsProperties.setFxGlitchMicroloopSmplTMin (getFloatValue (kHiHatSection, kFxGlitchMicroloopSmplTMinKey, 0.2f), false);
-    settingsProperties.setFxGlitchMicroloopSmplTMax (getFloatValue (kHiHatSection, kFxGlitchMicroloopSmplTMaxKey, 3.0f), false);
-    settingsProperties.setFxGlitchMicroloopPlayTMin (getFloatValue (kHiHatSection, kFxGlitchMicroloopPlayTMinKey, 5.0f), false);
-    settingsProperties.setFxGlitchMicroloopPlayTMax (getFloatValue (kHiHatSection, kFxGlitchMicroloopPlayTMaxKey, 15.0f), false);
+    settingsProperties.setFxGlitchMicroloopSmplTMin (getFloatValue (kHiHatSection, kFxGlitchMicroloopSmplTMinKey, kFxGlitchMicroloopSmplTMinDefault), false);
+    settingsProperties.setFxGlitchMicroloopSmplTMax (getFloatValue (kHiHatSection, kFxGlitchMicroloopSmplTMaxKey, kFxGlitchMicroloopSmplTMaxDefault), false);
+    settingsProperties.setFxGlitchMicroloopPlayTMin (getFloatValue (kHiHatSection, kFxGlitchMicroloopPlayTMinKey, kFxGlitchMicroloopPlayTMinDefault), false);
+    settingsProperties.setFxGlitchMicroloopPlayTMax (getFloatValue (kHiHatSection, kFxGlitchMicroloopPlayTMaxKey, kFxGlitchMicroloopPlayTMaxDefault), false);
 
     // Glitch � stutter
-    settingsProperties.setFxGlitchStutterSmplTMin (getFloatValue (kHiHatSection, kFxGlitchStutterSmplTMinKey, 3.0f), false);
-    settingsProperties.setFxGlitchStutterSmplTMax (getFloatValue (kHiHatSection, kFxGlitchStutterSmplTMaxKey, 10.0f), false);
-    settingsProperties.setFxGlitchStutterNumMin (getIntValue (kHiHatSection, kFxGlitchStutterNumMinKey, 2), false);
-    settingsProperties.setFxGlitchStutterNumMax (getIntValue (kHiHatSection, kFxGlitchStutterNumMaxKey, 5), false);
-    settingsProperties.setFxGlitchStutterWindow (getIntValue (kHiHatSection, kFxGlitchStutterWindowKey, 20), false);
+    settingsProperties.setFxGlitchStutterSmplTMin (getFloatValue (kHiHatSection, kFxGlitchStutterSmplTMinKey, kFxGlitchStutterSmplTMinDefault), false);
+    settingsProperties.setFxGlitchStutterSmplTMax (getFloatValue (kHiHatSection, kFxGlitchStutterSmplTMaxKey, kFxGlitchStutterSmplTMaxDefault), false);
+    settingsProperties.setFxGlitchStutterNumMin (getIntValue (kHiHatSection, kFxGlitchStutterNumMinKey, kFxGlitchStutterNumMinDefault), false);
+    settingsProperties.setFxGlitchStutterNumMax (getIntValue (kHiHatSection, kFxGlitchStutterNumMaxKey, kFxGlitchStutterNumMaxDefault), false);
+    settingsProperties.setFxGlitchStutterWindow (getIntValue (kHiHatSection, kFxGlitchStutterWindowKey, kFxGlitchStutterWindowDefault), false);
 
     patternListProperties.forEachPattern ([this] (juce::ValueTree patternVT, [[maybe_unused]] int patternIndex)
     {
