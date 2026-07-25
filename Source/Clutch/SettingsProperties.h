@@ -21,7 +21,6 @@ public:
     void setAccOpRelMod (float value, bool includeSelfCallback);
     void setChokeRelease (float value, bool includeSelfCallback);
     void setClsdMaxRelease (float value, bool includeSelfCallback);
-    //void setClsdReleaseMode (int value, bool includeSelfCallback);
     void setClsdRelOfstScale (float value, bool includeSelfCallback);
     void setCvDisableFx (int value, bool includeSelfCallback);
     void setCvDisableVelocity (int value, bool includeSelfCallback);
@@ -104,7 +103,6 @@ public:
     float getAccOpRelMod ();
     float getChokeRelease ();
     float getClsdMaxRelease ();
-    //int getClsdReleaseMode ();
     float getClsdRelOfstScale ();
     int getCvDisableFx ();
     int getCvDisableVelocity ();
@@ -187,7 +185,6 @@ public:
     juce::String getAccOpRelModKey ();
     juce::String getChokeReleaseKey ();
     juce::String getClsdMaxReleaseKey ();
-    //juce::String getClsdReleaseModeKey ();
     juce::String getClsdRelOfstScaleKey ();
     juce::String getCvDisableFxKey ();
     juce::String getCvDisableVelocityKey ();
