@@ -2665,11 +2665,11 @@ void SettingsEditorComponent::resized ()
             int column { 0 };
             for (const auto& pair : pairs)
             {
-                const auto controlX { columnX [column] + glitchColumnWidth - kGlitchControlWidth };
+                const auto controlX { columnX [column] + glitchColumnWidth - kControlWidth };
                 const auto labelX { columnX [column] + kGlitchContentIndent };
                 const auto labelWidth { juce::jmax (18, controlX - labelX) };
                 pair.label->setBounds (labelX, y, labelWidth, kRowHeight);
-                pair.comp->setBounds (controlX, y, kGlitchControlWidth, kRowHeight);
+                pair.comp->setBounds (controlX, y, kControlWidth, kRowHeight);
                 ++column;
             }
 
@@ -2948,7 +2948,7 @@ void SettingsEditorComponent::resized ()
         positionHeader (djFilterHeaderLabel, sectionArea, kSectionHeaderHeight);
         addVerticalGap (sectionArea, kMainHeaderToContentGap);
 
-        positionHeader (djFilterHpfHeaderLabel, sectionArea, kSubHeaderHeight, kSubHeaderIndent);
+        positionHeader (djFilterHpfHeaderLabel, sectionArea, kSubHeaderHeight, kGlitchSubHeaderIndent);
         positionGlitchAlignedRow (sectionArea,
                                   {
                                       { &fxDjfilterHpfMinEditor, &fxDjfilterHpfMinLabel },
@@ -2957,7 +2957,7 @@ void SettingsEditorComponent::resized ()
 
         addVerticalGap (sectionArea, kSubSectionGap);
 
-        positionHeader (djFilterLpfHeaderLabel, sectionArea, kSubHeaderHeight, kSubHeaderIndent);
+        positionHeader (djFilterLpfHeaderLabel, sectionArea, kSubHeaderHeight, kGlitchSubHeaderIndent);
         positionGlitchAlignedRow (sectionArea,
                                   {
                                       { &fxDjfilterLpfMinEditor, &fxDjfilterLpfMinLabel },
@@ -2966,7 +2966,7 @@ void SettingsEditorComponent::resized ()
 
         addVerticalGap (sectionArea, kSubSectionGap);
 
-        positionHeader (djFilterQHeaderLabel, sectionArea, kSubHeaderHeight, kSubHeaderIndent);
+        positionHeader (djFilterQHeaderLabel, sectionArea, kSubHeaderHeight, kGlitchSubHeaderIndent);
         positionGlitchAlignedRow (sectionArea,
                                   {
                                       { &fxDjfilterQMinEditor, &fxDjfilterQMinLabel },
