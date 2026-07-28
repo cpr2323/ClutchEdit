@@ -2742,8 +2742,7 @@ void SettingsEditorComponent::resized ()
         positionRows (sectionArea,
                       {
                           { &clsdMaxReleaseEditor, &clsdMaxReleaseLabel },
-                          { &clsdRelOfstScaleEditor, &clsdRelOfstScaleLabel },
-                          { &releaseModeComboBox, &releaseModeLabel }
+                          { &clsdRelOfstScaleEditor, &clsdRelOfstScaleLabel }
                       },
                       kSectionContentIndent);
 
@@ -2761,6 +2760,7 @@ void SettingsEditorComponent::resized ()
         addVerticalGap (sectionArea, kMainHeaderToContentGap);
         positionRows (sectionArea,
                       {
+                          { &releaseModeComboBox, &releaseModeLabel },
                           { &chokeReleaseEditor, &chokeReleaseLabel },
                           { &envelopeMaxReleaseEditor, &envelopeMaxReleaseLabel },
                           { &gateModeComboBox,& gateModeLabel },
