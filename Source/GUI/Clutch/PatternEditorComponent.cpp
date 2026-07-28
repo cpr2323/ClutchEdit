@@ -169,7 +169,7 @@ void PatternEditorComponent::init (juce::ValueTree patternVT, juce::ValueTree un
     patternProperties.wrap (patternVT, PatternProperties::WrapperType::client, PatternProperties::EnableCallbacks::yes);
     patternProperties.onPatternChange = [this] (juce::String) { onPatternDataChanged (); };
     onPatternDataChanged ();
-    const auto defaultPatternFound = [this, patternKey { patternProperties.getId () }] ()
+    [[maybe_unused]] const auto defaultPatternFound = [this, patternKey { patternProperties.getId () }] ()
     {
         for (const auto& curDefaultPattern : gDefaultPatterns)
         {
