@@ -319,18 +319,23 @@ void SampleBankComponent::copyToTempSampleFile (juce::File sourceFile, int hiHat
     else
     {
         // Source file does not meet required format
+        // truncate () is FileOutputStream only, so the setup has to happen while the pointer still
+        // has that type
         auto destinationFileStream { std::make_unique<juce::FileOutputStream> (destFile) };
         destinationFileStream->setPosition (0);
         destinationFileStream->truncate ();
+        // createWriterFor takes a unique_ptr<OutputStream>&, and a unique_ptr<FileOutputStream>
+        // cannot bind to a reference to a different type, so the stream is moved into a base typed
+        // pointer to hand over. this is the same stream: destinationFileStream is null from here on
+        std::unique_ptr<juce::OutputStream> streamForWriter { std::move (destinationFileStream) };
 
         juce::WavAudioFormat wavAudioFormat;
         // TODO : do I need to do a proper L/R mix for stereo input?
-        if (std::unique_ptr<juce::AudioFormatWriter> writer { wavAudioFormat.createWriterFor (destinationFileStream.get (),
-                                                                48000, 1, 16, {}, 0) }; writer != nullptr)
+        // on success, the writer takes ownership of the destination stream, and will delete it when done
+        if (auto writer { wavAudioFormat.createWriterFor (streamForWriter, juce::AudioFormatWriterOptions {}.withSampleRate (48000)
+                                                                                                           .withNumChannels (1)
+                                                                                                           .withBitsPerSample (16)) }; writer != nullptr)
         {
-            // audioFormatWriter will delete the file stream when done
-            destinationFileStream.release ();
-
             if (reader->bitsPerSample == 48000)
             {
                 // copy the whole thing

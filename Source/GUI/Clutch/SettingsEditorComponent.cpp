@@ -1348,7 +1348,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
             label.setText (text, juce::dontSendNotification);
             label.setJustificationType (juce::Justification::centredLeft);
             label.setColour (juce::Label::textColourId, juce::Colours::white.withAlpha (0.92f));
-            label.setFont (juce::Font (fontHeight, juce::Font::bold));
+            label.setFont (juce::Font (juce::FontOptions (fontHeight, juce::Font::bold)));
             addAndMakeVisible (label);
         };
 

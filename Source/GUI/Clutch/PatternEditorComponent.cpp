@@ -199,7 +199,7 @@ void PatternEditorComponent::resized ()
     // left by the label's overhang. This lets the wider label sit centered
     // under the editor without being clipped at the component's left edge.
     const auto stepsLabelWidth { juce::jmax (numberOfStepsWidth,
-                                             numberOfStepsLabel.getFont ().getStringWidth ("Steps") + 8) };
+                                             juce::roundToInt (juce::GlyphArrangement::getStringWidth (numberOfStepsLabel.getFont (), "Steps")) + 8) };
     const auto numberOfStepsX { juce::jmax (0, (stepsLabelWidth - numberOfStepsWidth) / 2) };
 
     numberOfStepsEditor.setBounds (numberOfStepsX, 21, numberOfStepsWidth, getHeight () / 2);
@@ -213,7 +213,7 @@ void PatternEditorComponent::resized ()
     {
         auto setStepNumberBounds = [this, &curButtonX] (juce::Label& stepNumber, int yOffset)
         {
-            const auto numberWidth { stepNumber.getFont ().getStringWidth (stepNumber.getText ()) };
+            const auto numberWidth { juce::roundToInt (juce::GlyphArrangement::getStringWidth (stepNumber.getFont (), stepNumber.getText ())) };
             const auto halfNumberWidth { numberWidth / 2 };
             stepNumber.setBounds (curButtonX + (kStepComboBoxWidth / 2) - halfNumberWidth, yOffset, numberWidth + 10, 15);
         };
