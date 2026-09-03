@@ -5,7 +5,7 @@
 #include "ProjectManagerProperties.h"
 #include "../AppProperties.h"
 #include "../Clutch/HiHatIniData.h"
-#include "../Utility/RuntimeRootProperties.h"
+#include "oolib/Properties/RuntimeRootProperties.h"
 
 class ProjectManager : public juce::Timer
 {

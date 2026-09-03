@@ -9,7 +9,7 @@
 #include "../../Clutch/ProjectManagerProperties.h"
 #include "../../Clutch/Audio/AudioPlayerProperties.h"
 #include "../../GUI/GuiProperties.h"
-#include "../../Utility/RuntimeRootProperties.h"
+#include "oolib/Properties/RuntimeRootProperties.h"
 
 class TabbedComponentWithCallback : public juce::TabbedComponent
 {

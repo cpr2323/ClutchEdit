@@ -6,6 +6,11 @@ project(ClutchEdit VERSION 1.2)
 #   git submodule update --init --recursive
 add_subdirectory(submodules/JUCE builds/JUCE)
 
+# oolib is a plain source list rather than a library, because its files include
+# <JuceHeader.h> and so have to be compiled as part of a JUCE target. It defines
+# OOLIB_SOURCES and OOLIB_INCLUDE_DIR.
+include(submodules/oolib/oolib.cmake)
+
 # The Projucer project had no company name, which left ProjectInfo::companyName
 # empty and put the preferences directory directly under the user application
 # data directory. JUCE's CMake support defaults the company to "yourcompany", so
@@ -112,38 +117,6 @@ set(SRC_FILES
     Source/SRC/libsamplerate.c
     Source/SRC/libsamplerate-0.1.9/src/samplerate.h)
 
-set(UTILITY_FILES
-    Source/Utility/Crc.h
-    Source/Utility/CustomComboBox.cpp
-    Source/Utility/CustomComboBox.h
-    Source/Utility/CustomComponentMouseHandler.cpp
-    Source/Utility/CustomComponentMouseHandler.h
-    Source/Utility/CustomTextButton.cpp
-    Source/Utility/CustomTextButton.h
-    Source/Utility/CustomTextEditor.h
-    Source/Utility/DebugLog.cpp
-    Source/Utility/DebugLog.h
-    Source/Utility/DebugLogImplementation.h
-    Source/Utility/DumpStack.cpp
-    Source/Utility/DumpStack.h
-    Source/Utility/ErrorHelpers.cpp
-    Source/Utility/ErrorHelpers.h
-    Source/Utility/NoArrowComboBoxLnF.h
-    Source/Utility/PersistentRootProperties.cpp
-    Source/Utility/PersistentRootProperties.h
-    Source/Utility/RootProperties.cpp
-    Source/Utility/RootProperties.h
-    Source/Utility/RuntimeRootProperties.cpp
-    Source/Utility/RuntimeRootProperties.h
-    Source/Utility/ValueTreeFile.cpp
-    Source/Utility/ValueTreeFile.h
-    Source/Utility/ValueTreeHelpers.cpp
-    Source/Utility/ValueTreeHelpers.h
-    Source/Utility/ValueTreeMonitor.cpp
-    Source/Utility/ValueTreeMonitor.h
-    Source/Utility/ValueTreeWrapper.cpp
-    Source/Utility/ValueTreeWrapper.h)
-
 # The files the Projucer marked resource="1". They are built into a separate
 # binary data target, but stay listed in the groups above so the IDE tree still
 # shows them next to the code they belong with.
@@ -163,7 +136,8 @@ source_group("Source/GUI"             FILES ${GUI_FILES})
 source_group("Source/GUI/Clutch"      FILES ${GUI_CLUTCH_FILES})
 source_group("Source/GUI/Clutch/Data" FILES ${GUI_CLUTCH_DATA_FILES})
 source_group("Source/SRC"             FILES ${SRC_FILES})
-source_group("Source/Utility"         FILES ${UTILITY_FILES})
+# TREE keeps the IDE tree matching oolib's own Category folders
+source_group(TREE ${OOLIB_INCLUDE_DIR}/oolib PREFIX "oolib" FILES ${OOLIB_SOURCES})
 
 target_sources(ClutchEdit
     PRIVATE
@@ -175,7 +149,13 @@ target_sources(ClutchEdit
         ${GUI_CLUTCH_FILES}
         ${GUI_CLUTCH_DATA_FILES}
         ${SRC_FILES}
-        ${UTILITY_FILES})
+        ${OOLIB_SOURCES})
+
+# oolib's files include each other as "oolib/<Category>/<File>.h", and so does the
+# code here that uses them.
+target_include_directories(ClutchEdit
+    PRIVATE
+        ${OOLIB_INCLUDE_DIR})
 
 target_compile_definitions(ClutchEdit
     PUBLIC

@@ -1,7 +1,7 @@
 #include "SettingsEditorComponent.h"
 #include "../../Clutch/ClutchProperties.h"
 #include "../../Clutch/HiHatIniValues.h"
-#include "../../Utility/RuntimeRootProperties.h"
+#include "oolib/Properties/RuntimeRootProperties.h"
 
 // Parameter min/max ranges and default values live in HiHatIniValues.h so they
 // can be shared with the INI data parser.

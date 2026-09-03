@@ -11,8 +11,8 @@
 #include "SettingsProperties.h"
 #include "Audio/AudioPlayerProperties.h"
 #include "../AppProperties.h"
-#include "../Utility/RuntimeRootProperties.h"
-#include "../Utility/PersistentRootProperties.h"
+#include "oolib/Properties/RuntimeRootProperties.h"
+#include "oolib/Properties/PersistentRootProperties.h"
 
 ProjectManager::ProjectManager ()
 {

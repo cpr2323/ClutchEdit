@@ -3,8 +3,8 @@
 #include "../../Clutch/LedColorList.h"
 #include "../../Clutch/SamplePairProperties.h"
 #include "../../SRC/libsamplerate-0.1.9/src/samplerate.h"
-#include "../../Utility/PersistentRootProperties.h"
-#include "../../Utility/RuntimeRootProperties.h"
+#include "oolib/Properties/PersistentRootProperties.h"
+#include "oolib/Properties/RuntimeRootProperties.h"
 
 SampleBankComponent::SampleBankComponent ()
 {

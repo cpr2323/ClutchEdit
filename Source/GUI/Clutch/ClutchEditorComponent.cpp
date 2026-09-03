@@ -1,5 +1,5 @@
 #include "ClutchEditorComponent.h"
-#include "../../Utility/PersistentRootProperties.h"
+#include "oolib/Properties/PersistentRootProperties.h"
 #include "../../Clutch/LedColorList.h"
 #include "../../Clutch/ProjectManager.h"
 

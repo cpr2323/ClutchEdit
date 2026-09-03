@@ -2,7 +2,7 @@
 
 #include <JuceHeader.h>
 #include "HiHatIniKeys.h"
-#include "../Utility/ValueTreeWrapper.h"
+#include "oolib/ValueTree/ValueTreeWrapper.h"
 
 class SettingsProperties : public ValueTreeWrapper<SettingsProperties>
 {

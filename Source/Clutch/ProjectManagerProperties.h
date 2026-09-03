@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Utility/ValueTreeWrapper.h"
+#include "oolib/ValueTree/ValueTreeWrapper.h"
 
 class ProjectManagerProperties : public ValueTreeWrapper<ProjectManagerProperties>
 {

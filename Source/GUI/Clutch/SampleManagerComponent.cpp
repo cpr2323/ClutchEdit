@@ -2,8 +2,8 @@
 #include "../../Clutch/BankListProperties.h"
 #include "../../Clutch/BankProperties.h"
 #include "../../Clutch/ClutchProperties.h"
-#include "../../Utility/PersistentRootProperties.h"
-#include "../../Utility/RuntimeRootProperties.h"
+#include "oolib/Properties/PersistentRootProperties.h"
+#include "oolib/Properties/RuntimeRootProperties.h"
 
 SampleManagerComponent::SampleManagerComponent ()
 {

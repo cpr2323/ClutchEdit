@@ -10,12 +10,12 @@
 #include "GUI/GuiControlProperties.h"
 #include "GUI/GuiProperties.h"
 #include "GUI/MainComponent.h"
-#include "Utility/DebugLog.h"
-#include "Utility/PersistentRootProperties.h"
-#include "Utility/RootProperties.h"
-#include "Utility/RuntimeRootProperties.h"
-#include "Utility/ValueTreeFile.h"
-#include "Utility/ValueTreeMonitor.h"
+#include "oolib/Debug/DebugLog.h"
+#include "oolib/Debug/ValueTreeMonitor.h"
+#include "oolib/Properties/PersistentRootProperties.h"
+#include "oolib/Properties/RootProperties.h"
+#include "oolib/Properties/RuntimeRootProperties.h"
+#include "oolib/ValueTree/ValueTreeFile.h"
 
 // used to add things like TEST, or ALPHA, or BETA, etc to the version number when displayed
 constexpr char* kVersionDecorator { "" };

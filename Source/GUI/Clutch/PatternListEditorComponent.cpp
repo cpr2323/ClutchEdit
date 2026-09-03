@@ -1,7 +1,7 @@
 #include "PatternListEditorComponent.h"
 #include "../../Clutch/ClutchProperties.h"
 #include "../../Clutch/LedColorList.h"
-#include "../../Utility/RuntimeRootProperties.h"
+#include "oolib/Properties/RuntimeRootProperties.h"
 
 PatternListEditorComponent::PatternListEditorComponent ()
 {
