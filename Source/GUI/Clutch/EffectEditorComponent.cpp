@@ -53,11 +53,10 @@ EffectEditorComponent::EffectEditorComponent ()
         effectEditor.setColour (juce::ComboBox::backgroundColourId, juce::Colours::darkgrey.darker (0.7f));
         effectEditor.setSelectedId (1);
         effectEditor.setComponentID ("StepComboBox" + juce::String (curEffectIndex));
-        effectEditor.onDragCallback = [this, &effectEditor, curEffectIndex] (DragSpeed dragSpeed, int direction)
+        effectEditor.onDragCallback = [this, &effectEditor, curEffectIndex] (double valueDelta)
         {
-            const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
             const auto stepValue { effectEditor.getSelectedId () };
-            effectEditor.setSelectedId (std::clamp (stepValue + scrollAmount, 1, 9), juce::NotificationType::dontSendNotification);
+            effectEditor.setSelectedId (std::clamp (stepValue + juce::roundToInt (valueDelta), 1, 9), juce::NotificationType::dontSendNotification);
             onEffectUiChanged (curEffectIndex);
         };
         effectEditor.onPopupMenuCallback = [this, curEffectIndex] ()

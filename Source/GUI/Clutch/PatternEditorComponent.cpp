@@ -37,21 +37,12 @@ PatternEditorComponent::PatternEditorComponent ()
     numberOfStepsEditor.getMaxValueCallback = [this] () { return 32; };
     numberOfStepsEditor.toStringCallback = [this] (int value) { return juce::String (value); };
     numberOfStepsEditor.updateDataCallback = [this] ([[maybe_unused]] int value) { onPatternUiChanged (); };
-    numberOfStepsEditor.onDragCallback = [this] (DragSpeed dragSpeed, int direction)
+    numberOfStepsEditor.onDragCallback = [this] (double valueDelta)
     {
-        const auto multiplier = [this, dragSpeed] ()
-        {
-            if (dragSpeed == DragSpeed::slow)
-                return 1;
-            else if (dragSpeed == DragSpeed::medium)
-                return 2;
-            else
-                return 3;
-        } ();
         const auto patternString { patternProperties.getPattern () };
         const auto stepValues { juce::StringArray::fromTokens (patternString, ",", "") };
-        const auto newValue { (stepValues.size () - 1) + (multiplier * direction)};
-        //DebugLog ("CustomTextEditor", "mult: " + juce::String (multiplier) + ", pattern: " + patternString + ", numStepValues: " + juce::String(stepValues.size ()) + ", newValue: " + juce::String (newValue));
+        const auto newValue { (stepValues.size () - 1) + juce::roundToInt (valueDelta) };
+        //DebugLog ("CustomTextEditor", "delta: " + juce::String (valueDelta) + ", pattern: " + patternString + ", numStepValues: " + juce::String(stepValues.size ()) + ", newValue: " + juce::String (newValue));
         numberOfStepsEditor.setValue (newValue);
     };
     numberOfStepsEditor.onPopupMenuCallback = [this] ()
@@ -120,11 +111,10 @@ PatternEditorComponent::PatternEditorComponent ()
         stepComboBox.setColour (juce::ComboBox::backgroundColourId, juce::Colours::darkgrey.darker (curStepIndex == 0 ? kEnabledStepColor : kDisabledStepColor));
         stepComboBox.setSelectedId (1);
         stepComboBox.setComponentID ("StepComboBox" + juce::String (curStepIndex));
-        stepComboBox.onDragCallback = [this, &stepComboBox] (DragSpeed dragSpeed, int direction)
+        stepComboBox.onDragCallback = [this, &stepComboBox] (double valueDelta)
         {
-            const auto scrollAmount { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
             const auto stepValue { stepComboBox.getSelectedId () };
-            stepComboBox.setSelectedId (std::clamp (stepValue + scrollAmount, 1, 9), juce::NotificationType::dontSendNotification);
+            stepComboBox.setSelectedId (std::clamp (stepValue + juce::roundToInt (valueDelta), 1, 9), juce::NotificationType::dontSendNotification);
             onPatternUiChanged ();
         };
         stepComboBox.onPopupMenuCallback = [this, curStepIndex, &stepComboBox] ()

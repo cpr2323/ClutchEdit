@@ -28,16 +28,9 @@ SettingsEditorComponent::SettingsEditorComponent ()
         std::function<float ()> getMax;
     };
 
-	struct FloatDragMultipliers
-	{
-		float slow;
-		float medium;
-		float fast;
-	};
-
 	auto setupFloatEditor = [this] (EditorFloatData editorData,
                                     FloatDataRangeGetters dataRangeGetters,
-									FloatDragMultipliers dragMultipliers,
+									float increment,
 									std::function<juce::String (float value)> toStringCallback,
 									std::function<void (float value)> updateDataCallback,
 									std::function<void (float valueOffset)> updateFromDragCallback,
@@ -56,20 +49,11 @@ SettingsEditorComponent::SettingsEditorComponent ()
 		editorData.editor->getMaxValueCallback = [getMax = dataRangeGetters.getMax] () { return getMax (); };
 		editorData.editor->toStringCallback = [toStringCallback] (float value) { return toStringCallback (value); };
 		editorData.editor->updateDataCallback = [updateDataCallback] (float value) { updateDataCallback (value); };
-		editorData.editor->onDragCallback = [dragMultipliers, updateFromDragCallback] (DragSpeed dragSpeed, int direction)
-        {
-            const auto multiplier = [dragSpeed, dragMultipliers] ()
-                {
-                    if (dragSpeed == DragSpeed::slow)
-                        return dragMultipliers.slow;
-                    else if (dragSpeed == DragSpeed::medium)
-                        return dragMultipliers.medium;
-                    else
-                        return dragMultipliers.fast;
-                } ();
-
-            updateFromDragCallback (multiplier * direction);
-        };
+		editorData.editor->getIncrementCallback = [increment] () { return increment; };
+		editorData.editor->onDragCallback = [updateFromDragCallback] (double valueDelta)
+		{
+			updateFromDragCallback (static_cast<float> (valueDelta));
+		};
 		editorData.editor->onPopupMenuCallback = [this, editor = editorData.editor, getDefaultValue, getUneditedValue, menuHeader = editorData.menuHeader] ()
 		{
             auto* popupMenuLnF { new juce::LookAndFeel_V4 };
@@ -112,16 +96,9 @@ SettingsEditorComponent::SettingsEditorComponent ()
 		int max;
 	};
 
-	struct IntDragMultipliers
-	{
-		int slow;
-		int medium;
-		int fast;
-	};
-
 	auto setupIntEditor = [this] (EditorIntData editorData,
 								  IntDataRange dataRange,
-								  IntDragMultipliers dragMultipliers,
+								  int increment,
 								  std::function<juce::String (int value)> toStringCallback,
 								  std::function<void (int value)> updateDataCallback,
 								  std::function<void (int valueOffset)> updateFromDragCallback,
@@ -140,19 +117,10 @@ SettingsEditorComponent::SettingsEditorComponent ()
 		editorData.editor->getMaxValueCallback = [maxValue = dataRange.max] () { return maxValue; };
 		editorData.editor->toStringCallback = [toStringCallback] (int value) { return toStringCallback (value); };
 		editorData.editor->updateDataCallback = [updateDataCallback] (int value) { updateDataCallback (value); };
-		editorData.editor->onDragCallback = [dragMultipliers, updateFromDragCallback] (DragSpeed dragSpeed, int direction)
+		editorData.editor->getIncrementCallback = [increment] () { return increment; };
+		editorData.editor->onDragCallback = [updateFromDragCallback] (double valueDelta)
 		{
-			const auto multiplier = [dragSpeed, dragMultipliers] ()
-			{
-				if (dragSpeed == DragSpeed::slow)
-					return dragMultipliers.slow;
-				else if (dragSpeed == DragSpeed::medium)
-					return dragMultipliers.medium;
-				else
-					return dragMultipliers.fast;
-			} ();
-
-			updateFromDragCallback (multiplier * direction);
+			updateFromDragCallback (juce::roundToInt (valueDelta));
 		};
 		editorData.editor->onPopupMenuCallback = [this, editor = editorData.editor, getDefaultValue, getUneditedValue, menuHeader = editorData.menuHeader] ()
 		{
@@ -214,10 +182,9 @@ SettingsEditorComponent::SettingsEditorComponent ()
 		for (const auto& menuItem : menuItems)
 			comboBoxData.comboBox.addItem (menuItem.text, menuItem.value);
 
-		comboBoxData.comboBox.onDragCallback = [updateFromDragCallback] (DragSpeed dragSpeed, int direction)
+		comboBoxData.comboBox.onDragCallback = [updateFromDragCallback] (double valueDelta)
 		{
-			const auto valueOffset { (dragSpeed == DragSpeed::fast ? 2 : 1) * direction };
-			updateFromDragCallback (valueOffset);
+			updateFromDragCallback (juce::roundToInt (valueDelta));
 		};
 		comboBoxData.comboBox.onPopupMenuCallback = [this, comboBox = &comboBoxData.comboBox, getDefaultValue, getUneditedValue, menuHeader = comboBoxData.menuHeader] ()
 		{
@@ -247,7 +214,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &accClAmpModEditor, accClAmpModLabel, "Amp Mod", "Amp Mod CLOSED ACC hit", "Acc Cl Amp Mod" },
                          { []() { return kAccClAmpModMin; }, []() { return kAccClAmpModMax; } },
-                         { 0.01f, 0.3f, 1.0f },
+                         0.01f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { accClAmpModUiChanged (value); },
                          [this] (float valueOffset)
@@ -260,7 +227,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &accClRelModEditor, accClRelModLabel, "Rel Mod", "Acc Cl Rel Mod", "Acc Cl Rel Mod" },
                          { []() { return kAccClRelModMin; }, []() { return kAccClRelModMax; } },
-                         { 0.01f, 0.3f, 1.0f },
+                         0.01f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { accClRelModUiChanged (value); },
                          [this] (float valueOffset)
@@ -273,7 +240,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &accOpAmpModEditor, accOpAmpModLabel, "Amp Mod", "Acc Op Amp Mod", "Acc Op Amp Mod" },
                          { []() { return kAccOpAmpModMin; }, []() { return kAccOpAmpModMax; } },
-                         { 0.1f, 0.5f, 1.0f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { accOpAmpModUiChanged (value); },
                          [this] (float valueOffset)
@@ -286,7 +253,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &accOpRelModEditor, accOpRelModLabel, "Rel Mod", "Acc Op Rel Mod", "Acc Op Rel Mod" },
                          { []() { return kAccOpRelModMin; }, []() { return kAccOpRelModMax; } },
-                         { 0.1f, 0.5f, 1.0f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { accOpRelModUiChanged (value); },
                          [this] (float valueOffset)
@@ -299,7 +266,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &chokeReleaseEditor, chokeReleaseLabel, "Choke Release", "Choke Release", "Choke Release" },
                          { []() { return kChokeReleaseMin; }, []() { return kChokeReleaseMax; } },
-                         { 0.001f, 0.5f, 3.0f },
+                         0.001f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { chokeReleaseUiChanged (value); },
                          [this] (float valueOffset)
@@ -312,7 +279,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &clsdMaxReleaseEditor, clsdMaxReleaseLabel, "Max Release", "Choke Release", "Clsd Max Release" },
                          { []() { return kClsdMaxReleaseMin; }, []() { return kClsdMaxReleaseMax; } },
-                         { 0.1f, 0.3f, 1.0f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { clsdMaxReleaseUiChanged (value); },
                          [this] (float valueOffset)
@@ -325,7 +292,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &clsdRelOfstScaleEditor, clsdRelOfstScaleLabel, "Rel Ofst Scale", "Choke Release", "Clsd Rel Ofst Scale" },
                          { []() { return kClsdRelOfstScaleMin; }, []() { return kClsdRelOfstScaleMax; } },
-                         { 0.1f, 0.1f, 0.3f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { clsdRelOfstScaleUiChanged (value); },
                          [this] (float valueOffset)
@@ -391,7 +358,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &envelopeMaxReleaseEditor, envelopeMaxReleaseLabel, "Max Release", "Envelope Max Release", "Envelope Max Release" },
                          { []() { return kEnvelopeMaxReleaseMin; }, []() { return kEnvelopeMaxReleaseMax; } },
-                         { 0.1f, 0.5f, 1.0f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { envelopeMaxReleaseUiChanged (value); },
                          [this] (float valueOffset)
@@ -404,7 +371,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &feelAmpModEditor, feelAmpModLabel, "Amp Mod", "Feel Amp Mod", "Feel Amp Mod" },
                          { []() { return kFeelAmpModMin; }, []() { return kFeelAmpModMax; } },
-                         { 0.1f, 0.1f, 1.0f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { feelAmpModUiChanged (value); },
                          [this] (float valueOffset)
@@ -417,7 +384,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &feelAttackModEditor, feelAttackModLabel, "Attack Mod", "Feel Attack Mod", "Feel Attack Mod" },
                          { []() { return kFeelAttackModMin; }, []() { return kFeelAttackModMax; } },
-                         { 0.1f, 0.1f, 1.0f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { feelAttackModUiChanged (value); },
                          [this] (float valueOffset)
@@ -430,7 +397,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &feelReleaseModEditor, feelReleaseModLabel, "Release Mod", "Feel Release Mod", "Feel Release Mod" },
                          { []() { return kFeelReleaseModMin; }, []() { return kFeelReleaseModMax; } },
-                         { 0.1f, 0.1f, 1.0f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { feelReleaseModUiChanged (value); },
                          [this] (float valueOffset)
@@ -443,7 +410,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupIntEditor ({ &fltrHpfMaxFreqEditor, fltrHpfMaxFreqLabel, "Max Freq", "Fltr HPF Max Freq", "Fltr HPF Max Freq" },
                        { kFltrHpfMaxFreqMin, kFltrHpfMaxFreqMax },
-                       { 1, 25, 100 },
+                       1,
                        [this] (int value) { return juce::String (value); },
                        [this] (int value) { fltrHpfMaxFreqUiChanged (value); },
                        [this] (int valueOffset)
@@ -456,7 +423,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupIntEditor ({ &fltrHpfMinFreqEditor, fltrHpfMinFreqLabel, "Min Freq", "Fltr HPF Min Freq", "Fltr HPF Min Freq" },
                        { kFltrHpfMinFreqMin, kFltrHpfMinFreqMax },
-                       { 1, 25, 100 },
+                       1,
                        [this] (int value) { return juce::String (value); },
                        [this] (int value) { fltrHpfMinFreqUiChanged (value); },
                        [this] (int valueOffset)
@@ -469,7 +436,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fltrHpfQEditor, fltrHpfQLabel, "Q", "Fltr HPF Q", "Fltr HPF Q" },
                          { []() { return kFltrHpfQMin; }, []() { return kFltrHpfQMax; } },
-                         { 0.001f, 0.1f, 1.0f },
+                         0.001f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fltrHpfQUiChanged (value); },
                          [this] (float valueOffset)
@@ -482,7 +449,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupIntEditor ({ &fltrLpfMaxFreqEditor, fltrLpfMaxFreqLabel, "Max Freq", "Fltr LPF Max Freq", "Fltr LPF Max Freq" },
                        { kFltrLpfMaxFreqMin, kFltrLpfMaxFreqMax },
-                       { 1, 25, 100 },
+                       1,
                        [this] (int value) { return juce::String (value); },
                        [this] (int value) { fltrLpfMaxFreqUiChanged (value); },
                        [this] (int valueOffset)
@@ -495,7 +462,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupIntEditor ({ &fltrLpfMinFreqEditor, fltrLpfMinFreqLabel, "Min Freq", "Fltr LPF Min Freq", "Fltr LPF Min Freq" },
                        { kFltrLpfMinFreqMin, kFltrLpfMinFreqMax },
-                       { 1, 25, 100 },
+                       1,
                        [this] (int value) { return juce::String (value); },
                        [this] (int value) { fltrLpfMinFreqUiChanged (value); },
                        [this] (int valueOffset)
@@ -508,7 +475,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fltrLpfQEditor, fltrLpfQLabel, "Q", "Fltr LPF Q", "Fltr LPF Q" },
                          { []() { return kFltrLpfQMin; }, []() { return kFltrLpfQMax; } },
-                         { 0.001f, 0.1f, 1.0f },
+                         0.001f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fltrLpfQUiChanged (value); },
                          [this] (float valueOffset)
@@ -521,7 +488,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxChorusCenterEditor, fxChorusCenterLabel, "Center", "FX Chorus Center", "FX Chorus Center" },
                          { []() { return kFxChorusCenterMin; }, []() { return kFxChorusCenterMax; } },
-                         { 1.0f, 3.0f, 10.0f },
+                         1.0f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxChorusCenterUiChanged (value); },
                          [this] (float valueOffset)
@@ -534,7 +501,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxChorusDepthEditor, fxChorusDepthLabel, "Depth", "FX Chorus Depth", "FX Chorus Depth" },
                          { []() { return kFxChorusDepthMin; }, [this]() { return settingsProperties.getFxChorusCenter () / 2.0f; } },
-                         { 1.0f, 3.0f, 10.0f },
+                         1.0f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxChorusDepthUiChanged (value); },
                          [this] (float valueOffset)
@@ -547,7 +514,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxChorusLfoBEditor, fxChorusLfoBLabel, "LFO B (Thick)", "FX Chorus LFO B", "FX Chorus LFO B" },
                          { []() { return kFxChorusLfoBMin; }, []() { return kFxChorusLfoBMax; } },
-                         { 0.001f, 0.1f, 0.5f },
+                         0.001f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxChorusLfoBUiChanged (value); },
                          [this] (float valueOffset)
@@ -560,7 +527,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxChorusLfoTEditor, fxChorusLfoTLabel, "LFO T (Thick)", "FX Chorus LFO T", "FX Chorus LFO T" },
                          { []() { return kFxChorusLfoTMin; }, []() { return kFxChorusLfoTMax; } },
-                         { 0.001f, 0.1f, 0.5f },
+                         0.001f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxChorusLfoTUiChanged (value); },
                          [this] (float valueOffset)
@@ -573,7 +540,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxChorusMixEditor, fxChorusMixLabel, "Mix", "FX Chorus Mix", "FX Chorus Mix" },
                          { []() { return kFxChorusMixMin; }, []() { return kFxChorusMixMax; } },
-                         { 0.1f, 0.1f, 0.3f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxChorusMixUiChanged (value); },
                          [this] (float valueOffset)
@@ -586,7 +553,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxChorusSpreadEditor, fxChorusSpreadLabel, "Spread", "FX Chorus Spread", "FX Chorus Spread" },
                          { []() { return kFxChorusSpreadMin; }, []() { return kFxChorusSpreadMax; } },
-                         { 0.01f, 0.1f, 0.3f },
+                         0.01f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxChorusSpreadUiChanged (value); },
                          [this] (float valueOffset)
@@ -599,7 +566,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxChorusStaggerEditor, fxChorusStaggerLabel, "Stagger (Thick)", "FX Chorus Stagger", "FX Chorus Stagger" },
                          { []() { return kFxChorusStaggerMin; }, []() { return kFxChorusStaggerMax; } },
-                         { 0.01f, 0.1f, 0.3f },
+                         0.01f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxChorusStaggerUiChanged (value); },
                          [this] (float valueOffset)
@@ -665,7 +632,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupIntEditor ({ &fxDjfilterHpfMaxEditor, fxDjfilterHpfMaxLabel, "Max", "FX DJ Filter HPF Max", "FX DJ Filter HPF Max" },
                        { kFxDjfilterHpfMaxMin, kFxDjfilterHpfMaxMax },
-                       { 1, 25, 100 },
+                       1,
                        [this] (int value) { return juce::String (value); },
                        [this] (int value) { fxDjfilterHpfMaxUiChanged (value); },
                        [this] (int valueOffset)
@@ -678,7 +645,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupIntEditor ({ &fxDjfilterHpfMinEditor, fxDjfilterHpfMinLabel, "Min", "FX DJ Filter HPF Min", "FX DJ Filter HPF Min" },
                        { kFxDjfilterHpfMinMin, kFxDjfilterHpfMinMax },
-                       { 1, 25, 100 },
+                       1,
                        [this] (int value) { return juce::String (value); },
                        [this] (int value) { fxDjfilterHpfMinUiChanged (value); },
                        [this] (int valueOffset)
@@ -691,7 +658,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupIntEditor ({ &fxDjfilterLpfMaxEditor, fxDjfilterLpfMaxLabel, "Max", "FX DJ Filter LPF Max", "FX DJ Filter LPF Max" },
                        { kFxDjfilterLpfMaxMin, kFxDjfilterLpfMaxMax },
-                       { 1, 25, 100 },
+                       1,
                        [this] (int value) { return juce::String (value); },
                        [this] (int value) { fxDjfilterLpfMaxUiChanged (value); },
                        [this] (int valueOffset)
@@ -704,7 +671,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupIntEditor ({ &fxDjfilterLpfMinEditor, fxDjfilterLpfMinLabel, "Min", "FX DJ Filter LPF Min", "FX DJ Filter LPF Min" },
                        { kFxDjfilterLpfMinMin, kFxDjfilterLpfMinMax },
-                       { 1, 25, 100 },
+                       1,
                        [this] (int value) { return juce::String (value); },
                        [this] (int value) { fxDjfilterLpfMinUiChanged (value); },
                        [this] (int valueOffset)
@@ -717,7 +684,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxDjfilterQGainReductionEditor, fxDjfilterQGainReductionLabel, "Gain Reduction", "FX DJ Filter Q Gain Reduction", "FX DJ Filter Q Gain Reduction" },
                          { []() { return kFxDjfilterQGainReductionMin; }, []() { return kFxDjfilterQGainReductionMax; } },
-                         { 0.01f, 0.1f, 0.3f },
+                         0.01f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxDjfilterQGainReductionUiChanged (value); },
                          [this] (float valueOffset)
@@ -730,7 +697,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxDjfilterQMaxEditor, fxDjfilterQMaxLabel, "Max", "FX DJ Filter Q Max", "FX DJ Filter Q Max" },
                          { []() { return kFxDjfilterQMaxMin; }, []() { return kFxDjfilterQMaxMax; } },
-                         { 0.1f, 3.0f, 10.0f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxDjfilterQMaxUiChanged (value); },
                          [this] (float valueOffset)
@@ -743,7 +710,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxDjfilterQMinEditor, fxDjfilterQMinLabel, "Min", "FX DJ Filter Q Min", "FX DJ Filter Q Min" },
                          { []() { return kFxDjfilterQMinMin; }, []() { return kFxDjfilterQMinMax; } },
-                         { 0.1f, 3.0f, 10.0f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxDjfilterQMinUiChanged (value); },
                          [this] (float valueOffset)
@@ -756,7 +723,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupIntEditor ({ &fxDubEchoHpfEditor, fxDubEchoHpfLabel, "HPF", "FX Dub Echo HPF", "FX Dub Echo HPF" },
                        { kFxDubEchoHpfMin, kFxDubEchoHpfMax },
-                       { 1, 25, 100 },
+                       1,
                        [this] (int value) { return juce::String (value); },
                        [this] (int value) { fxDubEchoHpfUiChanged (value); },
                        [this] (int valueOffset)
@@ -769,7 +736,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupIntEditor ({ &fxDubEchoLpfEditor, fxDubEchoLpfLabel, "LPF", "FX Dub Echo LPF", "FX Dub Echo LPF" },
                        { kFxDubEchoLpfMin, kFxDubEchoLpfMax },
-                       { 1, 25, 100 },
+                       1,
                        [this] (int value) { return juce::String (value); },
                        [this] (int value) { fxDubEchoLpfUiChanged (value); },
                        [this] (int valueOffset)
@@ -782,7 +749,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxDubEchoMixEditor, fxDubEchoMixLabel, "Mix", "FX Dub Echo Mix", "FX Dub Echo Mix" },
                          { []() { return kFxDubEchoMixMin; }, []() { return kFxDubEchoMixMax; } },
-                         { 0.1f, 0.3f, 0.5f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxDubEchoMixUiChanged (value); },
                          [this] (float valueOffset)
@@ -795,7 +762,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupIntEditor ({ &fxDubEchoTminEditor, fxDubEchoTminLabel, "Tmin", "FX Dub Echo Tmin", "FX Dub Echo Tmin" },
                        { kFxDubEchoTminMin, kFxDubEchoTminMax },
-                       { 1, 10, 25 },
+                       1,
                        [this] (int value) { return juce::String (value); },
                        [this] (int value) { fxDubEchoTminUiChanged (value); },
                        [this] (int valueOffset)
@@ -808,7 +775,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxGlitchCrushTimeMaxEditor, fxGlitchCrushTimeMaxLabel, "Time Max", "FX Glitch Crush Time Max", "FX Glitch Crush Time Max" },
                          { [this]() { return settingsProperties.getFxGlitchCrushTimeMin (); }, []() { return kFxGlitchCrushTimeMaxMax; } },
-                         { 0.1f, 5.0f, 25.0f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxGlitchCrushTimeMaxUiChanged (value); },
                          [this] (float valueOffset)
@@ -822,7 +789,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxGlitchCrushTimeMinEditor, fxGlitchCrushTimeMinLabel, "Time Min", "FX Glitch Crush Time Min", "FX Glitch Crush Time Min" },
                          { []() { return kFxGlitchCrushTimeMinMin; }, []() { return kFxGlitchCrushTimeMinMax; } },
-                         { 0.1f, 5.0f, 25.0f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxGlitchCrushTimeMinUiChanged (value); },
                          [this] (float valueOffset)
@@ -835,7 +802,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxGlitchDropKeepLevelMaxEditor, fxGlitchDropKeepLevelMaxLabel, "Level Max", "FX Glitch Drop Keep Level Max", "FX Glitch Drop Keep Level Max" },
                          { []() { return kFxGlitchDropKeepLevelMin; }, []() { return kFxGlitchDropKeepLevelMax; } },
-                         { 0.1f, 0.3f, 0.5f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxGlitchDropKeepLevelMaxUiChanged (value); },
                          [this] (float valueOffset)
@@ -848,7 +815,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxGlitchDropKeepLevelMinEditor, fxGlitchDropKeepLevelMinLabel, "Level Min", "FX Glitch Drop Keep Level Min", "FX Glitch Drop Keep Level Min" },
                          { []() { return kFxGlitchDropKeepLevelMin; }, []() { return kFxGlitchDropKeepLevelMax; } },
-                         { 0.1f, 0.3f, 0.5f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxGlitchDropKeepLevelMinUiChanged (value); },
                          [this] (float valueOffset)
@@ -861,7 +828,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxGlitchDropKeepTimeMaxEditor, fxGlitchDropKeepTimeMaxLabel, "Time Max", "FX Glitch Drop Keep Time Max", "FX Glitch Drop Keep Time Max" },
                          { [this]() { return settingsProperties.getFxGlitchDropKeepTimeMin (); }, []() { return kFxGlitchDropKeepTimeMaxMax; } },
-                         { 0.1f, 10.0f, 25.0f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxGlitchDropKeepTimeMaxUiChanged (value); },
                          [this] (float valueOffset)
@@ -874,7 +841,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxGlitchDropKeepTimeMinEditor, fxGlitchDropKeepTimeMinLabel, "Time Min", "FX Glitch Drop Keep Time Min", "FX Glitch Drop Keep Time Min" },
                          { []() { return kFxGlitchDropKeepTimeMinMin; }, []() { return kFxGlitchDropKeepTimeMinMax; } },
-                         { 0.1f, 10.0f, 25.0f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxGlitchDropKeepTimeMinUiChanged (value); },
                          [this] (float valueOffset)
@@ -887,7 +854,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxGlitchMicroloopPlayTMaxEditor, fxGlitchMicroloopPlayTMaxLabel, "Play T Max", "FX Glitch Microloop Play T Max", "FX Glitch Microloop Play T Max" },
                          { [this]() { return settingsProperties.getFxGlitchMicroloopPlayTMin (); }, []() { return kFxGlitchMicroloopPlayTMaxMax; } },
-                         { 0.1f, 10.0f, 25.0f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxGlitchMicroloopPlayTMaxUiChanged (value); },
                          [this] (float valueOffset)
@@ -900,7 +867,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxGlitchMicroloopPlayTMinEditor, fxGlitchMicroloopPlayTMinLabel, "Play T Min", "FX Glitch Microloop Play T Min", "FX Glitch Microloop Play T Min" },
                          { []() { return kFxGlitchMicroloopPlayTMinMin; }, []() { return kFxGlitchMicroloopPlayTMinMax; } },
-                         { 0.1f, 10.0f, 25.0f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxGlitchMicroloopPlayTMinUiChanged (value); },
                          [this] (float valueOffset)
@@ -913,7 +880,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxGlitchMicroloopSmplTMaxEditor, fxGlitchMicroloopSmplTMaxLabel, "Smpl T Max", "FX Glitch Microloop Smpl T Max", "FX Glitch Microloop Smpl T Max" },
                          { [this]() { return settingsProperties.getFxGlitchMicroloopSmplTMin (); }, []() { return kFxGlitchMicroloopSmplTMaxMax; } },
-                         { 0.1f, 10.0f, 25.0f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxGlitchMicroloopSmplTMaxUiChanged (value); },
                          [this] (float valueOffset)
@@ -926,7 +893,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxGlitchMicroloopSmplTMinEditor, fxGlitchMicroloopSmplTMinLabel, "Smpl T Min", "FX Glitch Microloop Smpl T Min", "FX Glitch Microloop Smpl T Min" },
                          { []() { return kFxGlitchMicroloopSmplTMinMin; }, []() { return kFxGlitchMicroloopSmplTMinMax; } },
-                         { 0.1f, 10.0f, 25.0f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxGlitchMicroloopSmplTMinUiChanged (value); },
                          [this] (float valueOffset)
@@ -939,7 +906,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxGlitchProbabilityMaxEditor, fxGlitchProbabilityMaxLabel, "Max", "FX Glitch Probability Max", "FX Glitch Probability Max" },
                          { []() { return kFxGlitchProbabilityMaxMin; }, []() { return kFxGlitchProbabilityMaxMax; } },
-                         { 0.1f, 0.3f, 0.5f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxGlitchProbabilityMaxUiChanged (value); },
                          [this] (float valueOffset)
@@ -952,7 +919,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxGlitchProbabilityMinEditor, fxGlitchProbabilityMinLabel, "Min", "FX Glitch Probability Min", "FX Glitch Probability Min" },
                          { []() { return kFxGlitchProbabilityMinMin; }, []() { return kFxGlitchProbabilityMinMax; } },
-                         { 0.1f, 0.3f, 0.5f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 5); },
                          [this] (float value) { fxGlitchProbabilityMinUiChanged (value); },
                          [this] (float valueOffset)
@@ -965,7 +932,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupIntEditor ({ &fxGlitchStutterNumMaxEditor, fxGlitchStutterNumMaxLabel, "Num Max", "FX Glitch Stutter Num Max", "FX Glitch Stutter Num Max" },
                        { kFxGlitchStutterNumMin, kFxGlitchStutterNumMax },
-                       { 1, 10, 25 },
+                       1,
                        [this] (int value) { return juce::String (value); },
                        [this] (int value) { fxGlitchStutterNumMaxUiChanged (value); },
                        [this] (int valueOffset)
@@ -978,7 +945,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupIntEditor ({ &fxGlitchStutterNumMinEditor, fxGlitchStutterNumMinLabel, "Num Min", "FX Glitch Stutter Num Min", "FX Glitch Stutter Num Min" },
                        { kFxGlitchStutterNumMin, kFxGlitchStutterNumMax },
-                       { 1, 10, 25 },
+                       1,
                        [this] (int value) { return juce::String (value); },
                        [this] (int value) { fxGlitchStutterNumMinUiChanged (value); },
                        [this] (int valueOffset)
@@ -991,7 +958,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxGlitchStutterSmplTMaxEditor, fxGlitchStutterSmplTMaxLabel, "Smpl T Max", "FX Glitch Stutter Smpl T Max", "FX Glitch Stutter Smpl T Max" },
                          { [this]() { return settingsProperties.getFxGlitchStutterSmplTMin (); }, []() { return kFxGlitchStutterSmplTMaxMax; } },
-                         { 0.1f, 10.0f, 25.0f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxGlitchStutterSmplTMaxUiChanged (value); },
                          [this] (float valueOffset)
@@ -1004,7 +971,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxGlitchStutterSmplTMinEditor, fxGlitchStutterSmplTMinLabel, "Smpl T Min", "FX Glitch Stutter Smpl T Min", "FX Glitch Stutter Smpl T Min" },
                          { []() { return kFxGlitchStutterSmplTMinMin; }, []() { return kFxGlitchStutterSmplTMinMax; } },
-                         { 0.1f, 10.0f, 25.0f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxGlitchStutterSmplTMinUiChanged (value); },
                          [this] (float valueOffset)
@@ -1017,7 +984,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupIntEditor ({ &fxGlitchStutterWindowEditor, fxGlitchStutterWindowLabel, "Window", "FX Glitch Stutter Window", "FX Glitch Stutter Window" },
                        { kFxGlitchStutterWindowMin, kFxGlitchStutterWindowMax },
-                       { 1, 10, 25 },
+                       1,
                        [this] (int value) { return juce::String (value); },
                        [this] (int value) { fxGlitchStutterWindowUiChanged (value); },
                        [this] (int valueOffset)
@@ -1030,7 +997,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxGlitchWeightCrushHighEditor, fxGlitchWeightCrushHighLabel, "Crush High", "FX Glitch Weight Crush High", "FX Glitch Weight Crush High" },
                       { []() { return kFxGlitchWeightMin; }, []() { return kFxGlitchWeightMax; } },
-                      { 0.1f, 0.3f, 0.5f },
+                      0.1f,
                       [this] (float value) { return getRoundedFloatString (value, 4); },
                       [this] (float value) { fxGlitchWeightCrushHighUiChanged (value); },
                       [this] (float valueOffset)
@@ -1043,7 +1010,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxGlitchWeightCrushLowEditor, fxGlitchWeightCrushLowLabel, "Crush Low", "FX Glitch Weight Crush Low", "FX Glitch Weight Crush Low" },
                          { []() { return kFxGlitchWeightMin; }, []() { return kFxGlitchWeightMax; } },
-                         { 0.1f, 0.3f, 0.5f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxGlitchWeightCrushLowUiChanged (value); },
                          [this] (float valueOffset)
@@ -1056,7 +1023,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxGlitchWeightDropHighEditor, fxGlitchWeightDropHighLabel, "Drop High", "FX Glitch Weight Drop High", "FX Glitch Weight Drop High" },
                          { []() { return kFxGlitchWeightMin; }, []() { return kFxGlitchWeightMax; } },
-                         { 0.1f, 0.3f, 0.5f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxGlitchWeightDropHighUiChanged (value); },
                          [this] (float valueOffset)
@@ -1069,7 +1036,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxGlitchWeightDropLowEditor, fxGlitchWeightDropLowLabel, "Drop Low", "FX Glitch Weight Drop Low", "FX Glitch Weight Drop Low" },
                          { []() { return kFxGlitchWeightMin; }, []() { return kFxGlitchWeightMax; } },
-                         { 0.1f, 0.3f, 0.5f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxGlitchWeightDropLowUiChanged (value); },
                          [this] (float valueOffset)
@@ -1082,7 +1049,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxGlitchWeightHoldHighEditor, fxGlitchWeightHoldHighLabel, "Hold High", "FX Glitch Weight Hold High", "FX Glitch Weight Hold High" },
                          { []() { return kFxGlitchWeightMin; }, []() { return kFxGlitchWeightMax; } },
-                         { 0.1f, 0.3f, 0.5f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxGlitchWeightHoldHighUiChanged (value); },
                          [this] (float valueOffset)
@@ -1095,7 +1062,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxGlitchWeightHoldLowEditor, fxGlitchWeightHoldLowLabel, "Hold Low", "FX Glitch Weight Hold Low", "FX Glitch Weight Hold Low" },
                          { []() { return kFxGlitchWeightMin; }, []() { return kFxGlitchWeightMax; } },
-                         { 0.1f, 0.3f, 0.5f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxGlitchWeightHoldLowUiChanged (value); },
                          [this] (float valueOffset)
@@ -1108,7 +1075,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxGlitchWeightStutterHighEditor, fxGlitchWeightStutterHighLabel, "Stutter High", "FX Glitch Weight Stutter High", "FX Glitch Weight Stutter High" },
                          { []() { return kFxGlitchWeightMin; }, []() { return kFxGlitchWeightMax; } },
-                         { 0.1f, 0.3f, 0.5f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxGlitchWeightStutterHighUiChanged (value); },
                          [this] (float valueOffset)
@@ -1121,7 +1088,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxGlitchWeightStutterLowEditor, fxGlitchWeightStutterLowLabel, "Stutter Low", "FX Glitch Weight Stutter Low", "FX Glitch Weight Stutter Low" },
                          { []() { return kFxGlitchWeightMin; }, []() { return kFxGlitchWeightMax; } },
-                         { 0.1f, 0.3f, 0.5f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxGlitchWeightStutterLowUiChanged (value); },
                          [this] (float valueOffset)
@@ -1134,7 +1101,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupIntEditor ({ &fxReverbHpfEditor, fxReverbHpfLabel, "HPF", "FX Reverb HPF", "FX Reverb HPF" },
                        { kFxReverbHpfMin, kFxReverbHpfMax },
-                       { 1, 10, 25 },
+                       1,
                        [this] (int value) { return juce::String (value); },
                        [this] (int value) { fxReverbHpfUiChanged (value); },
                        [this] (int valueOffset)
@@ -1147,7 +1114,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupIntEditor ({ &fxReverbLpfEditor, fxReverbLpfLabel, "LPF", "FX Reverb LPF", "FX Reverb LPF" },
                        { kFxReverbLpfMin, kFxReverbLpfMax },
-                       { 1, 10, 25 },
+                       1,
                        [this] (int value) { return juce::String (value); },
                        [this] (int value) { fxReverbLpfUiChanged (value); },
                        [this] (int valueOffset)
@@ -1176,7 +1143,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxReverbSizeMinEditor, fxReverbSizeMinLabel, "Size Min (Plate)", "FX Reverb Size Min", "FX Reverb Size Min" },
                          { []() { return kFxReverbSizeMinMin; }, []() { return kFxReverbSizeMinMax; } },
-                         { 0.01f, 0.1f, 0.25f },
+                         0.01f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxReverbSizeMinUiChanged (value); },
                          [this] (float valueOffset)
@@ -1189,7 +1156,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxReverbSizeMaxEditor, fxReverbSizeMaxLabel, "Size Max (Plate)", "FX Reverb Size Max", "FX Reverb Size Max" },
                          { [this]() { return settingsProperties.getFxReverbSizeMin (); }, []() { return kFxReverbSizeMaxMax; } },
-                         { 0.01f, 0.1f, 0.25f },
+                         0.01f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxReverbSizeMaxUiChanged (value); },
                          [this] (float valueOffset)
@@ -1203,7 +1170,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupIntEditor ({ &fxReverbPredelayEditor, fxReverbPredelayLabel, "Predelay (Plate)", "FX Reverb Predelay", "FX Reverb Predelay" },
                        { kFxReverbPredelayMin, kFxReverbPredelayMax },
-                       { 1, 5, 10 },
+                       1,
                        [this] (int value) { return juce::String (value); },
                        [this] (int value) { fxReverbPredelayUiChanged (value); },
                        [this] (int valueOffset)
@@ -1216,7 +1183,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxReverbModDepthEditor, fxReverbModDepthLabel, "Mod Depth (Plate)", "FX Reverb Mod Depth", "FX Reverb Mod Depth" },
                          { []() { return kFxReverbModDepthMin; }, []() { return kFxReverbModDepthMax; } },
-                         { 0.01f, 0.1f, 0.5f },
+                         0.01f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxReverbModDepthUiChanged (value); },
                          [this] (float valueOffset)
@@ -1229,7 +1196,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxReverbModRateEditor, fxReverbModRateLabel, "Mod Rate (Plate)", "FX Reverb Mod Rate", "FX Reverb Mod Rate" },
                          { []() { return kFxReverbModRateMin; }, []() { return kFxReverbModRateMax; } },
-                         { 0.05f, 0.5f, 1.0f },
+                         0.05f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxReverbModRateUiChanged (value); },
                          [this] (float valueOffset)
@@ -1242,7 +1209,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxReverbDiffusionEditor, fxReverbDiffusionLabel, "Diffusion (Plate)", "FX Reverb Diffusion", "FX Reverb Diffusion" },
                          { []() { return kFxReverbDiffusionMin; }, []() { return kFxReverbDiffusionMax; } },
-                         { 0.01f, 0.1f, 0.25f },
+                         0.01f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxReverbDiffusionUiChanged (value); },
                          [this] (float valueOffset)
@@ -1255,7 +1222,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &fxReverbMixEditor, fxReverbMixLabel, "Mix (Plate)", "FX Reverb Mix", "FX Reverb Mix" },
                          { []() { return kFxReverbMixMin; }, []() { return kFxReverbMixMax; } },
-                         { 0.01f, 0.1f, 0.25f },
+                         0.01f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { fxReverbMixUiChanged (value); },
                          [this] (float valueOffset)
@@ -1302,7 +1269,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &pitchHighEditor, pitchHighLabel, "Pitch High", "Pitch High", "Pitch High" },
                          { []() { return kPitchHighMin; }, []() { return kPitchHighMax; } },
-                         { 0.1f, 0.3f, 0.5f },
+                         0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { pitchHighUiChanged (value); },
                          [this] (float valueOffset)
@@ -1315,7 +1282,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 
     setupFloatEditor ({ &pitchLowEditor, pitchLowLabel, "Pitch Low", "Pitch Low", "Pitch Low" },
                          { []() { return kPitchLowMin; }, []() { return kPitchLowMax; } },
-                         { 0.001f, 0.01f, 0.1f },
+                         0.001f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
                          [this] (float value) { pitchLowUiChanged (value); },
                          [this] (float valueOffset)
