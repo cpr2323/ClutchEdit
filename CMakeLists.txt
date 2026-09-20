@@ -37,7 +37,9 @@ set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT
 set(SOURCE_FILES
     Source/AppProperties.cpp
     Source/AppProperties.h
-    Source/Main.cpp)
+    Source/Main.cpp
+    Source/SystemServices.cpp
+    Source/SystemServices.h)
 
 set(CLUTCH_FILES
     Source/Clutch/BankListProperties.cpp
@@ -90,7 +92,29 @@ set(GUI_FILES
     Source/GUI/GuiProperties.cpp
     Source/GUI/GuiProperties.h
     Source/GUI/MainComponent.cpp
-    Source/GUI/MainComponent.h)
+    Source/GUI/MainComponent.h
+    Source/GUI/SettingsDialogComponent.cpp
+    Source/GUI/SettingsDialogComponent.h)
+
+set(GUI_THEME_FILES
+    Source/GUI/Theme/ClutchColourIds.h
+    Source/GUI/Theme/ClutchFonts.cpp
+    Source/GUI/Theme/ClutchFonts.h
+    Source/GUI/Theme/ClutchLookAndFeel.cpp
+    Source/GUI/Theme/ClutchLookAndFeel.h
+    Source/GUI/Theme/Palette.cpp
+    Source/GUI/Theme/Palette.h
+    Source/GUI/Theme/ThemeController.cpp
+    Source/GUI/Theme/ThemeController.h
+    Source/GUI/Theme/UiComponents.h)
+
+# The app's type. IBM Plex is embedded rather than asked of the system, so the
+# app looks the same on every machine it runs on.
+set(FONT_FILES
+    Assets/Fonts/IBM-Plex-Mono-Regular.ttf
+    Assets/Fonts/IBM-Plex-Sans-Regular.ttf
+    Assets/Fonts/IBM-Plex-Sans-Condensed-Regular.ttf
+    Assets/Fonts/IBM-Plex-Sans-Condensed-SemiBold.ttf)
 
 set(GUI_CLUTCH_FILES
     Source/GUI/Clutch/ClutchEditorComponent.cpp
@@ -122,7 +146,8 @@ set(SRC_FILES
 # shows them next to the code they belong with.
 set(RESOURCE_FILES
     ${CLUTCH_DATA_FILES}
-    ${GUI_CLUTCH_DATA_FILES})
+    ${GUI_CLUTCH_DATA_FILES}
+    ${FONT_FILES})
 
 set_source_files_properties(${RESOURCE_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
 
@@ -133,6 +158,8 @@ source_group("Source/Clutch"          FILES ${CLUTCH_FILES})
 source_group("Source/Clutch/Audio"    FILES ${CLUTCH_AUDIO_FILES})
 source_group("Source/Clutch/Data"     FILES ${CLUTCH_DATA_FILES})
 source_group("Source/GUI"             FILES ${GUI_FILES})
+source_group("Source/GUI/Theme"       FILES ${GUI_THEME_FILES})
+source_group("Assets/Fonts"           FILES ${FONT_FILES})
 source_group("Source/GUI/Clutch"      FILES ${GUI_CLUTCH_FILES})
 source_group("Source/GUI/Clutch/Data" FILES ${GUI_CLUTCH_DATA_FILES})
 source_group("Source/SRC"             FILES ${SRC_FILES})
@@ -146,6 +173,8 @@ target_sources(ClutchEdit
         ${CLUTCH_AUDIO_FILES}
         ${CLUTCH_DATA_FILES}
         ${GUI_FILES}
+        ${GUI_THEME_FILES}
+        ${FONT_FILES}
         ${GUI_CLUTCH_FILES}
         ${GUI_CLUTCH_DATA_FILES}
         ${SRC_FILES}
@@ -174,3 +203,17 @@ target_link_libraries(ClutchEdit
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags)
+
+# The third party licenses have to travel with the app, so they are copied into the
+# folder JUCE builds it into - ClutchEdit_artefacts/<config> - beside the .exe, or
+# beside the .app bundle on macOS. That folder can then be distributed as it is.
+#
+# The copy is a target of its own that ClutchEdit depends on, rather than a post
+# build step: a post build step only runs when the app relinks, so an added or
+# changed license would not arrive until some code changed too.
+add_custom_target(ClutchEditLicenses
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Licenses"
+                                               "$<GENEX_EVAL:$<TARGET_PROPERTY:ClutchEdit,RUNTIME_OUTPUT_DIRECTORY>>/Licenses"
+    COMMENT "Copying Licenses next to ClutchEdit"
+    VERBATIM)
+add_dependencies(ClutchEdit ClutchEditLicenses)

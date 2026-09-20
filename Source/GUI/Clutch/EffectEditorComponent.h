@@ -4,7 +4,6 @@
 #include "../../Clutch/EffectProperties.h"
 #include "../../Clutch/EffectListProperties.h"
 #include "oolib/GUI/CustomComboBox.h"
-#include "oolib/GUI/NoArrowComboBoxLnF.h"
 
 // FX_WHITE  = SPUTTER;    d: SPUTTER
 // FX_RED    = BITCRUSH;   d: BITCRUSH
@@ -28,9 +27,11 @@ private:
     std::array<CustomComboBox, 8> effectEditors;
     std::array<EffectProperties, 8> effectProperties;
     std::array<EffectProperties, 8> uneditedEffectProperties;
-    NoArrowComboBoxLnF noArrowComboBoxLnF;
 
-    void paintOverChildren (juce::Graphics& g) override;
+    void applyExplicitColours ();
+
+    void lookAndFeelChanged () override;
+    void paint (juce::Graphics& g) override;
     void resized () override;
     void onEffectUiChanged (int effectIndex);
     void onEffectDataChanged (int effectIndex);

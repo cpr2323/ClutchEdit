@@ -1,4 +1,5 @@
 #include "SampleBankComponent.h"
+#include "../Theme/UiComponents.h"
 #include "../../Clutch/BankProperties.h"
 #include "../../Clutch/LedColorList.h"
 #include "../../Clutch/SamplePairProperties.h"
@@ -8,6 +9,7 @@
 
 SampleBankComponent::SampleBankComponent ()
 {
+    bankName.setFont (ClutchType::sectionHeader ());
     addAndMakeVisible(bankName);
     for (auto hiHatSampleIndex { 0 }; hiHatSampleIndex < hiHatSampleInfoList.size (); ++hiHatSampleIndex)
     {
@@ -19,11 +21,7 @@ SampleBankComponent::SampleBankComponent ()
             const auto sampleIndexString { juce::String (hiHatSampleIndex + 1).paddedLeft ('0', 2) };
             if (isPopupMenu)
             {
-                // TODO - replace this with a static look and feel object instead of creating a new one every time
-                auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-                popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
                 juce::PopupMenu pm;
-                pm.setLookAndFeel (popupMenuLnF);
                 pm.addSectionHeader ((sampleType == SampleProperties::SampleType::open ? "Opened " : "Closed ") + sampleIndexString);
                 pm.addSeparator ();
                 const auto sampleFile { juce::File (getFullPath (hiHatSampleIndex, sampleType)) };
@@ -101,7 +99,7 @@ SampleBankComponent::SampleBankComponent ()
                     auto& uneditedSampleProperties { sampleType == SampleProperties::SampleType::open ? hiHatSampleInfo.uneditedSamplePropertiesPair.openedSampleProperties : hiHatSampleInfo.uneditedSamplePropertiesPair.closedSampleProperties };
                     sampleProperties.setExists (uneditedSampleProperties.getExists (), true);
                 });
-                pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
+                pm.showMenuAsync ({});
             }
             else
             {
@@ -388,42 +386,41 @@ void SampleBankComponent::setBankFolder (const juce::File& newBankFolder)
     banksRootFolder = newBankFolder;
 }
 
-void SampleBankComponent::paint (juce::Graphics& g)
+// A label keeps a per-instance colour, so it has to be refreshed by hand when the
+// palette changes.
+void SampleBankComponent::applyExplicitColours ()
 {
-    const auto kSectionOutlineColour { juce::Colour (0xff6a6a6a) };
-    g.setColour (kSectionOutlineColour.brighter (0.4f));
-    constexpr auto kSectionCornerSize { 4.0f };
-    constexpr auto kSectionOutlineThickness { 1.0f };
+    bankName.setColour (juce::Label::ColourIds::textColourId, findColour (ClutchColours::accentText));
+}
 
-    // TODO juce docs recommend using drawRect for vertical and horizontal lines
-    // draw horizontal lines
-    for (auto lineIndex { 0 }; lineIndex < 15; ++lineIndex)
-    {
-        g.drawLine (juce::Line { hiHatSampleInfoList [lineIndex].openedNameLabel.getX (), hiHatSampleInfoList [lineIndex].openedNameLabel.getBottom () + 1,
-                                 hiHatSampleInfoList [lineIndex].closedNameLabel.getRight (), hiHatSampleInfoList [lineIndex].openedNameLabel.getBottom () + 1 }.toFloat(), 1.0f);
-    }
-    // draw vertical center line
-    g.drawLine (juce::Line { hiHatSampleInfoList [0].openedNameLabel.getRight () + 2, hiHatSampleInfoList [0].openedNameLabel.getY (),
-                             hiHatSampleInfoList [0].openedNameLabel.getRight () + 2, hiHatSampleInfoList [15].openedNameLabel.getBottom () + 2 }.toFloat (), 1.0f);
-
-    // draw box outline
-    g.drawRoundedRectangle (juce::Rectangle<int> { hiHatSampleInfoList [0].openedNameLabel.getX (), hiHatSampleInfoList [0].openedNameLabel.getY (),
-                            hiHatSampleInfoList [0].closedNameLabel.getRight () - hiHatSampleInfoList [0].openedNameLabel.getX (),
-                            hiHatSampleInfoList [15].openedNameLabel.getBottom () - hiHatSampleInfoList [0].openedNameLabel.getY () + 2}.toFloat (), kSectionCornerSize, kSectionOutlineThickness);
+void SampleBankComponent::lookAndFeelChanged ()
+{
+    juce::Component::lookAndFeelChanged ();
+    applyExplicitColours ();
 }
 
 void SampleBankComponent::resized ()
 {
+    // the slots carry their own borders now, so a row leaves a little air above and
+    // below its fields rather than running them into the rows either side
+    constexpr auto kRowHeight { 20 };
+    constexpr auto kRowInset { 1 };
+    constexpr auto kIndexWidth { 25 };
+    constexpr auto kFieldGap { 3 };
+
     auto bounds { getLocalBounds ().reduced (3) };
     bankName.setBounds (bounds.removeFromTop (20));
     for (auto hiHatSampleInfoIndex { 0 }; hiHatSampleInfoIndex < hiHatSampleInfoList.size (); ++hiHatSampleInfoIndex)
     {
         auto& hiHatSampleInfo { hiHatSampleInfoList [hiHatSampleInfoIndex] };
-        auto hiHatSampleIndoBounds { bounds.removeFromTop (20).withTrimmedLeft (1) };
-        hiHatSampleInfo.name.setBounds (hiHatSampleIndoBounds.removeFromLeft (25));
+        auto rowBounds { bounds.removeFromTop (kRowHeight).withTrimmedLeft (kRowInset) };
+        hiHatSampleInfo.name.setBounds (rowBounds.removeFromLeft (kIndexWidth));
 
-        hiHatSampleInfo.openedNameLabel.setBounds (hiHatSampleIndoBounds.removeFromLeft (57));
-        hiHatSampleInfo.closedNameLabel.setBounds (hiHatSampleIndoBounds.removeFromLeft (57));
+        // the two slots share whatever is left, so a wider bank gives them the room
+        auto fieldBounds { rowBounds.reduced (0, kRowInset) };
+        hiHatSampleInfo.openedNameLabel.setBounds (fieldBounds.removeFromLeft ((fieldBounds.getWidth () - kFieldGap) / 2));
+        fieldBounds.removeFromLeft (kFieldGap);
+        hiHatSampleInfo.closedNameLabel.setBounds (fieldBounds);
     }
 }
 

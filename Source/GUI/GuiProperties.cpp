@@ -4,12 +4,18 @@ const auto defaultXPos { -1 };
 const auto defaultYPos { -1 };
 const auto defaultWidth { 1260 };
 const auto defaultHeight { 760 };
+const auto defaultBackgroundLevel { 0.0f };
+// empty means 'no preference yet', so the window opens on its first tab
+const auto defaultSettingsTabName { juce::String () };
 
 void GuiProperties::initValueTree ()
 {
     setPosition (defaultXPos, defaultYPos, false);
     setSize (defaultWidth, defaultHeight, false);
     setActiveTab (0, false);
+    setBackgroundLevel (defaultBackgroundLevel, false);
+    setValue (false, ShowSettingsDialogPropertyId, false);
+    setSettingsTabName (defaultSettingsTabName, false);
 }
 
 void GuiProperties::processValueTree ()
@@ -20,6 +26,12 @@ void GuiProperties::processValueTree ()
         setSize (defaultWidth, defaultHeight, false);
     if (! data.hasProperty (ActiveTabPropertyId))
         setActiveTab (0, false);
+    if (! data.hasProperty (BackgroundLevelPropertyId))
+        setBackgroundLevel (defaultBackgroundLevel, false);
+    if (! data.hasProperty (ShowSettingsDialogPropertyId))
+        setValue (false, ShowSettingsDialogPropertyId, false);
+    if (! data.hasProperty (SettingsTabNamePropertyId))
+        setSettingsTabName (defaultSettingsTabName, false);
 }
 
 void GuiProperties::setPosition (int x, int y, bool includeSelfCallback)
@@ -35,6 +47,21 @@ void GuiProperties::setSize (int width, int height, bool includeSelfCallback)
 void GuiProperties::setActiveTab (int tabIndex, bool includeSelfCallback)
 {
     setValue (tabIndex, ActiveTabPropertyId, includeSelfCallback);
+}
+
+void GuiProperties::setBackgroundLevel (float backgroundLevel, bool includeSelfCallback)
+{
+    setValue (std::clamp (backgroundLevel, 0.0f, 1.0f), BackgroundLevelPropertyId, includeSelfCallback);
+}
+
+void GuiProperties::showSettingsDialog (bool includeSelfCallback)
+{
+    toggleValue (ShowSettingsDialogPropertyId, includeSelfCallback);
+}
+
+void GuiProperties::setSettingsTabName (juce::String tabName, bool includeSelfCallback)
+{
+    setValue (tabName, SettingsTabNamePropertyId, includeSelfCallback);
 }
 
 std::tuple<int, int> GuiProperties::getPosition ()
@@ -54,4 +81,31 @@ std::tuple<int, int> GuiProperties::getSize ()
 int GuiProperties::getActiveTab ()
 {
     return getValue<int> (ActiveTabPropertyId);
+}
+
+float GuiProperties::getBackgroundLevel ()
+{
+    return getValue<float> (BackgroundLevelPropertyId);
+}
+
+juce::String GuiProperties::getSettingsTabName ()
+{
+    return getValue<juce::String> (SettingsTabNamePropertyId);
+}
+
+void GuiProperties::valueTreePropertyChanged (juce::ValueTree& treeWhosePropertyHasChanged, const juce::Identifier& property)
+{
+    if (treeWhosePropertyHasChanged == data)
+    {
+        if (property == BackgroundLevelPropertyId)
+        {
+            if (onBackgroundLevelChange != nullptr)
+                onBackgroundLevelChange (getBackgroundLevel ());
+        }
+        else if (property == ShowSettingsDialogPropertyId)
+        {
+            if (onShowSettingsDialog != nullptr)
+                onShowSettingsDialog ();
+        }
+    }
 }

@@ -4,25 +4,6 @@
 #include "../../Clutch/PatternProperties.h"
 #include "oolib/GUI/CustomComboBox.h"
 #include "oolib/GUI/CustomTextEditor.h"
-#include "oolib/GUI/NoArrowComboBoxLnF.h"
-
-class ToggleButtonLnF : public juce::LookAndFeel_V4
-{
-public:
-    void drawToggleButton (juce::Graphics& g, juce::ToggleButton& button, [[maybe_unused]] bool shouldDrawButtonAsHighlighted, [[maybe_unused]] bool shouldDrawButtonAsDown)
-    {
-        juce::Rectangle<float> tickBounds (button.getLocalBounds ().toFloat ());
-
-        g.setColour (button.findColour (juce::ToggleButton::tickDisabledColourId));
-        g.drawEllipse (tickBounds, 1.0f);
-
-        if (button.getToggleState ())
-        {
-            g.setColour (button.findColour (juce::ToggleButton::tickColourId));
-            g.fillEllipse (tickBounds.reduced (2.0f));
-        }
-    }
-};
 
 class PatternEditorComponent : public juce::Component
 {
@@ -31,7 +12,6 @@ public:
     ~PatternEditorComponent ();
 
     void init (juce::ValueTree rootPropertiesVT, juce::ValueTree uneditedPatterPropertiesVT);
-    void updateUiFromLengthChange (int length);
 
 private:
     PatternProperties patternProperties;
@@ -42,14 +22,17 @@ private:
     std::array<CustomComboBox, 32> stepEditors;
     std::array<juce::Label, 32> stepNumbers;
 
-    NoArrowComboBoxLnF noArrowComboBoxLnF;
-    ToggleButtonLnF toggleButtonLnF;
-
     juce::String defaultPattern;
+    // steps beyond this are drawn as not part of the pattern
+    int stepsInPattern { 0 };
 
     void onPatternUiChanged ();
     void onPatternDataChanged ();
-    void updateUiFromPatternString (juce::String patternString, bool haveUiSendNotification);
+    void updateUiFromLengthChange (int length);
+    void setPatternFromString (juce::String patternString);
+    void updateUiFromPatternString (juce::String patternString);
+    void applyExplicitColours ();
 
+    void lookAndFeelChanged () override;
     void resized () override;
 };

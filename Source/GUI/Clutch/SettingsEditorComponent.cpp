@@ -1,4 +1,6 @@
 #include "SettingsEditorComponent.h"
+#include "../Theme/UiComponents.h"
+#include "../Theme/ClutchLookAndFeel.h"
 #include "../../Clutch/ClutchProperties.h"
 #include "../../Clutch/HiHatIniValues.h"
 #include "oolib/Properties/RuntimeRootProperties.h"
@@ -56,11 +58,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 		};
 		editorData.editor->onPopupMenuCallback = [this, editor = editorData.editor, getDefaultValue, getUneditedValue, menuHeader = editorData.menuHeader] ()
 		{
-            auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-            popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-
 			juce::PopupMenu pm;
-			pm.setLookAndFeel (popupMenuLnF);
 			pm.addSectionHeader (menuHeader);
 			pm.addSeparator ();
 			pm.addItem ("Default", true, false, [editor, getDefaultValue] ()
@@ -71,13 +69,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 			{
 				editor->setValue (getUneditedValue ());
 			});
-            pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
+            pm.showMenuAsync ({});
         };
 
 		editorData.label.setText (editorData.labelText, juce::dontSendNotification);
 		addAndMakeVisible (editorData.label);
-		editorData.editor->setColour (juce::TextEditor::backgroundColourId, juce::Colours::darkgrey.darker (0.5f));
 		editorData.editor->setIndents (5, 2);
+		HoverHighlight::attach (*editorData.editor);
 		addAndMakeVisible (editorData.editor);
 	};
 
@@ -124,11 +122,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 		};
 		editorData.editor->onPopupMenuCallback = [this, editor = editorData.editor, getDefaultValue, getUneditedValue, menuHeader = editorData.menuHeader] ()
 		{
-            auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-            popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-
 			juce::PopupMenu pm;
-			pm.setLookAndFeel (popupMenuLnF);
 			pm.addSectionHeader (menuHeader);
 			pm.addSeparator ();
 			pm.addItem ("Default", true, false, [editor, getDefaultValue] ()
@@ -139,13 +133,13 @@ SettingsEditorComponent::SettingsEditorComponent ()
 			{
 				editor->setValue (getUneditedValue ());
 			});
-            pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
+            pm.showMenuAsync ({});
         };
 
 		editorData.label.setText (editorData.labelText, juce::dontSendNotification);
 		addAndMakeVisible (editorData.label);
-		editorData.editor->setColour (juce::TextEditor::backgroundColourId, juce::Colours::darkgrey.darker (0.5f));
 		editorData.editor->setIndents (5, 2);
+		HoverHighlight::attach (*editorData.editor);
 		addAndMakeVisible (editorData.editor);
 	};
 
@@ -176,7 +170,9 @@ SettingsEditorComponent::SettingsEditorComponent ()
 		jassert (getDefaultValue != nullptr);
 		jassert (getUneditedValue != nullptr);
 
-		comboBoxData.comboBox.setLookAndFeel (&noArrowComboBoxLnF);
+		// the grid has no room for a caret, so the variation is asked for with a
+		// property rather than with a LookAndFeel - and so a palette - of its own
+		comboBoxData.comboBox.getProperties ().set (ClutchLnFProperties::noCaret, true);
 		comboBoxData.comboBox.setTooltip (comboBoxData.toolTip);
 
 		for (const auto& menuItem : menuItems)
@@ -188,11 +184,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
 		};
 		comboBoxData.comboBox.onPopupMenuCallback = [this, comboBox = &comboBoxData.comboBox, getDefaultValue, getUneditedValue, menuHeader = comboBoxData.menuHeader] ()
 		{
-            auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-            popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-
 			juce::PopupMenu pm;
-			pm.setLookAndFeel (popupMenuLnF);
 			pm.addSectionHeader (menuHeader);
 			pm.addSeparator ();
 			pm.addItem ("Default", true, false, [comboBox, getDefaultValue] ()
@@ -203,16 +195,16 @@ SettingsEditorComponent::SettingsEditorComponent ()
 			{
 				comboBox->setSelectedId (getUneditedValue (), juce::NotificationType::sendNotification);
 			});
-            pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
+            pm.showMenuAsync ({});
         };
         comboBoxData.label.setText (comboBoxData.labelText, juce::dontSendNotification);
-        comboBoxData.comboBox.setColour (juce::ComboBox::backgroundColourId, juce::Colours::darkgrey.darker (0.5f));
+        HoverHighlight::attach (comboBoxData.comboBox);
         comboBoxData.comboBox.onChange = onChangeCallback;
         addAndMakeVisible (comboBoxData.label);
         addAndMakeVisible (comboBoxData.comboBox);
 	};
 
-    setupFloatEditor ({ &accClAmpModEditor, accClAmpModLabel, "Amp Mod", "Amp Mod CLOSED ACC hit", "Acc Cl Amp Mod" },
+    setupFloatEditor ({ &accClAmpModEditor, accClAmpModLabel, "Amp Mod", "Amplitude multiplier for an accented CLOSED hit, with FEEL off. Above 1 is louder, below 1 is quieter.", "Acc Cl Amp Mod" },
                          { []() { return kAccClAmpModMin; }, []() { return kAccClAmpModMax; } },
                          0.01f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -225,7 +217,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kAccClAmpModDefault; },
                          [this] () { return uneditedSettingsProperties.getAccClAmpMod (); });
 
-    setupFloatEditor ({ &accClRelModEditor, accClRelModLabel, "Rel Mod", "Acc Cl Rel Mod", "Acc Cl Rel Mod" },
+    setupFloatEditor ({ &accClRelModEditor, accClRelModLabel, "Rel Mod", "Release multiplier for an accented CLOSED hit, with FEEL off. Above 1 extends the release, below 1 shortens it.", "Acc Cl Rel Mod" },
                          { []() { return kAccClRelModMin; }, []() { return kAccClRelModMax; } },
                          0.01f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -238,7 +230,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kAccClRelModDefault; },
                          [this] () { return uneditedSettingsProperties.getAccClRelMod (); });
 
-    setupFloatEditor ({ &accOpAmpModEditor, accOpAmpModLabel, "Amp Mod", "Acc Op Amp Mod", "Acc Op Amp Mod" },
+    setupFloatEditor ({ &accOpAmpModEditor, accOpAmpModLabel, "Amp Mod", "Amplitude multiplier for an accented OPEN hit, with FEEL off. Above 1 is louder, below 1 is quieter.", "Acc Op Amp Mod" },
                          { []() { return kAccOpAmpModMin; }, []() { return kAccOpAmpModMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -251,7 +243,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kAccOpAmpModDefault; },
                          [this] () { return uneditedSettingsProperties.getAccOpAmpMod (); });
 
-    setupFloatEditor ({ &accOpRelModEditor, accOpRelModLabel, "Rel Mod", "Acc Op Rel Mod", "Acc Op Rel Mod" },
+    setupFloatEditor ({ &accOpRelModEditor, accOpRelModLabel, "Rel Mod", "Release multiplier for an accented OPEN hit, with FEEL off. Above 1 extends the release, below 1 shortens it.", "Acc Op Rel Mod" },
                          { []() { return kAccOpRelModMin; }, []() { return kAccOpRelModMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -264,7 +256,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kAccOpRelModDefault; },
                          [this] () { return uneditedSettingsProperties.getAccOpRelMod (); });
 
-    setupFloatEditor ({ &chokeReleaseEditor, chokeReleaseLabel, "Choke Release", "Choke Release", "Choke Release" },
+    setupFloatEditor ({ &chokeReleaseEditor, chokeReleaseLabel, "Choke Release", "Release time, in seconds, used when a hit is choked.", "Choke Release" },
                          { []() { return kChokeReleaseMin; }, []() { return kChokeReleaseMax; } },
                          0.001f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -277,7 +269,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kChokeReleaseDefault; },
                          [this] () { return uneditedSettingsProperties.getChokeRelease (); });
 
-    setupFloatEditor ({ &clsdMaxReleaseEditor, clsdMaxReleaseLabel, "Max Release", "Choke Release", "Clsd Max Release" },
+    setupFloatEditor ({ &clsdMaxReleaseEditor, clsdMaxReleaseLabel, "Max Release", "Longest release, in seconds, for CLOSED hits. Only applies in the Fixed Closed and Fixed Open release modes.", "Clsd Max Release" },
                          { []() { return kClsdMaxReleaseMin; }, []() { return kClsdMaxReleaseMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -290,7 +282,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kClsdMaxReleaseDefault; },
                          [this] () { return uneditedSettingsProperties.getClsdMaxRelease (); });
 
-    setupFloatEditor ({ &clsdRelOfstScaleEditor, clsdRelOfstScaleLabel, "Rel Ofst Scale", "Choke Release", "Clsd Rel Ofst Scale" },
+    setupFloatEditor ({ &clsdRelOfstScaleEditor, clsdRelOfstScaleLabel, "Rel Ofst Scale", "Scales Max Release for CLOSED hits. Only applies in the Offset release mode.", "Clsd Rel Ofst Scale" },
                          { []() { return kClsdRelOfstScaleMin; }, []() { return kClsdRelOfstScaleMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -306,7 +298,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
     // 0: RELEASE OFFSET sets a fixed CLOSED release, RELEASE control/CV sets the OPEN release
     // 1: Release Offset mode (default)
     // 2: RELEASE OFFSET sets a fixed OPEN release, RELEASE control/CV sets the CLOSED release
-    setupComboBox ({ releaseModeComboBox, releaseModeLabel, "Release Mode", "How RELEASE OFFSET and the RELEASE control apply to the CLOSED vs OPEN hit release", "Release Mode" },
+    setupComboBox ({ releaseModeComboBox, releaseModeLabel, "Release Mode", "How RELEASE OFFSET and the RELEASE control split between the CLOSED and OPEN hit release. Fixed Closed: RELEASE OFFSET sets a fixed CLOSED release, RELEASE control/CV sets the OPEN release. Offset: release offset mode. Fixed Open: RELEASE OFFSET sets a fixed OPEN release, RELEASE control/CV sets the CLOSED release.", "Release Mode" },
                       { { "Fixed Closed", 1 },
                         { "Offset", 2 },
                         { "Fixed Open", 3 } },
@@ -356,7 +348,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                       [this] () { return kCvDisableVelocityDefault + 1; },
                       [this] () { return uneditedSettingsProperties.getCvDisableVelocity () + 1; });
 
-    setupFloatEditor ({ &envelopeMaxReleaseEditor, envelopeMaxReleaseLabel, "Max Release", "Envelope Max Release", "Envelope Max Release" },
+    setupFloatEditor ({ &envelopeMaxReleaseEditor, envelopeMaxReleaseLabel, "Max Release", "Longest envelope release, in seconds, with the RELEASE control fully clockwise.", "Envelope Max Release" },
                          { []() { return kEnvelopeMaxReleaseMin; }, []() { return kEnvelopeMaxReleaseMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -369,7 +361,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kEnvelopeMaxReleaseDefault; },
                          [this] () { return uneditedSettingsProperties.getEnvelopeMaxRelease (); });
 
-    setupFloatEditor ({ &feelAmpModEditor, feelAmpModLabel, "Amp Mod", "Feel Amp Mod", "Feel Amp Mod" },
+    setupFloatEditor ({ &feelAmpModEditor, feelAmpModLabel, "Amp Mod", "Scales how far FEEL modulates amplitude, from 0 for none to 2 for twice the normal amount.", "Feel Amp Mod" },
                          { []() { return kFeelAmpModMin; }, []() { return kFeelAmpModMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -382,7 +374,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFeelAmpModDefault; },
                          [this] () { return uneditedSettingsProperties.getFeelAmpMod (); });
 
-    setupFloatEditor ({ &feelAttackModEditor, feelAttackModLabel, "Attack Mod", "Feel Attack Mod", "Feel Attack Mod" },
+    setupFloatEditor ({ &feelAttackModEditor, feelAttackModLabel, "Attack Mod", "Scales how far FEEL modulates the attack, from 0 for none to 5 for five times the normal amount.", "Feel Attack Mod" },
                          { []() { return kFeelAttackModMin; }, []() { return kFeelAttackModMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -395,7 +387,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFeelAttackModDefault; },
                          [this] () { return uneditedSettingsProperties.getFeelAttackMod (); });
 
-    setupFloatEditor ({ &feelReleaseModEditor, feelReleaseModLabel, "Release Mod", "Feel Release Mod", "Feel Release Mod" },
+    setupFloatEditor ({ &feelReleaseModEditor, feelReleaseModLabel, "Release Mod", "Scales how far FEEL modulates the release, from 0 for none to 5 for five times the normal amount.", "Feel Release Mod" },
                          { []() { return kFeelReleaseModMin; }, []() { return kFeelReleaseModMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -408,7 +400,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFeelReleaseModDefault; },
                          [this] () { return uneditedSettingsProperties.getFeelReleaseMod (); });
 
-    setupIntEditor ({ &fltrHpfMaxFreqEditor, fltrHpfMaxFreqLabel, "Max Freq", "Fltr HPF Max Freq", "Fltr HPF Max Freq" },
+    setupIntEditor ({ &fltrHpfMaxFreqEditor, fltrHpfMaxFreqLabel, "Max Freq", "Highest cutoff frequency, in Hz, the high pass filter reaches.", "Fltr HPF Max Freq" },
                        { kFltrHpfMaxFreqMin, kFltrHpfMaxFreqMax },
                        1,
                        [this] (int value) { return juce::String (value); },
@@ -421,7 +413,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                        [this] () { return kFltrHpfMaxFreqDefault; },
                        [this] () { return uneditedSettingsProperties.getFltrHpfMaxFreq (); });
 
-    setupIntEditor ({ &fltrHpfMinFreqEditor, fltrHpfMinFreqLabel, "Min Freq", "Fltr HPF Min Freq", "Fltr HPF Min Freq" },
+    setupIntEditor ({ &fltrHpfMinFreqEditor, fltrHpfMinFreqLabel, "Min Freq", "Lowest cutoff frequency, in Hz, the high pass filter reaches.", "Fltr HPF Min Freq" },
                        { kFltrHpfMinFreqMin, kFltrHpfMinFreqMax },
                        1,
                        [this] (int value) { return juce::String (value); },
@@ -434,7 +426,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                        [this] () { return kFltrHpfMinFreqDefault; },
                        [this] () { return uneditedSettingsProperties.getFltrHpfMinFreq (); });
 
-    setupFloatEditor ({ &fltrHpfQEditor, fltrHpfQLabel, "Q", "Fltr HPF Q", "Fltr HPF Q" },
+    setupFloatEditor ({ &fltrHpfQEditor, fltrHpfQLabel, "Q", "High pass resonance, as a Q factor.", "Fltr HPF Q" },
                          { []() { return kFltrHpfQMin; }, []() { return kFltrHpfQMax; } },
                          0.001f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -447,7 +439,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFltrHpfQDefault; },
                          [this] () { return uneditedSettingsProperties.getFltrHpfQ (); });
 
-    setupIntEditor ({ &fltrLpfMaxFreqEditor, fltrLpfMaxFreqLabel, "Max Freq", "Fltr LPF Max Freq", "Fltr LPF Max Freq" },
+    setupIntEditor ({ &fltrLpfMaxFreqEditor, fltrLpfMaxFreqLabel, "Max Freq", "Highest cutoff frequency, in Hz, the low pass filter reaches.", "Fltr LPF Max Freq" },
                        { kFltrLpfMaxFreqMin, kFltrLpfMaxFreqMax },
                        1,
                        [this] (int value) { return juce::String (value); },
@@ -460,7 +452,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                        [this] () { return kFltrLpfMaxFreqDefault; },
                        [this] () { return uneditedSettingsProperties.getFltrLpfMaxFreq (); });
 
-    setupIntEditor ({ &fltrLpfMinFreqEditor, fltrLpfMinFreqLabel, "Min Freq", "Fltr LPF Min Freq", "Fltr LPF Min Freq" },
+    setupIntEditor ({ &fltrLpfMinFreqEditor, fltrLpfMinFreqLabel, "Min Freq", "Lowest cutoff frequency, in Hz, the low pass filter reaches.", "Fltr LPF Min Freq" },
                        { kFltrLpfMinFreqMin, kFltrLpfMinFreqMax },
                        1,
                        [this] (int value) { return juce::String (value); },
@@ -473,7 +465,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                        [this] () { return kFltrLpfMinFreqDefault; },
                        [this] () { return uneditedSettingsProperties.getFltrLpfMinFreq (); });
 
-    setupFloatEditor ({ &fltrLpfQEditor, fltrLpfQLabel, "Q", "Fltr LPF Q", "Fltr LPF Q" },
+    setupFloatEditor ({ &fltrLpfQEditor, fltrLpfQLabel, "Q", "Low pass resonance, as a Q factor.", "Fltr LPF Q" },
                          { []() { return kFltrLpfQMin; }, []() { return kFltrLpfQMax; } },
                          0.001f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -486,7 +478,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFltrLpfQDefault; },
                          [this] () { return uneditedSettingsProperties.getFltrLpfQ (); });
 
-    setupFloatEditor ({ &fxChorusCenterEditor, fxChorusCenterLabel, "Center", "FX Chorus Center", "FX Chorus Center" },
+    setupFloatEditor ({ &fxChorusCenterEditor, fxChorusCenterLabel, "Center", "Center delay, in ms, that the chorus modulates around.", "FX Chorus Center" },
                          { []() { return kFxChorusCenterMin; }, []() { return kFxChorusCenterMax; } },
                          1.0f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -499,7 +491,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxChorusCenterDefault; },
                          [this] () { return uneditedSettingsProperties.getFxChorusCenter (); });
 
-    setupFloatEditor ({ &fxChorusDepthEditor, fxChorusDepthLabel, "Depth", "FX Chorus Depth", "FX Chorus Depth" },
+    setupFloatEditor ({ &fxChorusDepthEditor, fxChorusDepthLabel, "Depth", "Modulation depth, in ms, either side of the center delay. Limited to half of Center.", "FX Chorus Depth" },
                          { []() { return kFxChorusDepthMin; }, [this]() { return settingsProperties.getFxChorusCenter () / 2.0f; } },
                          1.0f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -512,7 +504,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxChorusDepthDefault; },
                          [this] () { return uneditedSettingsProperties.getFxChorusDepth (); });
 
-    setupFloatEditor ({ &fxChorusLfoBEditor, fxChorusLfoBLabel, "LFO B (Thick)", "FX Chorus LFO B", "FX Chorus LFO B" },
+    setupFloatEditor ({ &fxChorusLfoBEditor, fxChorusLfoBLabel, "LFO B (Thick)", "Chorus LFO rate, in Hz, at its slowest. Thick type only.", "FX Chorus LFO B" },
                          { []() { return kFxChorusLfoBMin; }, []() { return kFxChorusLfoBMax; } },
                          0.001f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -525,7 +517,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxChorusLfoBDefault; },
                          [this] () { return uneditedSettingsProperties.getFxChorusLfoB (); });
 
-    setupFloatEditor ({ &fxChorusLfoTEditor, fxChorusLfoTLabel, "LFO T (Thick)", "FX Chorus LFO T", "FX Chorus LFO T" },
+    setupFloatEditor ({ &fxChorusLfoTEditor, fxChorusLfoTLabel, "LFO T (Thick)", "Chorus LFO rate, in Hz, at its fastest. Thick type only.", "FX Chorus LFO T" },
                          { []() { return kFxChorusLfoTMin; }, []() { return kFxChorusLfoTMax; } },
                          0.001f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -538,7 +530,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxChorusLfoTDefault; },
                          [this] () { return uneditedSettingsProperties.getFxChorusLfoT (); });
 
-    setupFloatEditor ({ &fxChorusMixEditor, fxChorusMixLabel, "Mix", "FX Chorus Mix", "FX Chorus Mix" },
+    setupFloatEditor ({ &fxChorusMixEditor, fxChorusMixLabel, "Mix", "Wet level for the chorus.", "FX Chorus Mix" },
                          { []() { return kFxChorusMixMin; }, []() { return kFxChorusMixMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -551,7 +543,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxChorusMixDefault; },
                          [this] () { return uneditedSettingsProperties.getFxChorusMix (); });
 
-    setupFloatEditor ({ &fxChorusSpreadEditor, fxChorusSpreadLabel, "Spread", "FX Chorus Spread", "FX Chorus Spread" },
+    setupFloatEditor ({ &fxChorusSpreadEditor, fxChorusSpreadLabel, "Spread", "LFO frequency spread per voice, so the voices drift apart rather than modulate in lockstep.", "FX Chorus Spread" },
                          { []() { return kFxChorusSpreadMin; }, []() { return kFxChorusSpreadMax; } },
                          0.01f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -564,7 +556,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxChorusSpreadDefault; },
                          [this] () { return uneditedSettingsProperties.getFxChorusSpread (); });
 
-    setupFloatEditor ({ &fxChorusStaggerEditor, fxChorusStaggerLabel, "Stagger (Thick)", "FX Chorus Stagger", "FX Chorus Stagger" },
+    setupFloatEditor ({ &fxChorusStaggerEditor, fxChorusStaggerLabel, "Stagger (Thick)", "How widely the voice center delays are spread apart. Thick type only.", "FX Chorus Stagger" },
                          { []() { return kFxChorusStaggerMin; }, []() { return kFxChorusStaggerMax; } },
                          0.01f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -630,7 +622,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                       [this] () { return kFxCvUnipolarDefault + 1; },
                       [this] () { return uneditedSettingsProperties.getFxCvUnipolar () + 1; });
 
-    setupIntEditor ({ &fxDjfilterHpfMaxEditor, fxDjfilterHpfMaxLabel, "Max", "FX DJ Filter HPF Max", "FX DJ Filter HPF Max" },
+    setupIntEditor ({ &fxDjfilterHpfMaxEditor, fxDjfilterHpfMaxLabel, "Max", "Highest cutoff frequency, in Hz, for the DJ Filter's high pass side.", "FX DJ Filter HPF Max" },
                        { kFxDjfilterHpfMaxMin, kFxDjfilterHpfMaxMax },
                        1,
                        [this] (int value) { return juce::String (value); },
@@ -643,7 +635,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                        [this] () { return kFxDjfilterHpfMaxDefault; },
                        [this] () { return uneditedSettingsProperties.getFxDjfilterHpfMax (); });
 
-    setupIntEditor ({ &fxDjfilterHpfMinEditor, fxDjfilterHpfMinLabel, "Min", "FX DJ Filter HPF Min", "FX DJ Filter HPF Min" },
+    setupIntEditor ({ &fxDjfilterHpfMinEditor, fxDjfilterHpfMinLabel, "Min", "Lowest cutoff frequency, in Hz, for the DJ Filter's high pass side.", "FX DJ Filter HPF Min" },
                        { kFxDjfilterHpfMinMin, kFxDjfilterHpfMinMax },
                        1,
                        [this] (int value) { return juce::String (value); },
@@ -656,7 +648,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                        [this] () { return kFxDjfilterHpfMinDefault; },
                        [this] () { return uneditedSettingsProperties.getFxDjfilterHpfMin (); });
 
-    setupIntEditor ({ &fxDjfilterLpfMaxEditor, fxDjfilterLpfMaxLabel, "Max", "FX DJ Filter LPF Max", "FX DJ Filter LPF Max" },
+    setupIntEditor ({ &fxDjfilterLpfMaxEditor, fxDjfilterLpfMaxLabel, "Max", "Highest cutoff frequency, in Hz, for the DJ Filter's low pass side.", "FX DJ Filter LPF Max" },
                        { kFxDjfilterLpfMaxMin, kFxDjfilterLpfMaxMax },
                        1,
                        [this] (int value) { return juce::String (value); },
@@ -669,7 +661,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                        [this] () { return kFxDjfilterLpfMaxDefault; },
                        [this] () { return uneditedSettingsProperties.getFxDjfilterLpfMax (); });
 
-    setupIntEditor ({ &fxDjfilterLpfMinEditor, fxDjfilterLpfMinLabel, "Min", "FX DJ Filter LPF Min", "FX DJ Filter LPF Min" },
+    setupIntEditor ({ &fxDjfilterLpfMinEditor, fxDjfilterLpfMinLabel, "Min", "Lowest cutoff frequency, in Hz, for the DJ Filter's low pass side.", "FX DJ Filter LPF Min" },
                        { kFxDjfilterLpfMinMin, kFxDjfilterLpfMinMax },
                        1,
                        [this] (int value) { return juce::String (value); },
@@ -682,7 +674,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                        [this] () { return kFxDjfilterLpfMinDefault; },
                        [this] () { return uneditedSettingsProperties.getFxDjfilterLpfMin (); });
 
-    setupFloatEditor ({ &fxDjfilterQGainReductionEditor, fxDjfilterQGainReductionLabel, "Gain Reduction", "FX DJ Filter Q Gain Reduction", "FX DJ Filter Q Gain Reduction" },
+    setupFloatEditor ({ &fxDjfilterQGainReductionEditor, fxDjfilterQGainReductionLabel, "Gain Reduction", "How much gain is pulled back at high Q, to keep resonant sweeps from overloading.", "FX DJ Filter Q Gain Reduction" },
                          { []() { return kFxDjfilterQGainReductionMin; }, []() { return kFxDjfilterQGainReductionMax; } },
                          0.01f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -695,7 +687,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxDjfilterQGainReductionDefault; },
                          [this] () { return uneditedSettingsProperties.getFxDjfilterQGainReduction (); });
 
-    setupFloatEditor ({ &fxDjfilterQMaxEditor, fxDjfilterQMaxLabel, "Max", "FX DJ Filter Q Max", "FX DJ Filter Q Max" },
+    setupFloatEditor ({ &fxDjfilterQMaxEditor, fxDjfilterQMaxLabel, "Max", "Resonance, as a Q factor, at the DJ Filter's most resonant setting.", "FX DJ Filter Q Max" },
                          { []() { return kFxDjfilterQMaxMin; }, []() { return kFxDjfilterQMaxMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -708,7 +700,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxDjfilterQMaxDefault; },
                          [this] () { return uneditedSettingsProperties.getFxDjfilterQMax (); });
 
-    setupFloatEditor ({ &fxDjfilterQMinEditor, fxDjfilterQMinLabel, "Min", "FX DJ Filter Q Min", "FX DJ Filter Q Min" },
+    setupFloatEditor ({ &fxDjfilterQMinEditor, fxDjfilterQMinLabel, "Min", "Resonance, as a Q factor, at the DJ Filter's least resonant setting.", "FX DJ Filter Q Min" },
                          { []() { return kFxDjfilterQMinMin; }, []() { return kFxDjfilterQMinMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -721,7 +713,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxDjfilterQMinDefault; },
                          [this] () { return uneditedSettingsProperties.getFxDjfilterQMin (); });
 
-    setupIntEditor ({ &fxDubEchoHpfEditor, fxDubEchoHpfLabel, "HPF", "FX Dub Echo HPF", "FX Dub Echo HPF" },
+    setupIntEditor ({ &fxDubEchoHpfEditor, fxDubEchoHpfLabel, "HPF", "High pass cutoff frequency, in Hz, for the Dub Echo.", "FX Dub Echo HPF" },
                        { kFxDubEchoHpfMin, kFxDubEchoHpfMax },
                        1,
                        [this] (int value) { return juce::String (value); },
@@ -734,7 +726,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                        [this] () { return kFxDubEchoHpfDefault; },
                        [this] () { return uneditedSettingsProperties.getFxDubEchoHpf (); });
 
-    setupIntEditor ({ &fxDubEchoLpfEditor, fxDubEchoLpfLabel, "LPF", "FX Dub Echo LPF", "FX Dub Echo LPF" },
+    setupIntEditor ({ &fxDubEchoLpfEditor, fxDubEchoLpfLabel, "LPF", "Low pass cutoff frequency, in Hz, for the Dub Echo.", "FX Dub Echo LPF" },
                        { kFxDubEchoLpfMin, kFxDubEchoLpfMax },
                        1,
                        [this] (int value) { return juce::String (value); },
@@ -747,7 +739,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                        [this] () { return kFxDubEchoLpfDefault; },
                        [this] () { return uneditedSettingsProperties.getFxDubEchoLpf (); });
 
-    setupFloatEditor ({ &fxDubEchoMixEditor, fxDubEchoMixLabel, "Mix", "FX Dub Echo Mix", "FX Dub Echo Mix" },
+    setupFloatEditor ({ &fxDubEchoMixEditor, fxDubEchoMixLabel, "Mix", "Wet level for the Dub Echo.", "FX Dub Echo Mix" },
                          { []() { return kFxDubEchoMixMin; }, []() { return kFxDubEchoMixMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -760,7 +752,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxDubEchoMixDefault; },
                          [this] () { return uneditedSettingsProperties.getFxDubEchoMix (); });
 
-    setupIntEditor ({ &fxDubEchoTminEditor, fxDubEchoTminLabel, "Tmin", "FX Dub Echo Tmin", "FX Dub Echo Tmin" },
+    setupIntEditor ({ &fxDubEchoTminEditor, fxDubEchoTminLabel, "Tmin", "Shortest echo time, in ms, with the PARAM control fully counter-clockwise.", "FX Dub Echo Tmin" },
                        { kFxDubEchoTminMin, kFxDubEchoTminMax },
                        1,
                        [this] (int value) { return juce::String (value); },
@@ -773,7 +765,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                        [this] () { return kFxDubEchoTminDefault; },
                        [this] () { return uneditedSettingsProperties.getFxDubEchoTmin (); });
 
-    setupFloatEditor ({ &fxGlitchCrushTimeMaxEditor, fxGlitchCrushTimeMaxLabel, "Time Max", "FX Glitch Crush Time Max", "FX Glitch Crush Time Max" },
+    setupFloatEditor ({ &fxGlitchCrushTimeMaxEditor, fxGlitchCrushTimeMaxLabel, "Time Max", "Longest bit crush duration, in ms. Cannot go below Time Min.", "FX Glitch Crush Time Max" },
                          { [this]() { return settingsProperties.getFxGlitchCrushTimeMin (); }, []() { return kFxGlitchCrushTimeMaxMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -787,7 +779,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return uneditedSettingsProperties.getFxGlitchCrushTimeMax (); });
     fxGlitchCrushTimeMaxEditor.getMinValueCallback = [this] () { return settingsProperties.getFxGlitchCrushTimeMin (); };
 
-    setupFloatEditor ({ &fxGlitchCrushTimeMinEditor, fxGlitchCrushTimeMinLabel, "Time Min", "FX Glitch Crush Time Min", "FX Glitch Crush Time Min" },
+    setupFloatEditor ({ &fxGlitchCrushTimeMinEditor, fxGlitchCrushTimeMinLabel, "Time Min", "Shortest bit crush duration, in ms.", "FX Glitch Crush Time Min" },
                          { []() { return kFxGlitchCrushTimeMinMin; }, []() { return kFxGlitchCrushTimeMinMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -800,7 +792,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxGlitchCrushTimeMinDefault; },
                          [this] () { return uneditedSettingsProperties.getFxGlitchCrushTimeMin (); });
 
-    setupFloatEditor ({ &fxGlitchDropKeepLevelMaxEditor, fxGlitchDropKeepLevelMaxLabel, "Level Max", "FX Glitch Drop Keep Level Max", "FX Glitch Drop Keep Level Max" },
+    setupFloatEditor ({ &fxGlitchDropKeepLevelMaxEditor, fxGlitchDropKeepLevelMaxLabel, "Level Max", "Loudest level a dropout falls to. 0 is a full mute, 1 is no drop at all.", "FX Glitch Drop Keep Level Max" },
                          { []() { return kFxGlitchDropKeepLevelMin; }, []() { return kFxGlitchDropKeepLevelMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -813,7 +805,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxGlitchDropKeepLevelMaxDefault; },
                          [this] () { return uneditedSettingsProperties.getFxGlitchDropKeepLevelMax (); });
 
-    setupFloatEditor ({ &fxGlitchDropKeepLevelMinEditor, fxGlitchDropKeepLevelMinLabel, "Level Min", "FX Glitch Drop Keep Level Min", "FX Glitch Drop Keep Level Min" },
+    setupFloatEditor ({ &fxGlitchDropKeepLevelMinEditor, fxGlitchDropKeepLevelMinLabel, "Level Min", "Quietest level a dropout falls to. 0 is a full mute, 1 is no drop at all.", "FX Glitch Drop Keep Level Min" },
                          { []() { return kFxGlitchDropKeepLevelMin; }, []() { return kFxGlitchDropKeepLevelMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -826,7 +818,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxGlitchDropKeepLevelMinDefault; },
                          [this] () { return uneditedSettingsProperties.getFxGlitchDropKeepLevelMin (); });
 
-    setupFloatEditor ({ &fxGlitchDropKeepTimeMaxEditor, fxGlitchDropKeepTimeMaxLabel, "Time Max", "FX Glitch Drop Keep Time Max", "FX Glitch Drop Keep Time Max" },
+    setupFloatEditor ({ &fxGlitchDropKeepTimeMaxEditor, fxGlitchDropKeepTimeMaxLabel, "Time Max", "Longest dropout duration, in ms. Cannot go below Time Min.", "FX Glitch Drop Keep Time Max" },
                          { [this]() { return settingsProperties.getFxGlitchDropKeepTimeMin (); }, []() { return kFxGlitchDropKeepTimeMaxMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -839,7 +831,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxGlitchDropKeepTimeMaxDefault; },
                          [this] () { return uneditedSettingsProperties.getFxGlitchDropKeepTimeMax (); });
 
-    setupFloatEditor ({ &fxGlitchDropKeepTimeMinEditor, fxGlitchDropKeepTimeMinLabel, "Time Min", "FX Glitch Drop Keep Time Min", "FX Glitch Drop Keep Time Min" },
+    setupFloatEditor ({ &fxGlitchDropKeepTimeMinEditor, fxGlitchDropKeepTimeMinLabel, "Time Min", "Shortest dropout duration, in ms.", "FX Glitch Drop Keep Time Min" },
                          { []() { return kFxGlitchDropKeepTimeMinMin; }, []() { return kFxGlitchDropKeepTimeMinMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -852,7 +844,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxGlitchDropKeepTimeMinDefault; },
                          [this] () { return uneditedSettingsProperties.getFxGlitchDropKeepTimeMin (); });
 
-    setupFloatEditor ({ &fxGlitchMicroloopPlayTMaxEditor, fxGlitchMicroloopPlayTMaxLabel, "Play T Max", "FX Glitch Microloop Play T Max", "FX Glitch Microloop Play T Max" },
+    setupFloatEditor ({ &fxGlitchMicroloopPlayTMaxEditor, fxGlitchMicroloopPlayTMaxLabel, "Play T Max", "Longest time, in ms, a micro loop hold plays for. Cannot go below Play T Min.", "FX Glitch Microloop Play T Max" },
                          { [this]() { return settingsProperties.getFxGlitchMicroloopPlayTMin (); }, []() { return kFxGlitchMicroloopPlayTMaxMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -865,7 +857,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxGlitchMicroloopPlayTMaxDefault; },
                          [this] () { return uneditedSettingsProperties.getFxGlitchMicroloopPlayTMax (); });
 
-    setupFloatEditor ({ &fxGlitchMicroloopPlayTMinEditor, fxGlitchMicroloopPlayTMinLabel, "Play T Min", "FX Glitch Microloop Play T Min", "FX Glitch Microloop Play T Min" },
+    setupFloatEditor ({ &fxGlitchMicroloopPlayTMinEditor, fxGlitchMicroloopPlayTMinLabel, "Play T Min", "Shortest time, in ms, a micro loop hold plays for.", "FX Glitch Microloop Play T Min" },
                          { []() { return kFxGlitchMicroloopPlayTMinMin; }, []() { return kFxGlitchMicroloopPlayTMinMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -878,7 +870,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxGlitchMicroloopPlayTMinDefault; },
                          [this] () { return uneditedSettingsProperties.getFxGlitchMicroloopPlayTMin (); });
 
-    setupFloatEditor ({ &fxGlitchMicroloopSmplTMaxEditor, fxGlitchMicroloopSmplTMaxLabel, "Smpl T Max", "FX Glitch Microloop Smpl T Max", "FX Glitch Microloop Smpl T Max" },
+    setupFloatEditor ({ &fxGlitchMicroloopSmplTMaxEditor, fxGlitchMicroloopSmplTMaxLabel, "Smpl T Max", "Longest slice of audio, in ms, captured for a micro loop hold. Cannot go below Smpl T Min.", "FX Glitch Microloop Smpl T Max" },
                          { [this]() { return settingsProperties.getFxGlitchMicroloopSmplTMin (); }, []() { return kFxGlitchMicroloopSmplTMaxMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -891,7 +883,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxGlitchMicroloopSmplTMaxDefault; },
                          [this] () { return uneditedSettingsProperties.getFxGlitchMicroloopSmplTMax (); });
 
-    setupFloatEditor ({ &fxGlitchMicroloopSmplTMinEditor, fxGlitchMicroloopSmplTMinLabel, "Smpl T Min", "FX Glitch Microloop Smpl T Min", "FX Glitch Microloop Smpl T Min" },
+    setupFloatEditor ({ &fxGlitchMicroloopSmplTMinEditor, fxGlitchMicroloopSmplTMinLabel, "Smpl T Min", "Shortest slice of audio, in ms, captured for a micro loop hold.", "FX Glitch Microloop Smpl T Min" },
                          { []() { return kFxGlitchMicroloopSmplTMinMin; }, []() { return kFxGlitchMicroloopSmplTMinMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -904,7 +896,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxGlitchMicroloopSmplTMinDefault; },
                          [this] () { return uneditedSettingsProperties.getFxGlitchMicroloopSmplTMin (); });
 
-    setupFloatEditor ({ &fxGlitchProbabilityMaxEditor, fxGlitchProbabilityMaxLabel, "Max", "FX Glitch Probability Max", "FX Glitch Probability Max" },
+    setupFloatEditor ({ &fxGlitchProbabilityMaxEditor, fxGlitchProbabilityMaxLabel, "Max", "Chance of a glitch firing with the PARAM control at 100%.", "FX Glitch Probability Max" },
                          { []() { return kFxGlitchProbabilityMaxMin; }, []() { return kFxGlitchProbabilityMaxMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -917,7 +909,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxGlitchProbabilityMaxDefault; },
                          [this] () { return uneditedSettingsProperties.getFxGlitchProbabilityMax (); });
 
-    setupFloatEditor ({ &fxGlitchProbabilityMinEditor, fxGlitchProbabilityMinLabel, "Min", "FX Glitch Probability Min", "FX Glitch Probability Min" },
+    setupFloatEditor ({ &fxGlitchProbabilityMinEditor, fxGlitchProbabilityMinLabel, "Min", "Chance of a glitch firing with the PARAM control at 0%.", "FX Glitch Probability Min" },
                          { []() { return kFxGlitchProbabilityMinMin; }, []() { return kFxGlitchProbabilityMinMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 5); },
@@ -930,7 +922,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxGlitchProbabilityMinDefault; },
                          [this] () { return uneditedSettingsProperties.getFxGlitchProbabilityMin (); });
 
-    setupIntEditor ({ &fxGlitchStutterNumMaxEditor, fxGlitchStutterNumMaxLabel, "Num Max", "FX Glitch Stutter Num Max", "FX Glitch Stutter Num Max" },
+    setupIntEditor ({ &fxGlitchStutterNumMaxEditor, fxGlitchStutterNumMaxLabel, "Num Max", "Most times a stutter slice repeats.", "FX Glitch Stutter Num Max" },
                        { kFxGlitchStutterNumMin, kFxGlitchStutterNumMax },
                        1,
                        [this] (int value) { return juce::String (value); },
@@ -943,7 +935,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                        [this] () { return kFxGlitchStutterNumMaxDefault; },
                        [this] () { return uneditedSettingsProperties.getFxGlitchStutterNumMax (); });
 
-    setupIntEditor ({ &fxGlitchStutterNumMinEditor, fxGlitchStutterNumMinLabel, "Num Min", "FX Glitch Stutter Num Min", "FX Glitch Stutter Num Min" },
+    setupIntEditor ({ &fxGlitchStutterNumMinEditor, fxGlitchStutterNumMinLabel, "Num Min", "Fewest times a stutter slice repeats.", "FX Glitch Stutter Num Min" },
                        { kFxGlitchStutterNumMin, kFxGlitchStutterNumMax },
                        1,
                        [this] (int value) { return juce::String (value); },
@@ -956,7 +948,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                        [this] () { return kFxGlitchStutterNumMinDefault; },
                        [this] () { return uneditedSettingsProperties.getFxGlitchStutterNumMin (); });
 
-    setupFloatEditor ({ &fxGlitchStutterSmplTMaxEditor, fxGlitchStutterSmplTMaxLabel, "Smpl T Max", "FX Glitch Stutter Smpl T Max", "FX Glitch Stutter Smpl T Max" },
+    setupFloatEditor ({ &fxGlitchStutterSmplTMaxEditor, fxGlitchStutterSmplTMaxLabel, "Smpl T Max", "Longest slice of audio, in ms, captured for a stutter. Cannot go below Smpl T Min.", "FX Glitch Stutter Smpl T Max" },
                          { [this]() { return settingsProperties.getFxGlitchStutterSmplTMin (); }, []() { return kFxGlitchStutterSmplTMaxMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -969,7 +961,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxGlitchStutterSmplTMaxDefault; },
                          [this] () { return uneditedSettingsProperties.getFxGlitchStutterSmplTMax (); });
 
-    setupFloatEditor ({ &fxGlitchStutterSmplTMinEditor, fxGlitchStutterSmplTMinLabel, "Smpl T Min", "FX Glitch Stutter Smpl T Min", "FX Glitch Stutter Smpl T Min" },
+    setupFloatEditor ({ &fxGlitchStutterSmplTMinEditor, fxGlitchStutterSmplTMinLabel, "Smpl T Min", "Shortest slice of audio, in ms, captured for a stutter.", "FX Glitch Stutter Smpl T Min" },
                          { []() { return kFxGlitchStutterSmplTMinMin; }, []() { return kFxGlitchStutterSmplTMinMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -982,7 +974,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxGlitchStutterSmplTMinDefault; },
                          [this] () { return uneditedSettingsProperties.getFxGlitchStutterSmplTMin (); });
 
-    setupIntEditor ({ &fxGlitchStutterWindowEditor, fxGlitchStutterWindowLabel, "Window", "FX Glitch Stutter Window", "FX Glitch Stutter Window" },
+    setupIntEditor ({ &fxGlitchStutterWindowEditor, fxGlitchStutterWindowLabel, "Window", "Window after a trigger, in ms, during which a stutter can start.", "FX Glitch Stutter Window" },
                        { kFxGlitchStutterWindowMin, kFxGlitchStutterWindowMax },
                        1,
                        [this] (int value) { return juce::String (value); },
@@ -995,7 +987,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                        [this] () { return kFxGlitchStutterWindowDefault; },
                        [this] () { return uneditedSettingsProperties.getFxGlitchStutterWindow (); });
 
-    setupFloatEditor ({ &fxGlitchWeightCrushHighEditor, fxGlitchWeightCrushHighLabel, "Crush High", "FX Glitch Weight Crush High", "FX Glitch Weight Crush High" },
+    setupFloatEditor ({ &fxGlitchWeightCrushHighEditor, fxGlitchWeightCrushHighLabel, "Crush High", "Weighted chance that a glitch is a bit crush, with PARAM at 100%.", "FX Glitch Weight Crush High" },
                       { []() { return kFxGlitchWeightMin; }, []() { return kFxGlitchWeightMax; } },
                       0.1f,
                       [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -1008,7 +1000,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                       [this] () { return kFxGlitchWeightCrushHighDefault; },
                       [this] () { return uneditedSettingsProperties.getFxGlitchWeightCrushHigh (); });
 
-    setupFloatEditor ({ &fxGlitchWeightCrushLowEditor, fxGlitchWeightCrushLowLabel, "Crush Low", "FX Glitch Weight Crush Low", "FX Glitch Weight Crush Low" },
+    setupFloatEditor ({ &fxGlitchWeightCrushLowEditor, fxGlitchWeightCrushLowLabel, "Crush Low", "Weighted chance that a glitch is a bit crush, with PARAM at 0%.", "FX Glitch Weight Crush Low" },
                          { []() { return kFxGlitchWeightMin; }, []() { return kFxGlitchWeightMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -1021,7 +1013,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxGlitchWeightCrushLowDefault; },
                          [this] () { return uneditedSettingsProperties.getFxGlitchWeightCrushLow (); });
 
-    setupFloatEditor ({ &fxGlitchWeightDropHighEditor, fxGlitchWeightDropHighLabel, "Drop High", "FX Glitch Weight Drop High", "FX Glitch Weight Drop High" },
+    setupFloatEditor ({ &fxGlitchWeightDropHighEditor, fxGlitchWeightDropHighLabel, "Drop High", "Weighted chance that a glitch is a dropout, with PARAM at 100%.", "FX Glitch Weight Drop High" },
                          { []() { return kFxGlitchWeightMin; }, []() { return kFxGlitchWeightMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -1034,7 +1026,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxGlitchWeightDropHighDefault; },
                          [this] () { return uneditedSettingsProperties.getFxGlitchWeightDropHigh (); });
 
-    setupFloatEditor ({ &fxGlitchWeightDropLowEditor, fxGlitchWeightDropLowLabel, "Drop Low", "FX Glitch Weight Drop Low", "FX Glitch Weight Drop Low" },
+    setupFloatEditor ({ &fxGlitchWeightDropLowEditor, fxGlitchWeightDropLowLabel, "Drop Low", "Weighted chance that a glitch is a dropout, with PARAM at 0%.", "FX Glitch Weight Drop Low" },
                          { []() { return kFxGlitchWeightMin; }, []() { return kFxGlitchWeightMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -1047,7 +1039,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxGlitchWeightDropLowDefault; },
                          [this] () { return uneditedSettingsProperties.getFxGlitchWeightDropLow (); });
 
-    setupFloatEditor ({ &fxGlitchWeightHoldHighEditor, fxGlitchWeightHoldHighLabel, "Hold High", "FX Glitch Weight Hold High", "FX Glitch Weight Hold High" },
+    setupFloatEditor ({ &fxGlitchWeightHoldHighEditor, fxGlitchWeightHoldHighLabel, "Hold High", "Weighted chance that a glitch is a micro loop hold, with PARAM at 100%.", "FX Glitch Weight Hold High" },
                          { []() { return kFxGlitchWeightMin; }, []() { return kFxGlitchWeightMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -1060,7 +1052,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxGlitchWeightHoldHighDefault; },
                          [this] () { return uneditedSettingsProperties.getFxGlitchWeightHoldHigh (); });
 
-    setupFloatEditor ({ &fxGlitchWeightHoldLowEditor, fxGlitchWeightHoldLowLabel, "Hold Low", "FX Glitch Weight Hold Low", "FX Glitch Weight Hold Low" },
+    setupFloatEditor ({ &fxGlitchWeightHoldLowEditor, fxGlitchWeightHoldLowLabel, "Hold Low", "Weighted chance that a glitch is a micro loop hold, with PARAM at 0%.", "FX Glitch Weight Hold Low" },
                          { []() { return kFxGlitchWeightMin; }, []() { return kFxGlitchWeightMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -1073,7 +1065,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxGlitchWeightHoldLowDefault; },
                          [this] () { return uneditedSettingsProperties.getFxGlitchWeightHoldLow (); });
 
-    setupFloatEditor ({ &fxGlitchWeightStutterHighEditor, fxGlitchWeightStutterHighLabel, "Stutter High", "FX Glitch Weight Stutter High", "FX Glitch Weight Stutter High" },
+    setupFloatEditor ({ &fxGlitchWeightStutterHighEditor, fxGlitchWeightStutterHighLabel, "Stutter High", "Weighted chance that a glitch is a stutter, with PARAM at 100%.", "FX Glitch Weight Stutter High" },
                          { []() { return kFxGlitchWeightMin; }, []() { return kFxGlitchWeightMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -1086,7 +1078,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxGlitchWeightStutterHighDefault; },
                          [this] () { return uneditedSettingsProperties.getFxGlitchWeightStutterHigh (); });
 
-    setupFloatEditor ({ &fxGlitchWeightStutterLowEditor, fxGlitchWeightStutterLowLabel, "Stutter Low", "FX Glitch Weight Stutter Low", "FX Glitch Weight Stutter Low" },
+    setupFloatEditor ({ &fxGlitchWeightStutterLowEditor, fxGlitchWeightStutterLowLabel, "Stutter Low", "Weighted chance that a glitch is a stutter, with PARAM at 0%.", "FX Glitch Weight Stutter Low" },
                          { []() { return kFxGlitchWeightMin; }, []() { return kFxGlitchWeightMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -1099,7 +1091,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxGlitchWeightStutterLowDefault; },
                          [this] () { return uneditedSettingsProperties.getFxGlitchWeightStutterLow (); });
 
-    setupIntEditor ({ &fxReverbHpfEditor, fxReverbHpfLabel, "HPF", "FX Reverb HPF", "FX Reverb HPF" },
+    setupIntEditor ({ &fxReverbHpfEditor, fxReverbHpfLabel, "HPF", "High pass cutoff frequency, in Hz, in the reverb feedback path.", "FX Reverb HPF" },
                        { kFxReverbHpfMin, kFxReverbHpfMax },
                        1,
                        [this] (int value) { return juce::String (value); },
@@ -1112,7 +1104,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                        [this] () { return kFxReverbHpfDefault; },
                        [this] () { return uneditedSettingsProperties.getFxReverbHpf (); });
 
-    setupIntEditor ({ &fxReverbLpfEditor, fxReverbLpfLabel, "LPF", "FX Reverb LPF", "FX Reverb LPF" },
+    setupIntEditor ({ &fxReverbLpfEditor, fxReverbLpfLabel, "LPF", "Low pass cutoff frequency, in Hz, in the reverb feedback path.", "FX Reverb LPF" },
                        { kFxReverbLpfMin, kFxReverbLpfMax },
                        1,
                        [this] (int value) { return juce::String (value); },
@@ -1141,7 +1133,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                       [this] () { return kFxReverbTypeDefault + 1; },
                       [this] () { return uneditedSettingsProperties.getFxReverbType () + 1; });
 
-    setupFloatEditor ({ &fxReverbSizeMinEditor, fxReverbSizeMinLabel, "Size Min (Plate)", "FX Reverb Size Min", "FX Reverb Size Min" },
+    setupFloatEditor ({ &fxReverbSizeMinEditor, fxReverbSizeMinLabel, "Size Min (Plate)", "Plate size with the PARAM control fully counter-clockwise, small and tight. PARAM sweeps size and decay together, so matching this to Size Max fixes the size and leaves PARAM controlling decay alone. Plate type only.", "FX Reverb Size Min" },
                          { []() { return kFxReverbSizeMinMin; }, []() { return kFxReverbSizeMinMax; } },
                          0.01f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -1154,7 +1146,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxReverbSizeMinDefault; },
                          [this] () { return uneditedSettingsProperties.getFxReverbSizeMin (); });
 
-    setupFloatEditor ({ &fxReverbSizeMaxEditor, fxReverbSizeMaxLabel, "Size Max (Plate)", "FX Reverb Size Max", "FX Reverb Size Max" },
+    setupFloatEditor ({ &fxReverbSizeMaxEditor, fxReverbSizeMaxLabel, "Size Max (Plate)", "Plate size with the PARAM control fully clockwise, huge and close to freezing. Cannot go below Size Min. Plate type only.", "FX Reverb Size Max" },
                          { [this]() { return settingsProperties.getFxReverbSizeMin (); }, []() { return kFxReverbSizeMaxMax; } },
                          0.01f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -1168,7 +1160,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return uneditedSettingsProperties.getFxReverbSizeMax (); });
     fxReverbSizeMaxEditor.getMinValueCallback = [this] () { return settingsProperties.getFxReverbSizeMin (); };
 
-    setupIntEditor ({ &fxReverbPredelayEditor, fxReverbPredelayLabel, "Predelay (Plate)", "FX Reverb Predelay", "FX Reverb Predelay" },
+    setupIntEditor ({ &fxReverbPredelayEditor, fxReverbPredelayLabel, "Predelay (Plate)", "Delay, in ms, before the plate starts to respond. Plate type only.", "FX Reverb Predelay" },
                        { kFxReverbPredelayMin, kFxReverbPredelayMax },
                        1,
                        [this] (int value) { return juce::String (value); },
@@ -1181,7 +1173,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                        [this] () { return kFxReverbPredelayDefault; },
                        [this] () { return uneditedSettingsProperties.getFxReverbPredelay (); });
 
-    setupFloatEditor ({ &fxReverbModDepthEditor, fxReverbModDepthLabel, "Mod Depth (Plate)", "FX Reverb Mod Depth", "FX Reverb Mod Depth" },
+    setupFloatEditor ({ &fxReverbModDepthEditor, fxReverbModDepthLabel, "Mod Depth (Plate)", "Tank modulation depth, in ms. Plate type only.", "FX Reverb Mod Depth" },
                          { []() { return kFxReverbModDepthMin; }, []() { return kFxReverbModDepthMax; } },
                          0.01f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -1194,7 +1186,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxReverbModDepthDefault; },
                          [this] () { return uneditedSettingsProperties.getFxReverbModDepth (); });
 
-    setupFloatEditor ({ &fxReverbModRateEditor, fxReverbModRateLabel, "Mod Rate (Plate)", "FX Reverb Mod Rate", "FX Reverb Mod Rate" },
+    setupFloatEditor ({ &fxReverbModRateEditor, fxReverbModRateLabel, "Mod Rate (Plate)", "Tank modulation rate, in Hz. Plate type only.", "FX Reverb Mod Rate" },
                          { []() { return kFxReverbModRateMin; }, []() { return kFxReverbModRateMax; } },
                          0.05f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -1207,7 +1199,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxReverbModRateDefault; },
                          [this] () { return uneditedSettingsProperties.getFxReverbModRate (); });
 
-    setupFloatEditor ({ &fxReverbDiffusionEditor, fxReverbDiffusionLabel, "Diffusion (Plate)", "FX Reverb Diffusion", "FX Reverb Diffusion" },
+    setupFloatEditor ({ &fxReverbDiffusionEditor, fxReverbDiffusionLabel, "Diffusion (Plate)", "Diffusion amount, from sparse reflections to a dense wash. Plate type only.", "FX Reverb Diffusion" },
                          { []() { return kFxReverbDiffusionMin; }, []() { return kFxReverbDiffusionMax; } },
                          0.01f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -1220,7 +1212,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kFxReverbDiffusionDefault; },
                          [this] () { return uneditedSettingsProperties.getFxReverbDiffusion (); });
 
-    setupFloatEditor ({ &fxReverbMixEditor, fxReverbMixLabel, "Mix (Plate)", "FX Reverb Mix", "FX Reverb Mix" },
+    setupFloatEditor ({ &fxReverbMixEditor, fxReverbMixLabel, "Mix (Plate)", "Wet level for the plate. Plate type only.", "FX Reverb Mix" },
                          { []() { return kFxReverbMixMin; }, []() { return kFxReverbMixMax; } },
                          0.01f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -1267,7 +1259,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                       [this] () { return kKnobPosTakeupDefault + 1; },
                       [this] () { return uneditedSettingsProperties.getKnobPosTakeup () + 1; });
 
-    setupFloatEditor ({ &pitchHighEditor, pitchHighLabel, "Pitch High", "Pitch High", "Pitch High" },
+    setupFloatEditor ({ &pitchHighEditor, pitchHighLabel, "Pitch High", "Pitch multiplier at the highest PITCH setting, for both Surface A and Surface B.", "Pitch High" },
                          { []() { return kPitchHighMin; }, []() { return kPitchHighMax; } },
                          0.1f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -1280,7 +1272,7 @@ SettingsEditorComponent::SettingsEditorComponent ()
                          [this] () { return kPitchHighDefault; },
                          [this] () { return uneditedSettingsProperties.getPitchHigh (); });
 
-    setupFloatEditor ({ &pitchLowEditor, pitchLowLabel, "Pitch Low", "Pitch Low", "Pitch Low" },
+    setupFloatEditor ({ &pitchLowEditor, pitchLowLabel, "Pitch Low", "Pitch multiplier at the lowest PITCH setting, for both Surface A and Surface B.", "Pitch Low" },
                          { []() { return kPitchLowMin; }, []() { return kPitchLowMax; } },
                          0.001f,
                          [this] (float value) { return getRoundedFloatString (value, 4); },
@@ -1310,51 +1302,55 @@ SettingsEditorComponent::SettingsEditorComponent ()
                       [this] () { return kVelocityUnipolarDefault + 1; },
                       [this] () { return uneditedSettingsProperties.getVelocityUnipolar () + 1; });
 
-    auto setupHeaderLabel = [this] (juce::Label& label, const juce::String& text, float fontHeight)
+    // Two tiers: the name of a section, and the name of a group inside one. Both
+    // are set in the same small caps as every other header in the app, and the
+    // colour is what separates them - the section in the accent, the group in the
+    // dim ink, so a group never outshouts the section it belongs to.
+    auto setupHeaderLabel = [this] (juce::Label& label, const juce::String& text, bool isSectionName)
         {
-            label.setText (text, juce::dontSendNotification);
+            label.setText (text.toUpperCase (), juce::dontSendNotification);
             label.setJustificationType (juce::Justification::centredLeft);
-            label.setColour (juce::Label::textColourId, juce::Colours::white.withAlpha (0.92f));
-            label.setFont (juce::Font (juce::FontOptions (fontHeight, juce::Font::bold)));
+            label.setFont (ClutchType::sectionHeader ());
+            (isSectionName ? sectionHeaderLabels : groupHeaderLabels).push_back (&label);
             addAndMakeVisible (label);
         };
 
-    setupHeaderLabel (accentHeaderLabel, "Accent", 16.0f);
-    setupHeaderLabel (accentOpenedHeaderLabel, "Opened", 14.0f);
-    setupHeaderLabel (accentClosedHeaderLabel, "Closed", 14.0f);
+    setupHeaderLabel (accentHeaderLabel, "Accent", true);
+    setupHeaderLabel (accentOpenedHeaderLabel, "Opened", false);
+    setupHeaderLabel (accentClosedHeaderLabel, "Closed", false);
 
-    setupHeaderLabel (closedHeaderLabel, "Closed", 16.0f);
+    setupHeaderLabel (closedHeaderLabel, "Closed", true);
 
-    setupHeaderLabel (cvHeaderLabel, "CV", 16.0f);
+    setupHeaderLabel (cvHeaderLabel, "CV", true);
 
-    setupHeaderLabel (envelopeHeaderLabel, "Envelope", 16.0f);
-    setupHeaderLabel (feelHeaderLabel, "Feel", 16.0f);
+    setupHeaderLabel (envelopeHeaderLabel, "Envelope", true);
+    setupHeaderLabel (feelHeaderLabel, "Feel", true);
 
-    setupHeaderLabel (filterHeaderLabel, "Filter", 16.0f);
-    setupHeaderLabel (filterHpfHeaderLabel, "HPF", 14.0f);
-    setupHeaderLabel (filterLpfHeaderLabel, "LPF", 14.0f);
+    setupHeaderLabel (filterHeaderLabel, "Filter", true);
+    setupHeaderLabel (filterHpfHeaderLabel, "HPF", false);
+    setupHeaderLabel (filterLpfHeaderLabel, "LPF", false);
 
-    setupHeaderLabel (pitchHeaderLabel, "Pitch", 16.0f);
-    setupHeaderLabel (utilityHeaderLabel, "Utility", 16.0f);
+    setupHeaderLabel (pitchHeaderLabel, "Pitch", true);
+    setupHeaderLabel (utilityHeaderLabel, "Utility", true);
 
-    setupHeaderLabel (chorusHeaderLabel, "FX Chorus", 16.0f);
+    setupHeaderLabel (chorusHeaderLabel, "FX Chorus", true);
 
-    setupHeaderLabel (djFilterHeaderLabel, "FX DJ Filter", 16.0f);
-    setupHeaderLabel (djFilterHpfHeaderLabel, "HPF", 14.0f);
-    setupHeaderLabel (djFilterLpfHeaderLabel, "LPF", 14.0f);
-    setupHeaderLabel (djFilterQHeaderLabel, "Q", 14.0f);
+    setupHeaderLabel (djFilterHeaderLabel, "FX DJ Filter", true);
+    setupHeaderLabel (djFilterHpfHeaderLabel, "HPF", false);
+    setupHeaderLabel (djFilterLpfHeaderLabel, "LPF", false);
+    setupHeaderLabel (djFilterQHeaderLabel, "Q", false);
 
-    setupHeaderLabel (dubEchoHeaderLabel, "FX Dub Echo", 16.0f);
+    setupHeaderLabel (dubEchoHeaderLabel, "FX Dub Echo", true);
 
-    setupHeaderLabel (reverbHeaderLabel, "FX Reverb", 16.0f);
+    setupHeaderLabel (reverbHeaderLabel, "FX Reverb", true);
 
-    setupHeaderLabel (glitchHeaderLabel, "FX Glitch", 16.0f);
-    setupHeaderLabel (glitchCrushHeaderLabel, "Crush", 14.0f);
-    setupHeaderLabel (glitchDropHeaderLabel, "Drop", 14.0f);
-    setupHeaderLabel (glitchMicroloopHeaderLabel, "Microloop", 14.0f);
-    setupHeaderLabel (glitchProbabilityHeaderLabel, "Probability", 14.0f);
-    setupHeaderLabel (glitchStutterHeaderLabel, "Stutter", 14.0f);
-    setupHeaderLabel (glitchWeightsHeaderLabel, "Weights", 14.0f);
+    setupHeaderLabel (glitchHeaderLabel, "FX Glitch", true);
+    setupHeaderLabel (glitchCrushHeaderLabel, "Crush", false);
+    setupHeaderLabel (glitchDropHeaderLabel, "Drop", false);
+    setupHeaderLabel (glitchMicroloopHeaderLabel, "Microloop", false);
+    setupHeaderLabel (glitchProbabilityHeaderLabel, "Probability", false);
+    setupHeaderLabel (glitchStutterHeaderLabel, "Stutter", false);
+    setupHeaderLabel (glitchWeightsHeaderLabel, "Weights", false);
 }
 
 SettingsEditorComponent::~SettingsEditorComponent ()
@@ -2371,49 +2367,34 @@ void SettingsEditorComponent::fxGlitchStutterWindowUiChanged (int value)
     settingsProperties.setFxGlitchStutterWindow (value, false);
 }
 
+// Labels keep per-instance colours, so they have to be refreshed by hand when the
+// palette changes.
+void SettingsEditorComponent::applyExplicitColours ()
+{
+    const auto sectionColour { findColour (ClutchColours::accentText) };
+    for (auto* label : sectionHeaderLabels)
+        label->setColour (juce::Label::ColourIds::textColourId, sectionColour);
+
+    const auto groupColour { findColour (ClutchColours::textDim) };
+    for (auto* label : groupHeaderLabels)
+        label->setColour (juce::Label::ColourIds::textColourId, groupColour);
+}
+
+void SettingsEditorComponent::lookAndFeelChanged ()
+{
+    juce::Component::lookAndFeelChanged ();
+    applyExplicitColours ();
+}
+
 void SettingsEditorComponent::paint (juce::Graphics& g)
 {
-    const auto kBackgroundColour { juce::Colour (0xff4a4a4a) };
-    const auto kSectionOutlineColour { juce::Colour (0xff6a6a6a) };
+    g.fillAll (findColour (ClutchColours::windowBackground));
 
-    constexpr auto kSectionCornerSize { 4.0f };
-    constexpr auto kSectionOutlineThickness { 1.0f };
-
-    constexpr auto kSeparatorInsetX { 0 };
-    constexpr auto kSeparatorThickness { 1.0f };
-
-    g.setColour (kSectionOutlineColour.brighter (0.4f));
+    // Each section is a panel lifted off the background, so the screen reads as a
+    // few blocks rather than one field of controls. The header in the accent is
+    // what marks where a section starts, so it needs no rule under it.
     for (const auto& box : sectionBoxes)
-    {
-        g.drawRoundedRectangle (box.toFloat (), kSectionCornerSize, kSectionOutlineThickness);
-    }
-
-    auto drawMainHeaderSeparator =
-        [&] (const juce::Label& header)
-        {
-            const auto bounds { header.getBounds () };
-            const auto y { bounds.getBottom () };
-
-            g.drawLine ((float) (bounds.getX () + kSeparatorInsetX),
-                        (float) y,
-                        (float) (bounds.getRight () + 8), // NOTE - hack to get things working. since the line is bring drawn relative to the label, it doesn't know how wide the actual section is
-                        (float) y,
-                        kSeparatorThickness);
-        };
-
-    drawMainHeaderSeparator (accentHeaderLabel);
-    drawMainHeaderSeparator (closedHeaderLabel);
-    drawMainHeaderSeparator (envelopeHeaderLabel);
-    drawMainHeaderSeparator (feelHeaderLabel);
-    drawMainHeaderSeparator (cvHeaderLabel);
-    drawMainHeaderSeparator (filterHeaderLabel);
-    drawMainHeaderSeparator (pitchHeaderLabel);
-    drawMainHeaderSeparator (utilityHeaderLabel);
-    drawMainHeaderSeparator (chorusHeaderLabel);
-    drawMainHeaderSeparator (reverbHeaderLabel);
-    drawMainHeaderSeparator (djFilterHeaderLabel);
-    drawMainHeaderSeparator (dubEchoHeaderLabel);
-    drawMainHeaderSeparator (glitchHeaderLabel);
+        ClutchPaint::card (g, *this, box);
 }
 
 void SettingsEditorComponent::resized ()
@@ -2445,7 +2426,7 @@ void SettingsEditorComponent::resized ()
     // These control the padding between a section box and the content inside it.
     constexpr auto kSectionInnerPadLeft { 1 };
     constexpr auto kSectionInnerPadRight { 8 };
-    constexpr auto kSectionInnerPadTop { 5 };
+    constexpr auto kSectionInnerPadTop { 3 };
     constexpr auto kSectionInnerPadBottom { 5 };
 
     // (1) Space between each section.
@@ -2464,13 +2445,20 @@ void SettingsEditorComponent::resized ()
     // Heading sizing
     //==========================================================================
 
-    constexpr auto kSectionHeaderHeight { 24 };
-    constexpr auto kSubHeaderHeight { 18 };
+    // Both bands are sized to the header text itself - the clearance beneath a
+    // header is the gap constant below it, not slack left inside the band.
+    constexpr auto kSectionHeaderHeight { 14 };
+    constexpr auto kSubHeaderHeight { 14 };
 
     // (5) Space between main heading and subcontent.
-    constexpr auto kMainHeaderToContentGap { 2 };
+    constexpr auto kMainHeaderToContentGap { 3 };
 
-    constexpr auto kSubSectionGap { 5 };
+    // (6) Space between a sub heading and the rows beneath it. A sub heading sits
+    // closer to its rows than a section heading does, so the two tiers read as
+    // nested rather than as a flat run of headings.
+    constexpr auto kSubHeaderToContentGap { 1 };
+
+    constexpr auto kSubSectionGap { 2 };
 
     //==========================================================================
     // Content indents
@@ -2556,7 +2544,7 @@ void SettingsEditorComponent::resized ()
     auto positionHeader =
         [] (juce::Label& header, juce::Rectangle<int>& area, int height, int indent = 0)
         {
-            header.setBounds (area.getX () + indent, area.getY () - 5, area.getWidth () - indent, height);
+            header.setBounds (area.getX () + indent, area.getY (), area.getWidth () - indent, height);
             area.removeFromTop (height);
         };
 
@@ -2564,6 +2552,13 @@ void SettingsEditorComponent::resized ()
         [] (juce::Rectangle<int>& area, int amount)
         {
             area.removeFromTop (amount);
+        };
+
+    auto positionSubHeader =
+        [&] (juce::Label& header, juce::Rectangle<int>& area, int indent)
+        {
+            positionHeader (header, area, kSubHeaderHeight, indent);
+            addVerticalGap (area, kSubHeaderToContentGap);
         };
 
     auto beginSection =
@@ -2676,7 +2671,7 @@ void SettingsEditorComponent::resized ()
         positionHeader (accentHeaderLabel, sectionArea, kSectionHeaderHeight);
         addVerticalGap (sectionArea, kMainHeaderToContentGap);
 
-        positionHeader (accentOpenedHeaderLabel, sectionArea, kSubHeaderHeight, kSubHeaderIndent);
+        positionSubHeader (accentOpenedHeaderLabel, sectionArea, kSubHeaderIndent);
         positionRows (sectionArea,
                       {
                           { &accOpAmpModEditor, &accOpAmpModLabel },
@@ -2686,7 +2681,7 @@ void SettingsEditorComponent::resized ()
 
         addVerticalGap (sectionArea, kSubSectionGap);
 
-        positionHeader (accentClosedHeaderLabel, sectionArea, kSubHeaderHeight, kSubHeaderIndent);
+        positionSubHeader (accentClosedHeaderLabel, sectionArea, kSubHeaderIndent);
         positionRows (sectionArea,
                       {
                           { &accClAmpModEditor, &accClAmpModLabel },
@@ -2788,7 +2783,7 @@ void SettingsEditorComponent::resized ()
         positionHeader (filterHeaderLabel, sectionArea, kSectionHeaderHeight);
         addVerticalGap (sectionArea, kMainHeaderToContentGap);
 
-        positionHeader (filterHpfHeaderLabel, sectionArea, kSubHeaderHeight, kSubHeaderIndent);
+        positionSubHeader (filterHpfHeaderLabel, sectionArea, kSubHeaderIndent);
         positionRows (sectionArea,
                       {
                           { &fltrHpfMinFreqEditor, &fltrHpfMinFreqLabel },
@@ -2799,7 +2794,7 @@ void SettingsEditorComponent::resized ()
 
         addVerticalGap (sectionArea, kSubSectionGap);
 
-        positionHeader (filterLpfHeaderLabel, sectionArea, kSubHeaderHeight, kSubHeaderIndent);
+        positionSubHeader (filterLpfHeaderLabel, sectionArea, kSubHeaderIndent);
         positionRows (sectionArea,
                       {
                           { &fltrLpfMinFreqEditor, &fltrLpfMinFreqLabel },
@@ -2915,7 +2910,7 @@ void SettingsEditorComponent::resized ()
         positionHeader (djFilterHeaderLabel, sectionArea, kSectionHeaderHeight);
         addVerticalGap (sectionArea, kMainHeaderToContentGap);
 
-        positionHeader (djFilterHpfHeaderLabel, sectionArea, kSubHeaderHeight, kGlitchSubHeaderIndent);
+        positionSubHeader (djFilterHpfHeaderLabel, sectionArea, kGlitchSubHeaderIndent);
         positionGlitchAlignedRow (sectionArea,
                                   {
                                       { &fxDjfilterHpfMinEditor, &fxDjfilterHpfMinLabel },
@@ -2924,7 +2919,7 @@ void SettingsEditorComponent::resized ()
 
         addVerticalGap (sectionArea, kSubSectionGap);
 
-        positionHeader (djFilterLpfHeaderLabel, sectionArea, kSubHeaderHeight, kGlitchSubHeaderIndent);
+        positionSubHeader (djFilterLpfHeaderLabel, sectionArea, kGlitchSubHeaderIndent);
         positionGlitchAlignedRow (sectionArea,
                                   {
                                       { &fxDjfilterLpfMinEditor, &fxDjfilterLpfMinLabel },
@@ -2933,7 +2928,7 @@ void SettingsEditorComponent::resized ()
 
         addVerticalGap (sectionArea, kSubSectionGap);
 
-        positionHeader (djFilterQHeaderLabel, sectionArea, kSubHeaderHeight, kGlitchSubHeaderIndent);
+        positionSubHeader (djFilterQHeaderLabel, sectionArea, kGlitchSubHeaderIndent);
         positionGlitchAlignedRow (sectionArea,
                                   {
                                       { &fxDjfilterQMinEditor, &fxDjfilterQMinLabel },
@@ -3015,7 +3010,7 @@ void SettingsEditorComponent::resized ()
         auto glitchColumn0 { glitchColumn0Bounds };
         auto glitchColumn1 { glitchColumn1Bounds };
 
-        positionHeader (glitchCrushHeaderLabel, glitchColumn0, kSubHeaderHeight, kGlitchSubHeaderIndent);
+        positionSubHeader (glitchCrushHeaderLabel, glitchColumn0, kGlitchSubHeaderIndent);
         positionGlitchRows (glitchColumn0,
                             glitchColumn0Bounds,
                             {
@@ -3026,7 +3021,7 @@ void SettingsEditorComponent::resized ()
 
         addVerticalGap (glitchColumn0, kSubSectionGap);
 
-        positionHeader (glitchDropHeaderLabel, glitchColumn0, kSubHeaderHeight, kGlitchSubHeaderIndent);
+        positionSubHeader (glitchDropHeaderLabel, glitchColumn0, kGlitchSubHeaderIndent);
         positionGlitchRows (glitchColumn0,
                             glitchColumn0Bounds,
                             {
@@ -3039,7 +3034,7 @@ void SettingsEditorComponent::resized ()
 
         addVerticalGap (glitchColumn0, kSubSectionGap);
 
-        positionHeader (glitchMicroloopHeaderLabel, glitchColumn0, kSubHeaderHeight, kGlitchSubHeaderIndent);
+        positionSubHeader (glitchMicroloopHeaderLabel, glitchColumn0, kGlitchSubHeaderIndent);
         positionGlitchRows (glitchColumn0,
                             glitchColumn0Bounds,
                             {
@@ -3052,7 +3047,7 @@ void SettingsEditorComponent::resized ()
 
         addVerticalGap (glitchColumn0, kSubSectionGap);
 
-        positionHeader (glitchProbabilityHeaderLabel, glitchColumn0, kSubHeaderHeight, kGlitchSubHeaderIndent);
+        positionSubHeader (glitchProbabilityHeaderLabel, glitchColumn0, kGlitchSubHeaderIndent);
         positionGlitchRows (glitchColumn0,
                             glitchColumn0Bounds,
                             {
@@ -3061,7 +3056,7 @@ void SettingsEditorComponent::resized ()
                             },
                             kGlitchContentIndent);
 
-        positionHeader (glitchStutterHeaderLabel, glitchColumn1, kSubHeaderHeight, kGlitchSubHeaderIndent);
+        positionSubHeader (glitchStutterHeaderLabel, glitchColumn1, kGlitchSubHeaderIndent);
         positionGlitchRows (glitchColumn1,
                             glitchColumn1Bounds,
                             {
@@ -3075,7 +3070,7 @@ void SettingsEditorComponent::resized ()
 
         addVerticalGap (glitchColumn1, kSubSectionGap);
 
-        positionHeader (glitchWeightsHeaderLabel, glitchColumn1, kSubHeaderHeight, kGlitchSubHeaderIndent);
+        positionSubHeader (glitchWeightsHeaderLabel, glitchColumn1, kGlitchSubHeaderIndent);
         positionGlitchRows (glitchColumn1,
                             glitchColumn1Bounds,
                             {

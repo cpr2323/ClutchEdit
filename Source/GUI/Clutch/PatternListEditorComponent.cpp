@@ -1,4 +1,5 @@
 #include "PatternListEditorComponent.h"
+#include "../Theme/UiComponents.h"
 #include "../../Clutch/ClutchProperties.h"
 #include "../../Clutch/LedColorList.h"
 #include "oolib/Properties/RuntimeRootProperties.h"
@@ -11,7 +12,7 @@ PatternListEditorComponent::PatternListEditorComponent ()
         addAndMakeVisible (patternEditors [patternIndex]);
 
         auto& patternLabel { patternLabels [patternIndex] };
-        patternLabel.setColour (juce::Label::textColourId, juce::Colours::white);
+        patternLabel.setFont (ClutchType::sectionHeader ());
         patternLabel.setText (gLedColorList [patternIndex], juce::NotificationType::dontSendNotification);
         patternLabel.setJustificationType (juce::Justification::topRight);
         addAndMakeVisible (patternLabel);
@@ -37,12 +38,28 @@ void PatternListEditorComponent::init (juce::ValueTree rootPropertiesVT)
     }
 }
 
-void PatternListEditorComponent::paintOverChildren (juce::Graphics& g)
+// A label keeps a per-instance colour, so it has to be refreshed by hand when the
+// palette changes.
+void PatternListEditorComponent::applyExplicitColours ()
 {
-    const auto kSectionOutlineColour { juce::Colour (0xff6a6a6a) };
-    g.setColour (kSectionOutlineColour.brighter (0.4f));
-    constexpr auto kSectionCornerSize { 4.0f };
-    constexpr auto kSectionOutlineThickness { 1.0f };
+    const auto headerColour { findColour (ClutchColours::accentText) };
+    for (auto& patternLabel : patternLabels)
+        patternLabel.setColour (juce::Label::ColourIds::textColourId, headerColour);
+}
+
+void PatternListEditorComponent::lookAndFeelChanged ()
+{
+    juce::Component::lookAndFeelChanged ();
+    applyExplicitColours ();
+}
+
+void PatternListEditorComponent::paint (juce::Graphics& g)
+{
+    g.fillAll (findColour (ClutchColours::windowBackground));
+
+    // one panel per pattern, so the eight of them read as eight blocks rather than
+    // one field of steps. Painted here rather than over the children, so the steps
+    // sit on the panel instead of the panel's outline crossing them.
     for (auto patternIndex { 0 }; patternIndex < patternEditors.size (); ++patternIndex)
     {
         auto& patternLabel { patternLabels [patternIndex] };
@@ -51,7 +68,7 @@ void PatternListEditorComponent::paintOverChildren (juce::Graphics& g)
         const auto y { patternEditor.getY () };
         const auto width { patternLabel.getWidth () + patternEditor.getWidth () - 65 };
         const auto height { patternEditor.getHeight () - 5 };
-        g.drawRoundedRectangle (juce::Rectangle<int> (x, y, width, height).toFloat(), kSectionCornerSize, kSectionOutlineThickness);
+        ClutchPaint::card (g, *this, { x, y, width, height });
     }
 }
 

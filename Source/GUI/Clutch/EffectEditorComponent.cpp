@@ -1,4 +1,5 @@
 #include "EffectEditorComponent.h"
+#include "../Theme/UiComponents.h"
 #include "../../Clutch/ClutchProperties.h"
 #include "../../Clutch/LedColorList.h"
 #include "oolib/Properties/RuntimeRootProperties.h"
@@ -46,11 +47,12 @@ EffectEditorComponent::EffectEditorComponent ()
     for (auto curEffectIndex { 0 }; curEffectIndex < 8; ++curEffectIndex)
     {
         auto& effectEditor { effectEditors [curEffectIndex] };
-        effectEditor.setTooltip ("");
+        effectEditor.setTooltip ("The effect the " + gLedColorList [curEffectIndex] + " LED selects. Set to NONE to bypass.");
         for (auto effectIndex { 0 }; effectIndex < effectNames.size (); ++effectIndex)
             effectEditor.addItem (effectNames [effectIndex], effectIndex + 1);
-        effectEditor.setLookAndFeel (&noArrowComboBoxLnF);
-        effectEditor.setColour (juce::ComboBox::backgroundColourId, juce::Colours::darkgrey.darker (0.7f));
+        // the field is almost entirely covered by its label, so the pointer enters
+        // that rather than the box; without this the hover outline never appears
+        HoverHighlight::attach (effectEditor);
         effectEditor.setSelectedId (1);
         effectEditor.setComponentID ("StepComboBox" + juce::String (curEffectIndex));
         effectEditor.onDragCallback = [this, &effectEditor, curEffectIndex] (double valueDelta)
@@ -61,10 +63,7 @@ EffectEditorComponent::EffectEditorComponent ()
         };
         effectEditor.onPopupMenuCallback = [this, curEffectIndex] ()
         {
-            auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-            popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
             juce::PopupMenu pm;
-            pm.setLookAndFeel (popupMenuLnF);
             pm.addSectionHeader ("Effect " + effectProperties[curEffectIndex].getId ().substring (3));
             pm.addSeparator ();
             pm.addItem ("Default", true, false, [this, curEffectIndex] ()
@@ -76,7 +75,7 @@ EffectEditorComponent::EffectEditorComponent ()
                 effectEditors [curEffectIndex].setText (uneditedEffectProperties[curEffectIndex].getEffect (), juce::NotificationType::sendNotification);
             });
 
-            pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
+            pm.showMenuAsync ({});
         };
         effectEditor.onChange = [this, curEffectIndex] ()
         {
@@ -89,6 +88,7 @@ EffectEditorComponent::EffectEditorComponent ()
     {
         auto& effectLabel { effectLabels [effectIndex] };
         effectLabel.setText (gLedColorList [effectIndex], juce::NotificationType::dontSendNotification);
+        effectLabel.setFont (ClutchType::sectionHeader ());
         effectLabel.setJustificationType (juce::Justification::centredLeft);
         addAndMakeVisible (effectLabel);
         auto& effectEditor { effectEditors [effectIndex] };
@@ -100,8 +100,6 @@ EffectEditorComponent::EffectEditorComponent ()
 
 EffectEditorComponent::~EffectEditorComponent ()
 {
-    for (auto& effectEditor : effectEditors)
-        effectEditor.setLookAndFeel (nullptr);
 }
 
 void EffectEditorComponent::init (juce::ValueTree rootPropertiesVT)
@@ -125,14 +123,30 @@ void EffectEditorComponent::init (juce::ValueTree rootPropertiesVT)
     });
 }
 
-void EffectEditorComponent::paintOverChildren (juce::Graphics& g)
+// A label keeps a per-instance colour, so it has to be refreshed by hand when the
+// palette changes.
+void EffectEditorComponent::applyExplicitColours ()
 {
-    const auto kSectionOutlineColour { juce::Colour (0xff6a6a6a) };
-    g.setColour (kSectionOutlineColour.brighter (0.4f));
-    constexpr auto kSectionCornerSize { 4.0f };
-    constexpr auto kSectionOutlineThickness { 1.0f };
-    g.drawRoundedRectangle (juce::Rectangle<int> (effectLabels [0].getX (), effectLabels [0].getY () - 5, effectEditors [0].getRight () - effectLabels [0].getX () + 5,
-                                                  effectLabels [7].getBottom () - effectLabels [0].getY () + 10).toFloat (), kSectionCornerSize, kSectionOutlineThickness);
+    const auto headerColour { findColour (ClutchColours::accentText) };
+    for (auto& effectLabel : effectLabels)
+        effectLabel.setColour (juce::Label::ColourIds::textColourId, headerColour);
+}
+
+void EffectEditorComponent::lookAndFeelChanged ()
+{
+    juce::Component::lookAndFeelChanged ();
+    applyExplicitColours ();
+}
+
+void EffectEditorComponent::paint (juce::Graphics& g)
+{
+    g.fillAll (findColour (ClutchColours::windowBackground));
+
+    // the effects are one list, so they sit on one panel lifted off the background
+    ClutchPaint::card (g, *this,
+                       { effectLabels [0].getX (), effectLabels [0].getY () - 5,
+                         effectEditors [0].getRight () - effectLabels [0].getX () + 5,
+                         effectLabels [7].getBottom () - effectLabels [0].getY () + 10 });
 }
 
 void EffectEditorComponent::resized ()

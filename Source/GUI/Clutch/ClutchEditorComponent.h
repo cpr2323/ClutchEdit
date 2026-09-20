@@ -4,6 +4,7 @@
 #include "SettingsEditorComponent.h"
 #include "PatternListEditorComponent.h"
 #include "SampleManagerComponent.h"
+#include "../Theme/UiComponents.h"
 #include "../../AppProperties.h"
 #include "../../Clutch/ClutchProperties.h"
 #include "../../Clutch/ProjectManagerProperties.h"
@@ -47,12 +48,20 @@ private:
     RuntimeRootProperties runtimeRootProperties;
     SampleManagerComponent sampleManagerComponent;
     SettingsEditorComponent settingsEditorComponent;
-    juce::TextButton saveButton;
-    juce::TextButton openButton;
-    juce::TextButton toolsButton;
+    // SAVE takes the accent fill while, and only while, there is something to save
+    ActionButton saveButton { "SAVE" };
+    ActionButton openButton { "OPEN" };
+    MenuButton toolsButton { "TOOLS" };
     TabbedComponentWithCallback editorTabs { juce::TabbedButtonBar::Orientation::TabsAtTop };
     std::unique_ptr<juce::FileChooser> fileChooser;
 
+    // the tabs sit along the top, with the project tools at the right hand end
+    // of the same strip
+    static constexpr int kTabBarHeight { 31 };
+
+    void applyTabColours ();
+
+    void lookAndFeelChanged () override;
     void paint (juce::Graphics& g) override;
     void resized () override;
 };

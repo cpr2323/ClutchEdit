@@ -1,4 +1,5 @@
 #include "ClutchEditorComponent.h"
+#include "../Theme/ClutchColourIds.h"
 #include "oolib/Properties/PersistentRootProperties.h"
 #include "../../Clutch/LedColorList.h"
 #include "../../Clutch/ProjectManager.h"
@@ -10,12 +11,11 @@ ClutchEditorComponent::ClutchEditorComponent ()
         auto* viewPort { new juce::Viewport () };
         component->setSize (width, height);
         viewPort->setViewedComponent (component, false);
-        const auto thumbColor { juce::Colours::darkgrey.brighter (0.4f) };
-        viewPort->getHorizontalScrollBar ().setColour (juce::ScrollBar::ColourIds::thumbColourId, thumbColor);
-        viewPort->getVerticalScrollBar ().setColour (juce::ScrollBar::ColourIds::thumbColourId, thumbColor);
-        editorTabs.addTab (title, juce::Colours::darkgrey, viewPort, true);
+        editorTabs.addTab (title, findColour (ClutchColours::windowBackground), viewPort, true);
     };
 
+    editorTabs.setTabBarDepth (kTabBarHeight);
+    editorTabs.setOutline (0);
     addComponentWithViewPort ("SAMPLES", &sampleManagerComponent, 1245, 375);
     addComponentWithViewPort ("SETTINGS", &settingsEditorComponent, 1200, 650);
     addComponentWithViewPort ("PATTERNS", &patternListEditorComponent, 1060, 697);
@@ -27,14 +27,9 @@ ClutchEditorComponent::ClutchEditorComponent ()
     addAndMakeVisible (editorTabs);
 
     // TOOLS BUTTON
-    toolsButton.setButtonText ("TOOLS");
     toolsButton.onClick = [this] ()
     {
-        auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-        popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-
         juce::PopupMenu pm;
-        pm.setLookAndFeel (popupMenuLnF);
         pm.addSectionHeader ("TOOLS");
         pm.addSeparator ();
         pm.addItem ("New", true, false, [this] ()
@@ -92,16 +87,11 @@ ClutchEditorComponent::ClutchEditorComponent ()
         {
             ProjectManager::copy (uneditedClutchProperties.getValueTree (), clutchProperties.getValueTree ());
         });
-        pm.addItem ("Audio Settings", true, false, [this] ()
-        {
-            audioPlayerProperties.showConfigDialog (false);
-        });
-        pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
+        pm.showMenuAsync (juce::PopupMenu::Options ().withTargetComponent (&toolsButton));
     };
     addAndMakeVisible (toolsButton);
 
     // SAVE BUTTON
-    saveButton.setButtonText ("SAVE");
     saveButton.setEnabled (false);
     saveButton.onClick = [this] ()
     {
@@ -110,7 +100,6 @@ ClutchEditorComponent::ClutchEditorComponent ()
     addAndMakeVisible (saveButton);
 
     // OPEN BUTTON
-    openButton.setButtonText ("OPEN");
     openButton.onClick = [this] ()
     {
         auto openFile = [this] ()
@@ -167,6 +156,7 @@ void ClutchEditorComponent::init (juce::ValueTree rootPropertiesVT)
     projectManagerProperties.onProjectEditedChange = [this] (bool projectEdited)
     {
         saveButton.setEnabled (projectEdited);
+        saveButton.setPrimary (projectEdited);
     };
     audioPlayerProperties.wrap (runtimeRootProperties.getValueTree (), AudioPlayerProperties::WrapperType::client, AudioPlayerProperties::EnableCallbacks::no);
     uneditedClutchProperties.wrap (runtimeRootProperties.getValueTree ().getChildWithProperty (ClutchProperties::NamePropertyId, "unedited"), ClutchProperties::WrapperType::client, ClutchProperties::EnableCallbacks::no);
@@ -179,21 +169,44 @@ void ClutchEditorComponent::init (juce::ValueTree rootPropertiesVT)
     sampleManagerComponent.init (rootPropertiesVT);
 
     saveButton.setEnabled (projectManagerProperties.getProjectEdited ());
+    saveButton.setPrimary (projectManagerProperties.getProjectEdited ());
 
     editorTabs.setCurrentTabIndex (guiProperties.getActiveTab ());
 }
 
-void ClutchEditorComponent::resized()
+// The tab background is a stored colour rather than one looked up while painting,
+// so it has to be re-applied whenever the palette changes.
+void ClutchEditorComponent::applyTabColours ()
 {
-    auto bounds { getLocalBounds () };
-    auto topLine { bounds.removeFromTop (30) };
-    toolsButton.setBounds (topLine.removeFromRight (100).reduced (5));
-    openButton.setBounds (topLine.removeFromRight (100).reduced (5));
-    saveButton.setBounds (topLine.removeFromRight (100).reduced (5));
+    for (auto tabIndex { 0 }; tabIndex < editorTabs.getNumTabs (); ++tabIndex)
+        editorTabs.setTabBackgroundColour (tabIndex, findColour (ClutchColours::windowBackground));
+}
+
+void ClutchEditorComponent::lookAndFeelChanged ()
+{
+    juce::Component::lookAndFeelChanged ();
+    applyTabColours ();
+}
+
+void ClutchEditorComponent::resized ()
+{
     editorTabs.setBounds (getLocalBounds ());
+
+    // the tools sit in the tab strip, right aligned, so the tabs and the project
+    // actions share one row
+    auto toolsBounds { getLocalBounds ().removeFromTop (kTabBarHeight).reduced (6, 0) };
+    auto place = [&toolsBounds] (ActionButton& button)
+    {
+        const auto width { button.getIdealWidth () };
+        button.setBounds (toolsBounds.removeFromRight (width).withSizeKeepingCentre (width, ActionButton::kNormalHeight));
+        toolsBounds.removeFromRight (6);
+    };
+    place (toolsButton);
+    place (openButton);
+    place (saveButton);
 }
 
 void ClutchEditorComponent::paint (juce::Graphics& g)
 {
-    g.fillAll (juce::Colours::darkgrey.darker(0.7f));
+    g.fillAll (findColour (ClutchColours::windowBackground));
 }

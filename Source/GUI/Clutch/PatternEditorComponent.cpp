@@ -1,8 +1,7 @@
 #include "PatternEditorComponent.h"
+#include "../Theme/UiComponents.h"
+#include "../Theme/ClutchLookAndFeel.h"
 #include "../../Clutch/HiHatIniKeys.h"
-
-constexpr auto kEnabledStepColor { 0.8f };
-constexpr auto kDisabledStepColor { 0.15f };
 
 constexpr auto kStepComboBoxHeight { 20 };
 constexpr auto kStepComboBoxWidth { 57 };
@@ -27,7 +26,7 @@ PatternEditorComponent::PatternEditorComponent ()
     {
         auto& stepNumber { stepNumbers [columnIndex] };
         stepNumber.setJustificationType (juce::Justification::centredTop);
-        stepNumber.setColour (juce::Label::ColourIds::textColourId, juce::Colours::white.darker (0.4f));
+        stepNumber.setFont (ClutchType::stepNumber ());
         stepNumber.setText (juce::String (columnIndex + 1), juce::NotificationType::dontSendNotification);
         addAndMakeVisible (stepNumber);
     }
@@ -36,7 +35,9 @@ PatternEditorComponent::PatternEditorComponent ()
     numberOfStepsEditor.getMinValueCallback = [this] () { return 0; };
     numberOfStepsEditor.getMaxValueCallback = [this] () { return 32; };
     numberOfStepsEditor.toStringCallback = [this] (int value) { return juce::String (value); };
-    numberOfStepsEditor.updateDataCallback = [this] ([[maybe_unused]] int value) { onPatternUiChanged (); };
+    // the length decides both how much of the pattern is drawn as being in use and
+    // how many steps the pattern string holds, so a committed length does both
+    numberOfStepsEditor.updateDataCallback = [this] (int length) { updateUiFromLengthChange (length); onPatternUiChanged (); };
     numberOfStepsEditor.onDragCallback = [this] (double valueDelta)
     {
         const auto patternString { patternProperties.getPattern () };
@@ -47,57 +48,56 @@ PatternEditorComponent::PatternEditorComponent ()
     };
     numberOfStepsEditor.onPopupMenuCallback = [this] ()
     {
-        auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-        popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
         juce::PopupMenu pm;
-        pm.setLookAndFeel (popupMenuLnF);
         pm.addSectionHeader ("Pattern " + patternProperties.getId().substring (4));
         pm.addSeparator ();
         juce::PopupMenu lengthOptions;
         lengthOptions.addItem ("Default", true, false, [this] ()
         {
             const auto stepValues { juce::StringArray::fromTokens (defaultPattern, ",", "") };
-            numberOfStepsEditor.setText (juce::String (stepValues.size () - 1), juce::NotificationType::sendNotification);
+            numberOfStepsEditor.setValue (stepValues.size () - 1);
         });
         lengthOptions.addItem ("Revert", true, false, [this] ()
         {
-            const auto pattern { uneditedPatternProperties.getPattern () };
-            const auto stepValues { juce::StringArray::fromTokens (pattern, ",", "") };
-            numberOfStepsEditor.setText (juce::String (stepValues.size () - 1), juce::NotificationType::sendNotification);
+            const auto stepValues { juce::StringArray::fromTokens (uneditedPatternProperties.getPattern (), ",", "") };
+            numberOfStepsEditor.setValue (stepValues.size () - 1);
         });
         pm.addSubMenu ("Length", lengthOptions, true);
         juce::PopupMenu patternOptions;
         patternOptions.addItem ("Default", true, false, [this] ()
         {
-            updateUiFromPatternString (defaultPattern, true);
+            setPatternFromString (defaultPattern);
         });
         patternOptions.addItem ("Revert", true, false, [this] ()
         {
-            updateUiFromPatternString (uneditedPatternProperties.getPattern (), true);
+            setPatternFromString (uneditedPatternProperties.getPattern ());
         });
         pm.addSubMenu ("Length and Step Values", patternOptions, true);
-        pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
+        pm.showMenuAsync ({});
     };
 
-    numberOfStepsEditor.setColour (juce::TextEditor::backgroundColourId, juce::Colours::darkgrey.darker (kEnabledStepColor));
     numberOfStepsEditor.setJustification (juce::Justification::centred);
     numberOfStepsEditor.setIndents (3, 0);
-    numberOfStepsEditor.setFont (numberOfStepsEditor.getFont ().withPointHeight (numberOfStepsEditor.getFont ().getHeightInPoints () + 3));
-    numberOfStepsEditor.onFocusLost = [this] () { updateUiFromLengthChange (numberOfStepsEditor.getText ().getIntValue ()); };
-    numberOfStepsEditor.onReturnKey = [this] () { updateUiFromLengthChange (numberOfStepsEditor.getText ().getIntValue ()); };
-    numberOfStepsEditor.onTextChange = [this] () { updateUiFromLengthChange (numberOfStepsEditor.getText ().getIntValue ()); };
+    numberOfStepsEditor.setFont (ClutchType::value ());
+    HoverHighlight::attach (numberOfStepsEditor);
+    // the editor's own callbacks are left as CustomTextEditor set them: onFocusLost
+    // and onReturnKey commit the typed length through updateDataCallback, and
+    // onTextChange only marks an out of range value while it is being typed. A
+    // half typed length is not written to the pattern, so the steps must not be
+    // redrawn for it either - the steps shown as in use are the ones the pattern
+    // actually holds, not the ones the field is on its way to asking for
     addAndMakeVisible (numberOfStepsEditor);
 
     numberOfStepsLabel.setText ("Steps", juce::NotificationType::dontSendNotification);
     numberOfStepsLabel.setJustificationType (juce::Justification::centredTop);
-    numberOfStepsLabel.setColour (juce::Label::ColourIds::textColourId, juce::Colours::white.darker (0.4f));
+    numberOfStepsLabel.setFont (ClutchType::parameterLabel ());
     addAndMakeVisible (numberOfStepsLabel);
 
     for (auto curStepIndex { 0 }; curStepIndex < 32; ++curStepIndex)
     {
         auto& stepComboBox { stepEditors [curStepIndex] };
 
-        stepComboBox.setTooltip ("");
+        stepComboBox.setTooltip ("Step " + juce::String (curStepIndex + 1) + " of this FEEL pattern, as a percentage of a normal hit. Steps past the Steps count are unused.");
         stepComboBox.addItem ("10%", 1);
         stepComboBox.addItem ("30%", 2);
         stepComboBox.addItem ("60%", 3);
@@ -107,8 +107,10 @@ PatternEditorComponent::PatternEditorComponent ()
         stepComboBox.addItem ("125%", 7);
         stepComboBox.addItem ("150%", 8);
         stepComboBox.addItem ("200%", 9);
-        stepComboBox.setLookAndFeel (&noArrowComboBoxLnF);
-        stepComboBox.setColour (juce::ComboBox::backgroundColourId, juce::Colours::darkgrey.darker (curStepIndex == 0 ? kEnabledStepColor : kDisabledStepColor));
+        // a step is only 57 pixels wide, so it asks for the variation with no
+        // caret rather than being given a LookAndFeel - and a palette - of its own
+        stepComboBox.getProperties ().set (ClutchLnFProperties::noCaret, true);
+        HoverHighlight::attach (stepComboBox);
         stepComboBox.setSelectedId (1);
         stepComboBox.setComponentID ("StepComboBox" + juce::String (curStepIndex));
         stepComboBox.onDragCallback = [this, &stepComboBox] (double valueDelta)
@@ -119,11 +121,7 @@ PatternEditorComponent::PatternEditorComponent ()
         };
         stepComboBox.onPopupMenuCallback = [this, curStepIndex, &stepComboBox] ()
         {
-            auto* popupMenuLnF { new juce::LookAndFeel_V4 };
-            popupMenuLnF->setColour (juce::PopupMenu::ColourIds::headerTextColourId, juce::Colours::white.withAlpha (0.3f));
-
             juce::PopupMenu pm;
-            pm.setLookAndFeel (popupMenuLnF);
             pm.addSectionHeader ("Step " + juce::String(curStepIndex + 1));
             pm.addSeparator ();
             pm.addItem ("Default", true, false, [&stepComboBox] ()
@@ -137,7 +135,7 @@ PatternEditorComponent::PatternEditorComponent ()
                 jassert (curStepIndex < stepValues.size () - 1);
                 stepComboBox.setSelectedId (stepValues[curStepIndex].getIntValue (), juce::NotificationType::sendNotification);
             });
-            pm.showMenuAsync ({}, [this, popupMenuLnF] (int) { delete popupMenuLnF; });
+            pm.showMenuAsync ({});
         };
         stepComboBox.onChange = [this] ()
         {
@@ -149,8 +147,36 @@ PatternEditorComponent::PatternEditorComponent ()
 
 PatternEditorComponent::~PatternEditorComponent ()
 {
-    for (auto& stepComboBox : stepEditors)
-        stepComboBox.setLookAndFeel (nullptr);
+}
+
+// Step backgrounds and label inks are colours stored on the controls rather than
+// looked up while painting, so they have to be re-applied when the palette changes.
+void PatternEditorComponent::applyExplicitColours ()
+{
+    const auto labelColour { findColour (ClutchColours::textDim) };
+    for (auto& stepNumber : stepNumbers)
+        stepNumber.setColour (juce::Label::ColourIds::textColourId, labelColour);
+    numberOfStepsLabel.setColour (juce::Label::ColourIds::textColourId, labelColour);
+
+    // A step past the end of the pattern is not part of it, so it sinks into the
+    // panel and its value is ghosted - the way an unusable field is drawn. It is
+    // still editable, though, since setting it is how the pattern is lengthened.
+    const auto inPatternBackground { findColour (ClutchColours::fieldBackground) };
+    const auto pastEndBackground { findColour (ClutchColours::listBackground) };
+    const auto inPatternText { findColour (ClutchColours::text) };
+    const auto pastEndText { findColour (ClutchColours::textGhost) };
+    for (auto stepIndex { 0 }; stepIndex < static_cast<int> (stepEditors.size ()); ++stepIndex)
+    {
+        const auto inPattern { stepIndex < stepsInPattern };
+        stepEditors [stepIndex].setColour (juce::ComboBox::backgroundColourId, inPattern ? inPatternBackground : pastEndBackground);
+        stepEditors [stepIndex].setColour (juce::ComboBox::textColourId, inPattern ? inPatternText : pastEndText);
+    }
+}
+
+void PatternEditorComponent::lookAndFeelChanged ()
+{
+    juce::Component::lookAndFeelChanged ();
+    applyExplicitColours ();
 }
 
 void PatternEditorComponent::init (juce::ValueTree patternVT, juce::ValueTree uneditedPatterPropertiesVT)
@@ -177,8 +203,8 @@ void PatternEditorComponent::init (juce::ValueTree patternVT, juce::ValueTree un
 void PatternEditorComponent::updateUiFromLengthChange (int length)
 {
     numberOfStepsEditor.setText (juce::String (length), juce::NotificationType::dontSendNotification);
-    for (auto stepIndex { 0 }; stepIndex < 32; ++stepIndex)
-        stepEditors [stepIndex].setColour (juce::ComboBox::backgroundColourId, juce::Colours::darkgrey.darker (stepIndex < length ? kEnabledStepColor : kDisabledStepColor));
+    stepsInPattern = length;
+    applyExplicitColours ();
 }
 
 void PatternEditorComponent::resized ()
@@ -225,7 +251,11 @@ void PatternEditorComponent::resized ()
 
 void PatternEditorComponent::onPatternUiChanged ()
 {
-    const auto patternLength { numberOfStepsEditor.getText ().getIntValue () };
+    // the committed length, not whatever the editor is currently showing: a length
+    // that is still being typed has not been agreed to, and the steps drawn as in
+    // use have not moved for it either. It also indexes the step editors, so it is
+    // pinned to the range here
+    const auto patternLength { std::clamp (stepsInPattern, 0, static_cast<int> (stepEditors.size ())) };
     //DebugLog ("PatternEditorComponent::onPatternUiChanged", "patternLength: " + juce::String(patternLength));
     juce::String patternString;
     for (auto stepIndex { 0 }; stepIndex < patternLength; ++stepIndex)
@@ -237,15 +267,23 @@ void PatternEditorComponent::onPatternUiChanged ()
 
 void PatternEditorComponent::onPatternDataChanged ()
 {
-    updateUiFromPatternString (patternProperties.getPattern (), false);
+    updateUiFromPatternString (patternProperties.getPattern ());
 }
 
-void PatternEditorComponent::updateUiFromPatternString (juce::String patternString, bool haveUiSendNotification)
+// a whole pattern is replaced by filling the UI in silently and then writing the data
+// from it once, rather than leaving the write to whichever step happens to change - a
+// replacement that only differs in length changes no step at all
+void PatternEditorComponent::setPatternFromString (juce::String patternString)
+{
+    updateUiFromPatternString (patternString);
+    onPatternUiChanged ();
+}
+
+void PatternEditorComponent::updateUiFromPatternString (juce::String patternString)
 {
     const auto stepValues { juce::StringArray::fromTokens (patternString, ",", "") };
-    const auto notificationType { haveUiSendNotification ? juce::NotificationType::sendNotification : juce::NotificationType::dontSendNotification };
     for (auto stepIndex { 0 }; stepIndex < 32; ++stepIndex)
-            stepEditors [stepIndex].setSelectedId (stepIndex < stepValues.size () - 1 ? stepValues [stepIndex].getIntValue () : 1, notificationType);
+            stepEditors [stepIndex].setSelectedId (stepIndex < stepValues.size () - 1 ? stepValues [stepIndex].getIntValue () : 1, juce::NotificationType::dontSendNotification);
     const auto patternLength { stepValues.size () - 1 };
     updateUiFromLengthChange (patternLength);
 }

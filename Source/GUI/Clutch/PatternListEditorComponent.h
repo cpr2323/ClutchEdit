@@ -17,6 +17,9 @@ private:
     std::array<PatternEditorComponent, 8> patternEditors;
     std::array<juce::Label, 8> patternLabels;
 
-    void paintOverChildren (juce::Graphics& g) override;
+    void applyExplicitColours ();
+
+    void lookAndFeelChanged () override;
+    void paint (juce::Graphics& g) override;
     void resized () override;
 };

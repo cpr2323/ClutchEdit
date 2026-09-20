@@ -1,4 +1,5 @@
 #include "SampleManagerComponent.h"
+#include "../Theme/UiComponents.h"
 #include "../../Clutch/BankListProperties.h"
 #include "../../Clutch/BankProperties.h"
 #include "../../Clutch/ClutchProperties.h"
@@ -56,12 +57,11 @@ void SampleManagerComponent::updateBanks ()
 
 void SampleManagerComponent::paint (juce::Graphics& g)
 {
-    const auto kSectionOutlineColour { juce::Colour (0xff6a6a6a) };
-    g.setColour (kSectionOutlineColour.brighter (0.4f));
-    constexpr auto kSectionCornerSize { 4.0f };
-    constexpr auto kSectionOutlineThickness { 1.0f };
+    g.fillAll (findColour (ClutchColours::windowBackground));
+
+    // one panel per bank
     for (auto& sampleBankComponent : sampleBankComponents)
-        g.drawRoundedRectangle (sampleBankComponent.getBounds ().toFloat (), kSectionCornerSize, kSectionOutlineThickness);
+        ClutchPaint::card (g, *this, sampleBankComponent.getBounds ());
 }
 
 void SampleManagerComponent::resized ()

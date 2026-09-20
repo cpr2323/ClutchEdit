@@ -3,7 +3,6 @@
 #include "../../Clutch/SettingsProperties.h"
 #include "oolib/GUI/CustomComboBox.h"
 #include "oolib/GUI/CustomTextEditor.h"
-#include "oolib/GUI/NoArrowComboBoxLnF.h"
 
 class SettingsEditorComponent : public juce::Component
 {
@@ -18,8 +17,6 @@ public:
 private:
     SettingsProperties settingsProperties;
     SettingsProperties uneditedSettingsProperties;
-
-    NoArrowComboBoxLnF noArrowComboBoxLnF;
 
     CustomTextEditorFloat accClAmpModEditor;
     juce::Label accClAmpModLabel;
@@ -222,6 +219,10 @@ private:
     juce::Label glitchWeightsHeaderLabel;
 
     std::vector<juce::Rectangle<int>> sectionBoxes;
+    // filled as the headers are built, so the two tiers can be tinted without
+    // naming all twenty five labels a second time
+    std::vector<juce::Label*> sectionHeaderLabels;
+    std::vector<juce::Label*> groupHeaderLabels;
 
     void pitchLowDataChanged (float value);
     void pitchHighDataChanged (float value);
@@ -387,6 +388,9 @@ private:
     void fxGlitchStutterNumMaxUiChanged (int value);
     void fxGlitchStutterWindowUiChanged (int value);
 
+    void applyExplicitColours ();
+
+    void lookAndFeelChanged () override;
     void paint (juce::Graphics& g) override;
     void resized () override;
 };

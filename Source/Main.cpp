@@ -1,5 +1,6 @@
 #include <JuceHeader.h>
 #include "AppProperties.h"
+#include "SystemServices.h"
 #include "Clutch/BankListProperties.h"
 #include "Clutch/ClutchProperties.h"
 #include "Clutch/EffectListProperties.h"
@@ -10,6 +11,7 @@
 #include "GUI/GuiControlProperties.h"
 #include "GUI/GuiProperties.h"
 #include "GUI/MainComponent.h"
+#include "GUI/Theme/ThemeController.h"
 #include "oolib/Debug/DebugLog.h"
 #include "oolib/Debug/ValueTreeMonitor.h"
 #include "oolib/Properties/PersistentRootProperties.h"
@@ -49,6 +51,7 @@ public:
         initPropertyRoots ();
         initClutch();
         initAudio ();
+        initSystemServices ();
         initUi ();
 
         //ValueTreeHelpers::dumpValueTreeContent (runtimeRootProperties.getValueTree (), false, [this] (juce::String line) { DebugLog ("", line); });
@@ -132,6 +135,7 @@ public:
     {
         guiControlProperties.wrap (runtimeRootProperties.getValueTree (), GuiControlProperties::WrapperType::owner, GuiControlProperties::EnableCallbacks::no);
         guiProperties.wrap (persistentRootProperties.getValueTree (), GuiProperties::WrapperType::owner, GuiProperties::EnableCallbacks::no);
+        themeController.init (rootProperties.getValueTree ());
         mainWindow.reset (new MainWindow (getApplicationName () + " - " + getVersionDisplayString (), rootProperties.getValueTree ()));
     }
 
@@ -157,6 +161,14 @@ public:
     void initAudio ()
     {
         audioPlayer.init (rootProperties.getValueTree ());
+    }
+
+    void initSystemServices ()
+    {
+        // connect services to the SystemServices VTW, so the GUI can reach them
+        // without knowing which layer owns them
+        SystemServices systemServices (runtimeRootProperties.getValueTree (), SystemServices::WrapperType::owner, SystemServices::EnableCallbacks::no);
+        systemServices.setAudioDeviceManager (&audioPlayer.getAudioDeviceManager ());
     }
 
     void initAppDirectory ()
@@ -293,6 +305,7 @@ private:
     std::unique_ptr<juce::FileLogger> fileLogger;
     std::atomic<RuntimeRootProperties::QuitState> localQuitState { RuntimeRootProperties::QuitState::idle };
     std::unique_ptr<MainWindow> mainWindow;
+    ThemeController themeController;
     AudioPlayer audioPlayer;
 
     ValueTreeMonitor audioConfigPropertiesMonitor;

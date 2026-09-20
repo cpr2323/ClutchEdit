@@ -17,7 +17,6 @@ public:
     void setPlayMode (PlayMode playMode, bool includeSelfCallback);
     void setSampleSource (juce::String sampleSource, bool includeSelfCallback);
     void setSampleId (int id, bool includeSelfCallback);
-    void showConfigDialog (bool includeSelfCallback);
 
     PlayState getPlayState ();
     PlayMode getPlayMode ();
@@ -28,14 +27,12 @@ public:
     std::function<void (PlayMode playMode)> onPlayModeChange;
     std::function<void (juce::String fileName)> onSampleSourceChanged;
     std::function<void (int id)> onSampleIdChanged;
-    std::function<void ()> onShowConfigDialog;
 
     static inline const juce::Identifier AudioPlayerTypeId { "AudioPlayer" };
     static inline const juce::Identifier PlayStatePropertyId        { "playState" };
     static inline const juce::Identifier PlayModePropertyId         { "playMode" };
     static inline const juce::Identifier SampleSourcePropertyId     { "sampleSource" };
     static inline const juce::Identifier SampleIdPropertyId         { "sampleId" };
-    static inline const juce::Identifier ShowConfigDialogPropertyId { "showConfigDialog" };
 
     void initValueTree ();
     void processValueTree () {}

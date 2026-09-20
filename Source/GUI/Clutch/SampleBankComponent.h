@@ -1,5 +1,6 @@
 #pragma once
 #include <JuceHeader.h>
+#include "../Theme/UiComponents.h"
 #include "../../AppProperties.h"
 #include "../../Clutch/BankProperties.h"
 #include "../../Clutch/SampleProperties.h"
@@ -20,7 +21,7 @@ public:
     void setFileExistState (bool doesFileExist)
     {
         fileExists = doesFileExist;
-        setColour (juce::Label::ColourIds::textColourId, fileExists ? juce::Colours::white : juce::Colours::grey);
+        showAtRest ();
     }
 
     void enablePlayBlink (bool enable)
@@ -42,7 +43,7 @@ public:
         else
         {
             stopTimer ();
-            setColour (juce::Label::ColourIds::textColourId, fileExists ? juce::Colours::white : juce::Colours::grey);
+            showAtRest ();
         }
     }
 
@@ -50,11 +51,53 @@ private:
     static inline constexpr float kDefaultCrossfadeIncrement { 0.03f };
     static inline constexpr int kAnimationTimer { 16 };
     bool fileExists { false };
-    juce::Colour hoverColor { juce::Colours::lightseagreen };
     float colorCrossfadePosition { 0.0 };
     float colorCrossfadeIncrement { kDefaultCrossfadeIncrement };
 
     bool playBlinkEnabled { false };
+    // a file being dragged over the slot lights its border, as the pointer does
+    bool dropTargetActive { false };
+
+    // the slot is a value field like any other, so it is drawn as one
+    void paint (juce::Graphics& g) override
+    {
+        const auto bounds { getLocalBounds () };
+        ClutchPaint::fieldBackground (g, *this, bounds, true);
+        ClutchPaint::fieldOutline (g, *this, bounds, true, dropTargetActive || isMouseOver (true));
+        juce::Label::paint (g);
+    }
+
+    // a Label does not repaint itself as the pointer comes and goes, and its
+    // border has to follow it
+    void mouseEnter (const juce::MouseEvent&) override { repaint (); }
+    void mouseExit (const juce::MouseEvent&) override  { repaint (); }
+
+    // A slot names its own state with ink: a file it holds reads as text, an empty
+    // one is the quietest ink there is, a slot the pointer is about to drop onto
+    // takes the drop colour, and one that is sounding pulses in the audition colour.
+    // Every one of them is resolved when it is used, so they follow the palette.
+    juce::Colour restColour () const
+    {
+        return findColour (fileExists ? ClutchColours::text : ClutchColours::textGhost);
+    }
+
+    void showAtRest ()
+    {
+        setColour (juce::Label::ColourIds::textColourId, restColour ());
+    }
+
+    void showDropTarget ()
+    {
+        setColour (juce::Label::ColourIds::textColourId, findColour (ClutchColours::dropTarget));
+    }
+
+    // an animation in flight is left alone: its next tick sets the colour anyway
+    void lookAndFeelChanged () override
+    {
+        juce::Label::lookAndFeelChanged ();
+        if (! isTimerRunning ())
+            showAtRest ();
+    }
 
     void mouseUp (const juce::MouseEvent& mouseEvent) override
     {    
@@ -69,6 +112,7 @@ private:
 
     void filesDropped (const juce::StringArray& files, [[maybe_unused]] int x, [[maybe_unused]] int y) override
     {
+        dropTargetActive = false;
         playBlinkEnabled = false;
         colorCrossfadeIncrement = kDefaultCrossfadeIncrement;
         colorCrossfadePosition = 0.0;
@@ -81,17 +125,20 @@ private:
 
     void fileDragEnter ([[maybe_unused]] const juce::StringArray& files, [[maybe_unused]] int x, [[maybe_unused]] int y) override
     {
-        setColour (juce::Label::ColourIds::textColourId, hoverColor);
+        dropTargetActive = true;
+        showDropTarget ();
     }
 
     void fileDragMove ([[maybe_unused]] const juce::StringArray& files, int, int) override
     {
-        setColour (juce::Label::ColourIds::textColourId, hoverColor);
+        dropTargetActive = true;
+        showDropTarget ();
     }
 
     void fileDragExit (const juce::StringArray&) override
     {
-        setColour (juce::Label::ColourIds::textColourId, fileExists ? juce::Colours::white : juce::Colours::grey);
+        dropTargetActive = false;
+        showAtRest ();
     }
 
     void timerCallback () override
@@ -100,12 +147,13 @@ private:
         {
             if (colorCrossfadePosition > 1.0)
             {
-                setColour (juce::Label::ColourIds::textColourId, fileExists ? juce::Colours::white : juce::Colours::grey);
+                showAtRest ();
                 stopTimer ();
             }
             else
             {
-                setColour (juce::Label::ColourIds::textColourId, hoverColor.interpolatedWith (juce::Colours::white, colorCrossfadePosition));
+                setColour (juce::Label::ColourIds::textColourId,
+                           findColour (ClutchColours::dropTarget).interpolatedWith (restColour (), colorCrossfadePosition));
                 colorCrossfadePosition += colorCrossfadeIncrement;
             }
         }
@@ -122,7 +170,8 @@ private:
                 colorCrossfadeIncrement = -kDefaultCrossfadeIncrement;
             }
 
-            setColour (juce::Label::ColourIds::textColourId, juce::Colours::orange.interpolatedWith (juce::Colours::white, colorCrossfadePosition));
+            setColour (juce::Label::ColourIds::textColourId,
+                       findColour (ClutchColours::audition).interpolatedWith (restColour (), colorCrossfadePosition));
             colorCrossfadePosition += colorCrossfadeIncrement;
         }
         repaint ();
@@ -172,7 +221,9 @@ private:
     juce::String getBankAndFileName (int hiHatSampleIndex, SampleProperties::SampleType sampleType);
     void sampleConvert (juce::AudioFormatReader* reader, juce::AudioBuffer<float>& outputBuffer);
 
-    void paint (juce::Graphics& g) override;
+    void applyExplicitColours ();
+
+    void lookAndFeelChanged () override;
     void resized () override;
     void timerCallback () override;
 };
