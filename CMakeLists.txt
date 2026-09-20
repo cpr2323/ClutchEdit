@@ -25,7 +25,7 @@ endif()
 # whether the Xcode destination is set to "My Mac" or "Any Mac".
 set(CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH "NO")
 
-project(ClutchEdit VERSION 1.2)
+project(ClutchEdit VERSION 1.2.1)
 
 # Submodules must be initialised before building:
 #   git submodule update --init --recursive
