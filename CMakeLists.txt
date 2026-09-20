@@ -1,5 +1,30 @@
 cmake_minimum_required(VERSION 3.22)
 
+# macOS builds are universal binaries, so the one .app runs natively on both Apple silicon
+# and Intel Macs. This has to be set before project(), because that is where CMake inspects
+# the compiler and decides which architectures the build - including JUCE and every other
+# subdirectory - is configured for. It is ignored by the Windows and Linux generators.
+set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "Architectures to build for on macOS")
+
+# arm64 did not exist before macOS 11, and the slices of a universal binary cannot have
+# different deployment targets. Without this CMake would default to the version of macOS
+# doing the building, which makes the app refuse to launch on anything older.
+set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "Minimum macOS version to build for")
+
+# The line above only supplies a default: it does nothing if the cache already holds a value,
+# such as the empty one left in a build folder configured before it was added, or an older
+# version passed with -D. Treat 11.0 as a floor rather than a suggestion - a newer target is
+# still allowed.
+if(CMAKE_OSX_DEPLOYMENT_TARGET STREQUAL "" OR CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS "11.0")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "Minimum macOS version to build for" FORCE)
+endif()
+
+# CMake gives the Xcode Debug configuration ONLY_ACTIVE_ARCH=YES, which builds just the
+# architecture of the machine doing the building - so a Debug build on an Apple silicon Mac
+# silently produces an arm64-only app. Forcing it off keeps every configuration universal,
+# whether the Xcode destination is set to "My Mac" or "Any Mac".
+set(CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH "NO")
+
 project(ClutchEdit VERSION 1.2)
 
 # Submodules must be initialised before building:
@@ -17,6 +42,7 @@ include(submodules/oolib/oolib.cmake)
 # it is blanked here to keep the app reading its existing preferences file.
 set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY JUCE_COMPANY_NAME "")
 
+
 juce_add_gui_app(ClutchEdit
     PRODUCT_NAME "ClutchEdit"
     # Derived from the (now empty) company name it would come out as
@@ -33,6 +59,14 @@ juce_generate_juce_header(ClutchEdit)
 # "Unable to start program ... ALL_BUILD. Access is denied." — ALL_BUILD is a
 # utility target with nothing to launch.
 set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT ClutchEdit)
+
+# The Xcode equivalent of the line above, as near as Xcode allows. Xcode has no "startup
+# project" setting - the selected scheme is per-user state CMake never writes - but with
+# scheme generation left off everywhere else, ClutchEdit is the only target CMake writes
+# a scheme for, so Xcode has nothing else to land on. Turn off "Autocreate schemes" in
+# Xcode (Product > Scheme > Manage Schemes) or it will keep inventing one per target,
+# ClutchEditBinaryData and ZERO_CHECK included.
+set_target_properties(ClutchEdit PROPERTIES XCODE_GENERATE_SCHEME ON)
 
 set(SOURCE_FILES
     Source/AppProperties.cpp
