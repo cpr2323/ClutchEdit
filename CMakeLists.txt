@@ -36,20 +36,12 @@ add_subdirectory(submodules/JUCE builds/JUCE)
 # OOLIB_SOURCES and OOLIB_INCLUDE_DIR.
 include(submodules/oolib/oolib.cmake)
 
-# The Projucer project had no company name, which left ProjectInfo::companyName
-# empty and put the preferences directory directly under the user application
-# data directory. JUCE's CMake support defaults the company to "yourcompany", so
-# it is blanked here to keep the app reading its existing preferences file.
-set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY JUCE_COMPANY_NAME "")
-
-
 juce_add_gui_app(ClutchEdit
-    PRODUCT_NAME "ClutchEdit"
-    # Derived from the (now empty) company name it would come out as
-    # "com..ClutchEdit", so it is spelled out to match the Projucer's version.
-    BUNDLE_ID    "com.yourcompany.ClutchEdit"
-    ICON_BIG     "Source/GUI/Clutch/Data/clutchediticon.png"
-    ICON_SMALL   "Source/GUI/Clutch/Data/clutchediticon.png")
+    PRODUCT_NAME    "ClutchEdit"
+    COMPANY_NAME    "OmOhmProductions"
+    COMPANY_WEBSITE "https://cpr2323.github.io/"
+    ICON_BIG        "Source/GUI/Clutch/Data/clutchediticon.png"
+    ICON_SMALL      "Source/GUI/Clutch/Data/clutchediticon.png")
 
 # The sources include <JuceHeader.h> rather than the individual module headers,
 # so the header the Projucer used to generate is still needed.
